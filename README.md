@@ -1,5 +1,9 @@
 # Closure Stylesheets
 
+This is a repository based on the no longer active
+[https://github.com/google/closure-stylesheets](https://github.com/google/closure-stylesheets)
+project. It aims to release updates and fixes to the project.
+
 Closure Stylesheets is an extension to CSS that adds
 **[variables](#variables)**, **[functions](#functions)**,
 **[conditionals](#conditionals)**, and **[mixins](#mixins)** to standard
