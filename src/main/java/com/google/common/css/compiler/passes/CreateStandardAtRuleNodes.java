@@ -172,8 +172,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
 
     if (node.getName().getValue().equals(charsetName)) {
       // We don't have a specific node class for this, should be handled at the parser level.
-      // TODO(user): Give a warning instead that the node has been removed without processing. (?)
-      reportError("@" + charsetName + " removed", node);
+      reportWarning("@" + charsetName + " removed", node);
       return;
     } else if (node.getName().getValue().equals(importName)) {
       if (params.isEmpty()) {
