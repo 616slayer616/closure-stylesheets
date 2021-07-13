@@ -18,7 +18,14 @@ jobs:
           fetch-depth: 0
 
       - name: build
-        run: mvn clean compile
+        run: ./gradlew clean assemble
 
       - name: test
-        run: mvn test
+        run: ./gradlew check
+
+      - name: sonar analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonarqube
+
