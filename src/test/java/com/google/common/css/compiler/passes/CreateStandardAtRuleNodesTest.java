@@ -21,14 +21,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
-import com.google.common.css.compiler.ast.CssFontFaceNode;
-import com.google.common.css.compiler.ast.CssImportBlockNode;
-import com.google.common.css.compiler.ast.CssImportRuleNode;
-import com.google.common.css.compiler.ast.CssMediaRuleNode;
-import com.google.common.css.compiler.ast.CssPageRuleNode;
-import com.google.common.css.compiler.ast.CssPageSelectorNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.GssParserException;
+import com.google.common.css.SourceCode;
+import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,10 +44,13 @@ public class CreateStandardAtRuleNodesTest extends PassesTestBase {
   }
 
   @Test
-  // FIXME
   public void testCharsetRemoval() throws Exception {
-    parseAndRun("@charset \"x\";", "@charset removed");
-    assertThat(isEmptyBody()).isTrue();
+    parseAndRun("@charset \"x\";");
+    assertThat(getFirstActualNode()).isInstanceOf(CssCharSetNode.class);
+    CssCharSetNode sourceCodeRule = (CssCharSetNode) getFirstActualNode();
+    assertThat(sourceCodeRule.getName().getValue()).isEqualTo("charset");
+    assertThat(sourceCodeRule.getParametersCount()).isEqualTo(1);
+    assertThat(sourceCodeRule.getParameters().get(0).getValue()).isEqualTo("x");
   }
 
   @Test

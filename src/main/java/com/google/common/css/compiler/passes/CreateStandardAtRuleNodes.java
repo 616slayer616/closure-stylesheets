@@ -438,10 +438,11 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
 
   private void createCharsetRule(CssUnknownAtRuleNode node) {
     CssDeclarationBlockNode block = (CssDeclarationBlockNode) node.getBlock();
-    CssCharSetNode pageSelector = new CssCharSetNode(node.getComments(), block);
-    pageSelector.setSourceCodeLocation(node.getSourceCodeLocation());
+    CssCharSetNode charSet = new CssCharSetNode(node.getComments(), block);
+    charSet.setParameters(node.getChildren());
+    charSet.setSourceCodeLocation(node.getSourceCodeLocation());
     visitController.replaceCurrentBlockChildWith(
-            Lists.newArrayList(pageSelector), true /* visitTheReplacementNodes */);
+            Lists.newArrayList(charSet), true /* visitTheReplacementNodes */);
   }
 
   /**
