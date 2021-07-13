@@ -50,6 +50,7 @@ public class CreateStandardAtRuleNodesTest extends PassesTestBase {
   }
 
   @Test
+  // FIXME
   public void testCharsetRemoval() throws Exception {
     parseAndRun("@charset \"x\";", "@charset removed");
     assertThat(isEmptyBody()).isTrue();
