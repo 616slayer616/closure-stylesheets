@@ -16,39 +16,26 @@ jobs:
         with:
           fetch-depth: 0
 
-      - id: install-secret-key
-        name: Install gpg secret key
-        run: |
-          echo "${{secrets.SIGNING_SECRET_KEY_FILE}}" > closure-stylesheets.asc.b64
-          base64 -d closure-stylesheets.asc.b64 > closure-stylesheets.asc
-          cat closure-stylesheets.asc | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
-
       - name: build
-        run: mvn clean compile
+        run: ./gradlew clean assemble
 
       - name: test
-        run: mvn test
+        run: ./gradlew check
 
-      - name: package
-        run: mvn package
+      - name: sonar analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonarqube
 
-      - name: Set up Maven Central Repository
-        uses: actions/setup-java@v2
-        with:
-          java-version: '8'
-          distribution: 'adopt'
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
+      - name: Decode secret key
+        run: |
+          echo "${{secrets.SIGNING_SECRET_KEY_RING_FILE}}" > secring.gpg.b64
+          base64 -d secring.gpg.b64 > secring.gpg
 
       - name: Publish to the Maven Central Repository
-        run: |
-          mvn \
-          --no-transfer-progress \
-          --batch-mode \
-          -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-          deploy
+        run: ./gradlew publish -Psigning.keyId=${{secrets.OSSRH_GPG_SECRET_KEY_ID}} -Psigning.password=${{secrets.OSSRH_GPG_SECRET_KEY_PASSWORD}} -Psigning.secretKeyRingFile=$(echo secring.gpg)
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,137 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id 'jacoco'
+    id "org.sonarqube" version "3.3"
+}
+
+group = 'org.padler'
+version = '1.6.1'
+description = 'Closure Stylesheets'
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+test.finalizedBy jacocoTestReport
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'args4j:args4j:2.33'
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation 'com.google.javascript:closure-compiler-unshaded:v20210106'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:3.11.1'
+    testImplementation 'com.google.truth:truth:0.36'
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectName", "Closure-stylesheets")
+        property("sonar.projectKey", "616slayer616_closure-stylesheets")
+        property("sonar.organization", "616slayer616-github")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'closure-stylesheets'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Closure-stylesheets'
+                description = 'Closure Stylesheets is an extension to CSS that adds variables, functions,\n' +
+                        'conditionals, and mixins to standard CSS. The tool also supports\n' +
+                        'minification, linting, RTL flipping, and CSS class renaming.'
+                url = 'http://github.com/616slayer616/natorder'
+                licenses {
+                    license {
+                        name = 'License'
+                        url = 'https://github.com/616slayer616/closure-stylesheets/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = '616slayer616'
+                        name = 'Patrick Adler'
+                        email = 'patrick@padler.org'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/616slayer616/closure-stylesheets.git'
+                    developerConnection = 'scm:git:ssh://github.com/616slayer616/closure-stylesheets.git'
+                    url = 'http://github.com/616slayer616/closure-stylesheets'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+        /*
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/616slayer616/natorder"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+        */
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
