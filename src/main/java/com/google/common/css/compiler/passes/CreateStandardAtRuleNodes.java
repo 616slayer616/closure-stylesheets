@@ -20,31 +20,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.css.compiler.ast.CssAtRuleNode;
+import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.CssAtRuleNode.Type;
-import com.google.common.css.compiler.ast.CssBlockNode;
-import com.google.common.css.compiler.ast.CssBooleanExpressionNode;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssCompositeValueNode;
-import com.google.common.css.compiler.ast.CssConditionalBlockNode;
-import com.google.common.css.compiler.ast.CssDeclarationBlockNode;
-import com.google.common.css.compiler.ast.CssFontFaceNode;
-import com.google.common.css.compiler.ast.CssFunctionNode;
-import com.google.common.css.compiler.ast.CssImportBlockNode;
-import com.google.common.css.compiler.ast.CssImportRuleNode;
-import com.google.common.css.compiler.ast.CssLiteralNode;
-import com.google.common.css.compiler.ast.CssMediaRuleNode;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssPageRuleNode;
-import com.google.common.css.compiler.ast.CssPageSelectorNode;
-import com.google.common.css.compiler.ast.CssRootNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssStringNode;
-import com.google.common.css.compiler.ast.CssUnknownAtRuleNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.ErrorManager;
-import com.google.common.css.compiler.ast.GssError;
-import com.google.common.css.compiler.ast.MutatingVisitController;
+
 import java.util.List;
 
 /**
@@ -171,8 +149,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     List<CssValueNode> params = node.getParameters();
 
     if (node.getName().getValue().equals(charsetName)) {
-      // We don't have a specific node class for this, should be handled at the parser level.
-      reportWarning("@" + charsetName + " removed", node);
+      createCharsetRule(node);
       return;
     } else if (node.getName().getValue().equals(importName)) {
       if (params.isEmpty()) {
@@ -457,6 +434,14 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     pageSelector.setSourceCodeLocation(node.getSourceCodeLocation());
     visitController.replaceCurrentBlockChildWith(
         Lists.newArrayList(pageSelector), true /* visitTheReplacementNodes */);
+  }
+
+  private void createCharsetRule(CssUnknownAtRuleNode node) {
+    CssDeclarationBlockNode block = (CssDeclarationBlockNode) node.getBlock();
+    CssCharSetNode pageSelector = new CssCharSetNode(node.getComments(), block);
+    pageSelector.setSourceCodeLocation(node.getSourceCodeLocation());
+    visitController.replaceCurrentBlockChildWith(
+            Lists.newArrayList(pageSelector), true /* visitTheReplacementNodes */);
   }
 
   /**
