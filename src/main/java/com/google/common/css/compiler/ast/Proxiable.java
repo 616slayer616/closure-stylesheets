@@ -35,20 +35,20 @@ package com.google.common.css.compiler.ast;
  * proxies. This way the original node is hidden and all modifications go
  * through proxies. The example implementation:
  * {@link CssCustomFunctionNode.CssCustomFunctionNodeProxy#createProxy()}.
- *q
- * @author dgajda@google.com (Damian Gajda)
+ * q
  *
  * @param <T> the type of the proxy object, it should be the same as of proxied
- *     object
+ *            object
+ * @author dgajda@google.com (Damian Gajda)
  */
 public interface Proxiable<T> {
 
-  /**
-   * Creates the proxy object. If the original object is immutable and does not
-   * have any children, it can return itself.
-   *
-   * @return the proxy object
-   */
-  public T createProxy();
+    /**
+     * Creates the proxy object. If the original object is immutable and does not
+     * have any children, it can return itself.
+     *
+     * @return the proxy object
+     */
+    public T createProxy();
 
 }

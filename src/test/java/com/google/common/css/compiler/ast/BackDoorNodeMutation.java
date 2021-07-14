@@ -24,31 +24,31 @@ package com.google.common.css.compiler.ast;
  */
 public class BackDoorNodeMutation {
 
-  public static void addDeclarationToRuleset(
-      CssRulesetNode ruleset,
-      CssDeclarationNode declaration) {
-    ruleset.getDeclarations().addChildToBack(declaration);
-  }
+    public static void addDeclarationToRuleset(
+            CssRulesetNode ruleset,
+            CssDeclarationNode declaration) {
+        ruleset.getDeclarations().addChildToBack(declaration);
+    }
 
-  public static void addPropertyValueToDeclaration(
-      CssDeclarationNode declaration,
-      CssValueNode node) {
-    declaration.getPropertyValue().addChildToBack(node);
-  }
+    public static void addPropertyValueToDeclaration(
+            CssDeclarationNode declaration,
+            CssValueNode node) {
+        declaration.getPropertyValue().addChildToBack(node);
+    }
 
-  public static void addRuleToConditionalBlock(
-      CssConditionalBlockNode node,
-      CssConditionalRuleNode rule) {
-    node.addChildToBack(rule);
-  }
+    public static void addRuleToConditionalBlock(
+            CssConditionalBlockNode node,
+            CssConditionalRuleNode rule) {
+        node.addChildToBack(rule);
+    }
 
-  public static void setParent(CssNode child, CssNode parent) {
-    parent.becomeParentForNode(child);
-  }
+    public static void setParent(CssNode child, CssNode parent) {
+        parent.becomeParentForNode(child);
+    }
 
-  public static <T extends CssNode> void addChildToBack(
-      CssNodesListNode<T> parent,
-      T child) {
-    parent.addChildToBack(child);
-  }
+    public static <T extends CssNode> void addChildToBack(
+            CssNodesListNode<T> parent,
+            T child) {
+        parent.addChildToBack(child);
+    }
 }

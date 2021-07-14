@@ -20,82 +20,102 @@ import com.google.common.css.SourceCode;
 
 /**
  * A handler for parse events in the spirit of SAC and SAX.
- *
  */
 // TODO(user): Perhaps rename these to *Listener, as *Handler is a bit
 //     inappropriate.
 public interface CssParserEventHandler {
 
-  void onDocumentStart(SourceCode sourceCode);
-  void onDocumentEnd();
+    void onDocumentStart(SourceCode sourceCode);
 
-  // TODO(user): This should return a SelectorsListBuilder, similar to what
-  //     onDeclarationStart does.
-  void onRulesetStart(CssSelectorListNode selectorList);
-  void onRulesetEnd();
+    void onDocumentEnd();
 
-  void onCommentStart(ParserToken comment);
-  void onCommentEnd();
+    // TODO(user): This should return a SelectorsListBuilder, similar to what
+    //     onDeclarationStart does.
+    void onRulesetStart(CssSelectorListNode selectorList);
 
-  /**
-   * Builds an expression.
-   */
-  public interface ExpressionHandler {
-    // TODO(oana): Maybe change the parameters into something like
-    //     ParserToken operator and CssValueNode term.
-    void onLiteral(ParserToken expression);
-    void onOperator(ParserToken expression);
-    void onPriority(ParserToken priority);
-    void onColor(ParserToken color);
-    void onNumericValue(ParserToken numericValue, ParserToken unit);
-    void onReference(ParserToken reference);
-    void onFunction(ParserToken constant);
-    void onFunctionArgument(ParserToken term);
-    void onReferenceFunctionArgument(ParserToken term);
+    void onRulesetEnd();
 
-  }
-  ExpressionHandler onDeclarationStart(ParserToken propertyName, boolean hasStarHack);
-  void onDeclarationEnd();
-  ExpressionHandler onDefinitionStart(ParserToken definitionName);
-  void onDefinitionEnd();
+    void onCommentStart(ParserToken comment);
 
-  /**
-   * Builds a boolean expression.
-   */
-  public interface BooleanExpressionHandler {
-    void onBooleanExpressionStart();
+    void onCommentEnd();
 
-    Object onConstant(ParserToken constantName);
+    /**
+     * Builds an expression.
+     */
+    public interface ExpressionHandler {
+        // TODO(oana): Maybe change the parameters into something like
+        //     ParserToken operator and CssValueNode term.
+        void onLiteral(ParserToken expression);
 
-    Object onUnaryOperator(CssBooleanExpressionNode.Type operator,
-        ParserToken operatorToken, Object operand);
+        void onOperator(ParserToken expression);
 
-    Object onBinaryOperator(CssBooleanExpressionNode.Type operator,
-        ParserToken operatorToken, Object leftOperand, Object rightOperand);
+        void onPriority(ParserToken priority);
 
-    void onBooleanExpressionEnd(Object topOperand);
-  }
-  BooleanExpressionHandler onConditionalRuleStart(CssAtRuleNode.Type type,
-      ParserToken ruleName);
-  void onConditionalRuleEnd();
+        void onColor(ParserToken color);
 
-  /**
-   * Builds an import.
-   */
-  public interface ImportHandler {
-    void appendImportParameter(ParserToken parameter);
-  }
-  ImportHandler onImportRuleStart();
-  void onImportRuleEnd();
+        void onNumericValue(ParserToken numericValue, ParserToken unit);
 
-  /**
-   * Builds a media rule.
-   */
-  public interface MediaHandler {
-    void appendMediaParameter(ParserToken parameter);
-  }
-  MediaHandler onMediaRuleStart();
-  void onMediaRuleEnd();
+        void onReference(ParserToken reference);
 
-  // TODO(user): Add events for unrecognized/unknown at rules.
+        void onFunction(ParserToken constant);
+
+        void onFunctionArgument(ParserToken term);
+
+        void onReferenceFunctionArgument(ParserToken term);
+
+    }
+
+    ExpressionHandler onDeclarationStart(ParserToken propertyName, boolean hasStarHack);
+
+    void onDeclarationEnd();
+
+    ExpressionHandler onDefinitionStart(ParserToken definitionName);
+
+    void onDefinitionEnd();
+
+    /**
+     * Builds a boolean expression.
+     */
+    public interface BooleanExpressionHandler {
+        void onBooleanExpressionStart();
+
+        Object onConstant(ParserToken constantName);
+
+        Object onUnaryOperator(CssBooleanExpressionNode.Type operator,
+                               ParserToken operatorToken, Object operand);
+
+        Object onBinaryOperator(CssBooleanExpressionNode.Type operator,
+                                ParserToken operatorToken, Object leftOperand, Object rightOperand);
+
+        void onBooleanExpressionEnd(Object topOperand);
+    }
+
+    BooleanExpressionHandler onConditionalRuleStart(CssAtRuleNode.Type type,
+                                                    ParserToken ruleName);
+
+    void onConditionalRuleEnd();
+
+    /**
+     * Builds an import.
+     */
+    public interface ImportHandler {
+        void appendImportParameter(ParserToken parameter);
+    }
+
+    ImportHandler onImportRuleStart();
+
+    void onImportRuleEnd();
+
+    /**
+     * Builds a media rule.
+     */
+    public interface MediaHandler {
+        void appendMediaParameter(ParserToken parameter);
+    }
+
+    MediaHandler onMediaRuleStart();
+
+    void onMediaRuleEnd();
+
+    // TODO(user): Add events for unrecognized/unknown at rules.
 }

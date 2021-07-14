@@ -17,22 +17,22 @@
 package com.google.common.css.compiler.ast;
 
 /**
- *  A list of nodes that contains only selectors.
+ * A list of nodes that contains only selectors.
  *
  * @author oana@google.com (Oana Florescu)
  */
 public class CssSelectorListNode extends CssNodesListNode<CssSelectorNode> {
 
-  public CssSelectorListNode() {
-    super(false);
-  }
+    public CssSelectorListNode() {
+        super(false);
+    }
 
-  public CssSelectorListNode(CssSelectorListNode node) {
-    super(node);
-  }
-  
-  @Override
-  public CssSelectorListNode deepCopy() {
-    return new CssSelectorListNode(this);
-  }
+    public CssSelectorListNode(CssSelectorListNode node) {
+        super(node);
+    }
+
+    @Override
+    public CssSelectorListNode deepCopy() {
+        return new CssSelectorListNode(this);
+    }
 }

@@ -25,54 +25,54 @@ import com.google.common.css.SourceCodeLocation;
  */
 public class CssPriorityNode extends CssValueNode {
 
-  /**
-   * Types of priority
-   */
-  public enum PriorityType {
-    IMPORTANT("!important");
+    /**
+     * Types of priority
+     */
+    public enum PriorityType {
+        IMPORTANT("!important");
 
-    private final String priority;
+        private final String priority;
 
-    private PriorityType(String priority) {
-      this.priority = priority;
+        private PriorityType(String priority) {
+            this.priority = priority;
+        }
+
+        public String getPriority() {
+            return priority;
+        }
     }
 
-    public String getPriority() {
-      return priority;
+    /**
+     * Constructor of a priority node.
+     *
+     * @param priority
+     */
+    public CssPriorityNode(PriorityType priority) {
+        super(priority.getPriority());
     }
-  }
 
-  /**
-   * Constructor of a priority node.
-   *
-   * @param priority
-   */
-  public CssPriorityNode(PriorityType priority) {
-    super(priority.getPriority());
-  }
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssPriorityNode(CssPriorityNode node) {
+        super(node);
+    }
 
-  /**
-   * Copy constructor.
-   *
-   * @param node
-   */
-  public CssPriorityNode(CssPriorityNode node) {
-    super(node);
-  }
+    @Override
+    public CssPriorityNode deepCopy() {
+        return new CssPriorityNode(this);
+    }
 
-  @Override
-  public CssPriorityNode deepCopy() {
-    return new CssPriorityNode(this);
-  }
-
-  /**
-   * Constructor of a priority node.
-   *
-   * @param priority
-   * @param sourceCodeLocation
-   */
-  CssPriorityNode(PriorityType priority,
-                  SourceCodeLocation sourceCodeLocation) {
-    super(priority.getPriority(), sourceCodeLocation);
-  }
+    /**
+     * Constructor of a priority node.
+     *
+     * @param priority
+     * @param sourceCodeLocation
+     */
+    CssPriorityNode(PriorityType priority,
+                    SourceCodeLocation sourceCodeLocation) {
+        super(priority.getPriority(), sourceCodeLocation);
+    }
 }

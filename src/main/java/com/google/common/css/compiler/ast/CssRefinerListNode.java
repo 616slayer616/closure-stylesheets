@@ -18,29 +18,29 @@ package com.google.common.css.compiler.ast;
 
 /**
  * A list of nodes that are refiners of a selector.
- * 
+ *
  * @author oana@google.com (Oana Florescu)
  */
 public class CssRefinerListNode extends CssNodesListNode<CssRefinerNode> {
 
-  /**
-   * Constructor of a list of refiner nodes.
-   */
-  public CssRefinerListNode() {
-    super(false);
-  }
+    /**
+     * Constructor of a list of refiner nodes.
+     */
+    public CssRefinerListNode() {
+        super(false);
+    }
 
-  /**
-   * Copy constructor.
-   *
-   * @param node
-   */
-  public CssRefinerListNode(CssRefinerListNode node) {
-    super(node);
-  }
-  
-  @Override
-  public CssRefinerListNode deepCopy() {
-    return new CssRefinerListNode(this);
-  }
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssRefinerListNode(CssRefinerListNode node) {
+        super(node);
+    }
+
+    @Override
+    public CssRefinerListNode deepCopy() {
+        return new CssRefinerListNode(this);
+    }
 }

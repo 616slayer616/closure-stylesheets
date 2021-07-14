@@ -26,23 +26,23 @@ import com.google.common.css.compiler.ast.CssSelectorNode.Specificity;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssPseudoElementNode extends CssRefinerNode {
-  public CssPseudoElementNode(String refinerName,
-      SourceCodeLocation sourceCodeLocation) {
-    super(Refiner.PSEUDO_ELEMENT, refinerName, sourceCodeLocation);
-  }
+    public CssPseudoElementNode(String refinerName,
+                                SourceCodeLocation sourceCodeLocation) {
+        super(Refiner.PSEUDO_ELEMENT, refinerName, sourceCodeLocation);
+    }
 
-  protected CssPseudoElementNode(CssPseudoElementNode node) {
-    this(node.refinerName, node.getSourceCodeLocation());
-  }
+    protected CssPseudoElementNode(CssPseudoElementNode node) {
+        this(node.refinerName, node.getSourceCodeLocation());
+    }
 
-  @Override
-  public CssPseudoElementNode deepCopy() {
-    return new CssPseudoElementNode(this);
-  }
+    @Override
+    public CssPseudoElementNode deepCopy() {
+        return new CssPseudoElementNode(this);
+    }
 
-  @Override
-  public Specificity getSpecificity() {
-    // d++ (d = the number of type selectors and pseudo-elements in the selector)
-    return new Specificity(0, 0, 1);
-  }
+    @Override
+    public Specificity getSpecificity() {
+        // d++ (d = the number of type selectors and pseudo-elements in the selector)
+        return new Specificity(0, 0, 1);
+    }
 }

@@ -26,43 +26,42 @@ import java.util.SortedSet;
  * (Sorting is based on {@link GssError#compareTo(GssError)}.)
  * <p>
  * This error manager delegates the method of output to subclasses via {@link #print(String)}.
- *
  */
 public abstract class BasicErrorManager implements ErrorManager {
-  protected final SortedSet<GssError> errors = Sets.newTreeSet();
-  protected final SortedSet<GssError> warnings = Sets.newTreeSet();
+    protected final SortedSet<GssError> errors = Sets.newTreeSet();
+    protected final SortedSet<GssError> warnings = Sets.newTreeSet();
 
-  @Override
-  public void report(GssError error) {
-    errors.add(error);
-  }
-
-  @Override
-  public void reportWarning(GssError warning) {
-    warnings.add(warning);
-  }
-
-  @Override
-  public void generateReport() {
-    SortedSet<GssError> all = Sets.newTreeSet();
-    all.addAll(warnings);
-    all.addAll(errors);
-    for (GssError error : all) {
-      print(error.format());
+    @Override
+    public void report(GssError error) {
+        errors.add(error);
     }
-    if (!all.isEmpty()) {
-      print(errors.size() + " error(s), " + warnings.size() + " warning(s)\n");
+
+    @Override
+    public void reportWarning(GssError warning) {
+        warnings.add(warning);
     }
-  }
 
-  public int getErrorCount() {
-    return errors.size();
-  }
+    @Override
+    public void generateReport() {
+        SortedSet<GssError> all = Sets.newTreeSet();
+        all.addAll(warnings);
+        all.addAll(errors);
+        for (GssError error : all) {
+            print(error.format());
+        }
+        if (!all.isEmpty()) {
+            print(errors.size() + " error(s), " + warnings.size() + " warning(s)\n");
+        }
+    }
 
-  public boolean hasErrors() {
-    return !errors.isEmpty();
-  }
+    public int getErrorCount() {
+        return errors.size();
+    }
 
-  public abstract void print(String msg);
+    public boolean hasErrors() {
+        return !errors.isEmpty();
+    }
+
+    public abstract void print(String msg);
 
 }

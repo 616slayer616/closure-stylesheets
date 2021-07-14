@@ -23,85 +23,84 @@ import javax.annotation.Nullable;
 
 /**
  * A node representing a conditional rule such as @if or @else.
- *
  */
 public class CssConditionalRuleNode extends CssAtRuleNode {
-  /**
-   * Constructor of a conditional rule.
-   *
-   * @param type Type of the rule
-   * @param name Name of the rule
-   */
-  public CssConditionalRuleNode(Type type, CssLiteralNode name) {
-    super(type, name);
-    Preconditions.checkArgument(this.getType().isConditional());
-  }
-
-  /**
-   * Constructor of a conditional rule.
-   *
-   * @param type Type of the rule
-   * @param name Name of the rule
-   * @param condition The condition of the rule
-   * @param block A block
-   */
-  public CssConditionalRuleNode(Type type, CssLiteralNode name,
-                                @Nullable CssBooleanExpressionNode condition,
-                                CssAbstractBlockNode block) {
-    super(type, name, block);
-    Preconditions.checkArgument(this.getType().isConditional());
-    if (condition != null) {
-      setCondition(condition);
+    /**
+     * Constructor of a conditional rule.
+     *
+     * @param type Type of the rule
+     * @param name Name of the rule
+     */
+    public CssConditionalRuleNode(Type type, CssLiteralNode name) {
+        super(type, name);
+        Preconditions.checkArgument(this.getType().isConditional());
     }
-  }
 
-  /**
-   * Copy constructor.
-   *
-   * @param node
-   */
-  public CssConditionalRuleNode(CssConditionalRuleNode node) {
-    super(node);
-    if (node.getCondition() != null) {
-      this.setCondition(node.getCondition().deepCopy());
+    /**
+     * Constructor of a conditional rule.
+     *
+     * @param type      Type of the rule
+     * @param name      Name of the rule
+     * @param condition The condition of the rule
+     * @param block     A block
+     */
+    public CssConditionalRuleNode(Type type, CssLiteralNode name,
+                                  @Nullable CssBooleanExpressionNode condition,
+                                  CssAbstractBlockNode block) {
+        super(type, name, block);
+        Preconditions.checkArgument(this.getType().isConditional());
+        if (condition != null) {
+            setCondition(condition);
+        }
     }
-  }
 
-  @Override
-  public CssConditionalRuleNode deepCopy() {
-    return new CssConditionalRuleNode(this);
-  }
-
-  @Override
-  void setParent(CssNode parent) {
-    Preconditions.checkArgument(parent instanceof CssConditionalBlockNode);
-    super.setParent(parent);
-  }
-
-  /**
-   * Can only be called after the node is completely built (meaning it has
-   * the condition set).
-   */
-  public CssBooleanExpressionNode getCondition() {
-    if (getType() == Type.ELSE) {
-      Preconditions.checkState(getParametersCount() == 0);
-      return null;
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssConditionalRuleNode(CssConditionalRuleNode node) {
+        super(node);
+        if (node.getCondition() != null) {
+            this.setCondition(node.getCondition().deepCopy());
+        }
     }
-    Preconditions.checkState(getParametersCount() == 1);
-    return (CssBooleanExpressionNode) this.getParameters().get(0);
-  }
 
-  void setCondition(CssBooleanExpressionNode condition) {
-    Preconditions.checkState(getType() != Type.ELSE);
-    Preconditions.checkState(getParametersCount() <= 1);
-    this.setParameters(ImmutableList.<CssValueNode>of(condition));
-  }
+    @Override
+    public CssConditionalRuleNode deepCopy() {
+        return new CssConditionalRuleNode(this);
+    }
 
-  @Override
-  public CssAbstractBlockNode getBlock() {
-    return super.getBlock();
-  }
+    @Override
+    void setParent(CssNode parent) {
+        Preconditions.checkArgument(parent instanceof CssConditionalBlockNode);
+        super.setParent(parent);
+    }
 
-  // TODO(user): Make sure that the parameters list is made up of a single
-  //      CssBooleanExpressionNode.
+    /**
+     * Can only be called after the node is completely built (meaning it has
+     * the condition set).
+     */
+    public CssBooleanExpressionNode getCondition() {
+        if (getType() == Type.ELSE) {
+            Preconditions.checkState(getParametersCount() == 0);
+            return null;
+        }
+        Preconditions.checkState(getParametersCount() == 1);
+        return (CssBooleanExpressionNode) this.getParameters().get(0);
+    }
+
+    void setCondition(CssBooleanExpressionNode condition) {
+        Preconditions.checkState(getType() != Type.ELSE);
+        Preconditions.checkState(getParametersCount() <= 1);
+        this.setParameters(ImmutableList.<CssValueNode>of(condition));
+    }
+
+    @Override
+    public CssAbstractBlockNode getBlock() {
+        return super.getBlock();
+    }
+
+    // TODO(user): Make sure that the parameters list is made up of a single
+    //      CssBooleanExpressionNode.
 }

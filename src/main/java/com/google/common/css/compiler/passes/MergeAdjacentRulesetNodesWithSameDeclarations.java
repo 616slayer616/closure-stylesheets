@@ -16,114 +16,105 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssBlockNode;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssRefinerNode;
-import com.google.common.css.compiler.ast.CssRootNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssSelectorNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.MutatingVisitController;
-import com.google.common.css.compiler.ast.SkippingTreeVisitor;
+import com.google.common.css.compiler.ast.*;
 
 import java.util.Iterator;
 
 /**
  * Compiler pass that merges adjacent ruleset nodes that have the same selector.
- * 
+ *
  * @author oana@google.com (Oana Florescu)
  */
 public class MergeAdjacentRulesetNodesWithSameDeclarations
-    extends SkippingTreeVisitor 
-    implements CssCompilerPass {
+        extends SkippingTreeVisitor
+        implements CssCompilerPass {
 
-  private final CssTree tree;
-  private final MutatingVisitController visitController;
+    private final CssTree tree;
+    private final MutatingVisitController visitController;
 
-  public MergeAdjacentRulesetNodesWithSameDeclarations(CssTree tree) {
-    this(tree, false);
-  }
-
-  public MergeAdjacentRulesetNodesWithSameDeclarations(CssTree tree,
-        boolean skipping) {
-    super(skipping);
-    this.tree = tree;
-    this.visitController = tree.getMutatingVisitController();
-  }
-
-  @Override
-  public boolean enterTree(CssRootNode root) {
-    tree.resetRulesetNodesToRemove();
-    return true;
-  }
-
-  @Override
-  public boolean enterBlock(CssBlockNode block) {
-    if (block.numChildren() <= 1) {
-      return true; // There is nothing to merge
+    public MergeAdjacentRulesetNodesWithSameDeclarations(CssTree tree) {
+        this(tree, false);
     }
 
-    Iterator<CssNode> iterator = block.getChildIterator();
-    CssNode node;
-    CssRulesetNode ruleToMergeTo = null;
+    public MergeAdjacentRulesetNodesWithSameDeclarations(CssTree tree,
+                                                         boolean skipping) {
+        super(skipping);
+        this.tree = tree;
+        this.visitController = tree.getMutatingVisitController();
+    }
 
-    while (iterator.hasNext()) {
-      node = iterator.next();
+    @Override
+    public boolean enterTree(CssRootNode root) {
+        tree.resetRulesetNodesToRemove();
+        return true;
+    }
 
-      if (!(node instanceof CssRulesetNode) ||
-          hasProblematicSelectors((CssRulesetNode) node) ||
-          !canModifyRuleset((CssRulesetNode) node)) {
-        // Node is unmergeable. Skip the current node and make it act as a barrier to merging by
-        // clearing the current merge candidate.
-        ruleToMergeTo = null;
-        continue;
-      }
-
-      CssRulesetNode currentRule = (CssRulesetNode) node;
-
-      if (ruleToMergeTo != null &&
-          ruleToMergeTo.getDeclarations().toString().equals(
-              currentRule.getDeclarations().toString())) {
-        for (CssSelectorNode decl : currentRule.getSelectors().childIterable()) {
-          ruleToMergeTo.addSelector(decl);
+    @Override
+    public boolean enterBlock(CssBlockNode block) {
+        if (block.numChildren() <= 1) {
+            return true; // There is nothing to merge
         }
-        tree.getRulesetNodesToRemove().addRulesetNode(currentRule);
-      } else {
-        ruleToMergeTo = currentRule;
-      }
-    }
 
-    return true;
-  }
+        Iterator<CssNode> iterator = block.getChildIterator();
+        CssNode node;
+        CssRulesetNode ruleToMergeTo = null;
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+        while (iterator.hasNext()) {
+            node = iterator.next();
 
-  /**
-   * Determines if the rule has selectors that not all browsers understand and
-   * may cause issues when merging.
-   *
-   * <p>For example, the ::-ms-clear pseudo element can invalid an entire ruleset.  Browsers other
-   * than IE10+ will ignore this entire rule:
-   * <pre>
-   * #foo,input::-ms-clear{display:none}
-   * </pre>
-   *
-   * <p>Note that this issue occurs with any unrecognized pseudo element. For example, ::foo
-   * will break the rest of the selectors, whereas ::before will not (since it is recognized).
-   */
-  private boolean hasProblematicSelectors(CssRulesetNode rule) {
-    for (CssSelectorNode selector : rule.getSelectors().childIterable()) {
-      for (CssRefinerNode refiner : selector.getRefiners().childIterable()) {
-        if (refiner.getRefinerType() == CssRefinerNode.Refiner.PSEUDO_ELEMENT) {
-          // Unrecognized names in pseudo selectors can invalidate the whole rule.
-          return true;
+            if (!(node instanceof CssRulesetNode) ||
+                    hasProblematicSelectors((CssRulesetNode) node) ||
+                    !canModifyRuleset((CssRulesetNode) node)) {
+                // Node is unmergeable. Skip the current node and make it act as a barrier to merging by
+                // clearing the current merge candidate.
+                ruleToMergeTo = null;
+                continue;
+            }
+
+            CssRulesetNode currentRule = (CssRulesetNode) node;
+
+            if (ruleToMergeTo != null &&
+                    ruleToMergeTo.getDeclarations().toString().equals(
+                            currentRule.getDeclarations().toString())) {
+                for (CssSelectorNode decl : currentRule.getSelectors().childIterable()) {
+                    ruleToMergeTo.addSelector(decl);
+                }
+                tree.getRulesetNodesToRemove().addRulesetNode(currentRule);
+            } else {
+                ruleToMergeTo = currentRule;
+            }
         }
-      }
+
+        return true;
     }
-    return false;
-  }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
+
+    /**
+     * Determines if the rule has selectors that not all browsers understand and
+     * may cause issues when merging.
+     *
+     * <p>For example, the ::-ms-clear pseudo element can invalid an entire ruleset.  Browsers other
+     * than IE10+ will ignore this entire rule:
+     * <pre>
+     * #foo,input::-ms-clear{display:none}
+     * </pre>
+     *
+     * <p>Note that this issue occurs with any unrecognized pseudo element. For example, ::foo
+     * will break the rest of the selectors, whereas ::before will not (since it is recognized).
+     */
+    private boolean hasProblematicSelectors(CssRulesetNode rule) {
+        for (CssSelectorNode selector : rule.getSelectors().childIterable()) {
+            for (CssRefinerNode refiner : selector.getRefiners().childIterable()) {
+                if (refiner.getRefinerType() == CssRefinerNode.Refiner.PSEUDO_ELEMENT) {
+                    // Unrecognized names in pseudo selectors can invalidate the whole rule.
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

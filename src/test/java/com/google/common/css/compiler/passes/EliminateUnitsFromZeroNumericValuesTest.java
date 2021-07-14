@@ -16,14 +16,14 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.compiler.ast.CssNumericNode;
 import com.google.common.css.compiler.ast.MutatingVisitController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Unit tests for {@link EliminateUnitsFromZeroNumericValues}.
@@ -33,113 +33,114 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EliminateUnitsFromZeroNumericValuesTest {
 
-  @Mock MutatingVisitController mockVisitController;
+    @Mock
+    MutatingVisitController mockVisitController;
 
-  @Test
-  public void testRunPass() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
-    mockVisitController.startVisit(pass);
+    @Test
+    public void testRunPass() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
+        mockVisitController.startVisit(pass);
 
-    pass.runPass();
-  }
+        pass.runPass();
+    }
 
-  @Test
-  public void testEnterValueNode1() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode1() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("3", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo("3");
-    assertThat(node.getUnit()).isEqualTo("px");
-  }
+        CssNumericNode node = new CssNumericNode("3", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo("3");
+        assertThat(node.getUnit()).isEqualTo("px");
+    }
 
-  @Test
-  public void testEnterValueNode2() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode2() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("0", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo("0");
-    assertThat(node.getUnit()).isEmpty();
-  }
+        CssNumericNode node = new CssNumericNode("0", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo("0");
+        assertThat(node.getUnit()).isEmpty();
+    }
 
-  @Test
-  public void testEnterValueNode3() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode3() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("0.000", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo("0");
-    assertThat(node.getUnit()).isEmpty();
-  }
+        CssNumericNode node = new CssNumericNode("0.000", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo("0");
+        assertThat(node.getUnit()).isEmpty();
+    }
 
-  @Test
-  public void testEnterValueNode4() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode4() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("3.0", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo("3");
-    assertThat(node.getUnit()).isEqualTo("px");
-  }
+        CssNumericNode node = new CssNumericNode("3.0", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo("3");
+        assertThat(node.getUnit()).isEqualTo("px");
+    }
 
-  @Test
-  public void testEnterValueNode5() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode5() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("003.0", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo("3");
-    assertThat(node.getUnit()).isEqualTo("px");
-  }
+        CssNumericNode node = new CssNumericNode("003.0", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo("3");
+        assertThat(node.getUnit()).isEqualTo("px");
+    }
 
-  @Test
-  public void testEnterValueNode6() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode6() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("0.3", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo(".3");
-    assertThat(node.getUnit()).isEqualTo("px");
-  }
+        CssNumericNode node = new CssNumericNode("0.3", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo(".3");
+        assertThat(node.getUnit()).isEqualTo("px");
+    }
 
-  @Test
-  public void testEnterValueNode7() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode7() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("0.3000", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo(".3");
-    assertThat(node.getUnit()).isEqualTo("px");
-  }
+        CssNumericNode node = new CssNumericNode("0.3000", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo(".3");
+        assertThat(node.getUnit()).isEqualTo("px");
+    }
 
-  @Test
-  public void testEnterValueNode8() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode8() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("002.3000", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo("2.3");
-    assertThat(node.getUnit()).isEqualTo("px");
-  }
+        CssNumericNode node = new CssNumericNode("002.3000", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo("2.3");
+        assertThat(node.getUnit()).isEqualTo("px");
+    }
 
-  @Test
-  public void testEnterValueNode9() {
-    EliminateUnitsFromZeroNumericValues pass =
-        new EliminateUnitsFromZeroNumericValues(mockVisitController);
+    @Test
+    public void testEnterValueNode9() {
+        EliminateUnitsFromZeroNumericValues pass =
+                new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-    CssNumericNode node = new CssNumericNode("woo34", "px");
-    pass.enterValueNode(node);
-    assertThat(node.getNumericPart()).isEqualTo("woo34");
-    assertThat(node.getUnit()).isEqualTo("px");
-  }
+        CssNumericNode node = new CssNumericNode("woo34", "px");
+        pass.enterValueNode(node);
+        assertThat(node.getNumericPart()).isEqualTo("woo34");
+        assertThat(node.getUnit()).isEqualTo("px");
+    }
 }

@@ -16,13 +16,7 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.BackDoorNodeMutation;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssLiteralNode;
-import com.google.common.css.compiler.ast.CssPropertyNode;
-import com.google.common.css.compiler.ast.CssPropertyValueNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.MutatingVisitController;
+import com.google.common.css.compiler.ast.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -36,36 +30,37 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EliminateEmptyRulesetNodesTest {
 
-  @Mock MutatingVisitController mockVisitController;
+    @Mock
+    MutatingVisitController mockVisitController;
 
-  @Test
-  public void testRunPass() {
-    EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
-    mockVisitController.startVisit(pass);
+    @Test
+    public void testRunPass() {
+        EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
+        mockVisitController.startVisit(pass);
 
-    pass.runPass();
-  }
+        pass.runPass();
+    }
 
-  @Test
-  public void testEnterRuleset1() {
-    EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
+    @Test
+    public void testEnterRuleset1() {
+        EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
 
-    CssRulesetNode node = new CssRulesetNode();
-    pass.enterRuleset(node);
-  }
+        CssRulesetNode node = new CssRulesetNode();
+        pass.enterRuleset(node);
+    }
 
-  @Test
-  public void testEnterRuleset2() {
-    EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
+    @Test
+    public void testEnterRuleset2() {
+        EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
 
-    CssRulesetNode node = new CssRulesetNode();
-    CssDeclarationNode declaration = new CssDeclarationNode(
-        new CssPropertyNode("property"),
-        new CssPropertyValueNode());
-    BackDoorNodeMutation.addPropertyValueToDeclaration(declaration,
-        new CssLiteralNode("value"));
-    BackDoorNodeMutation.addDeclarationToRuleset(node,declaration);
+        CssRulesetNode node = new CssRulesetNode();
+        CssDeclarationNode declaration = new CssDeclarationNode(
+                new CssPropertyNode("property"),
+                new CssPropertyValueNode());
+        BackDoorNodeMutation.addPropertyValueToDeclaration(declaration,
+                new CssLiteralNode("value"));
+        BackDoorNodeMutation.addDeclarationToRuleset(node, declaration);
 
-    pass.enterRuleset(node);
-  }
+        pass.enterRuleset(node);
+    }
 }

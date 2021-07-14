@@ -16,79 +16,78 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.compiler.ast.FunctionalTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+
 /**
  * Functional tests for {@link HasConditionalNodes}.
- *
  */
 @RunWith(JUnit4.class)
 public class HasConditionalNodesFunctionalTest extends FunctionalTestBase {
 
-  private boolean passResult;
+    private boolean passResult;
 
-  @Test
-  public void testSimpleTrue() {
-    parseAndBuildTree(linesToString(
-        "@if COND {",
-        "  foo { top : expression('cond') }",
-        "} @else {",
-        "  foo { top : expression('!cond') }",
-        "}"));
-    runPass();
-    assertThat(passResult).isTrue();
-  }
+    @Test
+    public void testSimpleTrue() {
+        parseAndBuildTree(linesToString(
+                "@if COND {",
+                "  foo { top : expression('cond') }",
+                "} @else {",
+                "  foo { top : expression('!cond') }",
+                "}"));
+        runPass();
+        assertThat(passResult).isTrue();
+    }
 
-  @Test
-  public void testComplexTrue() {
-    parseAndBuildTree(linesToString(
-        "@media print {",
-        "  @if COND1 {",
-        "    @if COND2 {",
-        "      @def COLOR red;",
-        "      foo { color: COLOR }",
-        "    } @elseif COND3 {",
-        "      foo { border: 2px }",
-        "    }",
-        "  } @elseif COND2 {",
-        "    foo { top : expression('cond2') }",
-        "  } @else {",
-        "    foo { top : expression }",
-        "  }",
-        "}"));
-    runPass();
-    assertThat(passResult).isTrue();
-  }
+    @Test
+    public void testComplexTrue() {
+        parseAndBuildTree(linesToString(
+                "@media print {",
+                "  @if COND1 {",
+                "    @if COND2 {",
+                "      @def COLOR red;",
+                "      foo { color: COLOR }",
+                "    } @elseif COND3 {",
+                "      foo { border: 2px }",
+                "    }",
+                "  } @elseif COND2 {",
+                "    foo { top : expression('cond2') }",
+                "  } @else {",
+                "    foo { top : expression }",
+                "  }",
+                "}"));
+        runPass();
+        assertThat(passResult).isTrue();
+    }
 
-  @Test
-  public void testSimpleFalse() {
-    parseAndBuildTree(linesToString(
-        "@media print /* @noflip */{",
-        "  .CSS_RULE_1, .CSS_RULE_2:hover a {",
-        "     border: thickBorder(red, 2px);",
-        "  }",
-        "}",
-        "@media tv {",
-        "  .CSS_RULE_1, .CSS_RULE_2:hover a /* @noflip */{",
-        "     border: thickBorder(green, 2px);",
-        "  }",
-        "}",
-        ".CSS_RULE_3 { /* @noflip */top : expression('cond') }"
+    @Test
+    public void testSimpleFalse() {
+        parseAndBuildTree(linesToString(
+                "@media print /* @noflip */{",
+                "  .CSS_RULE_1, .CSS_RULE_2:hover a {",
+                "     border: thickBorder(red, 2px);",
+                "  }",
+                "}",
+                "@media tv {",
+                "  .CSS_RULE_1, .CSS_RULE_2:hover a /* @noflip */{",
+                "     border: thickBorder(green, 2px);",
+                "  }",
+                "}",
+                ".CSS_RULE_3 { /* @noflip */top : expression('cond') }"
         ));
-    runPass();
-    assertThat(passResult).isFalse();
-  }
+        runPass();
+        assertThat(passResult).isFalse();
+    }
 
-  @Override
-  protected void runPass() {
-    HasConditionalNodes pass = new HasConditionalNodes(
-        tree.getVisitController());
-    pass.runPass();
-    passResult = pass.hasConditionalNodes();
-  }
+    @Override
+    protected void runPass() {
+        HasConditionalNodes pass = new HasConditionalNodes(
+                tree.getVisitController());
+        pass.runPass();
+        passResult = pass.hasConditionalNodes();
+    }
 }

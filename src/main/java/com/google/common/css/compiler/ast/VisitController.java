@@ -17,13 +17,14 @@
 package com.google.common.css.compiler.ast;
 
 /**
+ *
  */
 public interface VisitController {
 
-  void startVisit(CssTreeVisitor visitor);
+    void startVisit(CssTreeVisitor visitor);
 
-  /**
-   * Stops visiting immediately.
-   */
-  void stopVisit();
+    /**
+     * Stops visiting immediately.
+     */
+    void stopVisit();
 }

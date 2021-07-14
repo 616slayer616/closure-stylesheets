@@ -16,51 +16,47 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssDefinitionNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.VisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
- * Compiler pass that traverses the tree and marks as default the value nodes 
+ * Compiler pass that traverses the tree and marks as default the value nodes
  * in a definition that has the corresponding annotation.
  *
  * @author oana@google.com (Oana Florescu)
  */
 public class MarkDefaultDefinitions extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private VisitController visitController;
+    private VisitController visitController;
 
-  /**
-   * String that matches the comment marking a definition as a default value.
-   */
-  private static final String DEFAULT = "/* @default */";
+    /**
+     * String that matches the comment marking a definition as a default value.
+     */
+    private static final String DEFAULT = "/* @default */";
 
-  public MarkDefaultDefinitions(VisitController visitController) {
-    this.visitController = visitController;
-  }
-
-  @Override
-  public boolean enterDefinition(CssDefinitionNode definition) {
-    boolean isDefault = definition.hasComment(DEFAULT);
-    for (CssValueNode param : definition.getParameters()) {
-      if (param.hasComment(DEFAULT)) {
-        isDefault = true;
-        break;
-      }
+    public MarkDefaultDefinitions(VisitController visitController) {
+        this.visitController = visitController;
     }
-    if (isDefault) {
-      for (CssValueNode node : definition.getParameters()) {
-        node.setIsDefault(true);
-      }
-    }
-    return false;
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public boolean enterDefinition(CssDefinitionNode definition) {
+        boolean isDefault = definition.hasComment(DEFAULT);
+        for (CssValueNode param : definition.getParameters()) {
+            if (param.hasComment(DEFAULT)) {
+                isDefault = true;
+                break;
+            }
+        }
+        if (isDefault) {
+            for (CssValueNode node : definition.getParameters()) {
+                node.setIsDefault(true);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

@@ -42,39 +42,39 @@ import java.util.Map;
  */
 public interface MultipleMappingSubstitutionMap extends SubstitutionMap {
 
-  /**
-   * Contains both the value and mappings returned by
-   * {@link MultipleMappingSubstitutionMap#getValueWithMappings(String)}.
-   */
-  public static class ValueWithMappings {
-    public final String value;
-    public final Map<String, String> mappings;
+    /**
+     * Contains both the value and mappings returned by
+     * {@link MultipleMappingSubstitutionMap#getValueWithMappings(String)}.
+     */
+    public static class ValueWithMappings {
+        public final String value;
+        public final Map<String, String> mappings;
 
-    private ValueWithMappings(String value, Map<String, String> mappings) {
-      Preconditions.checkNotNull(value);
-      Preconditions.checkNotNull(mappings);
-      this.value = value;
-      this.mappings = ImmutableMap.copyOf(mappings);
+        private ValueWithMappings(String value, Map<String, String> mappings) {
+            Preconditions.checkNotNull(value);
+            Preconditions.checkNotNull(mappings);
+            this.value = value;
+            this.mappings = ImmutableMap.copyOf(mappings);
+        }
+
+        public static ValueWithMappings createWithValueAndMappings(String value,
+                                                                   Map<String, String> mappings) {
+            return new ValueWithMappings(value, mappings);
+        }
+
+        public static ValueWithMappings createForSingleMapping(String key, String value) {
+            return new ValueWithMappings(value, ImmutableMap.of(key, value));
+        }
     }
 
-    public static ValueWithMappings createWithValueAndMappings(String value,
-        Map<String, String> mappings) {
-      return new ValueWithMappings(value, mappings);
-    }
-
-    public static ValueWithMappings createForSingleMapping(String key, String value) {
-      return new ValueWithMappings(value, ImmutableMap.of(key, value));
-    }
-  }
-
-  /**
-   * Like an ordinary {@link SubstitutionMap}, this returns a value to
-   * substitute for the specified {@code key}. This value is available as
-   * {@link ValueWithMappings#value}.
-   * <p>
-   * Additionally, it also returns any renaming mappings that should be
-   * associated with this substitution. These mappings are available as
-   * {@link ValueWithMappings#mappings}.
-   */
-  public ValueWithMappings getValueWithMappings(String key);
+    /**
+     * Like an ordinary {@link SubstitutionMap}, this returns a value to
+     * substitute for the specified {@code key}. This value is available as
+     * {@link ValueWithMappings#value}.
+     * <p>
+     * Additionally, it also returns any renaming mappings that should be
+     * associated with this substitution. These mappings are available as
+     * {@link ValueWithMappings#mappings}.
+     */
+    public ValueWithMappings getValueWithMappings(String key);
 }

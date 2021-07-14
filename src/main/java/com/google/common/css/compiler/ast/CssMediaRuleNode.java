@@ -22,62 +22,63 @@ import java.util.List;
  * A node representing an @media rule.
  *
  * @author oana@google.com (Oana Florescu)
- *
  */
 public class CssMediaRuleNode extends CssAtRuleNode implements ChunkAware {
 
-  /** The chunk this selector belongs to. */
-  private Object chunk;
+    /**
+     * The chunk this selector belongs to.
+     */
+    private Object chunk;
 
-  /**
-   * Constructor of a media rule.
-   */
-  public CssMediaRuleNode() {
-    super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"));
-  }
+    /**
+     * Constructor of a media rule.
+     */
+    public CssMediaRuleNode() {
+        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"));
+    }
 
-  /**
-   * Constructor of a media rule.
-   */
-  public CssMediaRuleNode(List<CssCommentNode> comments) {
-    super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"), comments);
-  }
+    /**
+     * Constructor of a media rule.
+     */
+    public CssMediaRuleNode(List<CssCommentNode> comments) {
+        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"), comments);
+    }
 
-  /**
-   * Constructor of a media rule.
-   */
-  public CssMediaRuleNode(List<CssCommentNode> comments, CssBlockNode block) {
-    super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"), block,
-        comments);
-  }
+    /**
+     * Constructor of a media rule.
+     */
+    public CssMediaRuleNode(List<CssCommentNode> comments, CssBlockNode block) {
+        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"), block,
+                comments);
+    }
 
-  /**
-   * Copy constructor.
-   */
-  public CssMediaRuleNode(CssMediaRuleNode node) {
-    super(node);
+    /**
+     * Copy constructor.
+     */
+    public CssMediaRuleNode(CssMediaRuleNode node) {
+        super(node);
 
-    this.chunk = node.getChunk();
-  }
+        this.chunk = node.getChunk();
+    }
 
-  @Override
-  public CssMediaRuleNode deepCopy() {
-    return new CssMediaRuleNode(this);
-  }
+    @Override
+    public CssMediaRuleNode deepCopy() {
+        return new CssMediaRuleNode(this);
+    }
 
-  @Override
-  public CssBlockNode getBlock() {
-    // This type is ensured by the constructor.
-    return (CssBlockNode) super.getBlock();
-  }
+    @Override
+    public CssBlockNode getBlock() {
+        // This type is ensured by the constructor.
+        return (CssBlockNode) super.getBlock();
+    }
 
-  @Override
-  public void setChunk(Object chunk) {
-    this.chunk = chunk;
-  }
+    @Override
+    public void setChunk(Object chunk) {
+        this.chunk = chunk;
+    }
 
-  @Override
-  public Object getChunk() {
-    return chunk;
-  }
+    @Override
+    public Object getChunk() {
+        return chunk;
+    }
 }

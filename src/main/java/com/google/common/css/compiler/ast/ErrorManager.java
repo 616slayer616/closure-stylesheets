@@ -18,15 +18,19 @@ package com.google.common.css.compiler.ast;
 
 /**
  * The error manager is in charge of storing, organizing and displaying errors.
- *
  */
 public interface ErrorManager {
-  /** Report an error message that makes compilation fail. */
-  void report(GssError error);
+    /**
+     * Report an error message that makes compilation fail.
+     */
+    void report(GssError error);
 
-  /** Report an error message that does not make compilation fail. */
-  void reportWarning(GssError warning);
+    /**
+     * Report an error message that does not make compilation fail.
+     */
+    void reportWarning(GssError warning);
 
-  void generateReport();
-  boolean hasErrors();
+    void generateReport();
+
+    boolean hasErrors();
 }

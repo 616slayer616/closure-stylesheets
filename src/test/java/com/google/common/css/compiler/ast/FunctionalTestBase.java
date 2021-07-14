@@ -19,12 +19,7 @@ package com.google.common.css.compiler.ast;
 
 import com.google.common.css.compiler.ast.testing.FunctionalTestCommonBase;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import com.google.common.css.compiler.passes.CreateComponentNodes;
-import com.google.common.css.compiler.passes.CreateConditionalNodes;
-import com.google.common.css.compiler.passes.CreateDefinitionNodes;
-import com.google.common.css.compiler.passes.CreateForLoopNodes;
-import com.google.common.css.compiler.passes.CreateStandardAtRuleNodes;
-import com.google.common.css.compiler.passes.PrettyPrinter;
+import com.google.common.css.compiler.passes.*;
 
 /**
  * Utility methods for all of the functional tests.
@@ -33,46 +28,46 @@ import com.google.common.css.compiler.passes.PrettyPrinter;
  */
 public class FunctionalTestBase extends FunctionalTestCommonBase {
 
-  protected CssTree newTree = null;
-  protected NewFunctionalTestBase newTestBase;
+    protected CssTree newTree = null;
+    protected NewFunctionalTestBase newTestBase;
 
-  /**
-   * Utility method that given an input string parses it using the CssParser and
-   * then converts it into a CssTree object.
-   *
-   * @param sourceCode A string representing the css input for the parser
-   */
-  @Override
-  protected void parseAndBuildTree(String sourceCode) {
-    buildTreeWithNewParser(sourceCode);
-    runPassesOnNewTree();
-  }
+    /**
+     * Utility method that given an input string parses it using the CssParser and
+     * then converts it into a CssTree object.
+     *
+     * @param sourceCode A string representing the css input for the parser
+     */
+    @Override
+    protected void parseAndBuildTree(String sourceCode) {
+        buildTreeWithNewParser(sourceCode);
+        runPassesOnNewTree();
+    }
 
-  protected void runPassesOnNewTree() {
-    MutatingVisitController vc = newTree.getMutatingVisitController();
-    ErrorManager errorManager = newTestBase.getErrorManager();
-    CreateDefinitionNodes pass1 = new CreateDefinitionNodes(vc, errorManager);
-    pass1.runPass();
-    CreateConditionalNodes pass2 = new CreateConditionalNodes(vc, errorManager);
-    pass2.runPass();
-    CreateComponentNodes pass3 = new CreateComponentNodes(vc, errorManager);
-    pass3.runPass();
-    CreateForLoopNodes pass4 = new CreateForLoopNodes(vc, errorManager);
-    pass4.runPass();
-    new CreateStandardAtRuleNodes(vc, errorManager).runPass();
-  }
+    protected void runPassesOnNewTree() {
+        MutatingVisitController vc = newTree.getMutatingVisitController();
+        ErrorManager errorManager = newTestBase.getErrorManager();
+        CreateDefinitionNodes pass1 = new CreateDefinitionNodes(vc, errorManager);
+        pass1.runPass();
+        CreateConditionalNodes pass2 = new CreateConditionalNodes(vc, errorManager);
+        pass2.runPass();
+        CreateComponentNodes pass3 = new CreateComponentNodes(vc, errorManager);
+        pass3.runPass();
+        CreateForLoopNodes pass4 = new CreateForLoopNodes(vc, errorManager);
+        pass4.runPass();
+        new CreateStandardAtRuleNodes(vc, errorManager).runPass();
+    }
 
-  protected String getPrettyPrintedTree(CssTree tree) {
-    PrettyPrinter prettyPrinter = new PrettyPrinter(tree.getVisitController());
-    prettyPrinter.setStripQuotes(true);
-    prettyPrinter.runPass();
-    return prettyPrinter.getPrettyPrintedString();
-  }
+    protected String getPrettyPrintedTree(CssTree tree) {
+        PrettyPrinter prettyPrinter = new PrettyPrinter(tree.getVisitController());
+        prettyPrinter.setStripQuotes(true);
+        prettyPrinter.runPass();
+        return prettyPrinter.getPrettyPrintedString();
+    }
 
-  protected void buildTreeWithNewParser(String sourceCode) {
-    newTestBase = new NewFunctionalTestBase();
-    newTestBase.parseAndBuildTree(sourceCode);
-    newTree = newTestBase.getTree();
-    tree = newTestBase.getTree();
-  }
+    protected void buildTreeWithNewParser(String sourceCode) {
+        newTestBase = new NewFunctionalTestBase();
+        newTestBase.parseAndBuildTree(sourceCode);
+        newTree = newTestBase.getTree();
+        tree = newTestBase.getTree();
+    }
 }

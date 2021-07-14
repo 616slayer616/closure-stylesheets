@@ -16,11 +16,7 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssDefinitionNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.VisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * A pass that collects the constant definitions inside the tree.
@@ -28,32 +24,32 @@ import com.google.common.css.compiler.ast.VisitController;
  * @author oana@google.com (Oana Florescu)
  */
 public class CollectConstantDefinitions extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final VisitController visitController;
-  private final ConstantDefinitions constantDefinitions;
+    private final VisitController visitController;
+    private final ConstantDefinitions constantDefinitions;
 
-  public CollectConstantDefinitions(CssTree tree) {
-    this(tree.getVisitController());
-  }
+    public CollectConstantDefinitions(CssTree tree) {
+        this(tree.getVisitController());
+    }
 
-  public CollectConstantDefinitions(VisitController visitController) {
-    this.visitController = visitController;
-    this.constantDefinitions = new ConstantDefinitions();
-  }
+    public CollectConstantDefinitions(VisitController visitController) {
+        this.visitController = visitController;
+        this.constantDefinitions = new ConstantDefinitions();
+    }
 
-  @Override
-  public boolean enterDefinition(CssDefinitionNode node) {
-    constantDefinitions.addConstantDefinition(node);
-    return true;
-  }
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+        constantDefinitions.addConstantDefinition(node);
+        return true;
+    }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 
-  public ConstantDefinitions getConstantDefinitions() {
-    return constantDefinitions;
-  }
+    public ConstantDefinitions getConstantDefinitions() {
+        return constantDefinitions;
+    }
 }

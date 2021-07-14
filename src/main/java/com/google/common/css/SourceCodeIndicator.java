@@ -58,37 +58,36 @@ import javax.annotation.Nullable;
  *
  * <p>The indicator line might be absent. If that is the case,
  * {@link #getIndicatorLine()} returns {@code null}.
- *
  */
 public class SourceCodeIndicator {
-  private final String codeLine;
-  private final String indicatorLine;
+    private final String codeLine;
+    private final String indicatorLine;
 
-  /**
-   * Constructs a SourceCodeIndicator.
-   *
-   * @param codeLine the line of source code to be displayed
-   * @param indicatorLine The line that indicates a portion of the source code
-   *     line. Can be {@code null} if this information is not available or not
-   *     required for display.
-   */
-  SourceCodeIndicator(String codeLine, @Nullable String indicatorLine) {
-    Preconditions.checkNotNull(codeLine);
-    this.codeLine = codeLine;
-    this.indicatorLine = indicatorLine;
-  }
+    /**
+     * Constructs a SourceCodeIndicator.
+     *
+     * @param codeLine      the line of source code to be displayed
+     * @param indicatorLine The line that indicates a portion of the source code
+     *                      line. Can be {@code null} if this information is not available or not
+     *                      required for display.
+     */
+    SourceCodeIndicator(String codeLine, @Nullable String indicatorLine) {
+        Preconditions.checkNotNull(codeLine);
+        this.codeLine = codeLine;
+        this.indicatorLine = indicatorLine;
+    }
 
-  /**
-   * @return the code line
-   */
-  public String getCodeLine() {
-    return codeLine;
-  }
+    /**
+     * @return the code line
+     */
+    public String getCodeLine() {
+        return codeLine;
+    }
 
-  /**
-   * @return the indicator line
-   */
-  public String getIndicatorLine() {
-    return indicatorLine;
-  }
+    /**
+     * @return the indicator line
+     */
+    public String getIndicatorLine() {
+        return indicatorLine;
+    }
 }

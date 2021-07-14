@@ -26,47 +26,57 @@ import com.google.common.css.compiler.ast.CssSelectorNode.Specificity;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssClassSelectorNode extends CssRefinerNode {
-  /** Specifies the kind or absence of a component scoping prefix. */
-  public static enum ComponentScoping {
-    /** The classname has no prefix. */
-    DEFAULT,
-    /** The classname has a % prefix, to force scoping. */
-    FORCE_SCOPED,
-    /** The classname has a ^ prefix, to prevent scoping. */
-    FORCE_UNSCOPED
-  }
+    /**
+     * Specifies the kind or absence of a component scoping prefix.
+     */
+    public static enum ComponentScoping {
+        /**
+         * The classname has no prefix.
+         */
+        DEFAULT,
+        /**
+         * The classname has a % prefix, to force scoping.
+         */
+        FORCE_SCOPED,
+        /**
+         * The classname has a ^ prefix, to prevent scoping.
+         */
+        FORCE_UNSCOPED
+    }
 
-  private final ComponentScoping scoping;
+    private final ComponentScoping scoping;
 
-  public CssClassSelectorNode(String refinerName, ComponentScoping scoping,
-      SourceCodeLocation sourceCodeLocation) {
-    super(Refiner.CLASS, refinerName, sourceCodeLocation);
-    this.scoping = scoping;
-  }
+    public CssClassSelectorNode(String refinerName, ComponentScoping scoping,
+                                SourceCodeLocation sourceCodeLocation) {
+        super(Refiner.CLASS, refinerName, sourceCodeLocation);
+        this.scoping = scoping;
+    }
 
-  public CssClassSelectorNode(String refinerName, SourceCodeLocation sourceCodeLocation) {
-    this(refinerName, ComponentScoping.DEFAULT, sourceCodeLocation);
-  }
+    public CssClassSelectorNode(String refinerName, SourceCodeLocation sourceCodeLocation) {
+        this(refinerName, ComponentScoping.DEFAULT, sourceCodeLocation);
+    }
 
-  protected CssClassSelectorNode(CssClassSelectorNode node) {
-    this(node.refinerName, node.scoping, node.getSourceCodeLocation());
-    this.setComments(node.getComments());
-  }
+    protected CssClassSelectorNode(CssClassSelectorNode node) {
+        this(node.refinerName, node.scoping, node.getSourceCodeLocation());
+        this.setComments(node.getComments());
+    }
 
-  /** Returns the kind or absence of a component scoping prefix. */
-  public ComponentScoping getScoping() {
-    return scoping;
-  }
+    /**
+     * Returns the kind or absence of a component scoping prefix.
+     */
+    public ComponentScoping getScoping() {
+        return scoping;
+    }
 
-  @Override
-  public CssClassSelectorNode deepCopy() {
-    return new CssClassSelectorNode(this);
-  }
+    @Override
+    public CssClassSelectorNode deepCopy() {
+        return new CssClassSelectorNode(this);
+    }
 
-  @Override
-  public Specificity getSpecificity() {
-    // c++ (c = the number of class selectors, attributes selectors,
-    // and pseudo-classes in the selector)
-    return new Specificity(0, 1, 0);
-  }
+    @Override
+    public Specificity getSpecificity() {
+        // c++ (c = the number of class selectors, attributes selectors,
+        // and pseudo-classes in the selector)
+        return new Specificity(0, 1, 0);
+    }
 }

@@ -30,207 +30,233 @@ import java.util.List;
  */
 public class StringCharStream implements CharStream {
 
-  private static final IOException END_OF_STREAM = new IOException();
+    private static final IOException END_OF_STREAM = new IOException();
 
-  /** The input string. */
-  private final String input;
-  private final int length;
-  private int charPos;
-  private int line;
-  private int column;
-  private char lastChar;
+    /**
+     * The input string.
+     */
+    private final String input;
+    private final int length;
+    private int charPos;
+    private int line;
+    private int column;
+    private char lastChar;
 
-  private int tokenStart;
-  private int beginLine;
-  private int beginColumn;
+    private int tokenStart;
+    private int beginLine;
+    private int beginColumn;
 
-  private int tabSize = 1;
-  private boolean trackLineColumn;
+    private int tabSize = 1;
+    private boolean trackLineColumn;
 
-  /**
-   * This array (working as a map: lineNumber -> characterIndex) helps to
-   * compute token locations efficiently. First element is not used as line
-   * numbers are 1 based.
-   */
-  private int[] lineToCharIndex;
+    /**
+     * This array (working as a map: lineNumber -> characterIndex) helps to
+     * compute token locations efficiently. First element is not used as line
+     * numbers are 1 based.
+     */
+    private int[] lineToCharIndex;
 
-  /**
-   * Creates a character stream for a given string.
-   *
-   * @param inputString input string for this stream
-   */
-  public StringCharStream(String inputString) {
-    input = inputString;
-    length = input.length();
+    /**
+     * Creates a character stream for a given string.
+     *
+     * @param inputString input string for this stream
+     */
+    public StringCharStream(String inputString) {
+        input = inputString;
+        length = input.length();
 
-    lastChar = '\u0000';
-    charPos = -1;
-    column = 0;
-    line = 1;
+        lastChar = '\u0000';
+        charPos = -1;
+        column = 0;
+        line = 1;
 
-    tokenStart = charPos;
-    beginLine = line;
-    beginColumn = column;
+        tokenStart = charPos;
+        beginLine = line;
+        beginColumn = column;
 
-    initCharIndex(input);
-  }
-
-  private void initCharIndex(String source) {
-    List<Integer> lineToCharIndexList = Lists.newArrayList();
-    int charIndex = -1;
-    lineToCharIndexList.add(charIndex);
-    do {
-      charIndex++;
-      lineToCharIndexList.add(charIndex);
-      charIndex = source.indexOf('\n', charIndex);
-    } while (charIndex >= 0);
-    lineToCharIndex = Ints.toArray(lineToCharIndexList);
-  }
-
-  /**
-   * Returns an absolute character location for given line and column location.
-   *
-   * @param lineNumber line number (1 based)
-   * @param indexInLine column number (1 based)
-   * @return 0 based absolute character index in the input string
-   */
-  public int convertToCharacterIndex(int lineNumber, int indexInLine) {
-    return lineToCharIndex[lineNumber] + indexInLine - 1;
-  }
-
-  /**
-   * @return index of last read character
-   */
-  public int getCharIndex() {
-    return charPos;
-  }
-
-  /**
-   * @return index of the first character of a token
-   */
-  @VisibleForTesting
-  int getTokenStart() {
-    return tokenStart;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public char readChar() throws IOException {
-    if (charPos + 1 == length) {
-      throw END_OF_STREAM;
+        initCharIndex(input);
     }
 
-    if (lastChar == '\n') {
-      line++;
-      column = 0;
+    private void initCharIndex(String source) {
+        List<Integer> lineToCharIndexList = Lists.newArrayList();
+        int charIndex = -1;
+        lineToCharIndexList.add(charIndex);
+        do {
+            charIndex++;
+            lineToCharIndexList.add(charIndex);
+            charIndex = source.indexOf('\n', charIndex);
+        } while (charIndex >= 0);
+        lineToCharIndex = Ints.toArray(lineToCharIndexList);
     }
-    if (lastChar == '\t') {
-      column += (tabSize - (column % tabSize));
-    } else {
-      column++;
+
+    /**
+     * Returns an absolute character location for given line and column location.
+     *
+     * @param lineNumber  line number (1 based)
+     * @param indexInLine column number (1 based)
+     * @return 0 based absolute character index in the input string
+     */
+    public int convertToCharacterIndex(int lineNumber, int indexInLine) {
+        return lineToCharIndex[lineNumber] + indexInLine - 1;
     }
-    lastChar = input.charAt(++charPos);
-    return lastChar;
-  }
 
-  /** {@inheritDoc} */
-  @Deprecated
-  @Override
-  public int getColumn() {
-    return getEndColumn();
-  }
-
-  /** {@inheritDoc} */
-  @Deprecated
-  @Override
-  public int getLine() {
-    return getEndLine();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int getEndColumn() {
-    return column;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int getEndLine() {
-    return line;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int getBeginColumn() {
-    return beginColumn;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public int getBeginLine() {
-    return beginLine;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void backup(int amount) {
-    charPos -= amount;
-    while (line > 1 && lineToCharIndex[line] > charPos) {
-      line--;
+    /**
+     * @return index of last read character
+     */
+    public int getCharIndex() {
+        return charPos;
     }
-    column = charPos - lineToCharIndex[line] + 1;
-    lastChar = charPos < 0 ? '\u0000' : input.charAt(charPos);
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public char BeginToken() throws IOException {
-    readChar();
-    tokenStart = charPos;
-    beginLine = line;
-    beginColumn = column;
-    return lastChar;
-  }
+    /**
+     * @return index of the first character of a token
+     */
+    @VisibleForTesting
+    int getTokenStart() {
+        return tokenStart;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public String GetImage() {
-    return input.substring(tokenStart, charPos + 1);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char readChar() throws IOException {
+        if (charPos + 1 == length) {
+            throw END_OF_STREAM;
+        }
 
-  /** {@inheritDoc} */
-  @Override
-  public char[] GetSuffix(int len) {
-    int end = charPos + 1;
-    int start = end - len;
-    char[] chars = new char[end - start];
-    input.getChars(start, end, chars, 0);
-    return chars;
-  }
+        if (lastChar == '\n') {
+            line++;
+            column = 0;
+        }
+        if (lastChar == '\t') {
+            column += (tabSize - (column % tabSize));
+        } else {
+            column++;
+        }
+        lastChar = input.charAt(++charPos);
+        return lastChar;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public void Done() {
-    // Does nothing since no resources need to be freed.
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Deprecated
+    @Override
+    public int getColumn() {
+        return getEndColumn();
+    }
 
-  @Override
-  public void setTabSize(int tabSize) {
-    throw new UnsupportedOperationException("setTabSize() is not supported.");
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Deprecated
+    @Override
+    public int getLine() {
+        return getEndLine();
+    }
 
-  @Override
-  public int getTabSize() {
-    return tabSize;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getEndColumn() {
+        return column;
+    }
 
-  @Override
-  public boolean getTrackLineColumn() {
-    return trackLineColumn;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getEndLine() {
+        return line;
+    }
 
-  @Override
-  public void setTrackLineColumn(boolean trackLineColumn) {
-    this.trackLineColumn = trackLineColumn;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBeginColumn() {
+        return beginColumn;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBeginLine() {
+        return beginLine;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void backup(int amount) {
+        charPos -= amount;
+        while (line > 1 && lineToCharIndex[line] > charPos) {
+            line--;
+        }
+        column = charPos - lineToCharIndex[line] + 1;
+        lastChar = charPos < 0 ? '\u0000' : input.charAt(charPos);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char BeginToken() throws IOException {
+        readChar();
+        tokenStart = charPos;
+        beginLine = line;
+        beginColumn = column;
+        return lastChar;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String GetImage() {
+        return input.substring(tokenStart, charPos + 1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char[] GetSuffix(int len) {
+        int end = charPos + 1;
+        int start = end - len;
+        char[] chars = new char[end - start];
+        input.getChars(start, end, chars, 0);
+        return chars;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void Done() {
+        // Does nothing since no resources need to be freed.
+    }
+
+    @Override
+    public void setTabSize(int tabSize) {
+        throw new UnsupportedOperationException("setTabSize() is not supported.");
+    }
+
+    @Override
+    public int getTabSize() {
+        return tabSize;
+    }
+
+    @Override
+    public boolean getTrackLineColumn() {
+        return trackLineColumn;
+    }
+
+    @Override
+    public void setTrackLineColumn(boolean trackLineColumn) {
+        this.trackLineColumn = trackLineColumn;
+    }
 }

@@ -27,29 +27,29 @@ import java.util.List;
  */
 public class CssBlockNode extends CssAbstractBlockNode {
 
-  private static final ImmutableList<Class<? extends CssNode>>
-      VALID_NODE_CLASSES = ImmutableList.of(
-          CssRulesetNode.class, CssAtRuleNode.class,
-          CssConditionalBlockNode.class, CssKeyframeRulesetNode.class);
+    private static final ImmutableList<Class<? extends CssNode>>
+            VALID_NODE_CLASSES = ImmutableList.of(
+            CssRulesetNode.class, CssAtRuleNode.class,
+            CssConditionalBlockNode.class, CssKeyframeRulesetNode.class);
 
-  public CssBlockNode(boolean isEnclosedWithBraces, List<CssNode> children) {
-    super(isEnclosedWithBraces, children, null, VALID_NODE_CLASSES);
-  }
+    public CssBlockNode(boolean isEnclosedWithBraces, List<CssNode> children) {
+        super(isEnclosedWithBraces, children, null, VALID_NODE_CLASSES);
+    }
 
-  public CssBlockNode(boolean isEnclosedWithBraces) {
-    super(isEnclosedWithBraces, VALID_NODE_CLASSES);
-  }
+    public CssBlockNode(boolean isEnclosedWithBraces) {
+        super(isEnclosedWithBraces, VALID_NODE_CLASSES);
+    }
 
-  public CssBlockNode() {
-    this(true /* isEnclosedWithBraces */);
-  }
+    public CssBlockNode() {
+        this(true /* isEnclosedWithBraces */);
+    }
 
-  public CssBlockNode(CssBlockNode node) {
-    super(node);
-  }
+    public CssBlockNode(CssBlockNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssBlockNode deepCopy() {
-    return new CssBlockNode(this);
-  }
+    @Override
+    public CssBlockNode deepCopy() {
+        return new CssBlockNode(this);
+    }
 }

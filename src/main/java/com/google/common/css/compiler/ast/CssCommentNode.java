@@ -25,27 +25,27 @@ import com.google.common.css.SourceCodeLocation;
  */
 public class CssCommentNode extends CssValueNode {
 
-  /**
-   * Constructor of a comment node.
-   *
-   * @param comment
-   * @param sourceCodeLocation
-   */
-  public CssCommentNode(String comment, SourceCodeLocation sourceCodeLocation) {
-    super(comment, sourceCodeLocation);
-  }
+    /**
+     * Constructor of a comment node.
+     *
+     * @param comment
+     * @param sourceCodeLocation
+     */
+    public CssCommentNode(String comment, SourceCodeLocation sourceCodeLocation) {
+        super(comment, sourceCodeLocation);
+    }
 
-  /**
-   * Copy constructor.
-   * 
-   * @param node
-   */
-  public CssCommentNode(CssCommentNode node) {
-    super(node);
-  }
-  
-  @Override
-  public CssCommentNode deepCopy() {
-    return new CssCommentNode(this);
-  }
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssCommentNode(CssCommentNode node) {
+        super(node);
+    }
+
+    @Override
+    public CssCommentNode deepCopy() {
+        return new CssCommentNode(this);
+    }
 }

@@ -21,54 +21,56 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link HandleMissingConstantDefinitions}. */
+/**
+ * Unit tests for {@link HandleMissingConstantDefinitions}.
+ */
 @RunWith(JUnit4.class)
 public class HandleMissingConstantDefinitionsTest extends NewFunctionalTestBase {
 
-  private static final String TEST_GOOD_CODE =
-      linesToString(
-          "@def TEXT_COLOR blue;",
-          "@def TEXT_SIZE 1;",
-          ".rule {",
-          "  color: TEXT_COLOR;",
-          "  width: add(1, TEXT_SIZE)",
-          "}");
+    private static final String TEST_GOOD_CODE =
+            linesToString(
+                    "@def TEXT_COLOR blue;",
+                    "@def TEXT_SIZE 1;",
+                    ".rule {",
+                    "  color: TEXT_COLOR;",
+                    "  width: add(1, TEXT_SIZE)",
+                    "}");
 
-  private static final String TEST_BAD_CODE = linesToString(
-      ".rule {",
-      "  color: MISSING_TEXT_COLOR",
-      "}");
+    private static final String TEST_BAD_CODE = linesToString(
+            ".rule {",
+            "  color: MISSING_TEXT_COLOR",
+            "}");
 
-  private static final String TEST_BAD_CODE_FUNCTION_ARG =
-      linesToString(".rule { width: add(1, MISSING_TEXT_SIZE) }");
+    private static final String TEST_BAD_CODE_FUNCTION_ARG =
+            linesToString(".rule { width: add(1, MISSING_TEXT_SIZE) }");
 
-  @Test
-  public void testGoodCodeNoErrors() throws Exception {
-    parseAndRun(TEST_GOOD_CODE);
-  }
+    @Test
+    public void testGoodCodeNoErrors() throws Exception {
+        parseAndRun(TEST_GOOD_CODE);
+    }
 
-  @Test
-  public void testBadCodeThrowsErrors() throws Exception {
-    parseAndRun(TEST_BAD_CODE, HandleMissingConstantDefinitions.ERROR_MESSAGE);
-  }
+    @Test
+    public void testBadCodeThrowsErrors() throws Exception {
+        parseAndRun(TEST_BAD_CODE, HandleMissingConstantDefinitions.ERROR_MESSAGE);
+    }
 
-  @Test
-  public void testBadCodeThrowsErrors_functionArgument() throws Exception {
-    parseAndRun(TEST_BAD_CODE_FUNCTION_ARG, HandleMissingConstantDefinitions.ERROR_MESSAGE);
-  }
+    @Test
+    public void testBadCodeThrowsErrors_functionArgument() throws Exception {
+        parseAndRun(TEST_BAD_CODE_FUNCTION_ARG, HandleMissingConstantDefinitions.ERROR_MESSAGE);
+    }
 
-  @Override
-  protected void runPass() {
-    new CreateDefinitionNodes(tree.getMutatingVisitController(), errorManager)
-        .runPass();
-    new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
-    CollectConstantDefinitions collectDefinitions =
-        new CollectConstantDefinitions(tree.getVisitController());
-    collectDefinitions.runPass();
-    new HandleMissingConstantDefinitions(
-        tree.getVisitController(),
-        errorManager,
-        collectDefinitions.getConstantDefinitions())
-        .runPass();
-  }
+    @Override
+    protected void runPass() {
+        new CreateDefinitionNodes(tree.getMutatingVisitController(), errorManager)
+                .runPass();
+        new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
+        CollectConstantDefinitions collectDefinitions =
+                new CollectConstantDefinitions(tree.getVisitController());
+        collectDefinitions.runPass();
+        new HandleMissingConstantDefinitions(
+                tree.getVisitController(),
+                errorManager,
+                collectDefinitions.getConstantDefinitions())
+                .runPass();
+    }
 }

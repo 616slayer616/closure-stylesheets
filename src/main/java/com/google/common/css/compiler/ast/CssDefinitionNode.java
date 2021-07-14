@@ -26,94 +26,93 @@ import java.util.List;
  * For example: <code>@def BASE_BG_COLOR white;</color>
  *
  * @author oana@google.com (Oana Florescu)
- *
  */
 public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
 
-  private Object chunk;
+    private Object chunk;
 
-  /**
-   * Constructor of a definition.
-   */
-  public CssDefinitionNode(CssLiteralNode name, List<CssCommentNode> comments) {
-    super(CssAtRuleNode.Type.DEF, name, comments);
-  }
+    /**
+     * Constructor of a definition.
+     */
+    public CssDefinitionNode(CssLiteralNode name, List<CssCommentNode> comments) {
+        super(CssAtRuleNode.Type.DEF, name, comments);
+    }
 
-  /**
-   * Constructor of a definition.
-   */
-  public CssDefinitionNode(CssLiteralNode name) {
-    super(CssAtRuleNode.Type.DEF, name);
-  }
+    /**
+     * Constructor of a definition.
+     */
+    public CssDefinitionNode(CssLiteralNode name) {
+        super(CssAtRuleNode.Type.DEF, name);
+    }
 
-  /**
-   * Constructor of a definition.
-   */
-  public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name) {
-    super(CssAtRuleNode.Type.DEF, name);
-    setParameters(parameters);
-  }
+    /**
+     * Constructor of a definition.
+     */
+    public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name) {
+        super(CssAtRuleNode.Type.DEF, name);
+        setParameters(parameters);
+    }
 
-  /**
-   * Constructor of a definition.
-   */
-  public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name,
-                           SourceCodeLocation sourceCodeLocation) {
-    super(CssAtRuleNode.Type.DEF, name);
-    setParameters(parameters);
-    setSourceCodeLocation(sourceCodeLocation);
-  }
+    /**
+     * Constructor of a definition.
+     */
+    public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name,
+                             SourceCodeLocation sourceCodeLocation) {
+        super(CssAtRuleNode.Type.DEF, name);
+        setParameters(parameters);
+        setSourceCodeLocation(sourceCodeLocation);
+    }
 
-  /**
-   * Constructor of a definition.
-   */
-  public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name,
-                           List<CssCommentNode> comments) {
-    super(CssAtRuleNode.Type.DEF, name, comments);
-    setParameters(parameters);
-  }
+    /**
+     * Constructor of a definition.
+     */
+    public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name,
+                             List<CssCommentNode> comments) {
+        super(CssAtRuleNode.Type.DEF, name, comments);
+        setParameters(parameters);
+    }
 
-  /**
-   * Constructor of a definition.
-   */
-  public CssDefinitionNode(List<CssValueNode> parameters,
-                           CssLiteralNode name, List<CssCommentNode> comments,
-                           SourceCodeLocation sourceCodeLocation) {
-    this(parameters, name, comments);
-    setSourceCodeLocation(sourceCodeLocation);
-  }
+    /**
+     * Constructor of a definition.
+     */
+    public CssDefinitionNode(List<CssValueNode> parameters,
+                             CssLiteralNode name, List<CssCommentNode> comments,
+                             SourceCodeLocation sourceCodeLocation) {
+        this(parameters, name, comments);
+        setSourceCodeLocation(sourceCodeLocation);
+    }
 
-  /**
-   * Copy constructor.
-   * 
-   * @param node
-   */
-  public CssDefinitionNode(CssDefinitionNode node) {
-    super(node);
-    this.chunk = node.getChunk();
-  }
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssDefinitionNode(CssDefinitionNode node) {
+        super(node);
+        this.chunk = node.getChunk();
+    }
 
-  @Override
-  public CssDefinitionNode deepCopy() {
-    return new CssDefinitionNode(this);
-  }
-  
-  /**
-   * For debugging only.
-   */
-  @Override
-  public String toString() {
-    return getType().toString() + " " + getName().toString() + " "
-        + getParameters().toString();
-  }
+    @Override
+    public CssDefinitionNode deepCopy() {
+        return new CssDefinitionNode(this);
+    }
 
-  @Override
-  public Object getChunk() {
-    return chunk;
-  }
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+        return getType().toString() + " " + getName().toString() + " "
+                + getParameters().toString();
+    }
 
-  @Override
-  public void setChunk(Object chunk) {
-    this.chunk = chunk;
-  }
+    @Override
+    public Object getChunk() {
+        return chunk;
+    }
+
+    @Override
+    public void setChunk(Object chunk) {
+        this.chunk = chunk;
+    }
 }

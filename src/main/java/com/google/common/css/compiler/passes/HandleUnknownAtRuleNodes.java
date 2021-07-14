@@ -26,61 +26,60 @@ import java.util.Set;
  * Compiler pass that handles remaining {@link CssUnknownAtRuleNode} instances
  * by optionally reporting them as errors and optionally removing
  * them.
- *
  */
 public class HandleUnknownAtRuleNodes extends DefaultTreeVisitor
-    implements CssCompilerPass {
-  static final String unknownAtRuleErrorMessage = "unknown @ rule";
+        implements CssCompilerPass {
+    static final String unknownAtRuleErrorMessage = "unknown @ rule";
 
-  private final MutatingVisitController visitController;
-  private final ErrorManager errorManager;
-  private final Set<String> additionalAtRules;
-  private final boolean report;
-  private final boolean remove;
+    private final MutatingVisitController visitController;
+    private final ErrorManager errorManager;
+    private final Set<String> additionalAtRules;
+    private final boolean report;
+    private final boolean remove;
 
-  public HandleUnknownAtRuleNodes(MutatingVisitController visitController,
-                                  ErrorManager errorManager,
-                                  boolean report,
-                                  boolean remove) {
-    this(visitController, errorManager, ImmutableSet.<String>of(),
-         report, remove);
-  }
-
-  public HandleUnknownAtRuleNodes(MutatingVisitController visitController,
-                                  ErrorManager errorManager,
-                                  Set<String> additionalAtRules,
-                                  boolean report,
-                                  boolean remove) {
-    Preconditions.checkArgument(!report || errorManager != null);
-    this.visitController = visitController;
-    this.errorManager = errorManager;
-    this.additionalAtRules = additionalAtRules;
-    this.report = report;
-    this.remove = remove;
-  }
-
-  @Override
-  public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
-    if (node.isOkWithoutProcessing()
-        || additionalAtRules.contains(node.getName().getValue())) {
-      return true;
+    public HandleUnknownAtRuleNodes(MutatingVisitController visitController,
+                                    ErrorManager errorManager,
+                                    boolean report,
+                                    boolean remove) {
+        this(visitController, errorManager, ImmutableSet.<String>of(),
+                report, remove);
     }
 
-    if (report) {
-      errorManager.report(new GssError(unknownAtRuleErrorMessage, node.getSourceCodeLocation()));
+    public HandleUnknownAtRuleNodes(MutatingVisitController visitController,
+                                    ErrorManager errorManager,
+                                    Set<String> additionalAtRules,
+                                    boolean report,
+                                    boolean remove) {
+        Preconditions.checkArgument(!report || errorManager != null);
+        this.visitController = visitController;
+        this.errorManager = errorManager;
+        this.additionalAtRules = additionalAtRules;
+        this.report = report;
+        this.remove = remove;
     }
-    if (remove) {
-      visitController.removeCurrentNode();
-      return false;
-    } else {
-      return true;
-    }
-  }
 
-  @Override
-  public void runPass() {
-    if (report || remove) {
-      visitController.startVisit(this);
+    @Override
+    public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
+        if (node.isOkWithoutProcessing()
+                || additionalAtRules.contains(node.getName().getValue())) {
+            return true;
+        }
+
+        if (report) {
+            errorManager.report(new GssError(unknownAtRuleErrorMessage, node.getSourceCodeLocation()));
+        }
+        if (remove) {
+            visitController.removeCurrentNode();
+            return false;
+        } else {
+            return true;
+        }
     }
-  }
+
+    @Override
+    public void runPass() {
+        if (report || remove) {
+            visitController.startVisit(this);
+        }
+    }
 }

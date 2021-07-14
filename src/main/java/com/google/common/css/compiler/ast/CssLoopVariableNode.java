@@ -25,16 +25,16 @@ import javax.annotation.Nullable;
  */
 public class CssLoopVariableNode extends CssLiteralNode {
 
-  public CssLoopVariableNode(String value, @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(value, sourceCodeLocation);
-  }
+    public CssLoopVariableNode(String value, @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(value, sourceCodeLocation);
+    }
 
-  public CssLoopVariableNode(CssLoopVariableNode node) {
-    super(node);
-  }
+    public CssLoopVariableNode(CssLoopVariableNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssLoopVariableNode deepCopy() {
-    return new CssLoopVariableNode(this);
-  }
+    @Override
+    public CssLoopVariableNode deepCopy() {
+        return new CssLoopVariableNode(this);
+    }
 }

@@ -23,55 +23,56 @@ import java.util.Set;
 /**
  * Any compiler pass which derives from this is able to skip
  * processing rules that contain specific property names.
- *
+ * <p>
  * TODO(user): Should we move these functions to the DefaultVisitController?
- *
  */
 public class SkippingTreeVisitor extends DefaultTreeVisitor {
 
-  private boolean skipping = false;
-  /**
-   * The rules which contain any of these property names will be skipped,
-   * if skipping is set to true.
-   */
-  Set<String> propertyNamesToSkip = ImmutableSet.of("display");
-  // TODO(user): Possible more needed property names (which can trigger
-  // hasLayout in IE): zoom, position, float
+    private boolean skipping = false;
+    /**
+     * The rules which contain any of these property names will be skipped,
+     * if skipping is set to true.
+     */
+    Set<String> propertyNamesToSkip = ImmutableSet.of("display");
+    // TODO(user): Possible more needed property names (which can trigger
+    // hasLayout in IE): zoom, position, float
 
-  /**
-   * Constructor of a skipping tree visitor which sets the skipping property.
-   * @param skip
-   */
-  public SkippingTreeVisitor(boolean skip) {
-    skipping = skip;
-  }
-
-  /**
-   * This method checks if the given ruleset is safe to be changed.
-   * @return {@code false} if the ruleset is not safe to be modified (because
-   * it contains any of the pre-defined property names when skipping is turned
-   * on), true otherwise.
-   */
-  public boolean canModifyRuleset(CssRulesetNode ruleset) {
-    // If skipping is on and the rule contains a property from the set : skip.
-    if (skipping) {
-      for (String propNameToSkip : propertyNamesToSkip) {
-        for (CssNode child : ruleset.getDeclarations().childIterable()) {
-          if (!(child instanceof CssDeclarationNode)) {
-            continue;
-          }
-          CssDeclarationNode decl = (CssDeclarationNode) child;
-          if (decl.getPropertyName().getPropertyName().equals(propNameToSkip)) {
-            return false;
-          }
-        }
-      }
+    /**
+     * Constructor of a skipping tree visitor which sets the skipping property.
+     *
+     * @param skip
+     */
+    public SkippingTreeVisitor(boolean skip) {
+        skipping = skip;
     }
-    return true;
-  }
 
-  public boolean isSkipping() {
-    return skipping;
-  }
+    /**
+     * This method checks if the given ruleset is safe to be changed.
+     *
+     * @return {@code false} if the ruleset is not safe to be modified (because
+     * it contains any of the pre-defined property names when skipping is turned
+     * on), true otherwise.
+     */
+    public boolean canModifyRuleset(CssRulesetNode ruleset) {
+        // If skipping is on and the rule contains a property from the set : skip.
+        if (skipping) {
+            for (String propNameToSkip : propertyNamesToSkip) {
+                for (CssNode child : ruleset.getDeclarations().childIterable()) {
+                    if (!(child instanceof CssDeclarationNode)) {
+                        continue;
+                    }
+                    CssDeclarationNode decl = (CssDeclarationNode) child;
+                    if (decl.getPropertyName().getPropertyName().equals(propNameToSkip)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean isSkipping() {
+        return skipping;
+    }
 
 }

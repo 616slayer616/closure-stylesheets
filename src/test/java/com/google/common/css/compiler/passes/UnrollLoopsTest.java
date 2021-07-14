@@ -21,62 +21,64 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link UnrollLoops}. */
+/**
+ * Unit tests for {@link UnrollLoops}.
+ */
 @RunWith(JUnit4.class)
 public class UnrollLoopsTest extends PassesTestBase {
 
-  @Override
-  protected void runPass() {
-    new CreateDefinitionNodes(tree.getMutatingVisitController(), errorManager).runPass();
-    new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
-    new CreateForLoopNodes(tree.getMutatingVisitController(), errorManager).runPass();
-    new UnrollLoops(tree.getMutatingVisitController(), errorManager).runPass();
-  }
+    @Override
+    protected void runPass() {
+        new CreateDefinitionNodes(tree.getMutatingVisitController(), errorManager).runPass();
+        new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
+        new CreateForLoopNodes(tree.getMutatingVisitController(), errorManager).runPass();
+        new UnrollLoops(tree.getMutatingVisitController(), errorManager).runPass();
+    }
 
-  @Test
-  public void testSimpleLoopUnroll() throws Exception {
-    testTreeConstruction(linesToString(
-        "@for $i from 1 to 3 {",
-        "  .foo-$i {}",
-        "}"),
-        "[[.foo-1]{[]}[.foo-2]{[]}[.foo-3]{[]}]");
-  }
+    @Test
+    public void testSimpleLoopUnroll() throws Exception {
+        testTreeConstruction(linesToString(
+                "@for $i from 1 to 3 {",
+                "  .foo-$i {}",
+                "}"),
+                "[[.foo-1]{[]}[.foo-2]{[]}[.foo-3]{[]}]");
+    }
 
-  @Test
-  public void testNestedLoopUnroll() throws Exception {
-    testTreeConstruction(linesToString(
-        "@for $i from 1 to 3 {",
-        "  @for $j from 1 to $i {",
-        "    .foo-$i-$j {}",
-        "  }",
-        "}"),
-        "[[.foo-1-1]{[]}[.foo-2-1]{[]}[.foo-2-2]{[]}[.foo-3-1]{[]}[.foo-3-2]{[]}[.foo-3-3]{[]}]");
-  }
+    @Test
+    public void testNestedLoopUnroll() throws Exception {
+        testTreeConstruction(linesToString(
+                "@for $i from 1 to 3 {",
+                "  @for $j from 1 to $i {",
+                "    .foo-$i-$j {}",
+                "  }",
+                "}"),
+                "[[.foo-1-1]{[]}[.foo-2-1]{[]}[.foo-2-2]{[]}[.foo-3-1]{[]}[.foo-3-2]{[]}[.foo-3-3]{[]}]");
+    }
 
-  @Test
-  public void testDefinitionRenaming() throws Exception {
-    testTreeConstruction(linesToString(
-        "@for $i from 1 to 2 {",
-        "  @def FOO $i;",
-        "  .foo {",
-        "    top: FOO;",
-        "  }",
-        "}"),
-        "[@def FOO__LOOP0__1 [[1]];[.foo]{[top:[[FOO__LOOP0__1]];]}"
-        + "@def FOO__LOOP0__2 [[2]];[.foo]{[top:[[FOO__LOOP0__2]];]}]");
-  }
+    @Test
+    public void testDefinitionRenaming() throws Exception {
+        testTreeConstruction(linesToString(
+                "@for $i from 1 to 2 {",
+                "  @def FOO $i;",
+                "  .foo {",
+                "    top: FOO;",
+                "  }",
+                "}"),
+                "[@def FOO__LOOP0__1 [[1]];[.foo]{[top:[[FOO__LOOP0__1]];]}"
+                        + "@def FOO__LOOP0__2 [[2]];[.foo]{[top:[[FOO__LOOP0__2]];]}]");
+    }
 
-  @Test
-  public void testUnevalutedConstants() throws Exception {
-    parseAndRun("@for $i from CONST to 2 {}", UnrollLoops.UNKNOWN_CONSTANT);
-    parseAndRun("@for $i from 1 to CONST {}", UnrollLoops.UNKNOWN_CONSTANT);
-    parseAndRun("@for $i from 1 to 2 step CONST {}", UnrollLoops.UNKNOWN_CONSTANT);
-  }
+    @Test
+    public void testUnevalutedConstants() throws Exception {
+        parseAndRun("@for $i from CONST to 2 {}", UnrollLoops.UNKNOWN_CONSTANT);
+        parseAndRun("@for $i from 1 to CONST {}", UnrollLoops.UNKNOWN_CONSTANT);
+        parseAndRun("@for $i from 1 to 2 step CONST {}", UnrollLoops.UNKNOWN_CONSTANT);
+    }
 
-  @Test
-  public void testUnevalutedVariable() throws Exception {
-    parseAndRun("@for $i from $j to 2 {}", UnrollLoops.UNKNOWN_VARIABLE);
-    parseAndRun("@for $i from 1 to $j {}", UnrollLoops.UNKNOWN_VARIABLE);
-    parseAndRun("@for $i from 1 to 2 step $j {}", UnrollLoops.UNKNOWN_VARIABLE);
-  }
+    @Test
+    public void testUnevalutedVariable() throws Exception {
+        parseAndRun("@for $i from $j to 2 {}", UnrollLoops.UNKNOWN_VARIABLE);
+        parseAndRun("@for $i from 1 to $j {}", UnrollLoops.UNKNOWN_VARIABLE);
+        parseAndRun("@for $i from 1 to 2 step $j {}", UnrollLoops.UNKNOWN_VARIABLE);
+    }
 }

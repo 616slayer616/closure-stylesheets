@@ -20,5 +20,5 @@ package com.google.common.css;
  * Gives access to a node's location in the original source code.
  */
 public interface Locatable {
-  SourceCodeLocation getSourceCodeLocation();
+    SourceCodeLocation getSourceCodeLocation();
 }

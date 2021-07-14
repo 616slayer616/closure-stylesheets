@@ -20,37 +20,36 @@ import java.util.List;
 
 /**
  * A node representing a (complex) conditional block.
- *
  */
 public class CssConditionalBlockNode extends
-    CssNodesListNode<CssConditionalRuleNode> {
+        CssNodesListNode<CssConditionalRuleNode> {
 
-  /**
-   * Constructor of a conditional block.
-   */
-  public CssConditionalBlockNode() {
-    super(false /* isEnclosedWithBraces */);
-  }
+    /**
+     * Constructor of a conditional block.
+     */
+    public CssConditionalBlockNode() {
+        super(false /* isEnclosedWithBraces */);
+    }
 
-  /**
-   * Constructor of a conditional block.
-   *
-   * @param comments
-   */
-  public CssConditionalBlockNode(List<CssCommentNode> comments) {
-    super(false /* isEnclosedWithBraces */, comments);
-  }
+    /**
+     * Constructor of a conditional block.
+     *
+     * @param comments
+     */
+    public CssConditionalBlockNode(List<CssCommentNode> comments) {
+        super(false /* isEnclosedWithBraces */, comments);
+    }
 
-  public CssConditionalBlockNode(CssConditionalBlockNode node) {
-    super(node);
-  }
+    public CssConditionalBlockNode(CssConditionalBlockNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssConditionalBlockNode deepCopy() {
-    return new CssConditionalBlockNode(this);
-  }
+    @Override
+    public CssConditionalBlockNode deepCopy() {
+        return new CssConditionalBlockNode(this);
+    }
 
-  // TODO(user): Make sure the block is valid (the first child must be an
-  //     "if", the last child must be an "else" or an "elseif", all other
-  //     children must be "elseif".
+    // TODO(user): Make sure the block is valid (the first child must be an
+    //     "if", the last child must be an "else" or an "elseif", all other
+    //     children must be "elseif".
 }

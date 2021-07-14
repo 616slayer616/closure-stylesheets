@@ -19,25 +19,25 @@ package com.google.common.css.compiler.ast;
 import com.google.common.css.SourceCodeLocation;
 
 public class GssParserException extends Exception {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private GssError gssError;
+    private GssError gssError;
 
-  public GssParserException(SourceCodeLocation location, Throwable cause) {
-    super("Parse error", cause);
-    this.gssError = new GssError("Parse error", location);
-  }
+    public GssParserException(SourceCodeLocation location, Throwable cause) {
+        super("Parse error", cause);
+        this.gssError = new GssError("Parse error", location);
+    }
 
-  public GssParserException(SourceCodeLocation location) {
-    this(location, null);
-  }
+    public GssParserException(SourceCodeLocation location) {
+        this(location, null);
+    }
 
-  public GssError getGssError() {
-    return gssError;
-  }
+    public GssError getGssError() {
+        return gssError;
+    }
 
-  @Override
-  public String getMessage() {
-    return gssError.format();
-  }
+    @Override
+    public String getMessage() {
+        return gssError.format();
+    }
 }

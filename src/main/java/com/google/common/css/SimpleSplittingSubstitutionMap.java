@@ -32,20 +32,20 @@ package com.google.common.css;
  *   --css_substitution_map_provider=com.google.common.css.SimpleSplittingSubstitutionMapProvider
  *   --output_renaming_map_format=CLOSURE_COMPILED_SPLIT_HYPHENS}</pre>
  *
- * @see SimpleSplittingSubstitutionMapProvider
  * @author jart@google.com (Justine Tunney)
+ * @see SimpleSplittingSubstitutionMapProvider
  */
 public class SimpleSplittingSubstitutionMap implements SubstitutionMap {
 
-  private final SplittingSubstitutionMap splittingSubstitutionMap;
+    private final SplittingSubstitutionMap splittingSubstitutionMap;
 
-  public SimpleSplittingSubstitutionMap() {
-    splittingSubstitutionMap = new SplittingSubstitutionMap(
-        new SimpleSubstitutionMap());
-  }
+    public SimpleSplittingSubstitutionMap() {
+        splittingSubstitutionMap = new SplittingSubstitutionMap(
+                new SimpleSubstitutionMap());
+    }
 
-  @Override
-  public String get(String value) {
-    return splittingSubstitutionMap.get(value);
-  }
+    @Override
+    public String get(String value) {
+        return splittingSubstitutionMap.get(value);
+    }
 }

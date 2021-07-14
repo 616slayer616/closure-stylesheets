@@ -16,8 +16,6 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.compiler.ast.CssConstantReferenceNode;
 import com.google.common.css.compiler.ast.CssFunctionNode;
 import com.google.common.css.compiler.ast.CssLiteralNode;
@@ -27,42 +25,43 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+
 /**
  * Tests for {@link CreateConstantReferences}.
- *
  */
 @RunWith(JUnit4.class)
 public class CreateConstantReferencesTest extends NewFunctionalTestBase {
 
-  @Test
-  public void testCreateSimpleRef() throws Exception {
-    parseAndRun(".X { color: SOME_COLOR }");
+    @Test
+    public void testCreateSimpleRef() throws Exception {
+        parseAndRun(".X { color: SOME_COLOR }");
 
-    CssValueNode colorValue = getFirstPropertyValue().getChildAt(0);
-    assertThat(colorValue).isInstanceOf(CssConstantReferenceNode.class);
-    assertThat(colorValue.getValue()).isEqualTo("SOME_COLOR");
-  }
+        CssValueNode colorValue = getFirstPropertyValue().getChildAt(0);
+        assertThat(colorValue).isInstanceOf(CssConstantReferenceNode.class);
+        assertThat(colorValue.getValue()).isEqualTo("SOME_COLOR");
+    }
 
-  @Test
-  public void testCreateFunRef() throws Exception {
-    parseAndRun(".X { background-url:  image(X0,Y0) }");
+    @Test
+    public void testCreateFunRef() throws Exception {
+        parseAndRun(".X { background-url:  image(X0,Y0) }");
 
-    CssFunctionNode funCall = (CssFunctionNode) getFirstPropertyValue().getChildAt(0);
+        CssFunctionNode funCall = (CssFunctionNode) getFirstPropertyValue().getChildAt(0);
 
-    CssValueNode x0Value = funCall.getArguments().getChildAt(0);
-    assertThat(x0Value).isInstanceOf(CssConstantReferenceNode.class);
-    assertThat(x0Value.getValue()).isEqualTo("X0");
+        CssValueNode x0Value = funCall.getArguments().getChildAt(0);
+        assertThat(x0Value).isInstanceOf(CssConstantReferenceNode.class);
+        assertThat(x0Value.getValue()).isEqualTo("X0");
 
-    CssValueNode commaValue = funCall.getArguments().getChildAt(1);
-    assertThat(commaValue).isInstanceOf(CssLiteralNode.class);
+        CssValueNode commaValue = funCall.getArguments().getChildAt(1);
+        assertThat(commaValue).isInstanceOf(CssLiteralNode.class);
 
-    CssValueNode y0Value = funCall.getArguments().getChildAt(2);
-    assertThat(y0Value).isInstanceOf(CssConstantReferenceNode.class);
-    assertThat(y0Value.getValue()).isEqualTo("Y0");
-  }
+        CssValueNode y0Value = funCall.getArguments().getChildAt(2);
+        assertThat(y0Value).isInstanceOf(CssConstantReferenceNode.class);
+        assertThat(y0Value.getValue()).isEqualTo("Y0");
+    }
 
-  @Override
-  protected void runPass() {
-    new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
-  }
+    @Override
+    protected void runPass() {
+        new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
+    }
 }

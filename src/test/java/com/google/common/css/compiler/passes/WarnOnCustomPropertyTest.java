@@ -27,19 +27,19 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class WarnOnCustomPropertyTest extends NewFunctionalTestBase {
 
-  @Override
-  protected void runPass() {
-    WarnOnCustomProperty pass = new WarnOnCustomProperty(tree.getVisitController(), errorManager);
-    pass.runPass();
-  }
+    @Override
+    protected void runPass() {
+        WarnOnCustomProperty pass = new WarnOnCustomProperty(tree.getVisitController(), errorManager);
+        pass.runPass();
+    }
 
-  @Test
-  public void testWarnsOnDeclaration() throws Exception {
-    parseAndRun(":root { --test: 123; }", WarnOnCustomProperty.DECLARATION_WARNING_MSG);
-  }
+    @Test
+    public void testWarnsOnDeclaration() throws Exception {
+        parseAndRun(":root { --test: 123; }", WarnOnCustomProperty.DECLARATION_WARNING_MSG);
+    }
 
-  @Test
-  public void testWarnsOnReference() throws Exception {
-    parseAndRun(":root { background: var(--test); }", WarnOnCustomProperty.REFERENCE_WARNING_MSG);
-  }
+    @Test
+    public void testWarnsOnReference() throws Exception {
+        parseAndRun(":root { background: var(--test); }", WarnOnCustomProperty.REFERENCE_WARNING_MSG);
+    }
 }

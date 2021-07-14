@@ -17,14 +17,8 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.css.compiler.ast.CssCompilerPass;
+import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.CssCompositeValueNode.Operator;
-import com.google.common.css.compiler.ast.CssMathNode;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssNumericNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.MutatingVisitController;
 
 import java.util.logging.Logger;
 
@@ -41,81 +35,81 @@ import java.util.logging.Logger;
  * @author fbenz@google.com (Florian Benz)
  */
 public class EliminateUnitsFromZeroNumericValues extends DefaultTreeVisitor
-    implements CssCompilerPass {
-  private static final ImmutableSet<String> REMOVABLE_LENGTH_UNITS =
-      ImmutableSet.of("em", "ex", "px", "gd", "rem", "vw", "vh", "vm", "ch",
-          "in", "cm", "mm", "pt", "pc");
+        implements CssCompilerPass {
+    private static final ImmutableSet<String> REMOVABLE_LENGTH_UNITS =
+            ImmutableSet.of("em", "ex", "px", "gd", "rem", "vw", "vh", "vm", "ch",
+                    "in", "cm", "mm", "pt", "pc");
 
-  private static final Logger logger = Logger.getLogger(
-      EliminateUnitsFromZeroNumericValues.class.getName());
+    private static final Logger logger = Logger.getLogger(
+            EliminateUnitsFromZeroNumericValues.class.getName());
 
-  private final MutatingVisitController visitController;
+    private final MutatingVisitController visitController;
 
-  public EliminateUnitsFromZeroNumericValues(
-      MutatingVisitController visitController) {
-    this.visitController = visitController;
-  }
-
-  @Override
-  public boolean enterValueNode(CssValueNode node) {
-    if (!(node instanceof CssNumericNode) // Don't process non-numeric nodes
-        // Don't strip units from operands of + and - inside calc() expressions; they are invalid.
-        // See https://www.w3.org/TR/css3-values/#calc-type-checking, and clarification by
-        // spec author: https://bugs.chromium.org/p/chromium/issues/detail?id=641556#c5.
-        || isPlusOrMinusOperand(node)) {
-      return true;
+    public EliminateUnitsFromZeroNumericValues(
+            MutatingVisitController visitController) {
+        this.visitController = visitController;
     }
-    CssNumericNode numericNode = (CssNumericNode) node;
-    String numericValue = numericNode.getNumericPart();
-    try {
-      float value = Float.parseFloat(numericValue);
-      if (value == 0.0) {
-        if (REMOVABLE_LENGTH_UNITS.contains(numericNode.getUnit())) {
-          numericNode.setUnit("");
-        }
-        numericNode.setNumericPart("0");
-      } else {
-        // Removes the 0s at the left of the dot.
-        int stripFront = 0;
-        while (numericValue.charAt(stripFront) == '0') {
-          stripFront++;
-        }
 
-        int stripBack = numericValue.length() - 1;
-        if (numericValue.contains(".")) {
-          // Remove the 0s at the right of the dot.
-          while (numericValue.charAt(stripBack) == '0') {
-            stripBack--;
-          }
-          // Maybe remove the dot.
-          if (numericValue.charAt(stripBack) == '.') {
-            stripBack--;
-          }
-          numericValue = numericValue.substring(stripFront, stripBack + 1);
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+        if (!(node instanceof CssNumericNode) // Don't process non-numeric nodes
+                // Don't strip units from operands of + and - inside calc() expressions; they are invalid.
+                // See https://www.w3.org/TR/css3-values/#calc-type-checking, and clarification by
+                // spec author: https://bugs.chromium.org/p/chromium/issues/detail?id=641556#c5.
+                || isPlusOrMinusOperand(node)) {
+            return true;
         }
-        numericNode.setNumericPart(numericValue);
-      }
-    } catch (NumberFormatException e) {
-      logger.warning(
-          "Numeric part of the numeric value node could not be "
-              + "parsed: "
-              + node.toString()
-              + ((node.getSourceCodeLocation() != null)
-                  ? "@" + node.getSourceCodeLocation().getLineNumber()
-                  : ""));
+        CssNumericNode numericNode = (CssNumericNode) node;
+        String numericValue = numericNode.getNumericPart();
+        try {
+            float value = Float.parseFloat(numericValue);
+            if (value == 0.0) {
+                if (REMOVABLE_LENGTH_UNITS.contains(numericNode.getUnit())) {
+                    numericNode.setUnit("");
+                }
+                numericNode.setNumericPart("0");
+            } else {
+                // Removes the 0s at the left of the dot.
+                int stripFront = 0;
+                while (numericValue.charAt(stripFront) == '0') {
+                    stripFront++;
+                }
+
+                int stripBack = numericValue.length() - 1;
+                if (numericValue.contains(".")) {
+                    // Remove the 0s at the right of the dot.
+                    while (numericValue.charAt(stripBack) == '0') {
+                        stripBack--;
+                    }
+                    // Maybe remove the dot.
+                    if (numericValue.charAt(stripBack) == '.') {
+                        stripBack--;
+                    }
+                    numericValue = numericValue.substring(stripFront, stripBack + 1);
+                }
+                numericNode.setNumericPart(numericValue);
+            }
+        } catch (NumberFormatException e) {
+            logger.warning(
+                    "Numeric part of the numeric value node could not be "
+                            + "parsed: "
+                            + node.toString()
+                            + ((node.getSourceCodeLocation() != null)
+                            ? "@" + node.getSourceCodeLocation().getLineNumber()
+                            : ""));
+        }
+        return true;
     }
-    return true;
-  }
 
-  private static boolean isPlusOrMinusOperand(CssValueNode node) {
-    CssNode parent = node.getParent();
-    return parent instanceof CssMathNode
-        && (((CssMathNode) parent).getOperator() == Operator.ADD
-            || ((CssMathNode) parent).getOperator() == Operator.SUB);
-  }
+    private static boolean isPlusOrMinusOperand(CssValueNode node) {
+        CssNode parent = node.getParent();
+        return parent instanceof CssMathNode
+                && (((CssMathNode) parent).getOperator() == Operator.ADD
+                || ((CssMathNode) parent).getOperator() == Operator.SUB);
+    }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

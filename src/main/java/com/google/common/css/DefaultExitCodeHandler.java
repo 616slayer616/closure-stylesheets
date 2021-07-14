@@ -24,9 +24,9 @@ package com.google.common.css;
  */
 public class DefaultExitCodeHandler implements ExitCodeHandler {
 
-  @Override
-  public void processExitCode(int exitCode) {
-    System.exit(exitCode);
-  }
+    @Override
+    public void processExitCode(int exitCode) {
+        System.exit(exitCode);
+    }
 
 }

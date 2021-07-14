@@ -27,49 +27,50 @@ import com.google.common.css.compiler.ast.VisitController;
  * up empty.
  *
  * @param <T> type of chunk id objects
- *
  * @author dgajda@google.com (Damian Gajda)
  */
 public class TemplateCompactPrinter<T> extends CompactPrinter {
 
-  public static final char REFERENCE_START = '\u0123';
-  public static final char REFERENCE_END = '\u0122';
-  public static final char REFERENCE_START_OLD = '$';
-  public static final char REFERENCE_END_OLD = '^';
-  public static final char DECLARATION_START = '\u0105';
-  public static final char DECLARATION_END = '\u0104';
-  public static final char RULE_START = '\u0118';
-  public static final char RULE_END = '\u0119';
+    public static final char REFERENCE_START = '\u0123';
+    public static final char REFERENCE_END = '\u0122';
+    public static final char REFERENCE_START_OLD = '$';
+    public static final char REFERENCE_END_OLD = '^';
+    public static final char DECLARATION_START = '\u0105';
+    public static final char DECLARATION_END = '\u0104';
+    public static final char RULE_START = '\u0118';
+    public static final char RULE_END = '\u0119';
 
-  /** Chunk to be printed by this printer. */
-  protected final T chunk;
+    /**
+     * Chunk to be printed by this printer.
+     */
+    protected final T chunk;
 
-  // CodeBuffer with specific behavior for the printer
-  private static final class CodeBufferForTemplate extends CodeBuffer {
-    @Override
-    public void deleteLastCharIfCharIs(char ch) {
-      if (ch == ';' && getLastChar() == DECLARATION_END) {
-        deleteLastChars(2);
-        append(DECLARATION_END);
-      } else {
-        super.deleteLastCharIfCharIs(ch);
-      }
+    // CodeBuffer with specific behavior for the printer
+    private static final class CodeBufferForTemplate extends CodeBuffer {
+        @Override
+        public void deleteLastCharIfCharIs(char ch) {
+            if (ch == ';' && getLastChar() == DECLARATION_END) {
+                deleteLastChars(2);
+                append(DECLARATION_END);
+            } else {
+                super.deleteLastCharIfCharIs(ch);
+            }
+        }
     }
-  }
 
-  /**
-   * Create a template printer for a given chunk.
-   *
-   * @param tree CSS AST to be printed (with regard to a selected chunk)
-   * @param chunk the chunk selected for printing
-   */
-  public TemplateCompactPrinter(CssTree tree, T chunk) {
-    super(tree, new CodeBufferForTemplate(), null /* generator */);
-    this.chunk = chunk;
-  }
+    /**
+     * Create a template printer for a given chunk.
+     *
+     * @param tree  CSS AST to be printed (with regard to a selected chunk)
+     * @param chunk the chunk selected for printing
+     */
+    public TemplateCompactPrinter(CssTree tree, T chunk) {
+        super(tree, new CodeBufferForTemplate(), null /* generator */);
+        this.chunk = chunk;
+    }
 
-  @Override
-  protected CssTreeVisitor createVisitor(VisitController visitController, CodeBuffer buffer) {
-    return new TemplateCompactPrintingVisitor<>(visitController, chunk, buffer);
-  }
+    @Override
+    protected CssTreeVisitor createVisitor(VisitController visitController, CodeBuffer buffer) {
+        return new TemplateCompactPrintingVisitor<>(visitController, chunk, buffer);
+    }
 }

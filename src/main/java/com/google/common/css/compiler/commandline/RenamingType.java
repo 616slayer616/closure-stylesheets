@@ -16,12 +16,7 @@
 
 package com.google.common.css.compiler.commandline;
 
-import com.google.common.css.IdentitySubstitutionMap;
-import com.google.common.css.MinimalSubstitutionMap;
-import com.google.common.css.SimpleSubstitutionMap;
-import com.google.common.css.SplittingSubstitutionMap;
-import com.google.common.css.SubstitutionMap;
-import com.google.common.css.SubstitutionMapProvider;
+import com.google.common.css.*;
 
 /**
  * {@link RenamingType} is an enumeration of the possible values for the
@@ -32,44 +27,48 @@ import com.google.common.css.SubstitutionMapProvider;
  * @author bolinfest@google.com (Michael Bolin)
  */
 enum RenamingType {
-  /** No renaming is done. */
-  NONE(new SubstitutionMapProvider() {
-    @Override
-    public SubstitutionMap get() {
-      return new IdentitySubstitutionMap();
+    /**
+     * No renaming is done.
+     */
+    NONE(new SubstitutionMapProvider() {
+        @Override
+        public SubstitutionMap get() {
+            return new IdentitySubstitutionMap();
+        }
+    }),
+
+    /**
+     * A trailing underscore is added to each part of a CSS class.
+     */
+    DEBUG(new SubstitutionMapProvider() {
+        @Override
+        public SubstitutionMap get() {
+            // This wraps the SimpleSubstitutionMap in a SplittingSubstitutionMap so
+            // that can be used with goog.getCssName().
+            return new SplittingSubstitutionMap(new SimpleSubstitutionMap());
+        }
+    }),
+
+
+    /**
+     * Each chunk of a CSS class as delimited by '-' is renamed using the
+     * shortest available name.
+     */
+    CLOSURE(new SubstitutionMapProvider() {
+        @Override
+        public SubstitutionMap get() {
+            return new SplittingSubstitutionMap(new MinimalSubstitutionMap());
+        }
+    }),
+    ;
+
+    private final SubstitutionMapProvider provider;
+
+    private RenamingType(SubstitutionMapProvider provider) {
+        this.provider = provider;
     }
-  }),
 
-  /** A trailing underscore is added to each part of a CSS class. */
-  DEBUG(new SubstitutionMapProvider() {
-    @Override
-    public SubstitutionMap get() {
-      // This wraps the SimpleSubstitutionMap in a SplittingSubstitutionMap so
-      // that can be used with goog.getCssName().
-      return new SplittingSubstitutionMap(new SimpleSubstitutionMap());
+    public SubstitutionMapProvider getCssSubstitutionMapProvider() {
+        return provider;
     }
-  }),
-
-
-  /**
-   * Each chunk of a CSS class as delimited by '-' is renamed using the
-   * shortest available name.
-   */
-  CLOSURE(new SubstitutionMapProvider() {
-    @Override
-    public SubstitutionMap get() {
-      return new SplittingSubstitutionMap(new MinimalSubstitutionMap());
-    }
-  }),
-  ;
-
-  private final SubstitutionMapProvider provider;
-
-  private RenamingType(SubstitutionMapProvider provider) {
-    this.provider = provider;
-  }
-
-  public SubstitutionMapProvider getCssSubstitutionMapProvider() {
-    return provider;
-  }
 }

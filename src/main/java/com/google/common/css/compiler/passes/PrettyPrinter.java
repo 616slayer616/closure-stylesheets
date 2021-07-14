@@ -20,6 +20,7 @@ import com.google.common.css.compiler.ast.CssCompilerPass;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.CssTreeVisitor;
 import com.google.common.css.compiler.ast.VisitController;
+
 import javax.annotation.Nullable;
 
 /**
@@ -31,57 +32,57 @@ import javax.annotation.Nullable;
  * @author fbenz@google.com (Florian Benz)
  */
 public class PrettyPrinter extends CodePrinter implements CssCompilerPass {
-  private String prettyPrintedString = null;
-  private boolean stripQuotes = false;
-  private boolean preserveComments = false;
+    private String prettyPrintedString = null;
+    private boolean stripQuotes = false;
+    private boolean preserveComments = false;
 
-  public PrettyPrinter(VisitController visitController, 
-      @Nullable CodeBuffer buffer,
-      @Nullable GssSourceMapGenerator generator) {
-    super(visitController, buffer, generator);
-  }
+    public PrettyPrinter(VisitController visitController,
+                         @Nullable CodeBuffer buffer,
+                         @Nullable GssSourceMapGenerator generator) {
+        super(visitController, buffer, generator);
+    }
 
-  public PrettyPrinter(VisitController visitController, GssSourceMapGenerator generator) {
-    this(visitController, null /* buffer */, generator);
-  }
+    public PrettyPrinter(VisitController visitController, GssSourceMapGenerator generator) {
+        this(visitController, null /* buffer */, generator);
+    }
 
-  public PrettyPrinter(VisitController visitController) {
-    this(visitController, null /* buffer */, null /* generator */);
-  }
+    public PrettyPrinter(VisitController visitController) {
+        this(visitController, null /* buffer */, null /* generator */);
+    }
 
-  /**
-   * Whether to strip quotes from certain values. This facilitates
-   * tests that want to compare trees.
-   */
-  public void setStripQuotes(boolean stripQuotes) {
-    this.stripQuotes = stripQuotes;
-  }
+    /**
+     * Whether to strip quotes from certain values. This facilitates
+     * tests that want to compare trees.
+     */
+    public void setStripQuotes(boolean stripQuotes) {
+        this.stripQuotes = stripQuotes;
+    }
 
-  /**
-   * Whether comments in the CSS nodes are preserved in the pretty printed
-   * output.
-   * <p>Note: Comments layout is not guaranteed, since detailed position
-   * information in the input files is not preserved by the parser. Line breaks
-   * are added after every comment with current identation as best effort.</p>
-   */
-  public PrettyPrinter setPreserveComments(boolean preserve) {
-    this.preserveComments = preserve;
-    return this;
-  }
+    /**
+     * Whether comments in the CSS nodes are preserved in the pretty printed
+     * output.
+     * <p>Note: Comments layout is not guaranteed, since detailed position
+     * information in the input files is not preserved by the parser. Line breaks
+     * are added after every comment with current identation as best effort.</p>
+     */
+    public PrettyPrinter setPreserveComments(boolean preserve) {
+        this.preserveComments = preserve;
+        return this;
+    }
 
-  public String getPrettyPrintedString() {
-    return prettyPrintedString;
-  }
+    public String getPrettyPrintedString() {
+        return prettyPrintedString;
+    }
 
-  @Override
-  protected CssTreeVisitor createVisitor(VisitController visitController, CodeBuffer codeBuffer) {
-    return new PrettyPrintingVisitor(codeBuffer, stripQuotes, preserveComments);
-  }
+    @Override
+    protected CssTreeVisitor createVisitor(VisitController visitController, CodeBuffer codeBuffer) {
+        return new PrettyPrintingVisitor(codeBuffer, stripQuotes, preserveComments);
+    }
 
-  @Override
-  public void runPass() {
-    resetBuffer();
-    visit();
-    prettyPrintedString = getOutputBuffer();
-  }
+    @Override
+    public void runPass() {
+        resetBuffer();
+        visit();
+        prettyPrintedString = getOutputBuffer();
+    }
 }

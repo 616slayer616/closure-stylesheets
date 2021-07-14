@@ -30,21 +30,21 @@ import javax.annotation.Nullable;
  */
 public class CssLiteralNode extends CssValueNode {
 
-  public CssLiteralNode(String value,
-      @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(value, sourceCodeLocation);
-  }
+    public CssLiteralNode(String value,
+                          @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(value, sourceCodeLocation);
+    }
 
-  public CssLiteralNode(String value) {
-    this(value, null);
-  }
+    public CssLiteralNode(String value) {
+        this(value, null);
+    }
 
-  public CssLiteralNode(CssLiteralNode node) {
-    super(node);
-  }
+    public CssLiteralNode(CssLiteralNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssLiteralNode deepCopy() {
-    return new CssLiteralNode(this);
-  }
+    @Override
+    public CssLiteralNode deepCopy() {
+        return new CssLiteralNode(this);
+    }
 }

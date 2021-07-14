@@ -16,24 +16,16 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
-
 import com.google.common.collect.Lists;
-import com.google.common.css.compiler.ast.BackDoorNodeMutation;
-import com.google.common.css.compiler.ast.CssBlockNode;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssPropertyNode;
-import com.google.common.css.compiler.ast.CssRootNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssSelectorNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.MutatingVisitController;
-import java.util.List;
+import com.google.common.css.compiler.ast.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.List;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for {@link SplitRulesetNodes}.
@@ -43,72 +35,72 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class SplitRulesetNodesTest {
 
-  @Test
-  public void testRunPass() {
-    MutatingVisitController visitController = mock(MutatingVisitController.class);
-    SplitRulesetNodes pass = new SplitRulesetNodes(visitController);
-    visitController.startVisit(pass);
+    @Test
+    public void testRunPass() {
+        MutatingVisitController visitController = mock(MutatingVisitController.class);
+        SplitRulesetNodes pass = new SplitRulesetNodes(visitController);
+        visitController.startVisit(pass);
 
-    pass.runPass();
-  }
+        pass.runPass();
+    }
 
-  @Test
-  public void testEnterRulesetNode() {
-    MutatingVisitController visitController = mock(MutatingVisitController.class);
-    SplitRulesetNodes pass = new SplitRulesetNodes(visitController);
+    @Test
+    public void testEnterRulesetNode() {
+        MutatingVisitController visitController = mock(MutatingVisitController.class);
+        SplitRulesetNodes pass = new SplitRulesetNodes(visitController);
 
-    CssRulesetNode node = new CssRulesetNode();
-    List<CssNode> replacementNodes = Lists.newArrayList();
-    
-    visitController.replaceCurrentBlockChildWith(replacementNodes, false);
+        CssRulesetNode node = new CssRulesetNode();
+        List<CssNode> replacementNodes = Lists.newArrayList();
 
-    pass.enterRuleset(node);
-  }
+        visitController.replaceCurrentBlockChildWith(replacementNodes, false);
 
-  @Test
-  public void testPassResult() {
-    CssPropertyNode prop1 = new CssPropertyNode("padding", null);
-    CssPropertyNode prop2 = new CssPropertyNode("color", null);
+        pass.enterRuleset(node);
+    }
 
-    CssDeclarationNode decl1 = new CssDeclarationNode(prop1);
-    CssDeclarationNode decl2 = new CssDeclarationNode(prop2);
-    
-    CssRulesetNode ruleset = new CssRulesetNode();
-    CssSelectorNode sel = new CssSelectorNode("foo", null);
-    ruleset.addSelector(sel);
-    ruleset.addDeclaration(decl1);
-    ruleset.addDeclaration(decl2);
-    
-    CssBlockNode body = new CssBlockNode(false);
-    BackDoorNodeMutation.addChildToBack(body, ruleset);
-    
-    CssRootNode root = new CssRootNode(body);
-    CssTree tree = new CssTree(null, root);
-    
-    List<CssNode> replacementNodes = Lists.newArrayList();
-    CssRulesetNode rule = new CssRulesetNode();
-    rule.addDeclaration(decl1);
-    rule.addSelector(sel);
-    replacementNodes.add(rule);
-    rule = new CssRulesetNode();
-    rule.addDeclaration(decl1);
-    rule.addSelector(sel);
-    replacementNodes.add(rule);
-    
-    SplitRulesetNodes pass = new SplitRulesetNodes(
-        tree.getMutatingVisitController());
+    @Test
+    public void testPassResult() {
+        CssPropertyNode prop1 = new CssPropertyNode("padding", null);
+        CssPropertyNode prop2 = new CssPropertyNode("color", null);
 
-    pass.runPass();
-    assertThat(tree.getRoot().getBody().toString())
-        .isEqualTo("[[foo]{[padding:[]]}, [foo]{[color:[]]}]");
+        CssDeclarationNode decl1 = new CssDeclarationNode(prop1);
+        CssDeclarationNode decl2 = new CssDeclarationNode(prop2);
 
-    assertThat(getFirstSelectorByRuleIndex(tree, 0))
-        .isNotEqualTo(getFirstSelectorByRuleIndex(tree, 1));
-  }
+        CssRulesetNode ruleset = new CssRulesetNode();
+        CssSelectorNode sel = new CssSelectorNode("foo", null);
+        ruleset.addSelector(sel);
+        ruleset.addDeclaration(decl1);
+        ruleset.addDeclaration(decl2);
 
-  private CssSelectorNode getFirstSelectorByRuleIndex(CssTree tree, int index) {
-    CssRulesetNode rule =
-        (CssRulesetNode) tree.getRoot().getBody().getChildren().get(index);
-    return rule.getSelectors().getChildren().get(0);
-  }
+        CssBlockNode body = new CssBlockNode(false);
+        BackDoorNodeMutation.addChildToBack(body, ruleset);
+
+        CssRootNode root = new CssRootNode(body);
+        CssTree tree = new CssTree(null, root);
+
+        List<CssNode> replacementNodes = Lists.newArrayList();
+        CssRulesetNode rule = new CssRulesetNode();
+        rule.addDeclaration(decl1);
+        rule.addSelector(sel);
+        replacementNodes.add(rule);
+        rule = new CssRulesetNode();
+        rule.addDeclaration(decl1);
+        rule.addSelector(sel);
+        replacementNodes.add(rule);
+
+        SplitRulesetNodes pass = new SplitRulesetNodes(
+                tree.getMutatingVisitController());
+
+        pass.runPass();
+        assertThat(tree.getRoot().getBody().toString())
+                .isEqualTo("[[foo]{[padding:[]]}, [foo]{[color:[]]}]");
+
+        assertThat(getFirstSelectorByRuleIndex(tree, 0))
+                .isNotEqualTo(getFirstSelectorByRuleIndex(tree, 1));
+    }
+
+    private CssSelectorNode getFirstSelectorByRuleIndex(CssTree tree, int index) {
+        CssRulesetNode rule =
+                (CssRulesetNode) tree.getRoot().getBody().getChildren().get(index);
+        return rule.getSelectors().getChildren().get(0);
+    }
 }

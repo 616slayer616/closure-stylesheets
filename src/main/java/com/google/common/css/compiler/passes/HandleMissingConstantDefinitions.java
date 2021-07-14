@@ -17,58 +17,52 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Preconditions;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssConstantReferenceNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.ErrorManager;
-import com.google.common.css.compiler.ast.GssError;
-import com.google.common.css.compiler.ast.VisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * Compiler pass that throws an error for any {@link CssConstantReferenceNode}
  * that do not have a corresponding {@link CssDefinitionNode}.
  */
 public final class HandleMissingConstantDefinitions extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  static final String ERROR_MESSAGE =
-      "Unknown use of a @def constant. Make sure that the constant is included "
-      + "in the compilation unit.";
+    static final String ERROR_MESSAGE =
+            "Unknown use of a @def constant. Make sure that the constant is included "
+                    + "in the compilation unit.";
 
-  private final VisitController visitController;
-  private final ErrorManager errorManager;
-  private final ConstantDefinitions definitions;
+    private final VisitController visitController;
+    private final ErrorManager errorManager;
+    private final ConstantDefinitions definitions;
 
-  public HandleMissingConstantDefinitions(
-      VisitController visitController,
-      ErrorManager errorManager,
-      ConstantDefinitions definitions) {
-    this.visitController = Preconditions.checkNotNull(visitController);
-    this.errorManager = Preconditions.checkNotNull(errorManager);
-    this.definitions = Preconditions.checkNotNull(definitions);
-  }
-
-  @Override
-  public void leaveValueNode(CssValueNode node) {
-    checkValueNode(node);
-  }
-
-  @Override
-  public void leaveArgumentNode(CssValueNode node) {
-    checkValueNode(node);
-  }
-
-  private void checkValueNode(CssValueNode node) {
-    if (node instanceof CssConstantReferenceNode
-        && !definitions.getConstants().keySet().contains(node.getValue())) {
-      errorManager.report(new GssError(
-          ERROR_MESSAGE, node.getSourceCodeLocation()));
+    public HandleMissingConstantDefinitions(
+            VisitController visitController,
+            ErrorManager errorManager,
+            ConstantDefinitions definitions) {
+        this.visitController = Preconditions.checkNotNull(visitController);
+        this.errorManager = Preconditions.checkNotNull(errorManager);
+        this.definitions = Preconditions.checkNotNull(definitions);
     }
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public void leaveValueNode(CssValueNode node) {
+        checkValueNode(node);
+    }
+
+    @Override
+    public void leaveArgumentNode(CssValueNode node) {
+        checkValueNode(node);
+    }
+
+    private void checkValueNode(CssValueNode node) {
+        if (node instanceof CssConstantReferenceNode
+                && !definitions.getConstants().keySet().contains(node.getValue())) {
+            errorManager.report(new GssError(
+                    ERROR_MESSAGE, node.getSourceCodeLocation()));
+        }
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

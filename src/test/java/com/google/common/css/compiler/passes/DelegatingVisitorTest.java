@@ -16,57 +16,60 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.compiler.ast.CssSelectorNode;
 import com.google.common.css.compiler.ast.CssTreeVisitor;
 import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Tests {@link DelegatingVisitor} */
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.common.truth.Truth.assertThat;
+
+/**
+ * Tests {@link DelegatingVisitor}
+ */
 @RunWith(JUnit4.class)
 public class DelegatingVisitorTest {
 
-  @Test
-  public void testInvocationOrder() throws Exception {
-    List<String> orderRecord = new ArrayList<>();
-    DefaultTreeVisitor visitor1 = new RecordingVisitor("visitor1", orderRecord);
-    DefaultTreeVisitor visitor2 = new RecordingVisitor("visitor2", orderRecord);
+    @Test
+    public void testInvocationOrder() throws Exception {
+        List<String> orderRecord = new ArrayList<>();
+        DefaultTreeVisitor visitor1 = new RecordingVisitor("visitor1", orderRecord);
+        DefaultTreeVisitor visitor2 = new RecordingVisitor("visitor2", orderRecord);
 
-    CssTreeVisitor delegatingVisitor = DelegatingVisitor.from(visitor1, visitor2);
+        CssTreeVisitor delegatingVisitor = DelegatingVisitor.from(visitor1, visitor2);
 
-    delegatingVisitor.enterSelector(null /* selector */);
-    delegatingVisitor.leaveSelector(null /* selector */);
+        delegatingVisitor.enterSelector(null /* selector */);
+        delegatingVisitor.leaveSelector(null /* selector */);
 
-    assertThat(orderRecord)
-        .containsExactly("enter visitor1", "enter visitor2", "leave visitor2", "leave visitor1")
-        .inOrder();
-  }
-
-  private static class RecordingVisitor extends DefaultTreeVisitor {
-
-    private final String name;
-    private final List<String> orderRecord;
-
-    RecordingVisitor(String name, List<String> orderRecord) {
-      this.name = name;
-      this.orderRecord = orderRecord;
+        assertThat(orderRecord)
+                .containsExactly("enter visitor1", "enter visitor2", "leave visitor2", "leave visitor1")
+                .inOrder();
     }
 
-    @Override
-    public boolean enterSelector(CssSelectorNode selector) {
-      orderRecord.add("enter " + name);
-      return super.enterSelector(selector);
-    }
+    private static class RecordingVisitor extends DefaultTreeVisitor {
 
-    @Override
-    public void leaveSelector(CssSelectorNode selector) {
-      orderRecord.add("leave " + name);
-      super.leaveSelector(selector);
+        private final String name;
+        private final List<String> orderRecord;
+
+        RecordingVisitor(String name, List<String> orderRecord) {
+            this.name = name;
+            this.orderRecord = orderRecord;
+        }
+
+        @Override
+        public boolean enterSelector(CssSelectorNode selector) {
+            orderRecord.add("enter " + name);
+            return super.enterSelector(selector);
+        }
+
+        @Override
+        public void leaveSelector(CssSelectorNode selector) {
+            orderRecord.add("leave " + name);
+            super.leaveSelector(selector);
+        }
     }
-  }
 }

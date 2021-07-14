@@ -43,17 +43,17 @@ package com.google.common.css.compiler.ast;
  */
 public interface ChunkAware {
 
-  /**
-   * Sets the chunk id on the node.
-   *
-   * @param chunk an object identifying a chunk
-   */
-  public void setChunk(Object chunk);
+    /**
+     * Sets the chunk id on the node.
+     *
+     * @param chunk an object identifying a chunk
+     */
+    public void setChunk(Object chunk);
 
-  /**
-   * Gets the chunk id of the node.
-   *
-   * @return the chunk id or {@code null} if no chunk id was previously set
-   */
-  public Object getChunk();
+    /**
+     * Gets the chunk id of the node.
+     *
+     * @return the chunk id or {@code null} if no chunk id was previously set
+     */
+    public Object getChunk();
 }

@@ -16,42 +16,38 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.MutatingVisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * Compiler pass that removes useless ruleset nodes from the AST.
- * 
+ *
  * @author oana@google.com (Oana Florescu)
  */
 public class EliminateUselessRulesetNodes extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final CssTree tree;
-  private final MutatingVisitController visitController;
+    private final CssTree tree;
+    private final MutatingVisitController visitController;
 
-  public EliminateUselessRulesetNodes(CssTree tree) {
-    this.tree = tree;
-    this.visitController = tree.getMutatingVisitController();
-  }
-
-  @Override
-  public boolean enterRuleset(CssRulesetNode node) {
-    if (tree.getRulesetNodesToRemove().getRulesetNodes().contains(node)) {
-      visitController.removeCurrentNode();
-      return false;
+    public EliminateUselessRulesetNodes(CssTree tree) {
+        this.tree = tree;
+        this.visitController = tree.getMutatingVisitController();
     }
-    return true;
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
+    @Override
+    public boolean enterRuleset(CssRulesetNode node) {
+        if (tree.getRulesetNodesToRemove().getRulesetNodes().contains(node)) {
+            visitController.removeCurrentNode();
+            return false;
+        }
+        return true;
+    }
 
-    // Now that we've removed everything we can clear this.
-    tree.resetRulesetNodesToRemove();
-  }
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+
+        // Now that we've removed everything we can clear this.
+        tree.resetRulesetNodesToRemove();
+    }
 }

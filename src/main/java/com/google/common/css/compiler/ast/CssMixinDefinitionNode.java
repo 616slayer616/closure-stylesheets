@@ -34,46 +34,46 @@ import com.google.common.css.SourceCodeLocation;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssMixinDefinitionNode extends CssAtRuleNode {
-  private final String name;
-  private final CssDeclarationBlockNode declarations;
-  private final CssFunctionArgumentsNode arguments;
+    private final String name;
+    private final CssDeclarationBlockNode declarations;
+    private final CssFunctionArgumentsNode arguments;
 
-  public CssMixinDefinitionNode(String name, CssFunctionArgumentsNode arguments,
-      CssDeclarationBlockNode declarations, SourceCodeLocation location) {
-    super(Type.DEFMIXIN, new CssLiteralNode("defmixin"), declarations);
-    this.setSourceCodeLocation(location);
-    this.name = name;
-    this.declarations = declarations;
-    becomeParentForNode(declarations);
-    this.arguments = arguments;
-  }
+    public CssMixinDefinitionNode(String name, CssFunctionArgumentsNode arguments,
+                                  CssDeclarationBlockNode declarations, SourceCodeLocation location) {
+        super(Type.DEFMIXIN, new CssLiteralNode("defmixin"), declarations);
+        this.setSourceCodeLocation(location);
+        this.name = name;
+        this.declarations = declarations;
+        becomeParentForNode(declarations);
+        this.arguments = arguments;
+    }
 
-  /**
-   * Creates a new mixin definition node that is a deep copy of the given node.
-   */
-  public CssMixinDefinitionNode(CssMixinDefinitionNode node) {
-    super(node);
-    this.name = node.name;
-    this.declarations = node.declarations.deepCopy();
-    this.arguments = node.arguments.deepCopy();
-  }
+    /**
+     * Creates a new mixin definition node that is a deep copy of the given node.
+     */
+    public CssMixinDefinitionNode(CssMixinDefinitionNode node) {
+        super(node);
+        this.name = node.name;
+        this.declarations = node.declarations.deepCopy();
+        this.arguments = node.arguments.deepCopy();
+    }
 
-  @Override
-  public CssNode deepCopy() {
-    return new CssMixinDefinitionNode(this);
-  }
+    @Override
+    public CssNode deepCopy() {
+        return new CssMixinDefinitionNode(this);
+    }
 
-  public String getDefinitionName() {
-    return name;
-  }
+    public String getDefinitionName() {
+        return name;
+    }
 
-  public CssFunctionArgumentsNode getArguments() {
-    return arguments;
-  }
+    public CssFunctionArgumentsNode getArguments() {
+        return arguments;
+    }
 
-  @Override
-  public CssDeclarationBlockNode getBlock() {
-    // The type is ensured by the constructor.
-    return (CssDeclarationBlockNode) super.getBlock();
-  }
+    @Override
+    public CssDeclarationBlockNode getBlock() {
+        // The type is ensured by the constructor.
+        return (CssDeclarationBlockNode) super.getBlock();
+    }
 }

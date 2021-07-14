@@ -16,19 +16,20 @@
 
 package com.google.common.css.compiler.passes;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.CssRulesetNode;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.MutatingVisitController;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link EliminateUselessRulesetNodes}.
@@ -41,33 +42,35 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class EliminateUselessRulesetNodesTest {
 
-  @Mock MutatingVisitController mockVisitController;
-  @Mock CssTree mockTree;
+    @Mock
+    MutatingVisitController mockVisitController;
+    @Mock
+    CssTree mockTree;
 
-  @Before
-  public void setUp() {
-    when(mockTree.getMutatingVisitController()).thenReturn(mockVisitController);
-  }
+    @Before
+    public void setUp() {
+        when(mockTree.getMutatingVisitController()).thenReturn(mockVisitController);
+    }
 
-  @Test
-  public void testRunPass() {
-    EliminateUselessRulesetNodes pass = new EliminateUselessRulesetNodes(mockTree);
-    mockVisitController.startVisit(pass);
+    @Test
+    public void testRunPass() {
+        EliminateUselessRulesetNodes pass = new EliminateUselessRulesetNodes(mockTree);
+        mockVisitController.startVisit(pass);
 
-    pass.runPass();
-  }
+        pass.runPass();
+    }
 
-  @Test
-  public void testEnterRulesetNode() {
-    CssRulesetNode node = new CssRulesetNode();
-    List<CssRulesetNode> rulesList = Lists.newArrayList(node);
+    @Test
+    public void testEnterRulesetNode() {
+        CssRulesetNode node = new CssRulesetNode();
+        List<CssRulesetNode> rulesList = Lists.newArrayList(node);
 
-    CssTree.RulesetNodesToRemove nodesToRemove = mock(CssTree.RulesetNodesToRemove.class);
-    when(nodesToRemove.getRulesetNodes()).thenReturn(rulesList);
-    when(mockTree.getRulesetNodesToRemove()).thenReturn(nodesToRemove);
+        CssTree.RulesetNodesToRemove nodesToRemove = mock(CssTree.RulesetNodesToRemove.class);
+        when(nodesToRemove.getRulesetNodes()).thenReturn(rulesList);
+        when(mockTree.getRulesetNodesToRemove()).thenReturn(nodesToRemove);
 
-    EliminateUselessRulesetNodes pass = new EliminateUselessRulesetNodes(mockTree);
+        EliminateUselessRulesetNodes pass = new EliminateUselessRulesetNodes(mockTree);
 
-    pass.enterRuleset(node);
-  }
+        pass.enterRuleset(node);
+    }
 }

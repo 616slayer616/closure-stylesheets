@@ -36,7 +36,7 @@ import com.google.common.css.compiler.ast.CssNode;
  *    |   \
  *   D_0  D_1
  * </pre>
- *
+ * <p>
  * Then we know that the subtree rooted at A includes markup beginning by
  * min_0^n(beginLocation(D_i)) and ending by max_0^n(endLocation(D_i)). Concretely, let
  *
@@ -47,7 +47,7 @@ import com.google.common.css.compiler.ast.CssNode;
  *   D_0   5                       15
  *   D_1   17                      19
  * </pre>
- *
+ * <p>
  * Then we can estimate for A:
  *
  * <pre class="code">
@@ -55,41 +55,42 @@ import com.google.common.css.compiler.ast.CssNode;
  * </pre>
  */
 public class LocationBoundingVisitor implements UniformVisitor {
-  private SourceCodeLocation result = null;
+    private SourceCodeLocation result = null;
 
-  @Override
-  public void enter(CssNode n) {
-    SourceCodeLocation loc = n.getSourceCodeLocation();
-    if (loc == null || loc.isUnknown()) {
-      return;
+    @Override
+    public void enter(CssNode n) {
+        SourceCodeLocation loc = n.getSourceCodeLocation();
+        if (loc == null || loc.isUnknown()) {
+            return;
+        }
+        if (result == null || result.isUnknown()) {
+            result = loc;
+        } else {
+            Ordering<SourceCodePoint> o = Ordering.natural();
+            SourceCodePoint lowerBound = o.min(result.getBegin(), loc.getBegin());
+            SourceCodePoint upperBound = o.max(result.getEnd(), loc.getEnd());
+            result = new SourceCodeLocationBuilder()
+                    .setSourceCode(result.getSourceCode())
+                    .setBeginLocation(lowerBound)
+                    .setEndLocation(upperBound)
+                    .getSourceCodeLocation();
+        }
     }
-    if (result == null || result.isUnknown()) {
-      result = loc;
-    } else {
-      Ordering<SourceCodePoint> o = Ordering.natural();
-      SourceCodePoint lowerBound = o.min(result.getBegin(), loc.getBegin());
-      SourceCodePoint upperBound = o.max(result.getEnd(), loc.getEnd());
-      result = new SourceCodeLocationBuilder()
-          .setSourceCode(result.getSourceCode())
-          .setBeginLocation(lowerBound)
-          .setEndLocation(upperBound)
-          .getSourceCodeLocation();
-    }
-  }
 
-  @Override
-  public void leave(CssNode node) {}
+    @Override
+    public void leave(CssNode node) {
+    }
 
-  public static SourceCodeLocation bound(CssNode n) {
-    SourceCodeLocation location = n.getSourceCodeLocation();
-    if (location != null && !location.isUnknown()) {
-      return location;
+    public static SourceCodeLocation bound(CssNode n) {
+        SourceCodeLocation location = n.getSourceCodeLocation();
+        if (location != null && !location.isUnknown()) {
+            return location;
+        }
+        LocationBoundingVisitor v = new LocationBoundingVisitor();
+        n.getVisitController().startVisit(UniformVisitor.Adapters.asVisitor(v));
+        if (v.result == null) {
+            return SourceCodeLocation.getUnknownLocation();
+        }
+        return v.result;
     }
-    LocationBoundingVisitor v = new LocationBoundingVisitor();
-    n.getVisitController().startVisit(UniformVisitor.Adapters.asVisitor(v));
-    if (v.result == null) {
-      return SourceCodeLocation.getUnknownLocation();
-    }
-    return v.result;
-  }
 }
