@@ -241,7 +241,7 @@ public class CssBooleanExpressionNode extends CssValueNode {
             return sb.toString();
         } else {
             // assert false;
-            return null;
+            return "";
         }
     }
 }
