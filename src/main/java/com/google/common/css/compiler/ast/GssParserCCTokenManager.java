@@ -5,7 +5,7 @@ package com.google.common.css.compiler.ast;
 /**
  * Token Manager.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "java:S3776", "java:S1199", "java:S1479"})
 public class GssParserCCTokenManager implements GssParserCCConstants {
 
     /**
@@ -20,7 +20,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         debugStream = ds;
     }
 
-    private final int jjStopStringLiteralDfa_0(int pos, long active0) {
+    private final int jjStopStringLiteralDfa0(int pos, long active0) {
         switch (pos) {
             case 0:
                 if ((active0 & 0x40L) != 0L)
@@ -46,7 +46,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     }
 
     private final int jjStartNfa_0(int pos, long active0) {
-        return jjMoveNfa_0(jjStopStringLiteralDfa_0(pos, active0), pos + 1);
+        return jjMoveNfa0(jjStopStringLiteralDfa0(pos, active0), pos + 1);
     }
 
     private int jjStopAtPos(int pos, int kind) {
@@ -58,7 +58,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     private int jjMoveStringLiteralDfa0_0() {
         switch (curChar) {
             case 33:
-                return jjStartNfaWithStates_0(0, 16, 288);
+                return jjStartNfaWithStates0(0, 16, 288);
             case 37:
                 return jjStopAtPos(0, 17);
             case 40:
@@ -66,16 +66,16 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             case 41:
                 return jjStopAtPos(0, 12);
             case 42:
-                return jjStartNfaWithStates_0(0, 5, 5);
+                return jjStartNfaWithStates0(0, 5, 5);
             case 44:
                 return jjStopAtPos(0, 15);
             case 45:
                 jjmatchedKind = 7;
                 return jjMoveStringLiteralDfa1_0(0x4000000000L);
             case 46:
-                return jjStartNfaWithStates_0(0, 4, 9);
+                return jjStartNfaWithStates0(0, 4, 9);
             case 47:
-                return jjStartNfaWithStates_0(0, 6, 139);
+                return jjStartNfaWithStates0(0, 6, 139);
             case 58:
                 return jjStopAtPos(0, 3);
             case 59:
@@ -89,13 +89,13 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             case 93:
                 return jjStopAtPos(0, 10);
             case 94:
-                return jjStartNfaWithStates_0(0, 27, 3);
+                return jjStartNfaWithStates0(0, 27, 3);
             case 123:
                 return jjStopAtPos(0, 13);
             case 125:
                 return jjStopAtPos(0, 14);
             default:
-                return jjMoveNfa_0(0, 0);
+                return jjMoveNfa0(0, 0);
         }
     }
 
@@ -103,16 +103,13 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
-            jjStopStringLiteralDfa_0(0, active0);
+            jjStopStringLiteralDfa0(0, active0);
             return 1;
         }
-        switch (curChar) {
-            case 33:
-                return jjMoveStringLiteralDfa2_0(active0, 0x2000000000L);
-            case 45:
-                return jjMoveStringLiteralDfa2_0(active0, 0x4000000000L);
-            default:
-                break;
+        if (curChar == 33) {
+            return jjMoveStringLiteralDfa2_0(active0, 0x2000000000L);
+        } else if (curChar == 45) {
+            return jjMoveStringLiteralDfa2_0(active0, 0x4000000000L);
         }
         return jjStartNfa_0(0, active0);
     }
@@ -123,7 +120,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
-            jjStopStringLiteralDfa_0(1, active0);
+            jjStopStringLiteralDfa0(1, active0);
             return 2;
         }
         switch (curChar) {
@@ -140,26 +137,19 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     }
 
     private int jjMoveStringLiteralDfa3_0(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if ((active0 &= old0) == 0L)
             return jjStartNfa_0(1, old0);
         try {
             curChar = input_stream.readChar();
         } catch (java.io.IOException e) {
-            jjStopStringLiteralDfa_0(2, active0);
+            jjStopStringLiteralDfa0(2, active0);
             return 3;
         }
-        switch (curChar) {
-            case 45:
-                if ((active0 & 0x2000000000L) != 0L)
-                    return jjStopAtPos(3, 37);
-                break;
-            default:
-                break;
-        }
+        if (curChar == 45 && (active0 & 0x2000000000L) != 0L) return jjStopAtPos(3, 37);
         return jjStartNfa_0(2, active0);
     }
 
-    private int jjStartNfaWithStates_0(int pos, int kind, int state) {
+    private int jjStartNfaWithStates0(int pos, int kind, int state) {
         jjmatchedKind = kind;
         jjmatchedPos = pos;
         try {
@@ -167,7 +157,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         } catch (java.io.IOException e) {
             return pos + 1;
         }
-        return jjMoveNfa_0(state, pos + 1);
+        return jjMoveNfa0(state, pos + 1);
     }
 
     static final long[] jjbitVec0 = {
@@ -177,7 +167,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             0x0L, 0x0L, 0xffffffffffffffffL, 0xffffffffffffffffL
     };
 
-    private int jjMoveNfa_0(int startState, int curPos) {
+    private int jjMoveNfa0(int startState, int curPos) {
         int startsAt = 0;
         jjnewStateCnt = 288;
         int i = 1;
@@ -185,7 +175,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         int kind = 0x7fffffff;
         for (; ; ) {
             if (++jjround == 0x7fffffff)
-                ReInitRounds();
+                reInitRounds();
             if (curChar < 64) {
                 long l = 1L << curChar;
                 do {
@@ -1959,7 +1949,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                 do {
                     switch (jjstateSet[--i]) {
                         case 0:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -1970,7 +1960,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         case 183:
                         case 184:
                         case 189:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -1979,19 +1969,19 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 176:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 if (kind > 66)
                                     kind = 66;
                                 {
                                     jjCheckNAddTwoStates(177, 181);
                                 }
                             }
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 jjCheckNAddStates(180, 182);
                             }
                             break;
                         case 11:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 59)
                                 kind = 59;
@@ -1999,23 +1989,23 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                             break;
                         case 24:
                         case 30:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 40:
                         case 46:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 57:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 jjAddStates(118, 120);
                             }
                             break;
                         case 140:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -2025,7 +2015,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         break;
                         case 162:
                         case 163:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 65)
                                 kind = 65;
@@ -2034,7 +2024,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 179:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -2043,7 +2033,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 180:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -2052,7 +2042,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 181:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -2061,7 +2051,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 187:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -2070,7 +2060,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 188:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -2080,23 +2070,23 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         break;
                         case 190:
                         case 196:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 jjCheckNAddStates(180, 182);
                             }
                             break;
                         case 193:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 jjCheckNAddStates(215, 217);
                             }
                             break;
                         case 195:
-                            if (jjCanMove_0(hiByte, i1, i2, l1, l2)) {
+                            if (jjCanMove0(hiByte, i1, i2, l1, l2)) {
                                 jjCheckNAddStates(176, 179);
                             }
                             break;
                         case 233:
                         case 238:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -2105,7 +2095,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 236:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -2114,7 +2104,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         case 237:
-                            if (!jjCanMove_0(hiByte, i1, i2, l1, l2))
+                            if (!jjCanMove0(hiByte, i1, i2, l1, l2))
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -2160,15 +2150,11 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             29, 30, 31, 44, 45, 46, 47, 191, 194, 195,
     };
 
-    private static final boolean jjCanMove_0(int hiByte, int i1, int i2, long l1, long l2) {
-        switch (hiByte) {
-            case 0:
-                return ((jjbitVec2[i2] & l2) != 0L);
-            default:
-                if ((jjbitVec0[i1] & l1) != 0L)
-                    return true;
-                return false;
+    private static final boolean jjCanMove0(int hiByte, int i1, int i2, long l1, long l2) {
+        if (hiByte == 0) {
+            return ((jjbitVec2[i2] & l2) != 0L);
         }
+        return (jjbitVec0[i1] & l1) != 0L;
     }
 
     /**
@@ -2219,9 +2205,8 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     public Token getNextToken() {
         Token specialToken = null;
         Token matchedToken;
-        int curPos = 0;
+        int curPos;
 
-        EOFLoop:
         for (; ; ) {
             try {
                 curChar = input_stream.BeginToken();
@@ -2256,30 +2241,30 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                             specialToken = (specialToken.next = matchedToken);
                         }
                     }
-                    continue EOFLoop;
+                    continue;
                 }
             }
-            int error_line = input_stream.getEndLine();
-            int error_column = input_stream.getEndColumn();
-            String error_after = null;
-            boolean EOFSeen = false;
+            int errorLine = input_stream.getEndLine();
+            int errorColumn = input_stream.getEndColumn();
+            String errorAfter = null;
+            boolean eofseen = false;
             try {
                 input_stream.readChar();
                 input_stream.backup(1);
             } catch (java.io.IOException e1) {
-                EOFSeen = true;
-                error_after = curPos <= 1 ? "" : input_stream.GetImage();
+                eofseen = true;
+                errorAfter = curPos <= 1 ? "" : input_stream.GetImage();
                 if (curChar == '\n' || curChar == '\r') {
-                    error_line++;
-                    error_column = 0;
+                    errorLine++;
+                    errorColumn = 0;
                 } else
-                    error_column++;
+                    errorColumn++;
             }
-            if (!EOFSeen) {
+            if (!eofseen) {
                 input_stream.backup(1);
-                error_after = curPos <= 1 ? "" : input_stream.GetImage();
+                errorAfter = curPos <= 1 ? "" : input_stream.GetImage();
             }
-            throw new TokenMgrError(EOFSeen, curLexState, error_line, error_column, error_after, curChar, TokenMgrError.LEXICAL_ERROR);
+            throw new TokenMgrError(eofseen, curLexState, errorLine, errorColumn, errorAfter, curChar, TokenMgrError.LEXICAL_ERROR);
         }
     }
 
@@ -2320,22 +2305,22 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
      * Constructor.
      */
     public GssParserCCTokenManager(CharStream stream, int lexState) {
-        ReInit(stream);
-        SwitchTo(lexState);
+        reInit(stream);
+        switchTo(lexState);
     }
 
     /**
      * Reinitialise parser.
      */
-    public void ReInit(CharStream stream) {
+    public void reInit(CharStream stream) {
 
         jjmatchedPos = jjnewStateCnt = 0;
         curLexState = defaultLexState;
         input_stream = stream;
-        ReInitRounds();
+        reInitRounds();
     }
 
-    private void ReInitRounds() {
+    private void reInitRounds() {
         int i;
         jjround = 0x80000001;
         for (i = 288; i-- > 0; )
@@ -2345,17 +2330,17 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     /**
      * Reinitialise parser.
      */
-    public void ReInit(CharStream stream, int lexState) {
+    public void reInit(CharStream stream, int lexState) {
 
-        ReInit(stream);
-        SwitchTo(lexState);
+        reInit(stream);
+        switchTo(lexState);
     }
 
     /**
      * Switch to specified lex state.
      */
-    public void SwitchTo(int lexState) {
-        if (lexState >= 1 || lexState < 0)
+    public void switchTo(int lexState) {
+        if (lexState != 0)
             throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.", TokenMgrError.INVALID_LEXICAL_STATE);
         else
             curLexState = lexState;

@@ -4514,10 +4514,6 @@ public class GssParserCC implements GssParserCCConstants {
      * Current token.
      */
     public Token token;
-    /**
-     * Next token.
-     */
-    private Token jjNt;
     private int jjNtk;
     private Token jjScanpos;
     private Token jjLastpos;
@@ -4571,7 +4567,7 @@ public class GssParserCC implements GssParserCCConstants {
      * Reinitialise.
      */
     public void ReInit(CharStream stream) {
-        tokenSource.ReInit(stream);
+        tokenSource.reInit(stream);
         token = new Token();
         jjNtk = -1;
         jjLookingAhead = false;
@@ -4660,6 +4656,10 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private int jjNtkF() {
+        /**
+         * Next token.
+         */
+        Token jjNt;
         if ((jjNt = token.next) == null)
             return (jjNtk = (token.next = tokenSource.getNextToken()).kind);
         else
