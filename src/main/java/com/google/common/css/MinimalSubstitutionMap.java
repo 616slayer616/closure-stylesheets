@@ -216,7 +216,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
         // Once n is known, the standard modulo-then-divide approach can be used to
         // determine each character that should be appended to s.
         int i = index / startCharsRadix;
-        final int n = (int) (Math.log(i * (charsRadix - 1) + 1) / logCharsRadix);
+        final int n = (int) (Math.log(i * (charsRadix - 1) + 1d) / logCharsRadix);
 
         // The array is 1 more than the number of secondary chars to account for the
         // first char.
