@@ -44,16 +44,6 @@ public class CreateStandardAtRuleNodesTest extends PassesTestBase {
   }
 
   @Test
-  public void testCharset() throws Exception {
-    parseAndRun("@charset \"x\";");
-    assertThat(getFirstActualNode()).isInstanceOf(CssCharSetNode.class);
-    CssCharSetNode sourceCodeRule = (CssCharSetNode) getFirstActualNode();
-    assertThat(sourceCodeRule.getName().getValue()).isEqualTo("charset");
-    assertThat(sourceCodeRule.getParametersCount()).isEqualTo(1);
-    assertThat(sourceCodeRule.getParameters().get(0).getValue()).isEqualTo("x");
-  }
-
-  @Test
   public void testCreateSimpleImportNode() throws Exception {
     parseAndRun("@import \"name\" ;");
     CssImportRuleNode importRule = findFirstNodeOf(CssImportRuleNode.class);
@@ -395,6 +385,16 @@ public class CreateStandardAtRuleNodesTest extends PassesTestBase {
   public void testCreateFontNodeWithParametersError() throws Exception {
     parseAndRun("@font-face param { font-family: Gentium }",
         CreateStandardAtRuleNodes.FONT_FACE_PARAMETERS_ERROR_MESSAGE);
+  }
+
+  @Test
+  public void testCreateCharSetNode() throws GssParserException {
+    parseAndRun("@charset \"x\";");
+    assertThat(getFirstActualNode()).isInstanceOf(CssCharSetNode.class);
+    CssCharSetNode sourceCodeRule = (CssCharSetNode) getFirstActualNode();
+    assertThat(sourceCodeRule.getName().getValue()).isEqualTo("charset");
+    assertThat(sourceCodeRule.getParametersCount()).isEqualTo(1);
+    assertThat(sourceCodeRule.getParameters().get(0).getValue()).isEqualTo("x");
   }
 
   @Test

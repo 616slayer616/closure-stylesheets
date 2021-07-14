@@ -47,7 +47,8 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
   protected void setupTestTree() {
     String sourceCode =
-        "foo,hr,.bar,i{} "
+        "@charset \"UTF-8\"; "
+            + "foo,hr,.bar,i{} "
             + "a,i{} "
             + "b,hr{} "
             + "a#a{} "
@@ -96,7 +97,10 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
     assertThat(printer.getCompactPrintedString())
         .isEqualTo(
-            R_S
+                R_S
+                + "@charset\"UTF-8\""
+                + rE
+                + R_S
                 + "foo{}"
                 + rE
                 + R_S
@@ -137,7 +141,10 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
     assertThat(printer.getCompactPrintedString())
         .isEqualTo(
-            R_S
+                R_S
+                + "@charset\"UTF-8\""
+                + rE
+                +  R_S
                 + ".bar{}"
                 + rE
                 + R_S
@@ -165,7 +172,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
     assertThat(printer.getCompactPrintedString())
         .isEqualTo(
-            R_S + "hr,i{}" + rE + R_S + "i{}" + rE + R_S + "hr{}" + rE + R_S + "i,hr{}" + rE + R_S
+                R_S + "@charset\"UTF-8\"" + rE + R_S + "hr,i{}" + rE + R_S + "i{}" + rE + R_S + "hr{}" + rE + R_S + "i,hr{}" + rE + R_S
                 + "a i{}" + rE + R_S + "a+i{}" + rE);
   }
 
@@ -334,7 +341,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
     TemplateCompactPrinter<String> printer = createCommentPreservingPrinter("foo");
     printer.runPass();
-    
+
     System.out.println(printer.getCompactPrintedString());
 
     assertThat(printer.getCompactPrintedString())
@@ -364,7 +371,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
     TemplateCompactPrinter<String> printer = createCommentPreservingPrinter("bar");
     printer.runPass();
-    
+
     System.out.println(printer.getCompactPrintedString());
 
     assertThat(printer.getCompactPrintedString())
