@@ -16,12 +16,12 @@
 
 package com.google.common.css.compiler.ast;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.compiler.ast.CssFunctionNode.Function;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Unit tests for {@link CssFunctionNode}.
@@ -31,42 +31,42 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CssFunctionNodeTest {
 
-  private static final CssFunctionNode.Function RGB =
-      CssFunctionNode.Function.byName("rgb");
+    private static final CssFunctionNode.Function RGB =
+            CssFunctionNode.Function.byName("rgb");
 
-  @Test
-  public void testConstructor() {
-    CssFunctionNode function = new CssFunctionNode((Function) null, null);
-    assertThat(function.getFunction()).isNull();
-    assertThat(function.getSourceCodeLocation()).isNull();
-    assertThat(function.getArguments()).isNotNull();
-    assertThat(function.getArguments().getChildren()).isEmpty();
-  }
-  
-  @Test
-  public void testFunctionName() {
-    CssFunctionNode function = new CssFunctionNode(RGB, null);
-    assertThat(function.getFunction()).isNotNull();
-    assertThat(function.getFunction()).isEqualTo(RGB);
-    assertThat(function.getFunctionName()).isEqualTo("rgb");
-    assertThat(function.getSourceCodeLocation()).isNull();
-    assertThat(function.getArguments()).isNotNull();
-    assertThat(function.getArguments().getChildren()).isEmpty();
-  }
-  
-  @Test
-  public void testFunctionArguments() {
-    CssFunctionNode function = new CssFunctionNode(RGB, null);
-    CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
-    args.addChildToBack(new CssLiteralNode("test"));
-    function.setArguments(args);
-    assertThat(function.getFunction()).isNotNull();
-    assertThat(function.getFunction()).isEqualTo(RGB);
-    assertThat(function.getFunctionName()).isEqualTo("rgb");
-    assertThat(function.getSourceCodeLocation()).isNull();
-    assertThat(function.getArguments()).isNotNull();
-    assertThat(function.getArguments().getChildren()).isNotEmpty();
-    assertThat(function.toString()).isEqualTo("rgb(test)");
-    assertThat(function.getValue()).isEqualTo("rgb(test)");
-  }
+    @Test
+    public void testConstructor() {
+        CssFunctionNode function = new CssFunctionNode((Function) null, null);
+        assertThat(function.getFunction()).isNull();
+        assertThat(function.getSourceCodeLocation()).isNull();
+        assertThat(function.getArguments()).isNotNull();
+        assertThat(function.getArguments().getChildren()).isEmpty();
+    }
+
+    @Test
+    public void testFunctionName() {
+        CssFunctionNode function = new CssFunctionNode(RGB, null);
+        assertThat(function.getFunction()).isNotNull();
+        assertThat(function.getFunction()).isEqualTo(RGB);
+        assertThat(function.getFunctionName()).isEqualTo("rgb");
+        assertThat(function.getSourceCodeLocation()).isNull();
+        assertThat(function.getArguments()).isNotNull();
+        assertThat(function.getArguments().getChildren()).isEmpty();
+    }
+
+    @Test
+    public void testFunctionArguments() {
+        CssFunctionNode function = new CssFunctionNode(RGB, null);
+        CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
+        args.addChildToBack(new CssLiteralNode("test"));
+        function.setArguments(args);
+        assertThat(function.getFunction()).isNotNull();
+        assertThat(function.getFunction()).isEqualTo(RGB);
+        assertThat(function.getFunctionName()).isEqualTo("rgb");
+        assertThat(function.getSourceCodeLocation()).isNull();
+        assertThat(function.getArguments()).isNotNull();
+        assertThat(function.getArguments().getChildren()).isNotEmpty();
+        assertThat(function.toString()).isEqualTo("rgb(test)");
+        assertThat(function.getValue()).isEqualTo("rgb(test)");
+    }
 }

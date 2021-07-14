@@ -16,12 +16,12 @@
 
 package com.google.common.css;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * {@link IdentitySubstitutionMapTest} is a unit test for {@link IdentitySubstitutionMap}.
@@ -31,22 +31,22 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class IdentitySubstitutionMapTest {
 
-  @Test
-  public void testNull() {
-    IdentitySubstitutionMap map = new IdentitySubstitutionMap();
-    try {
-      map.get(null);
-      Assert.fail();
-    } catch (NullPointerException e) {
-      // OK.
+    @Test
+    public void testNull() {
+        IdentitySubstitutionMap map = new IdentitySubstitutionMap();
+        try {
+            map.get(null);
+            Assert.fail();
+        } catch (NullPointerException e) {
+            // OK.
+        }
     }
-  }
 
-  @Test
-  public void testGet() {
-    IdentitySubstitutionMap map = new IdentitySubstitutionMap();
-    assertThat(map.get("")).isEmpty();
-    assertThat(map.get("a")).isEqualTo("a");
-    assertThat(map.get("foo")).isEqualTo("foo");
-  }
+    @Test
+    public void testGet() {
+        IdentitySubstitutionMap map = new IdentitySubstitutionMap();
+        assertThat(map.get("")).isEmpty();
+        assertThat(map.get("a")).isEqualTo("a");
+        assertThat(map.get("foo")).isEqualTo("foo");
+    }
 }

@@ -21,48 +21,47 @@ import com.google.common.base.Joiner;
 /**
  * A base class for test cases that provides utility methods commonly used in {@code CssParser}'s
  * tests.
- *
  */
 public abstract class UtilityTestCase {
 
-  public UtilityTestCase() {
-  }
+    public UtilityTestCase() {
+    }
 
-  public UtilityTestCase(String name) {
-    // TODO(user): delete after migrating callers
-  }
+    public UtilityTestCase(String name) {
+        // TODO(user): delete after migrating callers
+    }
 
-  private static String joinWithNewLines(String ... lines) {
-    return Joiner.on("\n").join(lines);
-  }
+    private static String joinWithNewLines(String... lines) {
+        return Joiner.on("\n").join(lines);
+    }
 
-  private static String newLineAfterEachString(String ... lines) {
-    return joinWithNewLines(lines) + "\n";
-  }
+    private static String newLineAfterEachString(String... lines) {
+        return joinWithNewLines(lines) + "\n";
+    }
 
-  protected static String linesToString(String ... lines) {
-    return joinWithNewLines(lines);
-  }
+    protected static String linesToString(String... lines) {
+        return joinWithNewLines(lines);
+    }
 
-  /**
-   * The parser adds a newline at the end of the CSS file, so we append one here
-   * to our expected output as well.
-   *
-   * @param lines array of Strings, each representing a line of output
-   * @return expected output as a single string with newlines embedded
-   */
-  protected String linesToParsedString(String... lines) {
-    return newLineAfterEachString(lines);
-  }
+    /**
+     * The parser adds a newline at the end of the CSS file, so we append one here
+     * to our expected output as well.
+     *
+     * @param lines array of Strings, each representing a line of output
+     * @return expected output as a single string with newlines embedded
+     */
+    protected String linesToParsedString(String... lines) {
+        return newLineAfterEachString(lines);
+    }
 
-  /**
-   * When a multi-line message is output, a newline gets appended after each
-   * line. Use this to convert an array to the corresponding output.
-   *
-   * @param lines array of Strings, each representing a line of output
-   * @return expected output as a single string with newlines embedded
-   */
-  protected String linesToMessageOutput(String ... lines) {
-    return newLineAfterEachString(lines);
-  }
+    /**
+     * When a multi-line message is output, a newline gets appended after each
+     * line. Use this to convert an array to the corresponding output.
+     *
+     * @param lines array of Strings, each representing a line of output
+     * @return expected output as a single string with newlines embedded
+     */
+    protected String linesToMessageOutput(String... lines) {
+        return newLineAfterEachString(lines);
+    }
 }

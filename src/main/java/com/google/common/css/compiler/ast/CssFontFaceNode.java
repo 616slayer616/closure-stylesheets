@@ -16,9 +16,8 @@
 
 package com.google.common.css.compiler.ast;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * {@link CssFontFaceNode} corresponds to a {@code @font-face} declaration in
@@ -28,46 +27,48 @@ import javax.annotation.Nullable;
  */
 public class CssFontFaceNode extends CssAtRuleNode implements ChunkAware {
 
-  private Object chunk;
+    private Object chunk;
 
-  public CssFontFaceNode() {
-    this((List<CssCommentNode>)null);
-  }
+    public CssFontFaceNode() {
+        this((List<CssCommentNode>) null);
+    }
 
-  public CssFontFaceNode(@Nullable List<CssCommentNode> comments) {
-    this(comments, null);
-  }
+    public CssFontFaceNode(@Nullable List<CssCommentNode> comments) {
+        this(comments, null);
+    }
 
-  public CssFontFaceNode(@Nullable List<CssCommentNode> comments,
-      @Nullable CssDeclarationBlockNode block) {
-    super(CssAtRuleNode.Type.FONT_FACE, new CssLiteralNode("font-face"), block,
-        comments);
-  }
+    public CssFontFaceNode(@Nullable List<CssCommentNode> comments,
+                           @Nullable CssDeclarationBlockNode block) {
+        super(CssAtRuleNode.Type.FONT_FACE, new CssLiteralNode("font-face"), block,
+                comments);
+    }
 
-  /** Copy constructor so this can be cloned by {@link #deepCopy()}. */
-  private CssFontFaceNode(CssFontFaceNode node) {
-    super(node);
-    this.chunk = node.getChunk();
-  }
+    /**
+     * Copy constructor so this can be cloned by {@link #deepCopy()}.
+     */
+    private CssFontFaceNode(CssFontFaceNode node) {
+        super(node);
+        this.chunk = node.getChunk();
+    }
 
-  @Override
-  public CssDeclarationBlockNode getBlock() {
-    // The type is ensured by the constructor.
-    return (CssDeclarationBlockNode) super.getBlock();
-  }
+    @Override
+    public CssDeclarationBlockNode getBlock() {
+        // The type is ensured by the constructor.
+        return (CssDeclarationBlockNode) super.getBlock();
+    }
 
-  @Override
-  public CssFontFaceNode deepCopy() {
-    return new CssFontFaceNode(this);
-  }
+    @Override
+    public CssFontFaceNode deepCopy() {
+        return new CssFontFaceNode(this);
+    }
 
-  @Override
-  public void setChunk(Object chunk) {
-    this.chunk = chunk;
-  }
+    @Override
+    public void setChunk(Object chunk) {
+        this.chunk = chunk;
+    }
 
-  @Override
-  public Object getChunk() {
-    return chunk;
-  }
+    @Override
+    public Object getChunk() {
+        return chunk;
+    }
 }

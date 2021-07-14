@@ -17,13 +17,10 @@
 package com.google.common.css.compiler.passes.testing;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.css.compiler.ast.CssBlockNode;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssRootNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssTree;
+import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import com.google.common.truth.Truth;
+
 import java.util.List;
 
 /**
@@ -32,31 +29,31 @@ import java.util.List;
  * @author fbenz@google.com (Florian Benz)
  */
 public class PassesTestBase extends NewFunctionalTestBase {
-  /**
-   * Parses GSS source code and compares the expected output to the
-   * {@link AstPrinter}.
-   */
-  @Override
-  protected void testTreeConstruction(String sourceCode,
-      String expectedOutput) {
-    parseAndBuildTree(sourceCode);
-    checkTreeDebugString(expectedOutput);
-  }
+    /**
+     * Parses GSS source code and compares the expected output to the
+     * {@link AstPrinter}.
+     */
+    @Override
+    protected void testTreeConstruction(String sourceCode,
+                                        String expectedOutput) {
+        parseAndBuildTree(sourceCode);
+        checkTreeDebugString(expectedOutput);
+    }
 
-  /**
-   * Compares the expected output to the output of the {@link AstPrinter}.
-   * GSS source code has to be parsed before calling this method.
-   */
-  @Override
-  protected void checkTreeDebugString(String expected) {
-    Truth.assertThat(AstPrinter.print(tree)).isEqualTo(expected);
-  }
+    /**
+     * Compares the expected output to the output of the {@link AstPrinter}.
+     * GSS source code has to be parsed before calling this method.
+     */
+    @Override
+    protected void checkTreeDebugString(String expected) {
+        Truth.assertThat(AstPrinter.print(tree)).isEqualTo(expected);
+    }
 
-  protected void checkRuleset(String expected, CssRulesetNode rule) {
-    List<CssNode> blockChildren = ImmutableList.of((CssNode) rule);
-    CssBlockNode block = new CssBlockNode(false, blockChildren);
-    CssRootNode root = new CssRootNode(block);
-    CssTree t = new CssTree(null, root);
-    Truth.assertThat(AstPrinter.print(t)).isEqualTo(expected);
-  }
+    protected void checkRuleset(String expected, CssRulesetNode rule) {
+        List<CssNode> blockChildren = ImmutableList.of((CssNode) rule);
+        CssBlockNode block = new CssBlockNode(false, blockChildren);
+        CssRootNode root = new CssRootNode(block);
+        CssTree t = new CssTree(null, root);
+        Truth.assertThat(AstPrinter.print(t)).isEqualTo(expected);
+    }
 }

@@ -26,36 +26,35 @@ import javax.annotation.Nullable;
  * to deal with IO.
  *
  * <p>Instances of this class are immutable.
- *
  */
 public final class SourceCode {
-  private final String fileName;
-  private final String fileContents;
+    private final String fileName;
+    private final String fileContents;
 
-  /**
-   * Constructs a {@code SourceCode}. At least one of fileName and fileContents
-   * must be non-{@code null}.
-   *
-   * @param fileName the name of the source code file or {@code null} if the
-   *     input does not come from a file
-   * @param fileContents the contents of the source code file or {@code null} if
-   *     the file contents is not yet known (the file has not yet been read)
-   */
-  public SourceCode(@Nullable String fileName, @Nullable String fileContents) {
-    Preconditions.checkArgument(fileName != null || fileContents != null);
-    this.fileName = fileName;
-    this.fileContents = fileContents;
-  }
+    /**
+     * Constructs a {@code SourceCode}. At least one of fileName and fileContents
+     * must be non-{@code null}.
+     *
+     * @param fileName     the name of the source code file or {@code null} if the
+     *                     input does not come from a file
+     * @param fileContents the contents of the source code file or {@code null} if
+     *                     the file contents is not yet known (the file has not yet been read)
+     */
+    public SourceCode(@Nullable String fileName, @Nullable String fileContents) {
+        Preconditions.checkArgument(fileName != null || fileContents != null);
+        this.fileName = fileName;
+        this.fileContents = fileContents;
+    }
 
-  public String getFileName() {
-    return fileName;
-  }
+    public String getFileName() {
+        return fileName;
+    }
 
-  public String getFileContents() {
-    return fileContents;
-  }
+    public String getFileContents() {
+        return fileContents;
+    }
 
-  int getFileContentsLength() {
-    return fileContents.length();
-  }
+    int getFileContentsLength() {
+        return fileContents.length();
+    }
 }

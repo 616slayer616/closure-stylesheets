@@ -16,11 +16,7 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssDefinitionNode;
-import com.google.common.css.compiler.ast.CssFunctionNode;
-import com.google.common.css.compiler.ast.CssPriorityNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * Printer for definition nodes, which outputs GSS definitions so that they can be re-parsed later.
@@ -33,80 +29,82 @@ import com.google.common.css.compiler.ast.DefaultTreeVisitor;
  */
 public class DefinitionPrintingVisitor<T> extends DefaultTreeVisitor {
 
-  private final CodeBuffer buffer;
-  private final T chunk;
-  private boolean printDefinition;
+    private final CodeBuffer buffer;
+    private final T chunk;
+    private boolean printDefinition;
 
-  /** Create a printer for all the definitions in the given chunk. */
-  public DefinitionPrintingVisitor(T chunk, CodeBuffer buffer) {
-    this.chunk = chunk;
-    this.buffer = buffer;
-  }
+    /**
+     * Create a printer for all the definitions in the given chunk.
+     */
+    public DefinitionPrintingVisitor(T chunk, CodeBuffer buffer) {
+        this.chunk = chunk;
+        this.buffer = buffer;
+    }
 
-  @Override
-  public boolean enterDefinition(CssDefinitionNode definition) {
-    printDefinition = chunk.equals(definition.getChunk());
-    if (printDefinition) {
-      buffer.append("@def ").append(definition.getName()).append(' ');
+    @Override
+    public boolean enterDefinition(CssDefinitionNode definition) {
+        printDefinition = chunk.equals(definition.getChunk());
+        if (printDefinition) {
+            buffer.append("@def ").append(definition.getName()).append(' ');
+        }
+        return printDefinition;
     }
-    return printDefinition;
-  }
 
-  @Override
-  public void leaveDefinition(CssDefinitionNode node) {
-    if (printDefinition) {
-      buffer.append(";").startNewLine();
-      printDefinition = false;
+    @Override
+    public void leaveDefinition(CssDefinitionNode node) {
+        if (printDefinition) {
+            buffer.append(";").startNewLine();
+            printDefinition = false;
+        }
     }
-  }
 
-  @Override
-  public boolean enterValueNode(CssValueNode node) {
-    if (!printDefinition) {
-      return false;
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+        if (!printDefinition) {
+            return false;
+        }
+        if (node instanceof CssPriorityNode) {
+            buffer.deleteLastChar();
+        }
+        buffer.append(node);
+        return true;
     }
-    if (node instanceof CssPriorityNode) {
-      buffer.deleteLastChar();
-    }
-    buffer.append(node);
-    return true;
-  }
 
-  @Override
-  public void leaveValueNode(CssValueNode node) {
-    if (!printDefinition) {
-      return;
+    @Override
+    public void leaveValueNode(CssValueNode node) {
+        if (!printDefinition) {
+            return;
+        }
+        buffer.append(' ');
     }
-    buffer.append(' ');
-  }
 
-  @Override
-  public boolean enterFunctionNode(CssFunctionNode node) {
-    if (!printDefinition) {
-      return false;
+    @Override
+    public boolean enterFunctionNode(CssFunctionNode node) {
+        if (!printDefinition) {
+            return false;
+        }
+        buffer.append(node.getFunctionName());
+        buffer.append('(');
+        return true;
     }
-    buffer.append(node.getFunctionName());
-    buffer.append('(');
-    return true;
-  }
 
-  @Override
-  public void leaveFunctionNode(CssFunctionNode node) {
-    if (!printDefinition) {
-      return;
+    @Override
+    public void leaveFunctionNode(CssFunctionNode node) {
+        if (!printDefinition) {
+            return;
+        }
+        buffer.append(") ");
     }
-    buffer.append(") ");
-  }
 
-  @Override
-  public boolean enterArgumentNode(CssValueNode node) {
-    if (!printDefinition) {
-      return false;
+    @Override
+    public boolean enterArgumentNode(CssValueNode node) {
+        if (!printDefinition) {
+            return false;
+        }
+        // If the previous argument was a function node, then it has a trailing
+        // space that needs to be removed.
+        buffer.deleteLastCharIfCharIs(' ');
+        buffer.append(node);
+        return true;
     }
-    // If the previous argument was a function node, then it has a trailing
-    // space that needs to be removed.
-    buffer.deleteLastCharIfCharIs(' ');
-    buffer.append(node);
-    return true;
-  }
 }

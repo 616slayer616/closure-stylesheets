@@ -22,28 +22,28 @@ import java.io.IOException;
 
 /**
  * Null class implements {@link GssSourceMapGenerator}.
- * 
+ *
  * @author steveyang@google.com (Chenyun Yang)
  */
 public final class NullGssSourceMapGenerator implements GssSourceMapGenerator {
 
-  @Override
-  public void appendOutputTo(Appendable out, String name) throws IOException {
-    return;
-  }
+    @Override
+    public void appendOutputTo(Appendable out, String name) throws IOException {
+        return;
+    }
 
-  @Override
-  public void startSourceMapping(CssNode node, int startLine, int startCharIndex) {
-    return;
-  }
+    @Override
+    public void startSourceMapping(CssNode node, int startLine, int startCharIndex) {
+        return;
+    }
 
-  @Override
-  public void endSourceMapping(CssNode node, int endLine, int endCharIndex) {
-    return;
-  }
+    @Override
+    public void endSourceMapping(CssNode node, int endLine, int endCharIndex) {
+        return;
+    }
 
-  @Override
-  public void setSourceRoot(String path) {
-    return;
-  }
+    @Override
+    public void setSourceRoot(String path) {
+        return;
+    }
 }

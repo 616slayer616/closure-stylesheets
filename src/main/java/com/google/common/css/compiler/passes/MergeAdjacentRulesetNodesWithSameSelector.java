@@ -17,15 +17,7 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Preconditions;
-import com.google.common.css.compiler.ast.CssBlockNode;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssRootNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssSelectorListNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.MutatingVisitController;
-import com.google.common.css.compiler.ast.SkippingTreeVisitor;
+import com.google.common.css.compiler.ast.*;
 
 import java.util.Iterator;
 
@@ -35,113 +27,113 @@ import java.util.Iterator;
  * @author oana@google.com (Oana Florescu)
  */
 public class MergeAdjacentRulesetNodesWithSameSelector
-    extends SkippingTreeVisitor implements CssCompilerPass  {
+        extends SkippingTreeVisitor implements CssCompilerPass {
 
-  private final CssTree tree;
-  private final MutatingVisitController visitController;
+    private final CssTree tree;
+    private final MutatingVisitController visitController;
 
-  public MergeAdjacentRulesetNodesWithSameSelector(CssTree tree) {
-    this(tree, false);
-  }
-
-  public MergeAdjacentRulesetNodesWithSameSelector(CssTree tree,
-        boolean skipping) {
-    super(skipping);
-    this.tree = tree;
-    this.visitController = tree.getMutatingVisitController();
-  }
-
-  @Override
-  public boolean enterTree(CssRootNode root) {
-    tree.resetRulesetNodesToRemove();
-    return true;
-  }
-
-  @Override
-  public boolean enterBlock(CssBlockNode block) {
-    if (block.numChildren() <= 1) {
-      return true;  // There is nothing to merge.
+    public MergeAdjacentRulesetNodesWithSameSelector(CssTree tree) {
+        this(tree, false);
     }
 
-    Iterator<CssNode> iterator = block.getChildIterator();
-    CssNode node = iterator.next();
-
-    node = skipNonRulesetNode(node, iterator);
-    if (node == null) {
-      return true;
+    public MergeAdjacentRulesetNodesWithSameSelector(CssTree tree,
+                                                     boolean skipping) {
+        super(skipping);
+        this.tree = tree;
+        this.visitController = tree.getMutatingVisitController();
     }
 
-    CssRulesetNode ruleToMergeTo = (CssRulesetNode) node;
+    @Override
+    public boolean enterTree(CssRootNode root) {
+        tree.resetRulesetNodesToRemove();
+        return true;
+    }
 
-    while (iterator.hasNext()) {
-      node = iterator.next();
+    @Override
+    public boolean enterBlock(CssBlockNode block) {
+        if (block.numChildren() <= 1) {
+            return true;  // There is nothing to merge.
+        }
 
-      if (!(node instanceof CssRulesetNode)) {
+        Iterator<CssNode> iterator = block.getChildIterator();
+        CssNode node = iterator.next();
+
         node = skipNonRulesetNode(node, iterator);
         if (node == null) {
-          return true;
+            return true;
         }
-        ruleToMergeTo = (CssRulesetNode) node;
-        continue;
-      }
 
-      CssRulesetNode currentRule = (CssRulesetNode) node;
+        CssRulesetNode ruleToMergeTo = (CssRulesetNode) node;
 
-      // if skipping is on and the rule contains a property from the set : skip
-      if (canModifyRuleset(currentRule)) {
-        if (sameSelectors(ruleToMergeTo.getSelectors(),
-                          currentRule.getSelectors())) {
-          for (CssNode decl : currentRule.getDeclarations().childIterable()) {
-            ruleToMergeTo.addDeclaration(decl);
-          }
-          tree.getRulesetNodesToRemove().addRulesetNode(currentRule);
-        } else {
-          ruleToMergeTo = currentRule;
+        while (iterator.hasNext()) {
+            node = iterator.next();
+
+            if (!(node instanceof CssRulesetNode)) {
+                node = skipNonRulesetNode(node, iterator);
+                if (node == null) {
+                    return true;
+                }
+                ruleToMergeTo = (CssRulesetNode) node;
+                continue;
+            }
+
+            CssRulesetNode currentRule = (CssRulesetNode) node;
+
+            // if skipping is on and the rule contains a property from the set : skip
+            if (canModifyRuleset(currentRule)) {
+                if (sameSelectors(ruleToMergeTo.getSelectors(),
+                        currentRule.getSelectors())) {
+                    for (CssNode decl : currentRule.getDeclarations().childIterable()) {
+                        ruleToMergeTo.addDeclaration(decl);
+                    }
+                    tree.getRulesetNodesToRemove().addRulesetNode(currentRule);
+                } else {
+                    ruleToMergeTo = currentRule;
+                }
+            }
         }
-      }
+
+        return true;
     }
 
-    return true;
-  }
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    /**
+     * Checks that the two lists of selectors are identical, and that
+     * their modules (if available) match pairwise.
+     */
+    private boolean sameSelectors(
+            CssSelectorListNode s1, CssSelectorListNode s2) {
+        if (!PassUtil.printSelectorList(s1).equals(
+                PassUtil.printSelectorList(s2))) {
+            return false;
+        }
+        int n = s1.numChildren();
+        Preconditions.checkArgument(n == s2.numChildren());
+        for (int i = 0; i < n; i++) {
+            Object m1 = s1.getChildAt(i).getChunk();
+            Object m2 = s2.getChildAt(i).getChunk();
+            if ((m1 == null) != (m2 == null)) {
+                throw new IllegalStateException();
+            }
+            if (m1 != null && !m1.equals(m2)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-  /**
-   * Checks that the two lists of selectors are identical, and that
-   * their modules (if available) match pairwise.
-   */
-  private boolean sameSelectors(
-      CssSelectorListNode s1, CssSelectorListNode s2) {
-    if (!PassUtil.printSelectorList(s1).equals(
-        PassUtil.printSelectorList(s2))) {
-      return false;
+    private CssNode skipNonRulesetNode(CssNode node, Iterator<CssNode> iterator) {
+        while (!(node instanceof CssRulesetNode)) {
+            if (iterator.hasNext()) {
+                node = iterator.next();
+            } else {
+                return null;
+            }
+        }
+        return node;
     }
-    int n = s1.numChildren();
-    Preconditions.checkArgument(n == s2.numChildren());
-    for (int i = 0; i < n; i++) {
-      Object m1 = s1.getChildAt(i).getChunk();
-      Object m2 = s2.getChildAt(i).getChunk();
-      if ((m1 == null) != (m2 == null)) {
-        throw new IllegalStateException();
-      }
-      if (m1 != null && !m1.equals(m2)) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
-  private CssNode skipNonRulesetNode(CssNode node, Iterator<CssNode> iterator) {
-    while (!(node instanceof CssRulesetNode)) {
-      if (iterator.hasNext()) {
-        node = iterator.next();
-      } else {
-        return null;
-      }
-    }
-    return node;
-  }
 }

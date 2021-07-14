@@ -28,41 +28,43 @@ import java.util.List;
  */
 public class CssProvideNode extends CssAtRuleNode implements ChunkAware {
 
-  private final String provide;
+    private final String provide;
 
-  private Object chunk;
+    private Object chunk;
 
-  public CssProvideNode(CssLiteralNode name, List<CssCommentNode> comments,
-      SourceCodeLocation sourceCodeLocation) {
-    super(CssAtRuleNode.Type.PROVIDE,
-        Preconditions.checkNotNull(name),
-        Preconditions.checkNotNull(comments));
-    Preconditions.checkNotNull(sourceCodeLocation);
-    setSourceCodeLocation(sourceCodeLocation);
-    this.provide = name.getValue();
-  }
+    public CssProvideNode(CssLiteralNode name, List<CssCommentNode> comments,
+                          SourceCodeLocation sourceCodeLocation) {
+        super(CssAtRuleNode.Type.PROVIDE,
+                Preconditions.checkNotNull(name),
+                Preconditions.checkNotNull(comments));
+        Preconditions.checkNotNull(sourceCodeLocation);
+        setSourceCodeLocation(sourceCodeLocation);
+        this.provide = name.getValue();
+    }
 
-  /** Copy constructor so this can be cloned by {@link #deepCopy()}. */
-  private CssProvideNode(CssProvideNode node) {
-    this(node.getName(), node.getComments(), node.getSourceCodeLocation());
-  }
+    /**
+     * Copy constructor so this can be cloned by {@link #deepCopy()}.
+     */
+    private CssProvideNode(CssProvideNode node) {
+        this(node.getName(), node.getComments(), node.getSourceCodeLocation());
+    }
 
-  public String getProvide() {
-    return provide;
-  }
+    public String getProvide() {
+        return provide;
+    }
 
-  @Override
-  public CssProvideNode deepCopy() {
-    return new CssProvideNode(this);
-  }
+    @Override
+    public CssProvideNode deepCopy() {
+        return new CssProvideNode(this);
+    }
 
-  @Override
-  public Object getChunk() {
-    return chunk;
-  }
+    @Override
+    public Object getChunk() {
+        return chunk;
+    }
 
-  @Override
-  public void setChunk(Object chunk) {
-    this.chunk = chunk;
-  }
+    @Override
+    public void setChunk(Object chunk) {
+        this.chunk = chunk;
+    }
 }

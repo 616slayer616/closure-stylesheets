@@ -16,8 +16,6 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.base.Joiner;
 import com.google.common.css.SourceCode;
 import com.google.common.css.compiler.ast.CssDefinitionNode;
@@ -28,6 +26,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+
 /**
  * Tests the collect constant definitions compiler pass.
  *
@@ -36,81 +36,81 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CollectConstantDefinitionsTest {
 
-  @Test
-  public void testCollect1() {
-    final ConstantDefinitions definitions =
-        collectConstantDefinitions(
-            lines("@def COLOR red;",
-                "@def BORDER border(COLOR, 3px);",
-                ".CSS_RULE {",
-                "  background: generate(COLOR, 2px);",
-                "  border: BORDER;",
-                "}"));
+    @Test
+    public void testCollect1() {
+        final ConstantDefinitions definitions =
+                collectConstantDefinitions(
+                        lines("@def COLOR red;",
+                                "@def BORDER border(COLOR, 3px);",
+                                ".CSS_RULE {",
+                                "  background: generate(COLOR, 2px);",
+                                "  border: BORDER;",
+                                "}"));
 
-    assertThat(!definitions.getConstants().isEmpty()).isTrue();
-    assertThat(definitions.getConstants()).hasSize(2);
+        assertThat(!definitions.getConstants().isEmpty()).isTrue();
+        assertThat(definitions.getConstants()).hasSize(2);
 
-    CssDefinitionNode color = definitions.getConstantDefinition("COLOR");
-    assertThat(color.getName().toString()).isEqualTo("COLOR");
-    assertThat(color.getParametersCount()).isEqualTo(1);
-    assertThat(color.getParameters().get(0).getValue()).isEqualTo("red");
+        CssDefinitionNode color = definitions.getConstantDefinition("COLOR");
+        assertThat(color.getName().toString()).isEqualTo("COLOR");
+        assertThat(color.getParametersCount()).isEqualTo(1);
+        assertThat(color.getParameters().get(0).getValue()).isEqualTo("red");
 
-    CssDefinitionNode border = definitions.getConstantDefinition("BORDER");
-    assertThat(border.getName().toString()).isEqualTo("BORDER");
-    assertThat(border.getParametersCount()).isEqualTo(1);
-    assertThat(border.getParameters().get(0).toString()).isEqualTo("border(COLOR,3px)");
-  }
-
-  @Test
-  public void testCollect2() {
-    final ConstantDefinitions definitions =
-        collectConstantDefinitions(
-            lines("@def COLOR red;",
-                  "@def BORDER border(COLOR, 3px);",
-                  "@if COND {",
-                  "  @def COLOR blue;",
-                  "}",
-                  ".CSS_RULE {",
-                  "  background: generate(COLOR, 2px);",
-                  "  border: BORDER;",
-                  "}"));
-
-    assertThat(!definitions.getConstants().isEmpty()).isTrue();
-    assertThat(definitions.getConstants()).hasSize(2);
-
-    CssDefinitionNode border = definitions.getConstantDefinition("BORDER");
-    assertThat(border.getName().toString()).isEqualTo("BORDER");
-    assertThat(border.getParametersCount()).isEqualTo(1);
-    assertThat(border.getParameters().get(0).toString()).isEqualTo("border(COLOR,3px)");
-
-    CssDefinitionNode color = definitions.getConstantDefinition("COLOR");
-    assertThat(color.getName().toString()).isEqualTo("COLOR");
-    assertThat(color.getParametersCount()).isEqualTo(1);
-    assertThat(color.getParameters().get(0).getValue()).isEqualTo("blue");
-  }
-
-  private ConstantDefinitions collectConstantDefinitions(String source) {
-    CssTree tree = parseStyleSheet(source);
-    // Must create the definition nodes before they can be collected.
-    new CreateDefinitionNodes(tree.getMutatingVisitController(),
-        new DummyErrorManager()).runPass();
-
-    CollectConstantDefinitions defPass = new CollectConstantDefinitions(tree);
-    defPass.runPass();
-    return defPass.getConstantDefinitions();
-  }
-
-  private CssTree parseStyleSheet(String sourceCode) {
-    SourceCode input = new SourceCode("testInput", sourceCode);
-    GssParser parser = new GssParser(input);
-    try {
-      return parser.parse();
-    } catch (GssParserException e) {
-      throw new RuntimeException(e);
+        CssDefinitionNode border = definitions.getConstantDefinition("BORDER");
+        assertThat(border.getName().toString()).isEqualTo("BORDER");
+        assertThat(border.getParametersCount()).isEqualTo(1);
+        assertThat(border.getParameters().get(0).toString()).isEqualTo("border(COLOR,3px)");
     }
-  }
 
-  private String lines(String... lines) {
-    return Joiner.on("\n").join(lines);
-  }
+    @Test
+    public void testCollect2() {
+        final ConstantDefinitions definitions =
+                collectConstantDefinitions(
+                        lines("@def COLOR red;",
+                                "@def BORDER border(COLOR, 3px);",
+                                "@if COND {",
+                                "  @def COLOR blue;",
+                                "}",
+                                ".CSS_RULE {",
+                                "  background: generate(COLOR, 2px);",
+                                "  border: BORDER;",
+                                "}"));
+
+        assertThat(!definitions.getConstants().isEmpty()).isTrue();
+        assertThat(definitions.getConstants()).hasSize(2);
+
+        CssDefinitionNode border = definitions.getConstantDefinition("BORDER");
+        assertThat(border.getName().toString()).isEqualTo("BORDER");
+        assertThat(border.getParametersCount()).isEqualTo(1);
+        assertThat(border.getParameters().get(0).toString()).isEqualTo("border(COLOR,3px)");
+
+        CssDefinitionNode color = definitions.getConstantDefinition("COLOR");
+        assertThat(color.getName().toString()).isEqualTo("COLOR");
+        assertThat(color.getParametersCount()).isEqualTo(1);
+        assertThat(color.getParameters().get(0).getValue()).isEqualTo("blue");
+    }
+
+    private ConstantDefinitions collectConstantDefinitions(String source) {
+        CssTree tree = parseStyleSheet(source);
+        // Must create the definition nodes before they can be collected.
+        new CreateDefinitionNodes(tree.getMutatingVisitController(),
+                new DummyErrorManager()).runPass();
+
+        CollectConstantDefinitions defPass = new CollectConstantDefinitions(tree);
+        defPass.runPass();
+        return defPass.getConstantDefinitions();
+    }
+
+    private CssTree parseStyleSheet(String sourceCode) {
+        SourceCode input = new SourceCode("testInput", sourceCode);
+        GssParser parser = new GssParser(input);
+        try {
+            return parser.parse();
+        } catch (GssParserException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String lines(String... lines) {
+        return Joiner.on("\n").join(lines);
+    }
 }

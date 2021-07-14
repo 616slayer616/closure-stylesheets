@@ -27,9 +27,9 @@ import com.google.common.base.Preconditions;
  */
 public class IdentitySubstitutionMap implements SubstitutionMap {
 
-  @Override
-  public String get(String key) {
-    Preconditions.checkNotNull(key);
-    return key;
-  }
+    @Override
+    public String get(String key) {
+        Preconditions.checkNotNull(key);
+        return key;
+    }
 }

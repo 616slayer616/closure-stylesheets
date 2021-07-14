@@ -29,79 +29,79 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class EliminateEmptyRulesetNodesFunctionalTest extends FunctionalTestBase {
 
-  @Test
-  public void testSimple1() {
-    testTreeConstruction(
-        "foo {}",
-        "[]");
-  }
+    @Test
+    public void testSimple1() {
+        testTreeConstruction(
+                "foo {}",
+                "[]");
+    }
 
-  @Test
-  public void testSimple2() {
-    testTreeConstruction(
-        "foo {"
-        + "  border: 2px;"
-        + "}"
-        + "bar {}",
-        "[[foo]{[border:[2px]]}]");
-  }
+    @Test
+    public void testSimple2() {
+        testTreeConstruction(
+                "foo {"
+                        + "  border: 2px;"
+                        + "}"
+                        + "bar {}",
+                "[[foo]{[border:[2px]]}]");
+    }
 
-  @Test
-  public void testSimple3() {
-    testTreeConstruction(
-        "foo {"
-        + "  border: 2px;"
-        + "}"
-        + "bar {}"
-        + "foobar {"
-        + "  color: red;"
-        + "}",
-        "[[foo]{[border:[2px]]}, [foobar]{[color:[red]]}]");
-  }
+    @Test
+    public void testSimple3() {
+        testTreeConstruction(
+                "foo {"
+                        + "  border: 2px;"
+                        + "}"
+                        + "bar {}"
+                        + "foobar {"
+                        + "  color: red;"
+                        + "}",
+                "[[foo]{[border:[2px]]}, [foobar]{[color:[red]]}]");
+    }
 
-  @Test
-  public void testComplex1() {
-    testTreeConstruction(
-        "@if COND1 {"
-        + "  foo {"
-        + "    border: 2px;"
-        + "  }"
-        + "} @elseif COND2 {"
-        + "  foo {}"
-        + "} @else {"
-        + "  bar {}"
-        + "}",
-        "[[@if[COND1]{[[foo]{[border:[2px]]}]}, "
-        + "@elseif[COND2]{[]}, @else[]{[]}]]");
-  }
+    @Test
+    public void testComplex1() {
+        testTreeConstruction(
+                "@if COND1 {"
+                        + "  foo {"
+                        + "    border: 2px;"
+                        + "  }"
+                        + "} @elseif COND2 {"
+                        + "  foo {}"
+                        + "} @else {"
+                        + "  bar {}"
+                        + "}",
+                "[[@if[COND1]{[[foo]{[border:[2px]]}]}, "
+                        + "@elseif[COND2]{[]}, @else[]{[]}]]");
+    }
 
-  @Test
-  public void testComplex2() {
-    testTreeConstruction(
-        "@media print {"
-        + "  @if COND1 {"
-        + "    @if COND2 {"
-        + "      @def COLOR red;"
-        + "      foo { color: COLOR }"
-        + "    } @elseif COND3 {"
-        + "      foo {}"
-        + "    }"
-        + "  } @elseif COND2 {"
-        + "    foo {}"
-        + "  } @else {"
-        + "    foo { top : expression }"
-        + "  }"
-        + "}",
-        "[@media[print]{[[@if[COND1]{[[@if[COND2]"
-        + "{[@def COLOR [red], [foo]{[color:[COLOR]]}]}, "
-        + "@elseif[COND3]{[]}]]}, @elseif[COND2]{[]}, "
-        + "@else[]{[[foo]{[top:[expression]]}]}]]}]");
-  }
+    @Test
+    public void testComplex2() {
+        testTreeConstruction(
+                "@media print {"
+                        + "  @if COND1 {"
+                        + "    @if COND2 {"
+                        + "      @def COLOR red;"
+                        + "      foo { color: COLOR }"
+                        + "    } @elseif COND3 {"
+                        + "      foo {}"
+                        + "    }"
+                        + "  } @elseif COND2 {"
+                        + "    foo {}"
+                        + "  } @else {"
+                        + "    foo { top : expression }"
+                        + "  }"
+                        + "}",
+                "[@media[print]{[[@if[COND1]{[[@if[COND2]"
+                        + "{[@def COLOR [red], [foo]{[color:[COLOR]]}]}, "
+                        + "@elseif[COND3]{[]}]]}, @elseif[COND2]{[]}, "
+                        + "@else[]{[[foo]{[top:[expression]]}]}]]}]");
+    }
 
-  @Override
-  protected void runPass() {
-    EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(
-        tree.getMutatingVisitController());
-    pass.runPass();
-  }
+    @Override
+    protected void runPass() {
+        EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(
+                tree.getMutatingVisitController());
+        pass.runPass();
+    }
 }

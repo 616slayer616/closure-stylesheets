@@ -20,22 +20,22 @@ import com.google.common.base.Preconditions;
 import com.google.common.css.SourceCodeLocation;
 
 class ParserToken {
-  private final String token;
-  private final SourceCodeLocation sourceCodeLocation;
+    private final String token;
+    private final SourceCodeLocation sourceCodeLocation;
 
-  ParserToken(String token, SourceCodeLocation sourceCodeLocation) {
-    Preconditions.checkNotNull(token);
-    Preconditions.checkArgument(!token.isEmpty());
-    Preconditions.checkNotNull(sourceCodeLocation);
-    this.token = token;
-    this.sourceCodeLocation = sourceCodeLocation;
-  }
+    ParserToken(String token, SourceCodeLocation sourceCodeLocation) {
+        Preconditions.checkNotNull(token);
+        Preconditions.checkArgument(!token.isEmpty());
+        Preconditions.checkNotNull(sourceCodeLocation);
+        this.token = token;
+        this.sourceCodeLocation = sourceCodeLocation;
+    }
 
-  public String getToken() {
-    return token;
-  }
+    public String getToken() {
+        return token;
+    }
 
-  public SourceCodeLocation getSourceCodeLocation() {
-    return sourceCodeLocation;
-  }
+    public SourceCodeLocation getSourceCodeLocation() {
+        return sourceCodeLocation;
+    }
 }

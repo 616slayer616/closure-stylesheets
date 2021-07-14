@@ -16,14 +16,14 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Tests for {@link CheckDependencyNodes}.
@@ -33,48 +33,48 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CheckDependencyNodesTest extends NewFunctionalTestBase {
 
-  private CheckDependencyNodes processDependencyNodes;
+    private CheckDependencyNodes processDependencyNodes;
 
-  @Override
-  protected void runPass() {
-    processDependencyNodes = new CheckDependencyNodes(
-        tree.getMutatingVisitController(), errorManager, false);
-    processDependencyNodes.runPass();
-  }
+    @Override
+    protected void runPass() {
+        processDependencyNodes = new CheckDependencyNodes(
+                tree.getMutatingVisitController(), errorManager, false);
+        processDependencyNodes.runPass();
+    }
 
-  @Test
-  public void testOrdinaryProvideRequire() throws GssParserException {
-    ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
-        "first.css", "@provide 'foo.bar';",
-        "second.css", "@require 'foo.bar';");
-    parseAndRun(fileNameToGss);
-    assertThat(processDependencyNodes.getProvidesInOrder()).containsExactly("foo.bar");
-  }
+    @Test
+    public void testOrdinaryProvideRequire() throws GssParserException {
+        ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
+                "first.css", "@provide 'foo.bar';",
+                "second.css", "@require 'foo.bar';");
+        parseAndRun(fileNameToGss);
+        assertThat(processDependencyNodes.getProvidesInOrder()).containsExactly("foo.bar");
+    }
 
-  @Test
-  public void testMissingProvide() throws GssParserException {
-    parseAndRun("@require 'foo.bar';", "Missing provide for: foo.bar");
-  }
+    @Test
+    public void testMissingProvide() throws GssParserException {
+        parseAndRun("@require 'foo.bar';", "Missing provide for: foo.bar");
+    }
 
-  @Test
-  public void testDuplicateProvide() throws GssParserException {
-    ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
-        "first.css", "@provide 'foo.bar';",
-        "second.css", "@provide 'foo.bar';");
-    parseAndRun(fileNameToGss, "Duplicate provide for: foo.bar");
-  }
+    @Test
+    public void testDuplicateProvide() throws GssParserException {
+        ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
+                "first.css", "@provide 'foo.bar';",
+                "second.css", "@provide 'foo.bar';");
+        parseAndRun(fileNameToGss, "Duplicate provide for: foo.bar");
+    }
 
-  @Test
-  public void testDependencyOrder() throws GssParserException {
-    ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
-        "first.css", "@provide 'foo';",
-        "second.css", "@provide 'bar';",
-        "third.css", "@provide 'baz'; @require 'foo'; @require 'bar';",
-        "fourth.css", "@provide 'buzz'; @require 'baz';",
-        "fifth.css", "@require 'buzz';");
-    parseAndRun(fileNameToGss);
-    assertThat(processDependencyNodes.getProvidesInOrder())
-        .containsExactly("foo", "bar", "baz", "buzz")
-        .inOrder();
-  }
+    @Test
+    public void testDependencyOrder() throws GssParserException {
+        ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
+                "first.css", "@provide 'foo';",
+                "second.css", "@provide 'bar';",
+                "third.css", "@provide 'baz'; @require 'foo'; @require 'bar';",
+                "fourth.css", "@provide 'buzz'; @require 'baz';",
+                "fifth.css", "@require 'buzz';");
+        parseAndRun(fileNameToGss);
+        assertThat(processDependencyNodes.getProvidesInOrder())
+                .containsExactly("foo", "bar", "baz", "buzz")
+                .inOrder();
+    }
 }

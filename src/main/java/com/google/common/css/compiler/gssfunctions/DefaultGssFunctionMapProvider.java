@@ -24,21 +24,20 @@ import java.util.Map;
 /**
  * Provides the default set of functions that are bundled with Closure
  * Stylesheets.
- *
  */
 public class DefaultGssFunctionMapProvider implements GssFunctionMapProvider {
 
-  public Map<String, GssFunction> get() {
-    return GssFunctions.getFunctionMap();
-  }
-
-  @Override
-  public <F> Map<String, F> get(Class<F> gssFunctionClass) {
-    if (GssFunction.class.equals(gssFunctionClass)) {
-      @SuppressWarnings("unchecked")
-      Map<String, F> map = (Map<String, F>) get();
-      return map;
+    public Map<String, GssFunction> get() {
+        return GssFunctions.getFunctionMap();
     }
-    return null;
-  }
+
+    @Override
+    public <F> Map<String, F> get(Class<F> gssFunctionClass) {
+        if (GssFunction.class.equals(gssFunctionClass)) {
+            @SuppressWarnings("unchecked")
+            Map<String, F> map = (Map<String, F>) get();
+            return map;
+        }
+        return null;
+    }
 }

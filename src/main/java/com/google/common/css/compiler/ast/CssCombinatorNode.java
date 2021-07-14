@@ -24,94 +24,98 @@ import com.google.common.css.SourceCodeLocation;
  * @author oana@google.com (Oana Florescu)
  */
 public class CssCombinatorNode extends CssNode {
-  /**
-   * Contains the list of all possible CSS combinators.
-   */
-  public enum Combinator {
-    DESCENDANT(" "),
-    DEEP("/deep/"),
-    CHILD(">"),
-    ADJACENT_SIBLING("+"),
-    GENERAL_SIBLING("~");
+    /**
+     * Contains the list of all possible CSS combinators.
+     */
+    public enum Combinator {
+        DESCENDANT(" "),
+        DEEP("/deep/"),
+        CHILD(">"),
+        ADJACENT_SIBLING("+"),
+        GENERAL_SIBLING("~");
 
-    private final String symbol;
+        private final String symbol;
 
-    private Combinator(String symbol) {
-      this.symbol = symbol;
+        private Combinator(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public String getCanonicalName() {
+            return symbol;
+        }
     }
 
-    public String getCanonicalName() {
-      return symbol;
+    /**
+     * Reference to a child selector.
+     */
+    private CssSelectorNode selector;
+    /**
+     * Type of combinator.
+     */
+    private Combinator type;
+
+    /**
+     * Constructor of a combinator node.
+     *
+     * @param selector
+     * @param type
+     * @param sourceCodeLocation
+     */
+    public CssCombinatorNode(CssSelectorNode selector,
+                             Combinator type,
+                             SourceCodeLocation sourceCodeLocation) {
+        super(sourceCodeLocation);
+        this.selector = selector;
+        becomeParentForNode(this.selector);
+        this.type = type;
     }
-  }
 
-  /** Reference to a child selector. */
-  private CssSelectorNode selector;
-  /** Type of combinator. */
-  private Combinator type;
-
-  /**
-   * Constructor of a combinator node.
-   *
-   * @param selector
-   * @param type
-   * @param sourceCodeLocation
-   */
-  public CssCombinatorNode(CssSelectorNode selector,
-                           Combinator type,
-                           SourceCodeLocation sourceCodeLocation) {
-    super(sourceCodeLocation);
-    this.selector = selector;
-    becomeParentForNode(this.selector);
-    this.type = type;
-  }
-
-  /**
-   * Constructor of a combinator node.
-   *
-   * @param type
-   * @param sourceCodeLocation
-   */
-  public CssCombinatorNode(Combinator type,
-                           SourceCodeLocation sourceCodeLocation) {
-    this(null, type, sourceCodeLocation);
-  }
-  
-  /**
-   * Copy constructor.
-   * 
-   * @param node
-   */
-  public CssCombinatorNode(CssCombinatorNode node) {
-    this(
-        node.getSelector().deepCopy(),
-        node.getCombinatorType(),
-        node.getSourceCodeLocation());
-  }
-
-  @Override
-  public CssCombinatorNode deepCopy() {
-    return new CssCombinatorNode(this);
-  }
-  
-  public CssSelectorNode getSelector() {
-    return selector;
-  }
-
-  public void setSelector(CssSelectorNode selector) {
-    if (this.selector != null) {
-      removeAsParentOfNode(this.selector);
+    /**
+     * Constructor of a combinator node.
+     *
+     * @param type
+     * @param sourceCodeLocation
+     */
+    public CssCombinatorNode(Combinator type,
+                             SourceCodeLocation sourceCodeLocation) {
+        this(null, type, sourceCodeLocation);
     }
-    this.selector = selector;
-    becomeParentForNode(this.selector);
-  }
 
-  public Combinator getCombinatorType() {
-    return type;
-  }
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssCombinatorNode(CssCombinatorNode node) {
+        this(
+                node.getSelector().deepCopy(),
+                node.getCombinatorType(),
+                node.getSourceCodeLocation());
+    }
 
-  @Override
-  public String toString() {
-    return type.getCanonicalName() + selector;
-  }
+    @Override
+    public CssCombinatorNode deepCopy() {
+        return new CssCombinatorNode(this);
+    }
+
+    public CssSelectorNode getSelector() {
+        return selector;
+    }
+
+    public void setSelector(CssSelectorNode selector) {
+        if (this.selector != null) {
+            removeAsParentOfNode(this.selector);
+        }
+        this.selector = selector;
+        becomeParentForNode(this.selector);
+    }
+
+    public Combinator getCombinatorType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return type.getCanonicalName() + selector;
+    }
 }

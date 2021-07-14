@@ -18,6 +18,7 @@ package com.google.common.css.compiler.ast;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 
 /**
@@ -27,40 +28,40 @@ import java.util.List;
  */
 public final class CssMathNode extends CssCompositeValueNode {
 
-  private CssMathNode(
-      CssValueNode operand1,
-      CssCompositeValueNode.Operator operator,
-      CssValueNode operand2,
-      boolean hasParenthesis) {
-    super(ImmutableList.of(operand1, operand2), operator, hasParenthesis, null);
-  }
-
-  public static CssValueNode createFromOperandsAndOperators(
-      List<CssValueNode> operands,
-      List<CssCompositeValueNode.Operator> operators,
-      boolean hasParenthesis) {
-    Preconditions.checkArgument(
-        operands.size() == operators.size() + 1,
-        "There should be one more operands than operators");
-    if (operators.size() == 0) {
-      return operands.get(0);
+    private CssMathNode(
+            CssValueNode operand1,
+            CssCompositeValueNode.Operator operator,
+            CssValueNode operand2,
+            boolean hasParenthesis) {
+        super(ImmutableList.of(operand1, operand2), operator, hasParenthesis, null);
     }
-    if (operators.size() == 1) {
-      return new CssMathNode(operands.get(0), operators.get(0), operands.get(1), hasParenthesis);
-    } else {
-      return new CssMathNode(
-          operands.get(0),
-          operators.get(0),
-          createFromOperandsAndOperators(
-              operands.subList(1, operands.size()), operators.subList(1, operators.size()), false),
-          hasParenthesis);
-    }
-  }
 
-  @Override
-  public CssMathNode deepCopy() {
-    CssValueNode operand1 = getValues().get(0);
-    CssValueNode operand2 = getValues().get(1);
-    return new CssMathNode(operand1, getOperator(), operand2, hasParenthesis());
-  }
+    public static CssValueNode createFromOperandsAndOperators(
+            List<CssValueNode> operands,
+            List<CssCompositeValueNode.Operator> operators,
+            boolean hasParenthesis) {
+        Preconditions.checkArgument(
+                operands.size() == operators.size() + 1,
+                "There should be one more operands than operators");
+        if (operators.size() == 0) {
+            return operands.get(0);
+        }
+        if (operators.size() == 1) {
+            return new CssMathNode(operands.get(0), operators.get(0), operands.get(1), hasParenthesis);
+        } else {
+            return new CssMathNode(
+                    operands.get(0),
+                    operators.get(0),
+                    createFromOperandsAndOperators(
+                            operands.subList(1, operands.size()), operators.subList(1, operators.size()), false),
+                    hasParenthesis);
+        }
+    }
+
+    @Override
+    public CssMathNode deepCopy() {
+        CssValueNode operand1 = getValues().get(0);
+        CssValueNode operand2 = getValues().get(1);
+        return new CssMathNode(operand1, getOperator(), operand2, hasParenthesis());
+    }
 }

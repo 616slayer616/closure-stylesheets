@@ -29,32 +29,31 @@ import com.google.common.css.compiler.ast.CssTree;
  * <p>This pass has the same assumptions as {@link MarkRemovableRulesetNodes}.
  *
  * @param <T> type of chunk id objects
- *
  */
 public class MarkRemovableRulesetNodesForChunk<T>
-    extends MarkRemovableRulesetNodes {
+        extends MarkRemovableRulesetNodes {
 
-  private final T chunk;
+    private final T chunk;
 
-  public MarkRemovableRulesetNodesForChunk(
-      T chunk,
-      CssTree tree,
-      boolean skipping) {
-    super(tree, skipping);
-    Preconditions.checkNotNull(chunk);
-    this.chunk = chunk;
-  }
-
-  @Override
-  public boolean canModifyRuleset(CssRulesetNode ruleset) {
-    if (!super.canModifyRuleset(ruleset)) {
-      return false;
+    public MarkRemovableRulesetNodesForChunk(
+            T chunk,
+            CssTree tree,
+            boolean skipping) {
+        super(tree, skipping);
+        Preconditions.checkNotNull(chunk);
+        this.chunk = chunk;
     }
 
-    CssSelectorListNode selectors = ruleset.getSelectors();
-    Preconditions.checkArgument(selectors.numChildren() == 1);
-    CssSelectorNode selector = selectors.getChildAt(0);
+    @Override
+    public boolean canModifyRuleset(CssRulesetNode ruleset) {
+        if (!super.canModifyRuleset(ruleset)) {
+            return false;
+        }
 
-    return chunk.equals(selector.getChunk());
-  }
+        CssSelectorListNode selectors = ruleset.getSelectors();
+        Preconditions.checkArgument(selectors.numChildren() == 1);
+        CssSelectorNode selector = selectors.getChildAt(0);
+
+        return chunk.equals(selector.getChunk());
+    }
 }

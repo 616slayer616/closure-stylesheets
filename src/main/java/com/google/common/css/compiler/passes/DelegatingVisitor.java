@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.css.compiler.ast.CssTreeVisitor;
 import com.google.common.reflect.Reflection;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,49 +35,50 @@ import java.util.List;
  * by the <em>last</em> delegate is the one returned by the method.
  */
 public class DelegatingVisitor {
-  private DelegatingVisitor() {}
-
-  /**
-   * Creates a {@code DelegatingVisitor} from the given list of visitors. The list must have at
-   * least one element.
-   */
-  public static CssTreeVisitor from(List<CssTreeVisitor> originalVisitors) {
-    Preconditions.checkArgument(originalVisitors.size() >= 1);
-    if (originalVisitors.size() == 1) {
-      return originalVisitors.get(0);
+    private DelegatingVisitor() {
     }
 
-    final ImmutableList<CssTreeVisitor> visitors = ImmutableList.copyOf(originalVisitors);
-    final ImmutableList<CssTreeVisitor> reverseVisitors = visitors.reverse();
-    return Reflection.newProxy(
-        CssTreeVisitor.class,
-        new InvocationHandler() {
-          @Override
-          public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            try {
-              Object returnValue = null;
-              Iterable<CssTreeVisitor> visitorsInOrderForMethod;
-              if (method.getName().startsWith("enter")) {
-                visitorsInOrderForMethod = visitors;
-              } else { // assume it's a leave* method
-                visitorsInOrderForMethod = reverseVisitors;
-              }
-              for (CssTreeVisitor visitor : visitorsInOrderForMethod) {
-                returnValue = method.invoke(visitor, args);
-              }
-              return returnValue;
-            } catch (InvocationTargetException e) {
-              throw e.getTargetException();
-            }
-          }
-        });
-  }
+    /**
+     * Creates a {@code DelegatingVisitor} from the given list of visitors. The list must have at
+     * least one element.
+     */
+    public static CssTreeVisitor from(List<CssTreeVisitor> originalVisitors) {
+        Preconditions.checkArgument(originalVisitors.size() >= 1);
+        if (originalVisitors.size() == 1) {
+            return originalVisitors.get(0);
+        }
 
-  /**
-   * Creates a {@code DelegatingVisitor} from the given array of visitors. Changes to the array will
-   * not be reflected after construction.
-   */
-  public static CssTreeVisitor from(CssTreeVisitor... visitors) {
-    return from(ImmutableList.copyOf(visitors));
-  }
+        final ImmutableList<CssTreeVisitor> visitors = ImmutableList.copyOf(originalVisitors);
+        final ImmutableList<CssTreeVisitor> reverseVisitors = visitors.reverse();
+        return Reflection.newProxy(
+                CssTreeVisitor.class,
+                new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        try {
+                            Object returnValue = null;
+                            Iterable<CssTreeVisitor> visitorsInOrderForMethod;
+                            if (method.getName().startsWith("enter")) {
+                                visitorsInOrderForMethod = visitors;
+                            } else { // assume it's a leave* method
+                                visitorsInOrderForMethod = reverseVisitors;
+                            }
+                            for (CssTreeVisitor visitor : visitorsInOrderForMethod) {
+                                returnValue = method.invoke(visitor, args);
+                            }
+                            return returnValue;
+                        } catch (InvocationTargetException e) {
+                            throw e.getTargetException();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Creates a {@code DelegatingVisitor} from the given array of visitors. Changes to the array will
+     * not be reflected after construction.
+     */
+    public static CssTreeVisitor from(CssTreeVisitor... visitors) {
+        return from(ImmutableList.copyOf(visitors));
+    }
 }

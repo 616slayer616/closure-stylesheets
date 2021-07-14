@@ -16,13 +16,7 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssFunctionNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.ErrorManager;
-import com.google.common.css.compiler.ast.GssError;
-import com.google.common.css.compiler.ast.VisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * A compiler pass that warns when custom properties declarations and references are encountered,
@@ -30,49 +24,49 @@ import com.google.common.css.compiler.ast.VisitController;
  */
 public class WarnOnCustomProperty extends DefaultTreeVisitor implements CssCompilerPass {
 
-  private static final String VAR_FUNCTION_NAME = "var";
+    private static final String VAR_FUNCTION_NAME = "var";
 
-  static final String DECLARATION_WARNING_MSG = "Custom property declaration encountered. "
-      + "Please note that custom properties do not work with all major browsers, and their use is "
-      + "discouraged.";
+    static final String DECLARATION_WARNING_MSG = "Custom property declaration encountered. "
+            + "Please note that custom properties do not work with all major browsers, and their use is "
+            + "discouraged.";
 
-  static final String REFERENCE_WARNING_MSG = "Custom property reference encountered. "
-      + "Please note that custom properties do not work with all major browsers, and their use "
-      + "is discouraged.";
+    static final String REFERENCE_WARNING_MSG = "Custom property reference encountered. "
+            + "Please note that custom properties do not work with all major browsers, and their use "
+            + "is discouraged.";
 
-  private final ErrorManager errorManager;
+    private final ErrorManager errorManager;
 
-  private final VisitController visitController;
+    private final VisitController visitController;
 
-  public WarnOnCustomProperty(VisitController visitController, ErrorManager errorManager) {
-    this.visitController = visitController;
-    this.errorManager = errorManager;
-  }
-
-  @Override
-  public boolean enterDeclaration(CssDeclarationNode declaration) {
-    if (declaration.isCustomDeclaration()) {
-      errorManager.reportWarning(
-          new GssError(
-              DECLARATION_WARNING_MSG,
-              declaration.getSourceCodeLocation()));
+    public WarnOnCustomProperty(VisitController visitController, ErrorManager errorManager) {
+        this.visitController = visitController;
+        this.errorManager = errorManager;
     }
 
-    return super.enterDeclaration(declaration);
-  }
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declaration) {
+        if (declaration.isCustomDeclaration()) {
+            errorManager.reportWarning(
+                    new GssError(
+                            DECLARATION_WARNING_MSG,
+                            declaration.getSourceCodeLocation()));
+        }
 
-  @Override
-  public boolean enterFunctionNode(CssFunctionNode value) {
-    if (value.getFunctionName().equals(VAR_FUNCTION_NAME)) {
-      errorManager.reportWarning(
-          new GssError(REFERENCE_WARNING_MSG, value.getSourceCodeLocation()));
+        return super.enterDeclaration(declaration);
     }
 
-    return super.enterFunctionNode(value);
-  }
+    @Override
+    public boolean enterFunctionNode(CssFunctionNode value) {
+        if (value.getFunctionName().equals(VAR_FUNCTION_NAME)) {
+            errorManager.reportWarning(
+                    new GssError(REFERENCE_WARNING_MSG, value.getSourceCodeLocation()));
+        }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+        return super.enterFunctionNode(value);
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

@@ -16,115 +16,114 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.collect.Sets;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.google.common.truth.Truth.assertThat;
+
 /**
  * Unit tests for {@link HandleUnknownAtRuleNodes}.
- *
  */
 @RunWith(JUnit4.class)
 public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
 
-  private final String errorMessage = HandleUnknownAtRuleNodes.unknownAtRuleErrorMessage;
+    private final String errorMessage = HandleUnknownAtRuleNodes.unknownAtRuleErrorMessage;
 
-  private final String testCode = "@foo a b c {.x {y: z}\n@bar {}\n@baz X;}";
-  private final String testCodePrettyPrintedResult = linesToString(
-      "@foo a b c {",
-      "  .x {",
-      "    y: z;",
-      "  }",
-      "  @bar {",
-      "  }",
-      "  @baz X;",
-      "}",
-      "");
-  private final String testCodeCompactPrintedResult = "@foo a b c{.x{y:z}@bar{}@baz X;}";
+    private final String testCode = "@foo a b c {.x {y: z}\n@bar {}\n@baz X;}";
+    private final String testCodePrettyPrintedResult = linesToString(
+            "@foo a b c {",
+            "  .x {",
+            "    y: z;",
+            "  }",
+            "  @bar {",
+            "  }",
+            "  @baz X;",
+            "}",
+            "");
+    private final String testCodeCompactPrintedResult = "@foo a b c{.x{y:z}@bar{}@baz X;}";
 
-  private boolean report;
-  private boolean remove;
-  private String prettyPrintedResult;
-  private String compactPrintedResult;
+    private boolean report;
+    private boolean remove;
+    private String prettyPrintedResult;
+    private String compactPrintedResult;
 
-  @Override
-  protected void runPass() {
-    new HandleUnknownAtRuleNodes(
-        tree.getMutatingVisitController(), errorManager,
-        Sets.<String>newHashSet("-custom-at-rule"),
-        report, remove).runPass();
-    PrettyPrinter prettyPrinterPass = new PrettyPrinter(tree.getVisitController());
-    prettyPrinterPass.runPass();
-    prettyPrintedResult = prettyPrinterPass.getPrettyPrintedString();
-    CompactPrinter compactPrinterPass = new CompactPrinter(tree);
-    compactPrinterPass.runPass();
-    compactPrintedResult = compactPrinterPass.getCompactPrintedString();
-  }
+    @Override
+    protected void runPass() {
+        new HandleUnknownAtRuleNodes(
+                tree.getMutatingVisitController(), errorManager,
+                Sets.<String>newHashSet("-custom-at-rule"),
+                report, remove).runPass();
+        PrettyPrinter prettyPrinterPass = new PrettyPrinter(tree.getVisitController());
+        prettyPrinterPass.runPass();
+        prettyPrintedResult = prettyPrinterPass.getPrettyPrintedString();
+        CompactPrinter compactPrinterPass = new CompactPrinter(tree);
+        compactPrinterPass.runPass();
+        compactPrintedResult = compactPrinterPass.getCompactPrintedString();
+    }
 
-  @Test
-  public void testReportRemove() throws Exception {
-    report = true;
-    remove = true;
-    parseAndRun(testCode, errorMessage);
-    assertThat(prettyPrintedResult).isEmpty();
-    assertThat(compactPrintedResult).isEmpty();
-  }
+    @Test
+    public void testReportRemove() throws Exception {
+        report = true;
+        remove = true;
+        parseAndRun(testCode, errorMessage);
+        assertThat(prettyPrintedResult).isEmpty();
+        assertThat(compactPrintedResult).isEmpty();
+    }
 
-  @Test
-  public void testReportDoNotRemove() throws Exception {
-    report = true;
-    remove = false;
-    parseAndRun(testCode, errorMessage, errorMessage, errorMessage);
-    assertThat(prettyPrintedResult).isEqualTo(testCodePrettyPrintedResult);
-    assertThat(compactPrintedResult).isEqualTo(testCodeCompactPrintedResult);
-  }
+    @Test
+    public void testReportDoNotRemove() throws Exception {
+        report = true;
+        remove = false;
+        parseAndRun(testCode, errorMessage, errorMessage, errorMessage);
+        assertThat(prettyPrintedResult).isEqualTo(testCodePrettyPrintedResult);
+        assertThat(compactPrintedResult).isEqualTo(testCodeCompactPrintedResult);
+    }
 
-  @Test
-  public void testDoNotReportRemove() throws Exception {
-    report = false;
-    remove = true;
-    parseAndRun(testCode);
-    assertThat(prettyPrintedResult).isEmpty();
-    assertThat(compactPrintedResult).isEmpty();
-  }
+    @Test
+    public void testDoNotReportRemove() throws Exception {
+        report = false;
+        remove = true;
+        parseAndRun(testCode);
+        assertThat(prettyPrintedResult).isEmpty();
+        assertThat(compactPrintedResult).isEmpty();
+    }
 
-  @Test
-  public void testDoNotReportDoNotRemove() throws Exception {
-    report = false;
-    remove = false;
-    parseAndRun(testCode);
-    assertThat(prettyPrintedResult).isEqualTo(testCodePrettyPrintedResult);
-    assertThat(compactPrintedResult).isEqualTo(testCodeCompactPrintedResult);
-  }
+    @Test
+    public void testDoNotReportDoNotRemove() throws Exception {
+        report = false;
+        remove = false;
+        parseAndRun(testCode);
+        assertThat(prettyPrintedResult).isEqualTo(testCodePrettyPrintedResult);
+        assertThat(compactPrintedResult).isEqualTo(testCodeCompactPrintedResult);
+    }
 
-  @Test
-  public void testDoNotReportDoNotRemoveMedia() throws Exception {
-    report = true;
-    remove = true;
-    parseAndRun("@media print { .A { margin: 0; } }");
-    assertThat(prettyPrintedResult)
-        .isEqualTo(linesToString("@media print {", "  .A {", "    margin: 0;", "  }", "}", ""));
-    assertThat(compactPrintedResult).isEqualTo("@media print{.A{margin:0}}");
-  }
+    @Test
+    public void testDoNotReportDoNotRemoveMedia() throws Exception {
+        report = true;
+        remove = true;
+        parseAndRun("@media print { .A { margin: 0; } }");
+        assertThat(prettyPrintedResult)
+                .isEqualTo(linesToString("@media print {", "  .A {", "    margin: 0;", "  }", "}", ""));
+        assertThat(compactPrintedResult).isEqualTo("@media print{.A{margin:0}}");
+    }
 
-  @Test
-  public void testDoNotReportDoNotRemoveMediaWithUnknown() throws Exception {
-    report = true;
-    remove = true;
-    parseAndRun("@media print { @foo { .A { margin: 0; } } }", errorMessage);
-    assertThat(prettyPrintedResult).isEqualTo(linesToString("@media print {", "}", ""));
-    assertThat(compactPrintedResult).isEqualTo("@media print{}");
-  }
+    @Test
+    public void testDoNotReportDoNotRemoveMediaWithUnknown() throws Exception {
+        report = true;
+        remove = true;
+        parseAndRun("@media print { @foo { .A { margin: 0; } } }", errorMessage);
+        assertThat(prettyPrintedResult).isEqualTo(linesToString("@media print {", "}", ""));
+        assertThat(compactPrintedResult).isEqualTo("@media print{}");
+    }
 
-  @Test
-  public void testDoNotReportDoNotRemoveCustomAtRule() throws Exception {
-    report = true;
-    remove = true;
-    parseAndRun("@-custom-at-rule print { }");
-    assertThat(compactPrintedResult).isEqualTo("@-custom-at-rule print{}");
-  }
+    @Test
+    public void testDoNotReportDoNotRemoveCustomAtRule() throws Exception {
+        report = true;
+        remove = true;
+        parseAndRun("@-custom-at-rule print { }");
+        assertThat(compactPrintedResult).isEqualTo("@-custom-at-rule print{}");
+    }
 }

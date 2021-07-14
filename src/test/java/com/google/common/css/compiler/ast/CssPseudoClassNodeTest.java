@@ -16,12 +16,12 @@
 
 package com.google.common.css.compiler.ast;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.compiler.ast.CssPseudoClassNode.FunctionType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Unit tests for {@link CssPseudoClassNode}
@@ -31,50 +31,50 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CssPseudoClassNodeTest {
 
-  @Test
-  public void testNonFunction() {
-    String name = "foo";
-    CssPseudoClassNode node = new CssPseudoClassNode(name, null);
-    assertThat(node.getFunctionType()).isEqualTo(FunctionType.NONE);
-    assertThat(node.getPrefix()).isEqualTo(":");
-    assertThat(node.getSuffix()).isEmpty();
-    assertThat(node.getRefinerName()).isEqualTo(name);
-    assertThat(node.getArgument()).isNull();
-    assertThat(node.getNotSelector()).isNull();
-  }
+    @Test
+    public void testNonFunction() {
+        String name = "foo";
+        CssPseudoClassNode node = new CssPseudoClassNode(name, null);
+        assertThat(node.getFunctionType()).isEqualTo(FunctionType.NONE);
+        assertThat(node.getPrefix()).isEqualTo(":");
+        assertThat(node.getSuffix()).isEmpty();
+        assertThat(node.getRefinerName()).isEqualTo(name);
+        assertThat(node.getArgument()).isNull();
+        assertThat(node.getNotSelector()).isNull();
+    }
 
-  @Test
-  public void testLangFunction() {
-    String name = "foo";
-    String arg = "en";
-    CssPseudoClassNode node = new CssPseudoClassNode(FunctionType.LANG, name,
-        arg, null);
-    assertThat(node.getFunctionType()).isEqualTo(FunctionType.LANG);
-    assertThat(node.getRefinerName()).isEqualTo(name);
-    assertThat(node.getArgument()).isEqualTo(arg);
-    assertThat(node.getNotSelector()).isNull();
-  }
+    @Test
+    public void testLangFunction() {
+        String name = "foo";
+        String arg = "en";
+        CssPseudoClassNode node = new CssPseudoClassNode(FunctionType.LANG, name,
+                arg, null);
+        assertThat(node.getFunctionType()).isEqualTo(FunctionType.LANG);
+        assertThat(node.getRefinerName()).isEqualTo(name);
+        assertThat(node.getArgument()).isEqualTo(arg);
+        assertThat(node.getNotSelector()).isNull();
+    }
 
-  @Test
-  public void testNthFunction() {
-    String name = "foo";
-    String arg = "2n+1";
-    CssPseudoClassNode node = new CssPseudoClassNode(FunctionType.NTH, name,
-        arg, null);
-    assertThat(node.getFunctionType()).isEqualTo(FunctionType.NTH);
-    assertThat(node.getRefinerName()).isEqualTo(name);
-    assertThat(node.getArgument()).isEqualTo(arg);
-    assertThat(node.getNotSelector()).isNull();
-  }
+    @Test
+    public void testNthFunction() {
+        String name = "foo";
+        String arg = "2n+1";
+        CssPseudoClassNode node = new CssPseudoClassNode(FunctionType.NTH, name,
+                arg, null);
+        assertThat(node.getFunctionType()).isEqualTo(FunctionType.NTH);
+        assertThat(node.getRefinerName()).isEqualTo(name);
+        assertThat(node.getArgument()).isEqualTo(arg);
+        assertThat(node.getNotSelector()).isNull();
+    }
 
-  @Test
-  public void testNotFunction() {
-    String name = "not";
-    CssSelectorNode selector = new CssSelectorNode("foo");
-    CssPseudoClassNode node = new CssPseudoClassNode(name, selector, null);
-    assertThat(node.getFunctionType()).isEqualTo(FunctionType.NOT);
-    assertThat(node.getRefinerName()).isEqualTo(name);
-    assertThat(node.getNotSelector()).isEqualTo(selector);
-    assertThat(node.getArgument()).isNull();
-  }
+    @Test
+    public void testNotFunction() {
+        String name = "not";
+        CssSelectorNode selector = new CssSelectorNode("foo");
+        CssPseudoClassNode node = new CssPseudoClassNode(name, selector, null);
+        assertThat(node.getFunctionType()).isEqualTo(FunctionType.NOT);
+        assertThat(node.getRefinerName()).isEqualTo(name);
+        assertThat(node.getNotSelector()).isEqualTo(selector);
+        assertThat(node.getArgument()).isNull();
+    }
 }

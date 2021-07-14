@@ -25,58 +25,57 @@ import com.google.common.collect.ImmutableSet;
  * then converts them into more specific at-rule nodes, as needed. It's OK to
  * leave a known at-rule type as unknown if it doesn't require further
  * processing.
- *
  */
 public class CssUnknownAtRuleNode extends CssAtRuleNode {
 
-  /**
-   * Names of at-rules that don't need special processing, and so can be left
-   * as unknown for convenience.
-   */
-  private static final ImmutableSet<String> OK_WITHOUT_PROCESSING =
-      ImmutableSet.of("media", "page");
+    /**
+     * Names of at-rules that don't need special processing, and so can be left
+     * as unknown for convenience.
+     */
+    private static final ImmutableSet<String> OK_WITHOUT_PROCESSING =
+            ImmutableSet.of("media", "page");
 
-  public CssUnknownAtRuleNode(CssLiteralNode name, boolean hasBlock) {
-    super(hasBlock ? Type.UNKNOWN_BLOCK : Type.UNKNOWN, name,
-        hasBlock ? new CssBlockNode() : null);
-  }
-
-  public CssUnknownAtRuleNode(CssUnknownAtRuleNode node) {
-    super(node);
-  }
-
-  @Override
-  public CssUnknownAtRuleNode deepCopy() {
-    return new CssUnknownAtRuleNode(this);
-  }
-
-  public boolean isOkWithoutProcessing() {
-   return OK_WITHOUT_PROCESSING.contains(getName().getValue());
-  }
-
-  /**
-   * For debugging only.
-   */
-  @Override
-  public String toString() {
-    String output = "";
-    if (!getComments().isEmpty()) {
-      output = getComments().toString();
-    }
-    output += "@" + getName().toString() + getParameters().toString();
-
-    if (getBlock() != null) {
-      output += "{" + getBlock().toString() + "}";
+    public CssUnknownAtRuleNode(CssLiteralNode name, boolean hasBlock) {
+        super(hasBlock ? Type.UNKNOWN_BLOCK : Type.UNKNOWN, name,
+                hasBlock ? new CssBlockNode() : null);
     }
 
-    return output;
-  }
+    public CssUnknownAtRuleNode(CssUnknownAtRuleNode node) {
+        super(node);
+    }
 
-  /**
-   * Returns an implementation of {@code CssAbstractBlockNode} or null.
-   */
-  @Override
-  public CssAbstractBlockNode getBlock() {
-    return super.getBlock();
-  }
+    @Override
+    public CssUnknownAtRuleNode deepCopy() {
+        return new CssUnknownAtRuleNode(this);
+    }
+
+    public boolean isOkWithoutProcessing() {
+        return OK_WITHOUT_PROCESSING.contains(getName().getValue());
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+        String output = "";
+        if (!getComments().isEmpty()) {
+            output = getComments().toString();
+        }
+        output += "@" + getName().toString() + getParameters().toString();
+
+        if (getBlock() != null) {
+            output += "{" + getBlock().toString() + "}";
+        }
+
+        return output;
+    }
+
+    /**
+     * Returns an implementation of {@code CssAbstractBlockNode} or null.
+     */
+    @Override
+    public CssAbstractBlockNode getBlock() {
+        return super.getBlock();
+    }
 }

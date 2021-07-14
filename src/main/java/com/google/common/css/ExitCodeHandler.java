@@ -23,15 +23,15 @@ package com.google.common.css;
  * Throwable or equivalent to terminate execution of the compiler. In <em>no
  * case</em> should an implementation return normally from {@link
  * #processExitCode}.
- * 
+ *
  * @author bolinfest@google.com (Michael Bolin)
  */
 public interface ExitCodeHandler {
 
-  /**
-   * Process the request to exit with the specified exit code.
-   * Implementations of this method <em>must never</em> return normally.
-   */
-  public void processExitCode(int exitCode);
+    /**
+     * Process the request to exit with the specified exit code.
+     * Implementations of this method <em>must never</em> return normally.
+     */
+    public void processExitCode(int exitCode);
 
 }

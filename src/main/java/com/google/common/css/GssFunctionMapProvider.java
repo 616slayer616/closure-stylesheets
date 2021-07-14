@@ -23,15 +23,14 @@ import java.util.Map;
  *
  * <p>Any implementation should provide a parameterless constructor, as the
  * provider is instantiated via {@link Class#newInstance()}.
- *
  */
 public interface GssFunctionMapProvider {
-  /**
-   * Gets the map of custom GSS functions for the given class.
-   *
-   * @param <F> the interface implemented by the GSS functions
-   * @param gssFunctionClass the class of {@code F}
-   * @return a map from each custom function name to its implementation
-   */
-  <F> Map<String, F> get(Class<F> gssFunctionClass);
+    /**
+     * Gets the map of custom GSS functions for the given class.
+     *
+     * @param <F>              the interface implemented by the GSS functions
+     * @param gssFunctionClass the class of {@code F}
+     * @return a map from each custom function name to its implementation
+     */
+    <F> Map<String, F> get(Class<F> gssFunctionClass);
 }

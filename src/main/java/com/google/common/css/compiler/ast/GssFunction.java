@@ -20,29 +20,28 @@ import java.util.List;
 
 /**
  * Encapsulates a custom function callable from GSS stylesheet files.
- *
  */
 
 public interface GssFunction {
 
-  /**
-   * Returns the number of parsed arguments that this function takes,
-   * or {@code null} if the number of arguments may vary.
-   */
-  Integer getNumExpectedArguments();
+    /**
+     * Returns the number of parsed arguments that this function takes,
+     * or {@code null} if the number of arguments may vary.
+     */
+    Integer getNumExpectedArguments();
 
-  /**
-   * Processes a list of function call arguments and returns a list of
-   * CssNodes representing this call's output, which replace the input
-   * nodes in the AST. Errors will be reported to the ErrorManager.
-   */
-  List<CssValueNode> getCallResultNodes(
-      List<CssValueNode> args, ErrorManager errorManager)
-      throws GssFunctionException;
+    /**
+     * Processes a list of function call arguments and returns a list of
+     * CssNodes representing this call's output, which replace the input
+     * nodes in the AST. Errors will be reported to the ErrorManager.
+     */
+    List<CssValueNode> getCallResultNodes(
+            List<CssValueNode> args, ErrorManager errorManager)
+            throws GssFunctionException;
 
-  /**
-   * Processes a list of strings as function arguments and returns a string
-   * result. Errors are reported by throwing {@link GssFunctionException}.
-   */
-  String getCallResultString(List<String> args) throws GssFunctionException;
+    /**
+     * Processes a list of strings as function arguments and returns a string
+     * result. Errors are reported by throwing {@link GssFunctionException}.
+     */
+    String getCallResultString(List<String> args) throws GssFunctionException;
 }

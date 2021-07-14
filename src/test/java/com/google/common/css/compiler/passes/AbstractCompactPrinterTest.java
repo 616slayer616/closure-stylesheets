@@ -16,12 +16,12 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.base.Joiner;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.FunctionalTestBase;
 import org.junit.Before;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Base class for compact printer tests.
@@ -29,46 +29,46 @@ import org.junit.Before;
  * @author dgajda@google.com (Damian Gajda)
  */
 public abstract class AbstractCompactPrinterTest extends FunctionalTestBase {
-  
-  protected boolean preserveMarkedComments; 
-  
-  @Before
-  public void setUp() {
-    preserveMarkedComments = false;
-  }
 
-  protected void assertCompactPrintedResult(String expected, String source) {
-    parseAndBuildTree(source);
+    protected boolean preserveMarkedComments;
 
-    assertCompactPrintedResult(expected, tree);
+    @Before
+    public void setUp() {
+        preserveMarkedComments = false;
+    }
 
-    assertCompactPrintedResult(expected, newTree);
-  }
+    protected void assertCompactPrintedResult(String expected, String source) {
+        parseAndBuildTree(source);
 
-  protected void assertNewCompactPrintedResult(String expected, String source) {
-    buildTreeWithNewParser(source);
-    runPassesOnNewTree();
-    assertCompactPrintedResult(expected, newTree);
-  }
+        assertCompactPrintedResult(expected, tree);
 
-  protected CssTree parseStyleSheet(String sourceCode) {
-    // NOTE(reinerp): We don't use the old parser, because it can't parse
-    // @keyframes rules correctly: it expects the animation name to be enclosed
-    // in double-quotes - see com.google.common.css.CssParser.scanKeyframes.
-    buildTreeWithNewParser(sourceCode);
-    runPassesOnNewTree();
-    return newTree;
-  }
+        assertCompactPrintedResult(expected, newTree);
+    }
 
-  protected String lines(String... lines) {
-    return Joiner.on("\n").join(lines);
-  }
+    protected void assertNewCompactPrintedResult(String expected, String source) {
+        buildTreeWithNewParser(source);
+        runPassesOnNewTree();
+        assertCompactPrintedResult(expected, newTree);
+    }
 
-  private void assertCompactPrintedResult(String expected,
-      CssTree treeToCheck) {
-    CompactPrinter pass = new CompactPrinter(treeToCheck);
-    pass.setPreserveMarkedComments(preserveMarkedComments);
-    pass.runPass();
-    assertThat(pass.getCompactPrintedString()).isEqualTo(expected);
-  }
+    protected CssTree parseStyleSheet(String sourceCode) {
+        // NOTE(reinerp): We don't use the old parser, because it can't parse
+        // @keyframes rules correctly: it expects the animation name to be enclosed
+        // in double-quotes - see com.google.common.css.CssParser.scanKeyframes.
+        buildTreeWithNewParser(sourceCode);
+        runPassesOnNewTree();
+        return newTree;
+    }
+
+    protected String lines(String... lines) {
+        return Joiner.on("\n").join(lines);
+    }
+
+    private void assertCompactPrintedResult(String expected,
+                                            CssTree treeToCheck) {
+        CompactPrinter pass = new CompactPrinter(treeToCheck);
+        pass.setPreserveMarkedComments(preserveMarkedComments);
+        pass.runPass();
+        assertThat(pass.getCompactPrintedString()).isEqualTo(expected);
+    }
 }

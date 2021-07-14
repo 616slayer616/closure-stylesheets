@@ -28,84 +28,90 @@ import javax.annotation.Nullable;
  */
 public class CssNumericNode extends CssValueNode {
 
-  /** The numeric value of the node. */
-  private String numericPart;
-  /** The unit for this numeric value. */
-  private String unit;
-  /** Constant value for the units field for a node without units. */
-  public static String NO_UNITS = "";
+    /**
+     * The numeric value of the node.
+     */
+    private String numericPart;
+    /**
+     * The unit for this numeric value.
+     */
+    private String unit;
+    /**
+     * Constant value for the units field for a node without units.
+     */
+    public static String NO_UNITS = "";
 
-  /**
-   * Constructor of a numeric node.
-   *
-   * @param value
-   * @param unit
-   */
-  public CssNumericNode(String value,
-                        String unit) {
-    this(value, unit, null);
-  }
+    /**
+     * Constructor of a numeric node.
+     *
+     * @param value
+     * @param unit
+     */
+    public CssNumericNode(String value,
+                          String unit) {
+        this(value, unit, null);
+    }
 
-  /**
-   * Constructor of a numeric node.
-   *
-   * @param value
-   * @param unit
-   * @param sourceCodeLocation
-   */
-  public CssNumericNode(String value,
-                        String unit,
-                        @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(null, sourceCodeLocation);
-    this.numericPart = value;
-    this.unit = unit;
-  }
+    /**
+     * Constructor of a numeric node.
+     *
+     * @param value
+     * @param unit
+     * @param sourceCodeLocation
+     */
+    public CssNumericNode(String value,
+                          String unit,
+                          @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(null, sourceCodeLocation);
+        this.numericPart = value;
+        this.unit = unit;
+    }
 
-  /**
-   * Copy constructor.
-   *
-   * @param node
-   */
-  public CssNumericNode(CssNumericNode node) {
-    super(node);
-    this.numericPart = node.getNumericPart();
-    this.unit = node.getUnit();
-  }
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssNumericNode(CssNumericNode node) {
+        super(node);
+        this.numericPart = node.getNumericPart();
+        this.unit = node.getUnit();
+    }
 
-  @Override
-  public CssNumericNode deepCopy() {
-    return new CssNumericNode(this);
-  }
+    @Override
+    public CssNumericNode deepCopy() {
+        return new CssNumericNode(this);
+    }
 
-  public String getUnit() {
-    return unit;
-  }
+    public String getUnit() {
+        return unit;
+    }
 
-  public void setUnit(String unit) {
-    this.unit = unit;
-  }
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
 
-  public String getNumericPart() {
-    return numericPart;
-  }
+    public String getNumericPart() {
+        return numericPart;
+    }
 
-  public void setNumericPart(String numericPart) {
-    this.numericPart = numericPart;
-  }
+    public void setNumericPart(String numericPart) {
+        this.numericPart = numericPart;
+    }
 
-  @Override
-  public void setValue(String value) {
-    throw new UnsupportedOperationException(  // COV_NF_LINE
-        "Use setNumericPart and setUnit to update a NumericValue.");
-  }
+    @Override
+    public void setValue(String value) {
+        throw new UnsupportedOperationException(  // COV_NF_LINE
+                "Use setNumericPart and setUnit to update a NumericValue.");
+    }
 
-  @Override
-  public String getValue() {
-    return getNumericPart() + getUnit();
-  }
+    @Override
+    public String getValue() {
+        return getNumericPart() + getUnit();
+    }
 
-  @Override
-  public String toString() {
-    return getValue();
-  }
+    @Override
+    public String toString() {
+        return getValue();
+    }
 }

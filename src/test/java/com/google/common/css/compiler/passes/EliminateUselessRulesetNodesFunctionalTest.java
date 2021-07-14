@@ -21,28 +21,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** @author oana@google.com (Oana Florescu) */
+/**
+ * @author oana@google.com (Oana Florescu)
+ */
 @RunWith(JUnit4.class)
 public class EliminateUselessRulesetNodesFunctionalTest extends FunctionalTestBase {
 
-  @Test
-  public void test() {
-    testTreeConstruction(
-        linesToString(
-            "foo { background-color: blue;}",
-            "foo { border-left: 5px;}",
-            "foo { background-color: red;}"
-            ),
-        "[[foo]{[border-left:[5px]]}, "
-        + "[foo]{[background-color:[red]]}]");
-  }
+    @Test
+    public void test() {
+        testTreeConstruction(
+                linesToString(
+                        "foo { background-color: blue;}",
+                        "foo { border-left: 5px;}",
+                        "foo { background-color: red;}"
+                ),
+                "[[foo]{[border-left:[5px]]}, "
+                        + "[foo]{[background-color:[red]]}]");
+    }
 
-  @Override
-  protected void runPass() {
-    MarkRemovableRulesetNodes markPass = new MarkRemovableRulesetNodes(tree);
-    markPass.runPass();
-    EliminateUselessRulesetNodes pass
-        = new EliminateUselessRulesetNodes(tree);
-    pass.runPass();
-  }
+    @Override
+    protected void runPass() {
+        MarkRemovableRulesetNodes markPass = new MarkRemovableRulesetNodes(tree);
+        markPass.runPass();
+        EliminateUselessRulesetNodes pass
+                = new EliminateUselessRulesetNodes(tree);
+        pass.runPass();
+    }
 }

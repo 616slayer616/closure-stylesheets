@@ -32,89 +32,89 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class RemoveVendorSpecificPropertiesTest extends NewFunctionalTestBase {
 
-  private Vendor vendor;
+    private Vendor vendor;
 
-  @Before
-  public void setUp() {
-    vendor = null;
-  }
+    @Before
+    public void setUp() {
+        vendor = null;
+    }
 
-  @Override
-  protected void runPass() {
-    RemoveVendorSpecificProperties pass = new RemoveVendorSpecificProperties(
-        vendor, tree.getMutatingVisitController());
-    pass.runPass();
-  }
+    @Override
+    protected void runPass() {
+        RemoveVendorSpecificProperties pass = new RemoveVendorSpecificProperties(
+                vendor, tree.getMutatingVisitController());
+        pass.runPass();
+    }
 
-  @Test
-  public void testAllowWebkit() throws GssParserException {
-    vendor = Vendor.WEBKIT;
-    test(linesToString(
-        ".button {",
-        "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);", 
-        "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"),
-        linesToString(
-        ".button {",
-        "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"));
-  }
+    @Test
+    public void testAllowWebkit() throws GssParserException {
+        vendor = Vendor.WEBKIT;
+        test(linesToString(
+                ".button {",
+                "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);",
+                "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "}"),
+                linesToString(
+                        ".button {",
+                        "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                        "}"));
+    }
 
-  @Test
-  public void testAllowMozilla() throws GssParserException {
-    vendor = Vendor.MOZILLA;
-    test(linesToString(
-        ".button {",
-        "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);", 
-        "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"),
-        linesToString(
-        ".button {",
-        "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"));
-  }
+    @Test
+    public void testAllowMozilla() throws GssParserException {
+        vendor = Vendor.MOZILLA;
+        test(linesToString(
+                ".button {",
+                "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);",
+                "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "}"),
+                linesToString(
+                        ".button {",
+                        "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);",
+                        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                        "}"));
+    }
 
-  @Test
-  public void testAllowMicrosoft() throws GssParserException {
-    vendor = Vendor.MICROSOFT;
-    test(linesToString(
-        ".button {",
-        "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);", 
-        "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"),
-        linesToString(
-        ".button {",
-        "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"));
-  }
+    @Test
+    public void testAllowMicrosoft() throws GssParserException {
+        vendor = Vendor.MICROSOFT;
+        test(linesToString(
+                ".button {",
+                "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);",
+                "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "}"),
+                linesToString(
+                        ".button {",
+                        "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                        "}"));
+    }
 
-  @Test
-  public void testAllowOpera() throws GssParserException {
-    vendor = Vendor.OPERA;
-    test(linesToString(
-        ".button {",
-        "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);", 
-        "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"),
-        linesToString(
-        ".button {",
-        "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);", 
-        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
-        "}"));
-  }
+    @Test
+    public void testAllowOpera() throws GssParserException {
+        vendor = Vendor.OPERA;
+        test(linesToString(
+                ".button {",
+                "  -moz-transform: matrix(1, 0, 0.6, 1, 15em, 0);",
+                "  -webkit-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  -ms-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                "}"),
+                linesToString(
+                        ".button {",
+                        "  -o-transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                        "  transform: matrix(1, 0, 0.6, 1, 250, 0);",
+                        "}"));
+    }
 }

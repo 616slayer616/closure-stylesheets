@@ -22,42 +22,41 @@ import java.util.List;
  * A compiler pass that moves all comments of each {@link CssDefinitionNode}'s children to the
  * {@link CssDefinitionNode} itself. (This is to ensure that "@default" annotations are attached
  * to the {@link CssDefinitionNode} directly.)
- *
  */
 public class RelocateDefaultComments extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final MutatingVisitController visitController;
+    private final MutatingVisitController visitController;
 
-  public RelocateDefaultComments(MutatingVisitController visitController) {
-    this.visitController = visitController;
-  }
-
-  @Override
-  public boolean enterDefinition(CssDefinitionNode node) {
-    //TODO(user): Now it moves up every comment to the CssDefinitionNode.
-    // Later we should move only the annotations "@default".
-    List<CssCommentNode> comments = node.getComments();
-    CssLiteralNode name = node.getName();
-    List<CssValueNode> params = node.getParameters();
-    List<CssCommentNode> nameComments = name.getComments();
-    for (CssCommentNode c : nameComments) {
-      comments.add(c);
+    public RelocateDefaultComments(MutatingVisitController visitController) {
+        this.visitController = visitController;
     }
-    nameComments.clear();
-    for (CssValueNode valueNode : params) {
-      List<CssCommentNode> commentsList = valueNode.getComments();
-      for (CssCommentNode c : commentsList) {
-        comments.add(c);
-      }
-      commentsList.clear();
-    }
-    return true;
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+        //TODO(user): Now it moves up every comment to the CssDefinitionNode.
+        // Later we should move only the annotations "@default".
+        List<CssCommentNode> comments = node.getComments();
+        CssLiteralNode name = node.getName();
+        List<CssValueNode> params = node.getParameters();
+        List<CssCommentNode> nameComments = name.getComments();
+        for (CssCommentNode c : nameComments) {
+            comments.add(c);
+        }
+        nameComments.clear();
+        for (CssValueNode valueNode : params) {
+            List<CssCommentNode> commentsList = valueNode.getComments();
+            for (CssCommentNode c : commentsList) {
+                comments.add(c);
+            }
+            commentsList.clear();
+        }
+        return true;
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 
 }

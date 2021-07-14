@@ -17,25 +17,25 @@
 package com.google.common.css.compiler.ast;
 
 /**
- *  A list of nodes that contains only keys (for keyframes).
- *  This list is used to apply the same style to different positions in an
- *  animation.
- *  For example: <code>0%, 33.3%</code>
+ * A list of nodes that contains only keys (for keyframes).
+ * This list is used to apply the same style to different positions in an
+ * animation.
+ * For example: <code>0%, 33.3%</code>
  *
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssKeyListNode extends CssNodesListNode<CssKeyNode> {
 
-  public CssKeyListNode() {
-    super(false);
-  }
+    public CssKeyListNode() {
+        super(false);
+    }
 
-  public CssKeyListNode(CssKeyListNode node) {
-    super(node);
-  }
-  
-  @Override
-  public CssKeyListNode deepCopy() {
-    return new CssKeyListNode(this);
-  }
+    public CssKeyListNode(CssKeyListNode node) {
+        super(node);
+    }
+
+    @Override
+    public CssKeyListNode deepCopy() {
+        return new CssKeyListNode(this);
+    }
 }

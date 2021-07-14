@@ -23,87 +23,86 @@ import org.junit.runners.JUnit4;
 
 /**
  * Functional tests for {@link RemoveEmptyValues}.
- *
  */
 @RunWith(JUnit4.class)
 public class RemoveEmptyValuesFunctionalTest extends PassesTestBase {
 
-  @Test
-  public void testRemoveEmptyValues1() {
-    testTreeConstruction(linesToString(
-        "@def COLOR empty;",
-        "@def PADDING 1px;",
-        ".CSS_RULE {",
-        "  color: COLOR;",
-        "  padding: PADDING;",
-        "}"),
-        "[[.CSS_RULE]{[padding:[[1px]];]}]");
-  }
+    @Test
+    public void testRemoveEmptyValues1() {
+        testTreeConstruction(linesToString(
+                "@def COLOR empty;",
+                "@def PADDING 1px;",
+                ".CSS_RULE {",
+                "  color: COLOR;",
+                "  padding: PADDING;",
+                "}"),
+                "[[.CSS_RULE]{[padding:[[1px]];]}]");
+    }
 
-  @Test
-  public void testRemoveEmptyValues2() {
-    testTreeConstruction(linesToString(
-        "@def COLOR empty;",
-        "@def PADDING 1px;",
-        ".CSS_RULE {",
-        "  color: COLOR !important;",
-        "  padding: PADDING;",
-        "}"),
-        "[[.CSS_RULE]{[padding:[[1px]];]}]");
-  }
+    @Test
+    public void testRemoveEmptyValues2() {
+        testTreeConstruction(linesToString(
+                "@def COLOR empty;",
+                "@def PADDING 1px;",
+                ".CSS_RULE {",
+                "  color: COLOR !important;",
+                "  padding: PADDING;",
+                "}"),
+                "[[.CSS_RULE]{[padding:[[1px]];]}]");
+    }
 
-  @Test
-  public void testRemoveEmptyValues3() {
-    testTreeConstruction(linesToString(
-        "@def A empty;",
-        "@def B A A;",
-        "@def C A 1px;",
-        ".CSS_RULE {",
-        "  color: A B !important;",
-        "  padding: C;",
-        "}"),
-        "[[.CSS_RULE]{[padding:[[1px]];]}]");
-  }
+    @Test
+    public void testRemoveEmptyValues3() {
+        testTreeConstruction(linesToString(
+                "@def A empty;",
+                "@def B A A;",
+                "@def C A 1px;",
+                ".CSS_RULE {",
+                "  color: A B !important;",
+                "  padding: C;",
+                "}"),
+                "[[.CSS_RULE]{[padding:[[1px]];]}]");
+    }
 
-  @Test
-  public void testRemoveEmptyValues4() {
-    testTreeConstruction(linesToString(
-        "@def A empty;",
-        "@def B A A;",
-        "@def C A B;",
-        ".CSS_RULE {",
-        "  color: A B !important;",
-        "  padding: C;",
-        "}"),
-        "[]");
-  }
+    @Test
+    public void testRemoveEmptyValues4() {
+        testTreeConstruction(linesToString(
+                "@def A empty;",
+                "@def B A A;",
+                "@def C A B;",
+                ".CSS_RULE {",
+                "  color: A B !important;",
+                "  padding: C;",
+                "}"),
+                "[]");
+    }
 
-  @Override
-  protected void runPass() {
-    new CreateDefinitionNodes(tree.getMutatingVisitController(),
-        errorManager).runPass();
-    new CreateConstantReferences(tree.getMutatingVisitController())
-        .runPass();
+    @Override
+    protected void runPass() {
+        new CreateDefinitionNodes(tree.getMutatingVisitController(),
+                errorManager).runPass();
+        new CreateConstantReferences(tree.getMutatingVisitController())
+                .runPass();
 
-    CollectConstantDefinitions collectConstantDefinitionsPass =
-        new CollectConstantDefinitions(tree);
-    collectConstantDefinitionsPass.runPass();
+        CollectConstantDefinitions collectConstantDefinitionsPass =
+                new CollectConstantDefinitions(tree);
+        collectConstantDefinitionsPass.runPass();
 
-    new ReplaceConstantReferences(
-        tree, collectConstantDefinitionsPass.getConstantDefinitions(),
-        true /* removeDefs */, errorManager,
-        true /* allowUndefinedConstants */).runPass();
+        new ReplaceConstantReferences(
+                tree, collectConstantDefinitionsPass.getConstantDefinitions(),
+                true /* removeDefs */, errorManager,
+                true /* allowUndefinedConstants */).runPass();
 
-    new RemoveEmptyValues(tree.getMutatingVisitController()).runPass();
+        new RemoveEmptyValues(tree.getMutatingVisitController()).runPass();
 
-    new SplitRulesetNodes(tree.getMutatingVisitController()).runPass();
+        new SplitRulesetNodes(tree.getMutatingVisitController()).runPass();
 
-    new MarkRemovableRulesetNodes(tree).runPass();
+        new MarkRemovableRulesetNodes(tree).runPass();
 
-    new EliminateUselessRulesetNodes(tree).runPass();
+        new EliminateUselessRulesetNodes(tree).runPass();
 
-    new MergeAdjacentRulesetNodesWithSameSelector(tree).runPass();
+        new MergeAdjacentRulesetNodesWithSameSelector(tree).runPass();
 
-    new MergeAdjacentRulesetNodesWithSameDeclarations(tree).runPass();
-  }
+        new MergeAdjacentRulesetNodesWithSameDeclarations(tree).runPass();
+    }
 }

@@ -18,89 +18,88 @@ package com.google.common.css.compiler.ast;
 
 import com.google.common.css.SourceCodeLocation;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * A node representing a {@code @for} loop rule.
  */
 public class CssForLoopRuleNode extends CssAtRuleNode {
 
-  public static final String VARIABLE_PREFIX = "$";
+    public static final String VARIABLE_PREFIX = "$";
 
-  private CssValueNode from;
-  private CssValueNode to;
-  private CssValueNode step;
-  private final String variableName;
-  private final int loopId;
+    private CssValueNode from;
+    private CssValueNode to;
+    private CssValueNode step;
+    private final String variableName;
+    private final int loopId;
 
-  public CssForLoopRuleNode(CssLiteralNode name,
-      CssAbstractBlockNode block,
-      @Nullable List<CssCommentNode> comments,
-      CssValueNode from,
-      CssValueNode to,
-      CssValueNode step,
-      String variableName,
-      int loopId,
-      @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(CssAtRuleNode.Type.FOR, name, block, comments);
-    this.from = from;
-    this.to = to;
-    this.step = step;
-    this.variableName = variableName;
-    this.loopId = loopId;
-    setSourceCodeLocation(sourceCodeLocation);
-  }
+    public CssForLoopRuleNode(CssLiteralNode name,
+                              CssAbstractBlockNode block,
+                              @Nullable List<CssCommentNode> comments,
+                              CssValueNode from,
+                              CssValueNode to,
+                              CssValueNode step,
+                              String variableName,
+                              int loopId,
+                              @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(CssAtRuleNode.Type.FOR, name, block, comments);
+        this.from = from;
+        this.to = to;
+        this.step = step;
+        this.variableName = variableName;
+        this.loopId = loopId;
+        setSourceCodeLocation(sourceCodeLocation);
+    }
 
-  public CssForLoopRuleNode(CssForLoopRuleNode node) {
-    super(node);
-    this.from = node.from.deepCopy();
-    this.to = node.to.deepCopy();
-    this.step = node.step.deepCopy();
-    this.variableName = node.variableName;
-    this.loopId = node.loopId;
-  }
+    public CssForLoopRuleNode(CssForLoopRuleNode node) {
+        super(node);
+        this.from = node.from.deepCopy();
+        this.to = node.to.deepCopy();
+        this.step = node.step.deepCopy();
+        this.variableName = node.variableName;
+        this.loopId = node.loopId;
+    }
 
-  public CssValueNode getFrom() {
-    return from;
-  }
+    public CssValueNode getFrom() {
+        return from;
+    }
 
-  public CssValueNode getTo() {
-    return to;
-  }
+    public CssValueNode getTo() {
+        return to;
+    }
 
-  public CssValueNode getStep() {
-    return step;
-  }
+    public CssValueNode getStep() {
+        return step;
+    }
 
-  public void setFrom(CssValueNode value) {
-    from = value;
-  }
+    public void setFrom(CssValueNode value) {
+        from = value;
+    }
 
-  public void setTo(CssValueNode value) {
-    to = value;
-  }
+    public void setTo(CssValueNode value) {
+        to = value;
+    }
 
-  public void setStep(CssValueNode value) {
-    step = value;
-  }
+    public void setStep(CssValueNode value) {
+        step = value;
+    }
 
-  public String getVariableName() {
-    return variableName;
-  }
+    public String getVariableName() {
+        return variableName;
+    }
 
-  public int getLoopId() {
-    return loopId;
-  }
+    public int getLoopId() {
+        return loopId;
+    }
 
-  @Override
-  public CssBlockNode getBlock() {
-    return (CssBlockNode) super.getBlock();
-  }
+    @Override
+    public CssBlockNode getBlock() {
+        return (CssBlockNode) super.getBlock();
+    }
 
-  @Override
-  public CssNode deepCopy() {
-    return new CssForLoopRuleNode(this);
-  }
+    @Override
+    public CssNode deepCopy() {
+        return new CssForLoopRuleNode(this);
+    }
 }

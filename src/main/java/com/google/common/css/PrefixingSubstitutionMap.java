@@ -21,41 +21,40 @@ import java.util.Map;
 /**
  * A {@link SubstitutionMap} implementation that prefixes the renamed CSS class names (provided by a
  * delegate substitution map).
- *
  */
 public class PrefixingSubstitutionMap
-    implements MultipleMappingSubstitutionMap, SubstitutionMap.Initializable {
-  private final SubstitutionMap delegate;
-  private final String prefix;
+        implements MultipleMappingSubstitutionMap, SubstitutionMap.Initializable {
+    private final SubstitutionMap delegate;
+    private final String prefix;
 
-  public PrefixingSubstitutionMap(SubstitutionMap delegate, String prefix) {
-    this.delegate = delegate;
-    this.prefix = prefix;
-  }
-
-  @Override
-  public void initializeWithMappings(Map<? extends String, ? extends String> newMappings) {
-    if (!newMappings.isEmpty()) {
-      // We don't need to remove prefixes from mapping values because the mappings
-      // returned by getValueWithMappings are not prefixed.
-      ((SubstitutionMap.Initializable) delegate).initializeWithMappings(newMappings);
+    public PrefixingSubstitutionMap(SubstitutionMap delegate, String prefix) {
+        this.delegate = delegate;
+        this.prefix = prefix;
     }
-  }
 
-  @Override
-  public String get(String key) {
-    return prefix + delegate.get(key);
-  }
-
-  @Override
-  public ValueWithMappings getValueWithMappings(String key) {
-    if (delegate instanceof MultipleMappingSubstitutionMap) {
-      ValueWithMappings withoutPrefix =
-          ((MultipleMappingSubstitutionMap) delegate).getValueWithMappings(key);
-      return ValueWithMappings.createWithValueAndMappings(
-          prefix + withoutPrefix.value, withoutPrefix.mappings);
-    } else {
-      return ValueWithMappings.createForSingleMapping(key, get(key));
+    @Override
+    public void initializeWithMappings(Map<? extends String, ? extends String> newMappings) {
+        if (!newMappings.isEmpty()) {
+            // We don't need to remove prefixes from mapping values because the mappings
+            // returned by getValueWithMappings are not prefixed.
+            ((SubstitutionMap.Initializable) delegate).initializeWithMappings(newMappings);
+        }
     }
-  }
+
+    @Override
+    public String get(String key) {
+        return prefix + delegate.get(key);
+    }
+
+    @Override
+    public ValueWithMappings getValueWithMappings(String key) {
+        if (delegate instanceof MultipleMappingSubstitutionMap) {
+            ValueWithMappings withoutPrefix =
+                    ((MultipleMappingSubstitutionMap) delegate).getValueWithMappings(key);
+            return ValueWithMappings.createWithValueAndMappings(
+                    prefix + withoutPrefix.value, withoutPrefix.mappings);
+        } else {
+            return ValueWithMappings.createForSingleMapping(key, get(key));
+        }
+    }
 }

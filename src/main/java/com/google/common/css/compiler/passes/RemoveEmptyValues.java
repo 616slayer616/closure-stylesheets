@@ -16,64 +16,56 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssDefinitionNode;
-import com.google.common.css.compiler.ast.CssPriorityNode;
-import com.google.common.css.compiler.ast.CssPropertyValueNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.MutatingVisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * Compiler pass that removes empty values and their containing declaration
  * nodes if they become empty.
- *
  */
 public class RemoveEmptyValues extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  /**
-   * Special "empty" value that can cause declarations to be removed if they
-   * have only this value.
-   */
-  private static final String EMPTY = "empty";
+    /**
+     * Special "empty" value that can cause declarations to be removed if they
+     * have only this value.
+     */
+    private static final String EMPTY = "empty";
 
-  private final MutatingVisitController visitController;
+    private final MutatingVisitController visitController;
 
-  public RemoveEmptyValues(MutatingVisitController visitController) {
-    this.visitController = visitController;
-  }
-
-  private static boolean isEmpty(CssValueNode node) {
-    return EMPTY.equals(node.getValue());
-  }
-
-  @Override
-  public boolean enterDefinition(CssDefinitionNode node) {
-    return false;
-  }
-
-  @Override
-  public boolean enterValueNode(CssValueNode node) {
-    if (isEmpty(node)) {
-      visitController.removeCurrentNode();
+    public RemoveEmptyValues(MutatingVisitController visitController) {
+        this.visitController = visitController;
     }
-    return true;
-  }
 
-  @Override
-  public void leaveDeclaration(CssDeclarationNode node) {
-    CssPropertyValueNode propertyValue = node.getPropertyValue();
-    if (propertyValue.isEmpty()
-        || (propertyValue.numChildren() == 1
-            && propertyValue.getChildAt(0) instanceof CssPriorityNode)) {
-      visitController.removeCurrentNode();
+    private static boolean isEmpty(CssValueNode node) {
+        return EMPTY.equals(node.getValue());
     }
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+        return false;
+    }
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+        if (isEmpty(node)) {
+            visitController.removeCurrentNode();
+        }
+        return true;
+    }
+
+    @Override
+    public void leaveDeclaration(CssDeclarationNode node) {
+        CssPropertyValueNode propertyValue = node.getPropertyValue();
+        if (propertyValue.isEmpty()
+                || (propertyValue.numChildren() == 1
+                && propertyValue.getChildAt(0) instanceof CssPriorityNode)) {
+            visitController.removeCurrentNode();
+        }
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

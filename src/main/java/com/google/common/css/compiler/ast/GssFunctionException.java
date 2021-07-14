@@ -18,16 +18,15 @@ package com.google.common.css.compiler.ast;
 
 /**
  * Exception class to be thrown by Gss functions.
- *
  */
 public class GssFunctionException extends Exception {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public GssFunctionException(String message) {
-    super(message);
-  }
+    public GssFunctionException(String message) {
+        super(message);
+    }
 
-  public GssFunctionException(String message, Throwable e) {
-    super(message, e);
-  }
+    public GssFunctionException(String message, Throwable e) {
+        super(message, e);
+    }
 }

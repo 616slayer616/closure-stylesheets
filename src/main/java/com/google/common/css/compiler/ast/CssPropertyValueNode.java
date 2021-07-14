@@ -22,23 +22,22 @@ import java.util.List;
  * A list of values for a property in a declaration.
  *
  * @author oana@google.com (Oana Florescu)
- *
  */
 public class CssPropertyValueNode extends CssNodesListNode<CssValueNode> {
-  public CssPropertyValueNode() {
-    super(false);
-  }
+    public CssPropertyValueNode() {
+        super(false);
+    }
 
-  public CssPropertyValueNode(List<CssValueNode> valueNodesList) {
-    super(false, valueNodesList, null);
-  }
+    public CssPropertyValueNode(List<CssValueNode> valueNodesList) {
+        super(false, valueNodesList, null);
+    }
 
-  public CssPropertyValueNode(CssPropertyValueNode node) {
-    super(node);
-  }
+    public CssPropertyValueNode(CssPropertyValueNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssPropertyValueNode deepCopy() {
-    return new CssPropertyValueNode(this);
-  }
+    @Override
+    public CssPropertyValueNode deepCopy() {
+        return new CssPropertyValueNode(this);
+    }
 }

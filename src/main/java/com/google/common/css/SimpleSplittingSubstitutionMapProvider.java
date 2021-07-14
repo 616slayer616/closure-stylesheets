@@ -20,13 +20,13 @@ package com.google.common.css;
  * Provides a {@link SimpleSplittingSubstitutionMap} for use via the
  * command-line compiler.
  *
- * @see SimpleSplittingSubstitutionMap
  * @author jart@google.com (Justine Tunney)
+ * @see SimpleSplittingSubstitutionMap
  */
 public class SimpleSplittingSubstitutionMapProvider implements SubstitutionMapProvider {
 
-  @Override
-  public SubstitutionMap get() {
-    return new SimpleSplittingSubstitutionMap();
-  }
+    @Override
+    public SubstitutionMap get() {
+        return new SimpleSplittingSubstitutionMap();
+    }
 }

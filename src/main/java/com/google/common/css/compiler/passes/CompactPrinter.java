@@ -20,67 +20,72 @@ import com.google.common.css.compiler.ast.CssNode;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.CssTreeVisitor;
 import com.google.common.css.compiler.ast.VisitController;
+
 import javax.annotation.Nullable;
 
-/** A compact-printer for {@link CssTree} instances. */
+/**
+ * A compact-printer for {@link CssTree} instances.
+ */
 public class CompactPrinter extends CodePrinter {
 
-  private String compactedPrintedString = null;
+    private String compactedPrintedString = null;
 
-  public CompactPrinter(
-      CssNode subtree, @Nullable CodeBuffer buffer, @Nullable GssSourceMapGenerator generator) {
-    super(subtree.getVisitController(), buffer, generator);
-  }
+    public CompactPrinter(
+            CssNode subtree, @Nullable CodeBuffer buffer, @Nullable GssSourceMapGenerator generator) {
+        super(subtree.getVisitController(), buffer, generator);
+    }
 
-  public CompactPrinter(CssNode subtree, @Nullable CodeBuffer buffer) {
-    this(subtree, buffer, null /* generator */);
-  }
+    public CompactPrinter(CssNode subtree, @Nullable CodeBuffer buffer) {
+        this(subtree, buffer, null /* generator */);
+    }
 
-  public CompactPrinter(CssNode subtree) {
-    this(subtree, null /* buffer */);
-  }
+    public CompactPrinter(CssNode subtree) {
+        this(subtree, null /* buffer */);
+    }
 
-  public CompactPrinter(
-      CssTree tree, @Nullable CodeBuffer buffer, @Nullable GssSourceMapGenerator generator) {
-    super(tree.getVisitController(), buffer, generator);
-  }
+    public CompactPrinter(
+            CssTree tree, @Nullable CodeBuffer buffer, @Nullable GssSourceMapGenerator generator) {
+        super(tree.getVisitController(), buffer, generator);
+    }
 
-  public CompactPrinter(CssTree tree, CodeBuffer buffer) {
-    this(tree, buffer, null /* generator */);
-  }
+    public CompactPrinter(CssTree tree, CodeBuffer buffer) {
+        this(tree, buffer, null /* generator */);
+    }
 
-  public CompactPrinter(CssTree tree, GssSourceMapGenerator generator) {
-    this(tree, null /* buffer */, generator);
-  }
+    public CompactPrinter(CssTree tree, GssSourceMapGenerator generator) {
+        this(tree, null /* buffer */, generator);
+    }
 
-  public CompactPrinter(CssTree tree) {
-    this(tree, null /* buffer */, null /* generator */);
-  }
+    public CompactPrinter(CssTree tree) {
+        this(tree, null /* buffer */, null /* generator */);
+    }
 
-  @Override
-  protected CssTreeVisitor createVisitor(VisitController visitController, CodeBuffer buffer) {
-    return new CompactPrintingVisitor(visitController, buffer);
-  }
+    @Override
+    protected CssTreeVisitor createVisitor(VisitController visitController, CodeBuffer buffer) {
+        return new CompactPrintingVisitor(visitController, buffer);
+    }
 
-  /** Returns the CSS compacted printed output. */
-  public String getCompactPrintedString() {
-    return compactedPrintedString;
-  }
+    /**
+     * Returns the CSS compacted printed output.
+     */
+    public String getCompactPrintedString() {
+        return compactedPrintedString;
+    }
 
-  @Override
-  public void runPass() {
-    resetBuffer();
-    visit();
-    compactedPrintedString = getOutputBuffer();
-  }
+    @Override
+    public void runPass() {
+        resetBuffer();
+        visit();
+        compactedPrintedString = getOutputBuffer();
+    }
 
-  public static String printCompactly(CssNode n) {
-    CompactPrinter p = new CompactPrinter(n);
-    p.runPass();
-    return p.getCompactPrintedString().trim();
-  }
+    public static String printCompactly(CssNode n) {
+        CompactPrinter p = new CompactPrinter(n);
+        p.runPass();
+        return p.getCompactPrintedString().trim();
+    }
 
-  public static String printCompactly(CssTree t) {
-    return printCompactly(t.getRoot());
-  }
+    public static String printCompactly(CssTree t) {
+        return printCompactly(t.getRoot());
+    }
 }

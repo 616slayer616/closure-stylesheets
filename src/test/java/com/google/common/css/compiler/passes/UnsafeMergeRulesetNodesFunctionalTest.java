@@ -23,78 +23,77 @@ import org.junit.runners.JUnit4;
 
 /**
  * Functional tests for {@link UnsafeMergeRulesetNodes}.
- *
  */
 @RunWith(JUnit4.class)
 public class UnsafeMergeRulesetNodesFunctionalTest extends FunctionalTestBase {
-  private boolean byPartition = false;
+    private boolean byPartition = false;
 
-  @Test
-  public void testSorting() {
-    testEachTreeConstruction(
-        "c, a, b {x: 1px;}",
-        "[[a, b, c]{[x:[1px]]}]");
-  }
+    @Test
+    public void testSorting() {
+        testEachTreeConstruction(
+                "c, a, b {x: 1px;}",
+                "[[a, b, c]{[x:[1px]]}]");
+    }
 
-  @Test
-  public void testGroupByDeclarations() {
-    testEachTreeConstruction(
-        linesToString(
-          "c {x: 2px;}",
-          "a, b {x: 2px; y: 3px}"),
-        "[[a, b, c]{[x:[2px]]}, "
-        + "[a, b]{[y:[3px]]}]");
-  }
+    @Test
+    public void testGroupByDeclarations() {
+        testEachTreeConstruction(
+                linesToString(
+                        "c {x: 2px;}",
+                        "a, b {x: 2px; y: 3px}"),
+                "[[a, b, c]{[x:[2px]]}, "
+                        + "[a, b]{[y:[3px]]}]");
+    }
 
-  @Test
-  public void testPropertyPartition() {
-    testEachTreeConstruction(
-        linesToString(
-          "c {padding: 1px;}",
-          "a {padding: 1px; padding-right: 3px; padding-left:  2px;}",
-          "b {padding: 1px; padding-left: 2px;  padding-right: 3px;}"),
-        // Not grouped by partition.
-        "[[a, b, c]{[padding:[1px]]}, "
-        + "[a, b]{[padding-left:[2px]]}, "
-        + "[a, b]{[padding-right:[3px]]}]",
-        // Grouped by partition.
-        "[[c]{[padding:[1px]]}, "
-        + "[a, b]{[padding:[1px], padding-left:[2px], padding-right:[3px]]}]");
-  }
+    @Test
+    public void testPropertyPartition() {
+        testEachTreeConstruction(
+                linesToString(
+                        "c {padding: 1px;}",
+                        "a {padding: 1px; padding-right: 3px; padding-left:  2px;}",
+                        "b {padding: 1px; padding-left: 2px;  padding-right: 3px;}"),
+                // Not grouped by partition.
+                "[[a, b, c]{[padding:[1px]]}, "
+                        + "[a, b]{[padding-left:[2px]]}, "
+                        + "[a, b]{[padding-right:[3px]]}]",
+                // Grouped by partition.
+                "[[c]{[padding:[1px]]}, "
+                        + "[a, b]{[padding:[1px], padding-left:[2px], padding-right:[3px]]}]");
+    }
 
-  @Test
-  public void testBorderAlwaysPartitioned() {
-    testEachTreeConstruction(
-        linesToString(
-          "a {border-left: red;}",
-          "b {border-color: red; border-left: blue;}",
-          "c {border-left: red; border-color: blue;}"),
-        // The border property is always grouped by partition
-        // because ordering might matter.
-        "[[b]{[border-color:[red], border-left:[blue]]}, "
-        + "[a]{[border-left:[red]]}, "
-        + "[c]{[border-left:[red], border-color:[blue]]}]");
-  }
+    @Test
+    public void testBorderAlwaysPartitioned() {
+        testEachTreeConstruction(
+                linesToString(
+                        "a {border-left: red;}",
+                        "b {border-color: red; border-left: blue;}",
+                        "c {border-left: red; border-color: blue;}"),
+                // The border property is always grouped by partition
+                // because ordering might matter.
+                "[[b]{[border-color:[red], border-left:[blue]]}, "
+                        + "[a]{[border-left:[red]]}, "
+                        + "[c]{[border-left:[red], border-color:[blue]]}]");
+    }
 
-  private void testEachTreeConstruction(String input, String output) {
-    testEachTreeConstruction(input, output, output);
-  }
+    private void testEachTreeConstruction(String input, String output) {
+        testEachTreeConstruction(input, output, output);
+    }
 
-  private void testEachTreeConstruction(String input, String output1, String output2) {
-    byPartition = false;
-    testTreeConstruction(input, output1);
-    byPartition = true;
-    testTreeConstruction(input, output2);
-  }
+    private void testEachTreeConstruction(String input, String output1, String output2) {
+        byPartition = false;
+        testTreeConstruction(input, output1);
+        byPartition = true;
+        testTreeConstruction(input, output2);
+    }
 
-  @Override
-  protected void runPass() {
-    new SplitRulesetNodes(tree.getMutatingVisitController(), true).runPass();
+    @Override
+    protected void runPass() {
+        new SplitRulesetNodes(tree.getMutatingVisitController(), true).runPass();
 
-    new MarkRemovableRulesetNodes(tree, true).runPass();
+        new MarkRemovableRulesetNodes(tree, true).runPass();
 
-    new EliminateUselessRulesetNodes(tree).runPass();
+        new EliminateUselessRulesetNodes(tree).runPass();
 
-    new UnsafeMergeRulesetNodes(tree, byPartition, true).runPass();
-  }
+        new UnsafeMergeRulesetNodes(tree, byPartition, true).runPass();
+    }
 }

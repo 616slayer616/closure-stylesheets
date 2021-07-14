@@ -16,11 +16,11 @@
 
 package com.google.common.css.compiler.ast;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Unit tests for {@link CssNode}
@@ -30,31 +30,31 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CssNodeTest {
 
-  @Test
-  public void testNodeCreation() {
-    CssLiteralNode node = new CssLiteralNode("");
+    @Test
+    public void testNodeCreation() {
+        CssLiteralNode node = new CssLiteralNode("");
 
-    assertThat(node.getParent()).isNull();
-    assertThat(node.getSourceCodeLocation()).isNull();
-  }
+        assertThat(node.getParent()).isNull();
+        assertThat(node.getSourceCodeLocation()).isNull();
+    }
 
-  @Test
-  public void testBecomeParent() {
-    CssPropertyValueNode parentNode = new CssPropertyValueNode();
-    CssLiteralNode childNode = new CssLiteralNode("");
-    parentNode.becomeParentForNode(childNode);
+    @Test
+    public void testBecomeParent() {
+        CssPropertyValueNode parentNode = new CssPropertyValueNode();
+        CssLiteralNode childNode = new CssLiteralNode("");
+        parentNode.becomeParentForNode(childNode);
 
-    assertThat(childNode.getParent()).isEqualTo(parentNode);
-  }
+        assertThat(childNode.getParent()).isEqualTo(parentNode);
+    }
 
-  @Test
-  public void testDeleteAsParent() {
-    CssPropertyValueNode parentNode = new CssPropertyValueNode();
-    CssLiteralNode childNode = new CssLiteralNode("");
-    parentNode.becomeParentForNode(childNode);
-    assertThat(childNode.getParent()).isEqualTo(parentNode);
-    
-    parentNode.removeAsParentOfNode(childNode);
-    assertThat(childNode.getParent()).isNull();
-  }
+    @Test
+    public void testDeleteAsParent() {
+        CssPropertyValueNode parentNode = new CssPropertyValueNode();
+        CssLiteralNode childNode = new CssLiteralNode("");
+        parentNode.becomeParentForNode(childNode);
+        assertThat(childNode.getParent()).isEqualTo(parentNode);
+
+        parentNode.removeAsParentOfNode(childNode);
+        assertThat(childNode.getParent()).isNull();
+    }
 }

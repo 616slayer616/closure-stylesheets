@@ -27,30 +27,30 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ValidatePropertyValuesTest extends NewFunctionalTestBase {
 
-  @Override
-  protected void runPass() {
-    ValidatePropertyValues pass =
-        new ValidatePropertyValues(tree.getVisitController(), errorManager);
-    pass.runPass();
-  }
+    @Override
+    protected void runPass() {
+        ValidatePropertyValues pass =
+                new ValidatePropertyValues(tree.getVisitController(), errorManager);
+        pass.runPass();
+    }
 
-  @Test
-  public void testUnicodeRangeLegalPatterns() throws Exception {
-    parseAndRun("@font-face { unicode-range: U+010a;}");
-    parseAndRun("@font-face { unicode-range: U+010a-0230;}");
-    parseAndRun("@font-face { unicode-range: U+23??;}");
-    parseAndRun("@font-face { unicode-range: U+23??, U+010a;}");
-  }
+    @Test
+    public void testUnicodeRangeLegalPatterns() throws Exception {
+        parseAndRun("@font-face { unicode-range: U+010a;}");
+        parseAndRun("@font-face { unicode-range: U+010a-0230;}");
+        parseAndRun("@font-face { unicode-range: U+23??;}");
+        parseAndRun("@font-face { unicode-range: U+23??, U+010a;}");
+    }
 
-  @Test
-  public void testUnicodeRangeOutOfRangePatterns() throws Exception {
-    parseAndRun("@font-face { unicode-range: U+110000;}",
-        ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
-    parseAndRun("@font-face { unicode-range: U+110000-00AA;}",
-        ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
-    parseAndRun("@font-face { unicode-range: U+0026-110000;}",
-        ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
-    parseAndRun("@font-face { unicode-range: U+1100??;}",
-        ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
-  }
+    @Test
+    public void testUnicodeRangeOutOfRangePatterns() throws Exception {
+        parseAndRun("@font-face { unicode-range: U+110000;}",
+                ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
+        parseAndRun("@font-face { unicode-range: U+110000-00AA;}",
+                ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
+        parseAndRun("@font-face { unicode-range: U+0026-110000;}",
+                ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
+        parseAndRun("@font-face { unicode-range: U+1100??;}",
+                ValidatePropertyValues.UNICODE_ILLEGAL_CODEPOINT_ERROR);
+    }
 }

@@ -26,20 +26,20 @@ import com.google.common.collect.ImmutableList;
  */
 public class CssDeclarationBlockNode extends CssAbstractBlockNode {
 
-  private static final ImmutableList<Class<? extends CssNode>>
-      VALID_NODE_CLASSES = ImmutableList.of(
-          CssDeclarationNode.class, CssAtRuleNode.class, CssConditionalBlockNode.class);
+    private static final ImmutableList<Class<? extends CssNode>>
+            VALID_NODE_CLASSES = ImmutableList.of(
+            CssDeclarationNode.class, CssAtRuleNode.class, CssConditionalBlockNode.class);
 
-  public CssDeclarationBlockNode() {
-    super(true, VALID_NODE_CLASSES);
-  }
+    public CssDeclarationBlockNode() {
+        super(true, VALID_NODE_CLASSES);
+    }
 
-  public CssDeclarationBlockNode(CssDeclarationBlockNode node) {
-    super(node);
-  }
+    public CssDeclarationBlockNode(CssDeclarationBlockNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssDeclarationBlockNode deepCopy() {
-    return new CssDeclarationBlockNode(this);
-  }
+    @Override
+    public CssDeclarationBlockNode deepCopy() {
+        return new CssDeclarationBlockNode(this);
+    }
 }

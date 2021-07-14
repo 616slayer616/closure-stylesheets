@@ -18,12 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Preconditions;
 import com.google.common.css.Vendor;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssPropertyNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.MutatingVisitController;
-import com.google.common.css.compiler.ast.Property;
+import com.google.common.css.compiler.ast.*;
 
 import javax.annotation.Nonnull;
 
@@ -58,44 +53,44 @@ import javax.annotation.Nonnull;
  * @author bolinfest@google.com (Michael Bolin)
  */
 public class RemoveVendorSpecificProperties extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final Vendor vendorToKeep;
-  private final MutatingVisitController visitController;
+    private final Vendor vendorToKeep;
+    private final MutatingVisitController visitController;
 
-  /**
-   * @param vendorToKeep determines the vendor for whose vendor-specific
-   *     properties will not be stripped. This parameter may not be null: if
-   *     there is no such venor, then this pass should not be used.
-   * @param visitController to facilitate traversing the AST
-   */
-  public RemoveVendorSpecificProperties(@Nonnull Vendor vendorToKeep,
-      MutatingVisitController visitController) {
-    Preconditions.checkNotNull(vendorToKeep);
-    this.vendorToKeep = vendorToKeep;
-    this.visitController = visitController;
-  }
-
-  /**
-   * Checks whether the {@code Property} of {@code declarationNode} is a
-   * vendor-specific property that does not match {@code vendorToKeep}. If so,
-   * then the declaration is removed.
-   */
-  @Override
-  public boolean enterDeclaration(CssDeclarationNode declarationNode) {
-    CssPropertyNode propertyNode = declarationNode.getPropertyName();
-    Property property = propertyNode.getProperty();
-    Vendor vendor = property.getVendor();
-    if (vendor != null && !vendor.equals(vendorToKeep)) {
-      visitController.removeCurrentNode();
-      return false;
-    } else {
-      return true;
+    /**
+     * @param vendorToKeep    determines the vendor for whose vendor-specific
+     *                        properties will not be stripped. This parameter may not be null: if
+     *                        there is no such venor, then this pass should not be used.
+     * @param visitController to facilitate traversing the AST
+     */
+    public RemoveVendorSpecificProperties(@Nonnull Vendor vendorToKeep,
+                                          MutatingVisitController visitController) {
+        Preconditions.checkNotNull(vendorToKeep);
+        this.vendorToKeep = vendorToKeep;
+        this.visitController = visitController;
     }
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    /**
+     * Checks whether the {@code Property} of {@code declarationNode} is a
+     * vendor-specific property that does not match {@code vendorToKeep}. If so,
+     * then the declaration is removed.
+     */
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declarationNode) {
+        CssPropertyNode propertyNode = declarationNode.getPropertyName();
+        Property property = propertyNode.getProperty();
+        Vendor vendor = property.getVendor();
+        if (vendor != null && !vendor.equals(vendorToKeep)) {
+            visitController.removeCurrentNode();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

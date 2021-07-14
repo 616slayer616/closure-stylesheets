@@ -17,15 +17,16 @@
 package com.google.common.css.compiler.ast;
 
 /**
+ *
  */
 public enum CssSpecification {
-  // TODO(user): This is not very useful. A more useful class would allow
-  //     us to specify individual CSS 3 modules and figure out the relationship
-  //     between different CSS standards.
-  CSS_1,
-  CSS_2,
-  CSS_2_1,
-  CSS_3_DRAFT, // This refers to the set of all CSS 3 modules
-  GSS,
-  NONSTANDARD
+    // TODO(user): This is not very useful. A more useful class would allow
+    //     us to specify individual CSS 3 modules and figure out the relationship
+    //     between different CSS standards.
+    CSS_1,
+    CSS_2,
+    CSS_2_1,
+    CSS_3_DRAFT, // This refers to the set of all CSS 3 modules
+    GSS,
+    NONSTANDARD
 }

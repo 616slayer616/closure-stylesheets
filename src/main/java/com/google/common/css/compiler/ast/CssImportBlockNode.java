@@ -23,16 +23,16 @@ package com.google.common.css.compiler.ast;
  */
 public class CssImportBlockNode extends CssNodesListNode<CssImportRuleNode> {
 
-  public CssImportBlockNode() {
-    super(false);
-  }
+    public CssImportBlockNode() {
+        super(false);
+    }
 
-  public CssImportBlockNode(CssImportBlockNode node) {
-    super(node);
-  }
-  
-  @Override
-  public CssImportBlockNode deepCopy() {
-    return new CssImportBlockNode(this);
-  }
+    public CssImportBlockNode(CssImportBlockNode node) {
+        super(node);
+    }
+
+    @Override
+    public CssImportBlockNode deepCopy() {
+        return new CssImportBlockNode(this);
+    }
 }

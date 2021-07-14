@@ -22,64 +22,66 @@ package com.google.common.css.compiler.ast;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssKeyframesNode extends CssAtRuleNode implements ChunkAware {
-  /** The chunk this selector belongs to. */
-  private Object chunk;
+    /**
+     * The chunk this selector belongs to.
+     */
+    private Object chunk;
 
-  public CssKeyframesNode(CssLiteralNode name) {
-    super(Type.UNKNOWN_BLOCK, name, new CssBlockNode());
-  }
-
-  public CssKeyframesNode(CssKeyframesNode node) {
-    super(node);
-    setChunk(node.getChunk());
-  }
-
-  /**
-   * Used by CreateVendorPrefixedKeyframes to copy an existing keyframes node
-   * to create a browser specific duplicate having different name.
-   */
-  public CssKeyframesNode(CssLiteralNode name, CssKeyframesNode node) {
-    super(node);
-    setName(name);
-    setChunk(node.getChunk());
-  }
-
-  @Override
-  public CssKeyframesNode deepCopy() {
-    return new CssKeyframesNode(this);
-  }
-
-  /**
-   * For debugging only.
-   */
-  @Override
-  public String toString() {
-    String output = "";
-    if (!getComments().isEmpty()) {
-      output = getComments().toString();
-    }
-    output += "@" + getName().toString() + getParameters().toString();
-
-    if (getBlock() != null) {
-      output += "{" + getBlock().toString() + "}";
+    public CssKeyframesNode(CssLiteralNode name) {
+        super(Type.UNKNOWN_BLOCK, name, new CssBlockNode());
     }
 
-    return output;
-  }
+    public CssKeyframesNode(CssKeyframesNode node) {
+        super(node);
+        setChunk(node.getChunk());
+    }
 
-  @Override
-  public CssBlockNode getBlock() {
-    // The type is ensured by the constructor.
-    return (CssBlockNode) super.getBlock();
-  }
+    /**
+     * Used by CreateVendorPrefixedKeyframes to copy an existing keyframes node
+     * to create a browser specific duplicate having different name.
+     */
+    public CssKeyframesNode(CssLiteralNode name, CssKeyframesNode node) {
+        super(node);
+        setName(name);
+        setChunk(node.getChunk());
+    }
 
-  @Override
-  public void setChunk(Object chunk) {
-    this.chunk = chunk;
-  }
+    @Override
+    public CssKeyframesNode deepCopy() {
+        return new CssKeyframesNode(this);
+    }
 
-  @Override
-  public Object getChunk() {
-    return chunk;
-  }
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+        String output = "";
+        if (!getComments().isEmpty()) {
+            output = getComments().toString();
+        }
+        output += "@" + getName().toString() + getParameters().toString();
+
+        if (getBlock() != null) {
+            output += "{" + getBlock().toString() + "}";
+        }
+
+        return output;
+    }
+
+    @Override
+    public CssBlockNode getBlock() {
+        // The type is ensured by the constructor.
+        return (CssBlockNode) super.getBlock();
+    }
+
+    @Override
+    public void setChunk(Object chunk) {
+        this.chunk = chunk;
+    }
+
+    @Override
+    public Object getChunk() {
+        return chunk;
+    }
 }

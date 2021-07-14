@@ -23,13 +23,15 @@ import java.util.SortedSet;
  * accessible to clients.
  */
 public final class AccessibleErrorManager extends BasicErrorManager {
-  public SortedSet<GssError> getErrors() {
-    return errors;
-  }
+    public SortedSet<GssError> getErrors() {
+        return errors;
+    }
 
-  public SortedSet<GssError> getWarnings() {
-    return warnings;
-  }
+    public SortedSet<GssError> getWarnings() {
+        return warnings;
+    }
 
-  @Override public void print(String msg) {}
+    @Override
+    public void print(String msg) {
+    }
 }

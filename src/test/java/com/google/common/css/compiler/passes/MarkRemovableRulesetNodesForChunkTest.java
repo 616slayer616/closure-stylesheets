@@ -16,109 +16,110 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.css.compiler.ast.CssRulesetNode;
 import com.google.common.css.compiler.ast.CssSelectorNode;
 import com.google.common.css.compiler.ast.CssTree.RulesetNodesToRemove;
 import com.google.common.css.compiler.ast.DefaultTreeVisitor;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.List;
+
+import static com.google.common.truth.Truth.assertThat;
+
 /**
  * Unit tests for {@link MarkRemovableRulesetNodesForChunk}.
- *
  */
 @RunWith(JUnit4.class)
 public class MarkRemovableRulesetNodesForChunkTest extends PassesTestBase {
 
-  @Test
-  public void testAllOneChunk() {
-    collectRemovableRulesetNodes(
-        linesToString(
-              ".CSS_RULE {",
-              "  border: 2px;",
-              "}",
-              ".CSS_RULE {",
-              "  border: 3px;",
-              "}"),
-        ImmutableList.of("C1", "C1"));
-    RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
-    assertThat(rules.getRulesetNodes()).hasSize(1);
-    CssRulesetNode rule = rules.getRulesetNodes().iterator().next();
-    checkRuleset("[[.CSS_RULE]{[border:[[2px]];]}]", rule);
-  }
+    @Test
+    public void testAllOneChunk() {
+        collectRemovableRulesetNodes(
+                linesToString(
+                        ".CSS_RULE {",
+                        "  border: 2px;",
+                        "}",
+                        ".CSS_RULE {",
+                        "  border: 3px;",
+                        "}"),
+                ImmutableList.of("C1", "C1"));
+        RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
+        assertThat(rules.getRulesetNodes()).hasSize(1);
+        CssRulesetNode rule = rules.getRulesetNodes().iterator().next();
+        checkRuleset("[[.CSS_RULE]{[border:[[2px]];]}]", rule);
+    }
 
-  @Test
-  public void testAllOneChunkButSkipping() {
-    collectRemovableRulesetNodes(
-        linesToString(
-              ".CSS_RULE {",
-              "  display: inline-box;",
-              "}",
-              ".CSS_RULE {",
-              "  display: -moz-inline-box;",
-              "}"),
-        ImmutableList.of("C1", "C1"));
-    RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
-    assertThat(rules.getRulesetNodes()).isEmpty();
-  }
+    @Test
+    public void testAllOneChunkButSkipping() {
+        collectRemovableRulesetNodes(
+                linesToString(
+                        ".CSS_RULE {",
+                        "  display: inline-box;",
+                        "}",
+                        ".CSS_RULE {",
+                        "  display: -moz-inline-box;",
+                        "}"),
+                ImmutableList.of("C1", "C1"));
+        RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
+        assertThat(rules.getRulesetNodes()).isEmpty();
+    }
 
-  @Test
-  public void testDiffChunkHit() {
-    collectRemovableRulesetNodes(
-        linesToString(
-              ".CSS_RULE {",
-              "  border: 2px;",
-              "}",
-              ".CSS_RULE {",
-              "  border: 3px;",
-              "}"),
-        ImmutableList.of("C1", "C2"));
-    RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
-    assertThat(rules.getRulesetNodes()).isEmpty();
-  }
+    @Test
+    public void testDiffChunkHit() {
+        collectRemovableRulesetNodes(
+                linesToString(
+                        ".CSS_RULE {",
+                        "  border: 2px;",
+                        "}",
+                        ".CSS_RULE {",
+                        "  border: 3px;",
+                        "}"),
+                ImmutableList.of("C1", "C2"));
+        RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
+        assertThat(rules.getRulesetNodes()).isEmpty();
+    }
 
-  @Test
-  public void testSameChunkHit() {
-    collectRemovableRulesetNodes(
-        linesToString(
-              ".CSS_RULE {",
-              "  border: 1px;",
-              "}",
-              ".CSS_RULE {",
-              "  border: 2px;",
-              "}",
-              ".CSS_RULE {",
-              "  border: 3px;",
-              "}"),
-        ImmutableList.of("C1", "C1", "C2"));
-    RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
-    assertThat(rules.getRulesetNodes()).hasSize(1);
-    CssRulesetNode rule = rules.getRulesetNodes().iterator().next();
-    checkRuleset("[[.CSS_RULE]{[border:[[1px]];]}]", rule);
-  }
+    @Test
+    public void testSameChunkHit() {
+        collectRemovableRulesetNodes(
+                linesToString(
+                        ".CSS_RULE {",
+                        "  border: 1px;",
+                        "}",
+                        ".CSS_RULE {",
+                        "  border: 2px;",
+                        "}",
+                        ".CSS_RULE {",
+                        "  border: 3px;",
+                        "}"),
+                ImmutableList.of("C1", "C1", "C2"));
+        RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
+        assertThat(rules.getRulesetNodes()).hasSize(1);
+        CssRulesetNode rule = rules.getRulesetNodes().iterator().next();
+        checkRuleset("[[.CSS_RULE]{[border:[[1px]];]}]", rule);
+    }
 
-  private void collectRemovableRulesetNodes(
-      String source, List<String> chunks) {
-    parseAndBuildTree(source);
-    mapChunks(chunks);
-    new MarkRemovableRulesetNodesForChunk<String>("C1", tree, true).runPass();
-  }
+    private void collectRemovableRulesetNodes(
+            String source, List<String> chunks) {
+        parseAndBuildTree(source);
+        mapChunks(chunks);
+        new MarkRemovableRulesetNodesForChunk<String>("C1", tree, true).runPass();
+    }
 
-  private void mapChunks(final List<String> chunks) {
-    tree.getVisitController().startVisit(
-        new DefaultTreeVisitor() {
-          private int count = 0;
-          @Override
-          public boolean enterSelector(CssSelectorNode selector) {
-            selector.setChunk(chunks.get(count++));
-            return true;
-          }
-        });
-  }
+    private void mapChunks(final List<String> chunks) {
+        tree.getVisitController().startVisit(
+                new DefaultTreeVisitor() {
+                    private int count = 0;
+
+                    @Override
+                    public boolean enterSelector(CssSelectorNode selector) {
+                        selector.setChunk(chunks.get(count++));
+                        return true;
+                    }
+                });
+    }
 }

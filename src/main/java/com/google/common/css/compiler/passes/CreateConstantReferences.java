@@ -17,15 +17,7 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssConstantReferenceNode;
-import com.google.common.css.compiler.ast.CssLiteralNode;
-import com.google.common.css.compiler.ast.CssMixinDefinitionNode;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssRootNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.MutatingVisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * A compiler pass that transforms each upper-cased {@link CssLiteralNode} to
@@ -34,70 +26,70 @@ import com.google.common.css.compiler.ast.MutatingVisitController;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CreateConstantReferences extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final MutatingVisitController visitController;
-  private CssNode globalScope;
-  private CssNode currentScope;
+    private final MutatingVisitController visitController;
+    private CssNode globalScope;
+    private CssNode currentScope;
 
-  public CreateConstantReferences(MutatingVisitController visitController) {
-    this.visitController = visitController;
-  }
-
-  @Override
-  public void leaveValueNode(CssValueNode node) {
-    if (!(node instanceof CssLiteralNode)
-        || !CssConstantReferenceNode.isDefinitionReference(node.getValue())) {
-      return;
+    public CreateConstantReferences(MutatingVisitController visitController) {
+        this.visitController = visitController;
     }
-    CssConstantReferenceNode ref =
-        new CssConstantReferenceNode(node.getValue(),
-            node.getSourceCodeLocation());
-    visitController.replaceCurrentBlockChildWith(ImmutableList.of(ref), false);
-    CssNode scope = determineScope(ref);
-    ref.setScope(scope);
-  }
 
-  @Override
-  public void leaveArgumentNode(CssValueNode node) {
-    leaveValueNode(node);
-  }
-
-  @Override
-  public boolean enterTree(CssRootNode node) {
-    globalScope = node;
-    return true;
-  }
-
-  @Override
-  public boolean enterMixinDefinition(CssMixinDefinitionNode node) {
-    currentScope = node;
-    return true;
-  }
-
-  @Override
-  public void leaveMixinDefinition(CssMixinDefinitionNode node) {
-    currentScope = globalScope;
-  }
-
-  /**
-   * Returns the scope of the given reference.
-   */
-  private CssNode determineScope(CssConstantReferenceNode ref) {
-    if (currentScope instanceof CssMixinDefinitionNode) {
-      CssMixinDefinitionNode mixinDef = (CssMixinDefinitionNode) currentScope;
-      // Search for a matching argument.
-      for (CssValueNode arg : mixinDef.getArguments().getChildren()) {
-        if (arg.getValue().equals(ref.getValue())) {
-          return currentScope;
+    @Override
+    public void leaveValueNode(CssValueNode node) {
+        if (!(node instanceof CssLiteralNode)
+                || !CssConstantReferenceNode.isDefinitionReference(node.getValue())) {
+            return;
         }
-      }
+        CssConstantReferenceNode ref =
+                new CssConstantReferenceNode(node.getValue(),
+                        node.getSourceCodeLocation());
+        visitController.replaceCurrentBlockChildWith(ImmutableList.of(ref), false);
+        CssNode scope = determineScope(ref);
+        ref.setScope(scope);
     }
-    return globalScope;
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public void leaveArgumentNode(CssValueNode node) {
+        leaveValueNode(node);
+    }
+
+    @Override
+    public boolean enterTree(CssRootNode node) {
+        globalScope = node;
+        return true;
+    }
+
+    @Override
+    public boolean enterMixinDefinition(CssMixinDefinitionNode node) {
+        currentScope = node;
+        return true;
+    }
+
+    @Override
+    public void leaveMixinDefinition(CssMixinDefinitionNode node) {
+        currentScope = globalScope;
+    }
+
+    /**
+     * Returns the scope of the given reference.
+     */
+    private CssNode determineScope(CssConstantReferenceNode ref) {
+        if (currentScope instanceof CssMixinDefinitionNode) {
+            CssMixinDefinitionNode mixinDef = (CssMixinDefinitionNode) currentScope;
+            // Search for a matching argument.
+            for (CssValueNode arg : mixinDef.getArguments().getChildren()) {
+                if (arg.getValue().equals(ref.getValue())) {
+                    return currentScope;
+                }
+            }
+        }
+        return globalScope;
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

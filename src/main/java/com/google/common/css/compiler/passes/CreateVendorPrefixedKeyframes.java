@@ -18,12 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssKeyframesNode;
-import com.google.common.css.compiler.ast.CssLiteralNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.ErrorManager;
-import com.google.common.css.compiler.ast.MutatingVisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * Compiler pass which duplicates @keyframes rules creating browser specific
@@ -33,41 +28,40 @@ import com.google.common.css.compiler.ast.MutatingVisitController;
  * <li>@gen-webkit-keyframes to generate a {@code @-webkit-keyframes} rule.
  * </li>
  * </ul>
- *
  */
 public class CreateVendorPrefixedKeyframes extends DefaultTreeVisitor
-    implements CssCompilerPass {
-  private final MutatingVisitController visitController;
-  private final ErrorManager errorManager;
+        implements CssCompilerPass {
+    private final MutatingVisitController visitController;
+    private final ErrorManager errorManager;
 
-  @VisibleForTesting
-  static final String GEN_WEBKIT_KEYFRAMES_COMMENT =
-      "/* @gen-webkit-keyframes */";
+    @VisibleForTesting
+    static final String GEN_WEBKIT_KEYFRAMES_COMMENT =
+            "/* @gen-webkit-keyframes */";
 
-  public CreateVendorPrefixedKeyframes(
-      MutatingVisitController visitController,
-      ErrorManager errorManager) {
-    this.visitController = visitController;
-    this.errorManager = errorManager;
-  }
-
-  @Override
-  public void leaveKeyframesRule(CssKeyframesNode node) {
-    if (node.hasComment(GEN_WEBKIT_KEYFRAMES_COMMENT)
-        && node.getName().toString().equals("keyframes")) {
-      CssKeyframesNode copy = new CssKeyframesNode(
-          new CssLiteralNode(
-              "-webkit-" + node.getName().toString(),
-              node.getName().getSourceCodeLocation()),
-          node);
-      visitController.replaceCurrentBlockChildWith(
-          Lists.newArrayList(node, copy),
-          false /* visitTheReplacementNodes */);
+    public CreateVendorPrefixedKeyframes(
+            MutatingVisitController visitController,
+            ErrorManager errorManager) {
+        this.visitController = visitController;
+        this.errorManager = errorManager;
     }
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public void leaveKeyframesRule(CssKeyframesNode node) {
+        if (node.hasComment(GEN_WEBKIT_KEYFRAMES_COMMENT)
+                && node.getName().toString().equals("keyframes")) {
+            CssKeyframesNode copy = new CssKeyframesNode(
+                    new CssLiteralNode(
+                            "-webkit-" + node.getName().toString(),
+                            node.getName().getSourceCodeLocation()),
+                    node);
+            visitController.replaceCurrentBlockChildWith(
+                    Lists.newArrayList(node, copy),
+                    false /* visitTheReplacementNodes */);
+        }
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }
