@@ -23,10 +23,7 @@ import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.css.SourceCodeLocation;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A CSS node that holds a value of some sort. This is the base class for all
@@ -149,6 +146,9 @@ public abstract class CssValueNode extends CssNode {
 
                     @Override
                     public CssValueNode next() {
+                        if(!hasNext()){
+                            throw new NoSuchElementException();
+                        }
                         advance();
                         return q.remove();
                     }
