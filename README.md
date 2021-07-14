@@ -1,5 +1,13 @@
 # Closure Stylesheets
 
+[![Build Status](https://github.com/616slayer616/closure-stylesheets/actions/workflows/master.yml/badge.svg)](https://github.com/616slayer616/closure-stylesheets/actions/workflows/master.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=616slayer616_closure-stylesheets&metric=alert_status)](https://sonarcloud.io/dashboard?id=closure-stylesheets)
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=616slayer616_closure-stylesheets&metric=bugs)](https://sonarcloud.io/dashboard?id=closure-stylesheets)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=616slayer616_closure-stylesheets&metric=code_smells)](https://sonarcloud.io/dashboard?id=closure-stylesheets)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=616slayer616_closure-stylesheets&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=closure-stylesheets)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=616slayer616_closure-stylesheets&metric=coverage)](https://sonarcloud.io/dashboard?id=closure-stylesheets)
+
 This is a repository based on the no longer active
 [https://github.com/google/closure-stylesheets](https://github.com/google/closure-stylesheets)
 project. It aims to release updates and fixes to the project.
