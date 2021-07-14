@@ -547,8 +547,9 @@ public class CssTreeBuilder implements
         CssValueNode expression = new CssLiteralNode(
                 term.getToken(), term.getSourceCodeLocation());
 
-        getFunctionFromCurrentExpression().getArguments()
-                .addChildToBack(expression);
+        CssFunctionNode functionFromCurrentExpression = getFunctionFromCurrentExpression();
+        Preconditions.checkArgument(functionFromCurrentExpression != null);
+        functionFromCurrentExpression.getArguments().addChildToBack(expression);
     }
 
 
@@ -560,8 +561,9 @@ public class CssTreeBuilder implements
         CssConstantReferenceNode expression = new CssConstantReferenceNode(
                 term.getToken(), term.getSourceCodeLocation());
 
-        getFunctionFromCurrentExpression().getArguments()
-                .addChildToBack(expression);
+        CssFunctionNode functionFromCurrentExpression = getFunctionFromCurrentExpression();
+        Preconditions.checkArgument(functionFromCurrentExpression != null);
+        functionFromCurrentExpression.getArguments().addChildToBack(expression);
     }
 
     @Override
