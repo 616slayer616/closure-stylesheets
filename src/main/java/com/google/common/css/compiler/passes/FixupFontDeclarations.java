@@ -57,8 +57,6 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         STYLE, VARIANT, WEIGHT, SIZE, LINE_HEIGHT, FAMILY
     }
 
-    ;
-
     /**
      * A simple predicate on {@code CssCompositeValueNode}.
      */
