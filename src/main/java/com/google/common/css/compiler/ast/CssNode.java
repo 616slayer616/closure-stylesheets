@@ -25,6 +25,7 @@ import com.google.common.css.SourceCodeLocation;
 import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * A node of the abstract syntax tree.
@@ -304,6 +305,9 @@ public abstract class CssNode implements Locatable {
 
                     @Override
                     public CssNode next() {
+                        if(!hasNext()){
+                            throw new NoSuchElementException();
+                        }
                         CssNode result = current;
                         current = current.getParent();
                         return result;
