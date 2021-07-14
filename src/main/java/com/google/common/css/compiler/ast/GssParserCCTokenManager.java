@@ -2123,8 +2123,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                         }
                         break;
                         default:
-                            if (i1 == 0 || l1 == 0 || i2 == 0 || l2 == 0) break;
-                            else break;
+                            break;
                     }
                 } while (i != startsAt);
             }
