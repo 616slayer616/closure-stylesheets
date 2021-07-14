@@ -1670,11 +1670,6 @@ class DefaultVisitController implements MutatingVisitController {
                 } else if (child instanceof CssCompositeValueNode) {
                     otherSiblingsExist =
                             ((CssCompositeValueNode) child).getValues().size() > 1;
-                } else if (child instanceof CssDeclarationNode) {
-                    // there's always just one CssPropertyValueNode
-                    otherSiblingsExist = false;
-                } else if (child instanceof CssDeclarationNode) {
-                    otherSiblingsExist = false;
                 } else if (child instanceof CssFunctionNode) {
                     otherSiblingsExist = false;
                 } else {
