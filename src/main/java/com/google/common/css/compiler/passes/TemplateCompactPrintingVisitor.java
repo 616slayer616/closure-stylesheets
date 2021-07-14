@@ -155,7 +155,7 @@ public class TemplateCompactPrintingVisitor<T> extends CompactPrintingVisitor {
   public boolean enterCharSet(CssCharSetNode cssCharSetNode) {
     buffer.append(TemplateCompactPrinter.RULE_START);
     boolean printFontFace = super.enterCharSet(cssCharSetNode);
-    if (! super.enterCharSet(cssCharSetNode)) {
+    if (! printFontFace) {
       buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
     }
     return printFontFace;
