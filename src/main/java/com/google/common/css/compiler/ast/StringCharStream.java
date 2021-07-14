@@ -140,24 +140,6 @@ public class StringCharStream implements CharStream {
     /**
      * {@inheritDoc}
      */
-    @Deprecated
-    @Override
-    public int getColumn() {
-        return getEndColumn();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Deprecated
-    @Override
-    public int getLine() {
-        return getEndLine();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getEndColumn() {
         return column;
