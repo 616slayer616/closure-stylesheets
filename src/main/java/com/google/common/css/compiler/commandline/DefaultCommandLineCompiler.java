@@ -156,20 +156,20 @@ public class DefaultCommandLineCompiler extends AbstractCommandLineCompiler<JobD
             RecordingSubstitutionMap recordingSubstitutionMap = passRunner
                     .getRecordingSubstitutionMap();
             if (recordingSubstitutionMap != null && renameFile != null) {
-                PrintWriter renamingMapWriter = new PrintWriter(
-                        Files.newWriter(renameFile, UTF_8));
-                Map<String, String> renamingMap = recordingSubstitutionMap
-                        .getMappings();
-                writeRenamingMap(renamingMap, renamingMapWriter);
-                renamingMapWriter.close();
+                try (PrintWriter renamingMapWriter = new PrintWriter(
+                        Files.newWriter(renameFile, UTF_8))) {
+                    Map<String, String> renamingMap = recordingSubstitutionMap
+                            .getMappings();
+                    writeRenamingMap(renamingMap, renamingMapWriter);
+                }
             }
 
             if (job.createSourceMap
                     && sourcemapFile != null && !Strings.isNullOrEmpty(sourcemapFile.getName())) {
-                PrintWriter sourceMapWriter = new PrintWriter(
-                        Files.newWriter(sourcemapFile, UTF_8));
-                gssSourceMapGenerator.appendOutputTo(sourceMapWriter, sourcemapFile.getName());
-                sourceMapWriter.close();
+                try (PrintWriter sourceMapWriter = new PrintWriter(
+                        Files.newWriter(sourcemapFile, UTF_8))) {
+                    gssSourceMapGenerator.appendOutputTo(sourceMapWriter, sourcemapFile.getName());
+                }
             }
 
             return compilerOutput;
