@@ -42,20 +42,20 @@ public class GssParserCC implements GssParserCCConstants {
      * As CSS 3 is in draft stage they come in current browsers with a vendor
      * prefix but leaving out the vendor prefix already works.
      */
-    private static final Pattern FUNCTIONS_WITH_SPACE_SEP_OK = Pattern.compile(
+    private static final Pattern FUNCTIONSWITHSPACESEPOK = Pattern.compile(
             "(?:-(?:O|MOZ|WEBKIT|MS)-)?(?:REPEATING-)?(?:LINEAR|RADIAL)-GRADIENT"
                     + "|(?:-(?:O|MOZ|WEBKIT|MS)-)?IMAGE-SET"
                     + "|RECT|INSET|CIRCLE|ELLIPSE|POLYGON|-KHTML-GRADIENT|-WEBKIT-GRADIENT"
                     + "|(?:-WEBKIT-)?DROP-SHADOW|(?:-WEBKIT-)?CUSTOM|LOCAL",
             Pattern.CASE_INSENSITIVE);
 
-    private static final ImmutableSet<String> URL_FUNCTIONS = ImmutableSet.of(
+    private static final ImmutableSet<String> URLFUNCTIONS = ImmutableSet.of(
             "domain", "url", "url-prefix");
 
-    private static final CharMatcher CSS_WHITESPACE =
+    private static final CharMatcher CSSWHITESPACE =
             CharMatcher.anyOf(" \t\r\n\f");
 
-    private static final Pattern VALID_BLOCK_COMMENT_PATTERN =
+    private static final Pattern VALIDBLOCKCOMMENTPATTERN =
             Pattern.compile(".*/\\*.*\\*/.*", Pattern.DOTALL);
 
     private CssBlockNode globalBlock;
@@ -141,7 +141,7 @@ public class GssParserCC implements GssParserCCConstants {
         // We tried using finer-grained tokens for URI parsing, but an
         // unquoted URI can look just like an identifier or even a whole
         // declaration. We tried using lexical states to recognize bare
-        // URIs only within URL_FUNCTIONS, but that had two problems:
+        // URIs only within URLFUNCTIONS, but that had two problems:
         // (1) it means ordinary functions can't take bare URLs, which
         // harms orthogonality of GSS and outlaws some custom functions
         // we've found in the wild
@@ -153,7 +153,7 @@ public class GssParserCC implements GssParserCCConstants {
         SourceCodeLocation loc = this.getLocation(t);
         int pi = t.image.indexOf('(');
         String funName = t.image.substring(0, pi);
-        Preconditions.checkState(URL_FUNCTIONS.contains(funName));
+        Preconditions.checkState(URLFUNCTIONS.contains(funName));
         CssFunctionNode.Function funType = CssFunctionNode.Function.byName(funName);
         CssFunctionNode fun = new CssFunctionNode(funType, loc);
         String parenContents = trim(t.image.substring(pi + 1, t.image.length() - 1));
@@ -203,7 +203,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private static String trim(String input) {
-        return CSS_WHITESPACE.trimFrom(input);
+        return CSSWHITESPACE.trimFrom(input);
     }
 
     public void parse() throws GssParserException {
@@ -525,7 +525,7 @@ public class GssParserCC implements GssParserCCConstants {
 // The rest of the file contains the production rules of the grammar and to
 // increase readability every rule also has a comment with the rule it
 // implements in Extended Backus–Naur Form (EBNF) that follows this syntax:
-// name_of_rule
+// nameOfRule
 //   : X
 //   ;
 // where X is the actual production consisting of non terminals and terminals.
@@ -534,27 +534,27 @@ public class GssParserCC implements GssParserCCConstants {
 // but IDENTIFIER stays the same.
 
     // string
-//   : DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING
+//   : DOUBLEQUOTEDSTRING | SINGLEQUOTEDSTRING
 //   ;
     public final CssStringNode string() throws ParseException {
         Token t;
         CssStringNode.Type type;
         SourceCodeLocation beginLocation;
         beginLocation = this.getLocation(token.next);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case DOUBLE_QUOTED_STRING: {
-                t = jj_consume_token(DOUBLE_QUOTED_STRING);
+                t = jjConsumeToken(DOUBLE_QUOTED_STRING);
                 type = CssStringNode.Type.DOUBLE_QUOTED_STRING;
                 break;
             }
             case SINGLE_QUOTED_STRING: {
-                t = jj_consume_token(SINGLE_QUOTED_STRING);
+                t = jjConsumeToken(SINGLE_QUOTED_STRING);
                 type = CssStringNode.Type.SINGLE_QUOTED_STRING;
                 break;
             }
             default:
-                jj_la1[0] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[0] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
         SourceCodeLocation endLocation = this.getLocation();
@@ -565,7 +565,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // ruleset
-//   : selector_list '{' style_declarations '}'
+//   : selectorList '{' styleDeclarations '}'
 //   ;
     public final CssRulesetNode ruleSet() throws ParseException {
         CssSelectorListNode selectors;
@@ -575,7 +575,7 @@ public class GssParserCC implements GssParserCCConstants {
         try {
             try {
                 selectors = selectorList();
-                t = jj_consume_token(LEFTBRACE);
+                t = jjConsumeToken(LEFTBRACE);
                 tokens.add(t);
             } catch (ParseException e) {
                 if (!enableErrorRecovery || e.currentToken == null) {
@@ -587,7 +587,7 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             }
             declarations = styleDeclaration();
-            t = jj_consume_token(RIGHTBRACE);
+            t = jjConsumeToken(RIGHTBRACE);
             tokens.add(t);
             CssRulesetNode ruleSet = nodeBuilder.buildRulesetNode(declarations,
                     selectors, mergeLocations(selectors.getSourceCodeLocation(), getLocation()), tokens);
@@ -605,7 +605,7 @@ public class GssParserCC implements GssParserCCConstants {
         }
     }
 
-    // selector_list
+    // selectorList
 //   : selector [ ',' S* selector ]*
 //   ;
     public final CssSelectorListNode selectorList() throws ParseException {
@@ -614,31 +614,31 @@ public class GssParserCC implements GssParserCCConstants {
         Token t;
         selector = selector();
         list.addChildToBack(selector);
-        label_1:
+        label1:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case COMMA: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[1] = jj_gen;
-                    break label_1;
+                    jjLa1[1] = jjGen;
+                    break label1;
             }
-            t = jj_consume_token(COMMA);
+            t = jjConsumeToken(COMMA);
             nodeBuilder.attachComment(t, selector);
-            label_2:
+            label2:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[2] = jj_gen;
-                        break label_2;
+                        jjLa1[2] = jjGen;
+                        break label2;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
             selector = selector();
             list.addChildToBack(selector);
@@ -649,7 +649,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // selector
-//   : simple_selector [ combinator simple_selector ]* S*
+//   : simpleSelector [ combinator simpleSelector ]* S*
 //   ;
     public final CssSelectorNode selector() throws ParseException {
         CssSelectorNode first;
@@ -660,12 +660,12 @@ public class GssParserCC implements GssParserCCConstants {
         List<Token> tokens = Lists.newArrayList();
         first = simpleSelector();
         prev = first;
-        label_3:
+        label3:
         while (true) {
-            if (jj_2_1(2)) {
+            if (jj21(2)) {
                 ;
             } else {
-                break label_3;
+                break label3;
             }
             c = combinator();
             next = simpleSelector();
@@ -673,18 +673,18 @@ public class GssParserCC implements GssParserCCConstants {
             prev.setCombinator(c);
             prev = next;
         }
-        label_4:
+        label4:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[3] = jj_gen;
-                    break label_4;
+                    jjLa1[3] = jjGen;
+                    break label4;
             }
-            t = jj_consume_token(S);
+            t = jjConsumeToken(S);
             tokens.add(t);
         }
         nodeBuilder.attachComments(tokens, first);
@@ -700,34 +700,34 @@ public class GssParserCC implements GssParserCCConstants {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         CssClassSelectorNode.ComponentScoping scoping = CssClassSelectorNode.ComponentScoping.DEFAULT;
-        t = jj_consume_token(DOT);
+        t = jjConsumeToken(DOT);
         tokens.add(t);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case PERCENT:
             case CARET: {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case PERCENT: {
-                        jj_consume_token(PERCENT);
+                        jjConsumeToken(PERCENT);
                         scoping = CssClassSelectorNode.ComponentScoping.FORCE_SCOPED;
                         break;
                     }
                     case CARET: {
-                        jj_consume_token(CARET);
+                        jjConsumeToken(CARET);
                         scoping = CssClassSelectorNode.ComponentScoping.FORCE_UNSCOPED;
                         break;
                     }
                     default:
-                        jj_la1[4] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[4] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
                 break;
             }
             default:
-                jj_la1[5] = jj_gen;
+                jjLa1[5] = jjGen;
                 ;
         }
-        t = jj_consume_token(IDENTIFIER);
+        t = jjConsumeToken(IDENTIFIER);
         tokens.add(t);
         {
             return nodeBuilder.buildClassSelectorNode(t.image, this.getLocation(), scoping, tokens);
@@ -735,12 +735,12 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // id
-//   : HASH_NAME
+//   : HASHNAME
 //   ;
     public final CssRefinerNode id() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
-        t = jj_consume_token(HASH_NAME);
+        t = jjConsumeToken(HASH_NAME);
         tokens.add(t);
         String name = t.image.substring(1);
         {
@@ -749,7 +749,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // pseudo
-//   : ':' [ IDENT | [ ':' IDENT ] | [ 'not(' S* simple_selector S* ')' ]
+//   : ':' [ IDENT | [ ':' IDENT ] | [ 'not(' S* simpleSelector S* ')' ]
 //         | [ 'lang(' S* IDENT S* ')' ] | [ FUNCTION S* nth S* ')' ] ]?
 //   ;
     public final CssRefinerNode pseudo() throws ParseException {
@@ -760,27 +760,27 @@ public class GssParserCC implements GssParserCCConstants {
         String argument = null;
         List<Token> tokens = Lists.newArrayList();
         CssSelectorNode notSelector = null;
-        t = jj_consume_token(COLON);
+        t = jjConsumeToken(COLON);
         beginLocation = this.getLocation();
         tokens.add(t);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case COLON:
             case IDENTIFIER:
             case NOTFUNCTION:
             case LANGFUNCTION:
             case FUNCTION: {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case IDENTIFIER: {
-                        t = jj_consume_token(IDENTIFIER);
+                        t = jjConsumeToken(IDENTIFIER);
                         pseudo = t.image;
                         tokens.add(t);
                         break;
                     }
                     case COLON: {
                         // ::identifier (pseudo-element)
-                        t = jj_consume_token(COLON);
+                        t = jjConsumeToken(COLON);
                         tokens.add(t);
-                        t = jj_consume_token(IDENTIFIER);
+                        t = jjConsumeToken(IDENTIFIER);
                         pseudo = t.image;
                         tokens.add(t);
                         endLocation = this.getLocation();
@@ -790,39 +790,39 @@ public class GssParserCC implements GssParserCCConstants {
                         }
                     }
                     case NOTFUNCTION: {
-                        // :not( simple_selector )
-                        t = jj_consume_token(NOTFUNCTION);
-                        label_5:
+                        // :not( simpleSelector )
+                        t = jjConsumeToken(NOTFUNCTION);
+                        label5:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[6] = jj_gen;
-                                    break label_5;
+                                    jjLa1[6] = jjGen;
+                                    break label5;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
                         beginLocation = this.getLocation();
                         pseudo = t.image;
                         tokens.add(t);
                         notSelector = simpleSelector();
-                        label_6:
+                        label6:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[7] = jj_gen;
-                                    break label_6;
+                                    jjLa1[7] = jjGen;
+                                    break label6;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
-                        t = jj_consume_token(RIGHTROUND);
+                        t = jjConsumeToken(RIGHTROUND);
                         tokens.add(t);
                         endLocation = this.getLocation();
                         {
@@ -832,40 +832,40 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                     case LANGFUNCTION: {
                         // :lang( <IDENTIFIER> )
-                        t = jj_consume_token(LANGFUNCTION);
-                        label_7:
+                        t = jjConsumeToken(LANGFUNCTION);
+                        label7:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[8] = jj_gen;
-                                    break label_7;
+                                    jjLa1[8] = jjGen;
+                                    break label7;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
                         beginLocation = this.getLocation();
                         pseudo = t.image;
                         tokens.add(t);
-                        t = jj_consume_token(IDENTIFIER);
+                        t = jjConsumeToken(IDENTIFIER);
                         argument = t.image;
                         tokens.add(t);
-                        label_8:
+                        label8:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[9] = jj_gen;
-                                    break label_8;
+                                    jjLa1[9] = jjGen;
+                                    break label8;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
-                        t = jj_consume_token(RIGHTROUND);
+                        t = jjConsumeToken(RIGHTROUND);
                         tokens.add(t);
                         endLocation = this.getLocation();
                         {
@@ -876,38 +876,38 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                     case FUNCTION: {
                         // :nth-function( nth )
-                        t = jj_consume_token(FUNCTION);
-                        label_9:
+                        t = jjConsumeToken(FUNCTION);
+                        label9:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[10] = jj_gen;
-                                    break label_9;
+                                    jjLa1[10] = jjGen;
+                                    break label9;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
                         beginLocation = this.getLocation();
                         pseudo = t.image;
                         tokens.add(t);
                         argument = nth();
-                        label_10:
+                        label10:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[11] = jj_gen;
-                                    break label_10;
+                                    jjLa1[11] = jjGen;
+                                    break label10;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
-                        t = jj_consume_token(RIGHTROUND);
+                        t = jjConsumeToken(RIGHTROUND);
                         tokens.add(t);
                         endLocation = this.getLocation();
                         {
@@ -917,14 +917,14 @@ public class GssParserCC implements GssParserCCConstants {
                         }
                     }
                     default:
-                        jj_la1[12] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[12] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
                 break;
             }
             default:
-                jj_la1[13] = jj_gen;
+                jjLa1[13] = jjGen;
                 ;
         }
 // non-function pseudo-class
@@ -936,63 +936,63 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // nth
-//   : [ [ [ S* '+' ] | '-' | NUMBER | IDENTIFIER | FOR_VARIABLE ] S* ]+
+//   : [ [ [ S* '+' ] | '-' | NUMBER | IDENTIFIER | FORVARIABLE ] S* ]+
 //   ;
     public final String nth() throws ParseException {
         Token t;
         StringBuilder argument = new StringBuilder();
-        label_11:
+        label11:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case WPLUS: {
-                    t = jj_consume_token(WPLUS);
+                    t = jjConsumeToken(WPLUS);
                     argument.append(t.image);
                     break;
                 }
                 case MINUS: {
-                    t = jj_consume_token(MINUS);
+                    t = jjConsumeToken(MINUS);
                     argument.append(t.image);
                     break;
                 }
                 case WMINUSW: {
-                    t = jj_consume_token(WMINUSW);
+                    t = jjConsumeToken(WMINUSW);
                     argument.append(trim(t.image));
                     break;
                 }
                 case NUMBER: {
-                    t = jj_consume_token(NUMBER);
+                    t = jjConsumeToken(NUMBER);
                     argument.append(t.image);
                     break;
                 }
                 case IDENTIFIER: {
-                    t = jj_consume_token(IDENTIFIER);
+                    t = jjConsumeToken(IDENTIFIER);
                     argument.append(t.image);
                     break;
                 }
                 case FOR_VARIABLE: {
-                    t = jj_consume_token(FOR_VARIABLE);
+                    t = jjConsumeToken(FOR_VARIABLE);
                     argument.append(t.image);
                     break;
                 }
                 default:
-                    jj_la1[14] = jj_gen;
-                    jj_consume_token(-1);
+                    jjLa1[14] = jjGen;
+                    jjConsumeToken(-1);
                     throw new ParseException();
             }
-            label_12:
+            label12:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[15] = jj_gen;
-                        break label_12;
+                        jjLa1[15] = jjGen;
+                        break label12;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case MINUS:
                 case WMINUSW:
                 case WPLUS:
@@ -1003,8 +1003,8 @@ public class GssParserCC implements GssParserCCConstants {
                     break;
                 }
                 default:
-                    jj_la1[16] = jj_gen;
-                    break label_11;
+                    jjLa1[16] = jjGen;
+                    break label11;
             }
         }
         {
@@ -1027,104 +1027,104 @@ public class GssParserCC implements GssParserCCConstants {
         SourceCodeLocation beginLocation;
         CssAttributeSelectorNode.MatchType matchType =
                 CssAttributeSelectorNode.MatchType.ANY;
-        t = jj_consume_token(LEFTSQUARE);
+        t = jjConsumeToken(LEFTSQUARE);
         beginLocation = this.getLocation();
         tokens.add(t);
         try {
-            label_13:
+            label13:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[17] = jj_gen;
-                        break label_13;
+                        jjLa1[17] = jjGen;
+                        break label13;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            t = jj_consume_token(IDENTIFIER);
+            t = jjConsumeToken(IDENTIFIER);
             attribute = t.image;
             tokens.add(t);
-            label_14:
+            label14:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[18] = jj_gen;
-                        break label_14;
+                        jjLa1[18] = jjGen;
+                        break label14;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case EQUALS:
                 case TILDE_EQUALS:
                 case CARET_EQUALS:
                 case DOLLAR_EQUALS:
                 case ASTERISK_EQUALS:
                 case PIPE_EQUALS: {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case EQUALS: {
-                            t = jj_consume_token(EQUALS);
+                            t = jjConsumeToken(EQUALS);
                             tokens.add(t);
                             matchType = CssAttributeSelectorNode.MatchType.EXACT;
                             break;
                         }
                         case TILDE_EQUALS: {
-                            t = jj_consume_token(TILDE_EQUALS);
+                            t = jjConsumeToken(TILDE_EQUALS);
                             tokens.add(t);
                             matchType = CssAttributeSelectorNode.MatchType.ONE_WORD;
                             break;
                         }
                         case CARET_EQUALS: {
-                            t = jj_consume_token(CARET_EQUALS);
+                            t = jjConsumeToken(CARET_EQUALS);
                             tokens.add(t);
                             matchType = CssAttributeSelectorNode.MatchType.PREFIX;
                             break;
                         }
                         case DOLLAR_EQUALS: {
-                            t = jj_consume_token(DOLLAR_EQUALS);
+                            t = jjConsumeToken(DOLLAR_EQUALS);
                             tokens.add(t);
                             matchType = CssAttributeSelectorNode.MatchType.SUFFIX;
                             break;
                         }
                         case ASTERISK_EQUALS: {
-                            t = jj_consume_token(ASTERISK_EQUALS);
+                            t = jjConsumeToken(ASTERISK_EQUALS);
                             tokens.add(t);
                             matchType = CssAttributeSelectorNode.MatchType.CONTAINS;
                             break;
                         }
                         case PIPE_EQUALS: {
-                            t = jj_consume_token(PIPE_EQUALS);
+                            t = jjConsumeToken(PIPE_EQUALS);
                             tokens.add(t);
                             matchType = CssAttributeSelectorNode.MatchType.EXACT_OR_DASH;
                             break;
                         }
                         default:
-                            jj_la1[19] = jj_gen;
-                            jj_consume_token(-1);
+                            jjLa1[19] = jjGen;
+                            jjConsumeToken(-1);
                             throw new ParseException();
                     }
-                    label_15:
+                    label15:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[20] = jj_gen;
-                                break label_15;
+                                jjLa1[20] = jjGen;
+                                break label15;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case IDENTIFIER: {
-                            t = jj_consume_token(IDENTIFIER);
+                            t = jjConsumeToken(IDENTIFIER);
                             idNode = new CssLiteralNode(t.image, this.getLocation());
                             tokens.add(t);
                             break;
@@ -1135,30 +1135,30 @@ public class GssParserCC implements GssParserCCConstants {
                             break;
                         }
                         default:
-                            jj_la1[21] = jj_gen;
-                            jj_consume_token(-1);
+                            jjLa1[21] = jjGen;
+                            jjConsumeToken(-1);
                             throw new ParseException();
                     }
-                    label_16:
+                    label16:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[22] = jj_gen;
-                                break label_16;
+                                jjLa1[22] = jjGen;
+                                break label16;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
                     break;
                 }
                 default:
-                    jj_la1[23] = jj_gen;
+                    jjLa1[23] = jjGen;
                     ;
             }
-            t = jj_consume_token(RIGHTSQUARE);
+            t = jjConsumeToken(RIGHTSQUARE);
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
@@ -1185,8 +1185,8 @@ public class GssParserCC implements GssParserCCConstants {
         }
     }
 
-    // simple_selector
-//   : [ element_name [ id | class | attribute | pseudo ]* ]
+    // simpleSelector
+//   : [ elementName [ id | class | attribute | pseudo ]* ]
 //     | [ id | class | attribute | pseudo ]+
 //   ;
     public final CssSelectorNode simpleSelector() throws ParseException {
@@ -1196,13 +1196,13 @@ public class GssParserCC implements GssParserCCConstants {
         CssRefinerListNode refiners = new CssRefinerListNode();
         SourceCodeLocation beginLocation;
         beginLocation = this.getLocation(token.next);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case ASTERISK:
             case IDENTIFIER: {
                 selectorName = elementName();
-                label_17:
+                label17:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case COLON:
                         case DOT:
                         case LEFTSQUARE:
@@ -1211,10 +1211,10 @@ public class GssParserCC implements GssParserCCConstants {
                             break;
                         }
                         default:
-                            jj_la1[24] = jj_gen;
-                            break label_17;
+                            jjLa1[24] = jjGen;
+                            break label17;
                     }
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case HASH_NAME: {
                             n = id();
                             break;
@@ -1232,8 +1232,8 @@ public class GssParserCC implements GssParserCCConstants {
                             break;
                         }
                         default:
-                            jj_la1[25] = jj_gen;
-                            jj_consume_token(-1);
+                            jjLa1[25] = jjGen;
+                            jjConsumeToken(-1);
                             throw new ParseException();
                     }
                     refiners.addChildToBack(n);
@@ -1244,9 +1244,9 @@ public class GssParserCC implements GssParserCCConstants {
             case DOT:
             case LEFTSQUARE:
             case HASH_NAME: {
-                label_18:
+                label18:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case HASH_NAME: {
                             n = id();
                             break;
@@ -1264,12 +1264,12 @@ public class GssParserCC implements GssParserCCConstants {
                             break;
                         }
                         default:
-                            jj_la1[26] = jj_gen;
-                            jj_consume_token(-1);
+                            jjLa1[26] = jjGen;
+                            jjConsumeToken(-1);
                             throw new ParseException();
                     }
                     refiners.addChildToBack(n);
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case COLON:
                         case DOT:
                         case LEFTSQUARE:
@@ -1278,15 +1278,15 @@ public class GssParserCC implements GssParserCCConstants {
                             break;
                         }
                         default:
-                            jj_la1[27] = jj_gen;
-                            break label_18;
+                            jjLa1[27] = jjGen;
+                            break label18;
                     }
                 }
                 break;
             }
             default:
-                jj_la1[28] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[28] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
         SourceCodeLocation endLocation = this.getLocation();
@@ -1297,23 +1297,23 @@ public class GssParserCC implements GssParserCCConstants {
         }
     }
 
-    // element_name
+    // elementName
 //   : IDENTIFIER | '*'
 //   ;
     public final Token elementName() throws ParseException {
         Token t;
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case IDENTIFIER: {
-                t = jj_consume_token(IDENTIFIER);
+                t = jjConsumeToken(IDENTIFIER);
                 break;
             }
             case ASTERISK: {
-                t = jj_consume_token(ASTERISK);
+                t = jjConsumeToken(ASTERISK);
                 break;
             }
             default:
-                jj_la1[29] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[29] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
         {
@@ -1327,21 +1327,21 @@ public class GssParserCC implements GssParserCCConstants {
     public final CssCombinatorNode combinator() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case WPLUS: {
-                t = jj_consume_token(WPLUS);
-                label_19:
+                t = jjConsumeToken(WPLUS);
+                label19:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case S: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[30] = jj_gen;
-                            break label_19;
+                            jjLa1[30] = jjGen;
+                            break label19;
                     }
-                    jj_consume_token(S);
+                    jjConsumeToken(S);
                 }
                 tokens.add(t);
                 {
@@ -1351,19 +1351,19 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             }
             case WGREATER: {
-                t = jj_consume_token(WGREATER);
-                label_20:
+                t = jjConsumeToken(WGREATER);
+                label20:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case S: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[31] = jj_gen;
-                            break label_20;
+                            jjLa1[31] = jjGen;
+                            break label20;
                     }
-                    jj_consume_token(S);
+                    jjConsumeToken(S);
                 }
                 tokens.add(t);
                 {
@@ -1372,19 +1372,19 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             }
             case WTILDE: {
-                t = jj_consume_token(WTILDE);
-                label_21:
+                t = jjConsumeToken(WTILDE);
+                label21:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case S: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[32] = jj_gen;
-                            break label_21;
+                            jjLa1[32] = jjGen;
+                            break label21;
                     }
-                    jj_consume_token(S);
+                    jjConsumeToken(S);
                 }
                 tokens.add(t);
                 {
@@ -1394,19 +1394,19 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             }
             case WDEEP: {
-                t = jj_consume_token(WDEEP);
-                label_22:
+                t = jjConsumeToken(WDEEP);
+                label22:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case S: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[33] = jj_gen;
-                            break label_22;
+                            jjLa1[33] = jjGen;
+                            break label22;
                     }
-                    jj_consume_token(S);
+                    jjConsumeToken(S);
                 }
                 tokens.add(t);
                 {
@@ -1415,18 +1415,18 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             }
             case S: {
-                label_23:
+                label23:
                 while (true) {
-                    t = jj_consume_token(S);
+                    t = jjConsumeToken(S);
                     tokens.add(t);
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case S: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[34] = jj_gen;
-                            break label_23;
+                            jjLa1[34] = jjGen;
+                            break label23;
                     }
                 }
                 {
@@ -1435,17 +1435,17 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             }
             default:
-                jj_la1[35] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[35] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
     }
 
-    // style_declaration
-//   : S* standard_declaration? S*
+    // styleDeclaration
+//   : S* standardDeclaration? S*
 //     [
-//        [ inner_at_rule S* standard_declaration ]
-//      | ';' S* standard_declaration
+//        [ innerAtRule S* standardDeclaration ]
+//      | ';' S* standardDeclaration
 //     ]*
 //   ;
 // This production rule returns a block that contains a list of declarations and
@@ -1457,20 +1457,20 @@ public class GssParserCC implements GssParserCCConstants {
         CssDeclarationBlockNode block = new CssDeclarationBlockNode();
         CssNode decl;
         try {
-            label_24:
+            label24:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[36] = jj_gen;
-                        break label_24;
+                        jjLa1[36] = jjGen;
+                        break label24;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case ASTERISK:
                 case IDENTIFIER:
                 case CUSTOM_PROPERTY_NAME: {
@@ -1479,21 +1479,21 @@ public class GssParserCC implements GssParserCCConstants {
                     break;
                 }
                 default:
-                    jj_la1[37] = jj_gen;
+                    jjLa1[37] = jjGen;
                     ;
             }
-            label_25:
+            label25:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[38] = jj_gen;
-                        break label_25;
+                        jjLa1[38] = jjGen;
+                        break label25;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
@@ -1501,20 +1501,20 @@ public class GssParserCC implements GssParserCCConstants {
             }
             handledErrors.add(new GssParserException(getLocation(e.currentToken.next), e));
         }
-        label_26:
+        label26:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case SEMICOLON:
                 case ATKEYWORD: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[39] = jj_gen;
-                    break label_26;
+                    jjLa1[39] = jjGen;
+                    break label26;
             }
             try {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case ATKEYWORD: {
                         try {
                             decl = innerAtRule();
@@ -1525,20 +1525,20 @@ public class GssParserCC implements GssParserCCConstants {
                             }
                             handledErrors.add(new GssParserException(getLocation(e.currentToken.next), e));
                         }
-                        label_27:
+                        label27:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[40] = jj_gen;
-                                    break label_27;
+                                    jjLa1[40] = jjGen;
+                                    break label27;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case ASTERISK:
                             case IDENTIFIER:
                             case CUSTOM_PROPERTY_NAME: {
@@ -1547,27 +1547,27 @@ public class GssParserCC implements GssParserCCConstants {
                                 break;
                             }
                             default:
-                                jj_la1[41] = jj_gen;
+                                jjLa1[41] = jjGen;
                                 ;
                         }
                         break;
                     }
                     case SEMICOLON: {
-                        jj_consume_token(SEMICOLON);
-                        label_28:
+                        jjConsumeToken(SEMICOLON);
+                        label28:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[42] = jj_gen;
-                                    break label_28;
+                                    jjLa1[42] = jjGen;
+                                    break label28;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case ASTERISK:
                             case IDENTIFIER:
                             case CUSTOM_PROPERTY_NAME: {
@@ -1576,14 +1576,14 @@ public class GssParserCC implements GssParserCCConstants {
                                 break;
                             }
                             default:
-                                jj_la1[43] = jj_gen;
+                                jjLa1[43] = jjGen;
                                 ;
                         }
                         break;
                     }
                     default:
-                        jj_la1[44] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[44] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
             } catch (ParseException e) {
@@ -1600,7 +1600,7 @@ public class GssParserCC implements GssParserCCConstants {
 
     public final CssNode declaration() throws ParseException {
         CssNode decl;
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case ASTERISK:
             case IDENTIFIER: {
                 decl = standardDeclaration();
@@ -1611,8 +1611,8 @@ public class GssParserCC implements GssParserCCConstants {
                 break;
             }
             default:
-                jj_la1[45] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[45] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
         {
@@ -1620,8 +1620,8 @@ public class GssParserCC implements GssParserCCConstants {
         }
     }
 
-    // custom_declaration
-//   : CUSTOM_PROPERTY_NAME S* ':' custom_declaration_value
+    // customDeclaration
+//   : CUSTOMPROPERTYNAME S* ':' customDeclarationValue
 //   ;
     public final CssDeclarationNode customDeclaration() throws ParseException {
         Token t;
@@ -1630,36 +1630,36 @@ public class GssParserCC implements GssParserCCConstants {
         CssPropertyValueNode valueNode;
         List<Token> tokens = Lists.newArrayList();
         try {
-            t = jj_consume_token(CUSTOM_PROPERTY_NAME);
+            t = jjConsumeToken(CUSTOM_PROPERTY_NAME);
             property = new CssPropertyNode(t.image, this.getLocation());
             tokens.add(t);
-            label_29:
+            label29:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[46] = jj_gen;
-                        break label_29;
+                        jjLa1[46] = jjGen;
+                        break label29;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            t = jj_consume_token(COLON);
+            t = jjConsumeToken(COLON);
             tokens.add(t);
-            label_30:
+            label30:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[47] = jj_gen;
-                        break label_30;
+                        jjLa1[47] = jjGen;
+                        break label30;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
             valueNode = customDeclarationValue();
             {
@@ -1680,7 +1680,7 @@ public class GssParserCC implements GssParserCCConstants {
 // following spec, we have decided to parse CSS expressions only. At some point, this may be
 // revisited.
 //
-// custom_declaration_value
+// customDeclarationValue
 //   : expr()
 //   ;
     public final CssPropertyValueNode customDeclarationValue() throws ParseException {
@@ -1691,7 +1691,7 @@ public class GssParserCC implements GssParserCCConstants {
         }
     }
 
-    // standard_declaration
+    // standardDeclaration
 //   : '*'? IDENTIFIER S* ':' S* expr S* important?
 //   ;
     public final CssDeclarationNode standardDeclaration() throws ParseException {
@@ -1702,71 +1702,71 @@ public class GssParserCC implements GssParserCCConstants {
         List<Token> tokens = Lists.newArrayList();
         String propertyName = "";
         try {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case ASTERISK: {
-                    t = jj_consume_token(ASTERISK);
+                    t = jjConsumeToken(ASTERISK);
                     tokens.add(t);
                     propertyName = "*";
                     break;
                 }
                 default:
-                    jj_la1[48] = jj_gen;
+                    jjLa1[48] = jjGen;
                     ;
             }
             // allows "star hack"
-            t = jj_consume_token(IDENTIFIER);
+            t = jjConsumeToken(IDENTIFIER);
             propertyName = propertyName + t.image;
             property = new CssPropertyNode(propertyName, this.getLocation());
             tokens.add(t);
-            label_31:
+            label31:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[49] = jj_gen;
-                        break label_31;
+                        jjLa1[49] = jjGen;
+                        break label31;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            t = jj_consume_token(COLON);
+            t = jjConsumeToken(COLON);
             tokens.add(t);
-            label_32:
+            label32:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[50] = jj_gen;
-                        break label_32;
+                        jjLa1[50] = jjGen;
+                        break label32;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
             valueNode = expr();
-            label_33:
+            label33:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[51] = jj_gen;
-                        break label_33;
+                        jjLa1[51] = jjGen;
+                        break label33;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case IMPORTANT_SYM: {
                     priority = important();
                     break;
                 }
                 default:
-                    jj_la1[52] = jj_gen;
+                    jjLa1[52] = jjGen;
                     ;
             }
             if (priority != null) {
@@ -1788,21 +1788,21 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // expr
-//   : composite_term [ composite_term ]*
+//   : compositeTerm [ compositeTerm ]*
 //   ;
     public final CssPropertyValueNode expr() throws ParseException {
         List<CssValueNode> lst = Lists.newArrayList();
         CssValueNode value;
-        value = composite_term();
+        value = compositeTerm();
         lst.add(value);
-        label_34:
+        label34:
         while (true) {
-            if (jj_2_2(1)) {
+            if (jj22(1)) {
                 ;
             } else {
-                break label_34;
+                break label34;
             }
-            value = composite_term();
+            value = compositeTerm();
             lst.add(value);
         }
         CssPropertyValueNode result = new CssPropertyValueNode(lst);
@@ -1813,45 +1813,45 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// composite_term
-//   : assign_term [ ',' assign_term ]*
+// compositeTerm
+//   : assignTerm [ ',' assignTerm ]*
 //   ;
-    public final CssValueNode composite_term() throws ParseException {
+    public final CssValueNode compositeTerm() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
         SourceCodeLocation beginLocation;
         Token t;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        value = assign_term();
+        value = assignTerm();
         lst.add(value);
-        label_35:
+        label35:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case COMMA: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[53] = jj_gen;
-                    break label_35;
+                    jjLa1[53] = jjGen;
+                    break label35;
             }
-            t = jj_consume_token(COMMA);
+            t = jjConsumeToken(COMMA);
             tokens.add(t);
-            label_36:
+            label36:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[54] = jj_gen;
-                        break label_36;
+                        jjLa1[54] = jjGen;
+                        break label36;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            value = assign_term();
+            value = assignTerm();
             lst.add(value);
         }
         if (lst.size() == 1) {
@@ -1867,45 +1867,45 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// assign_term
-//   : slash_term [ '=' slash_term ]*
+// assignTerm
+//   : slashTerm [ '=' slashTerm ]*
 //   ;
-    public final CssValueNode assign_term() throws ParseException {
+    public final CssValueNode assignTerm() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
         SourceCodeLocation beginLocation;
         Token t;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        value = slash_term();
+        value = slashTerm();
         lst.add(value);
-        label_37:
+        label37:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case EQUALS: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[55] = jj_gen;
-                    break label_37;
+                    jjLa1[55] = jjGen;
+                    break label37;
             }
-            t = jj_consume_token(EQUALS);
+            t = jjConsumeToken(EQUALS);
             tokens.add(t);
-            label_38:
+            label38:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[56] = jj_gen;
-                        break label_38;
+                        jjLa1[56] = jjGen;
+                        break label38;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            value = slash_term();
+            value = slashTerm();
             lst.add(value);
         }
         if (lst.size() == 1) {
@@ -1920,10 +1920,10 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// slash_term
+// slashTerm
 //   : term [ '/' term ]*
 //   ;
-    public final CssValueNode slash_term() throws ParseException {
+    public final CssValueNode slashTerm() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
         SourceCodeLocation beginLocation;
@@ -1932,31 +1932,31 @@ public class GssParserCC implements GssParserCCConstants {
         beginLocation = this.getLocation(token.next);
         value = term();
         lst.add(value);
-        label_39:
+        label39:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case SLASH: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[57] = jj_gen;
-                    break label_39;
+                    jjLa1[57] = jjGen;
+                    break label39;
             }
-            t = jj_consume_token(SLASH);
+            t = jjConsumeToken(SLASH);
             tokens.add(t);
-            label_40:
+            label40:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[58] = jj_gen;
-                        break label_40;
+                        jjLa1[58] = jjGen;
+                        break label40;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
             value = term();
             lst.add(value);
@@ -1974,8 +1974,8 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // term
-//   : unary_operator?
-//     [ [ NUMBER [ PERCENT | IDENTIFIER ] ] | STRING | IDENT | FOR_VARIABLE
+//   : unaryOperator?
+//     [ [ NUMBER [ PERCENT | IDENTIFIER ] ] | STRING | IDENT | FORVARIABLE
 //       | '(' S? IDENT ':' S* NUMBER [ S* '/' S* NUMBER | IDENT ]? ')'
 //       | URI | hexcolor | function | math
 //     ] S*
@@ -1991,41 +1991,41 @@ public class GssParserCC implements GssParserCCConstants {
         boolean hexcolor = false;
         boolean loopVariable = false;
         boolean unicodeRange = false;
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case MINUS:
             case WPLUS:
             case NUMBER: {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case MINUS:
                     case WPLUS: {
-                        t = unary_operator();
+                        t = unaryOperator();
                         unop = trim(t.image);
                         tokens.add(t);
                         break;
                     }
                     default:
-                        jj_la1[59] = jj_gen;
+                        jjLa1[59] = jjGen;
                         ;
                 }
                 // Number with optional arbitrary dimension or percent.
-                t = jj_consume_token(NUMBER);
+                t = jjConsumeToken(NUMBER);
                 unit = CssNumericNode.NO_UNITS;
                 tokens.add(t);
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case PERCENT:
                     case IDENTIFIER: {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case PERCENT: {
-                                dim = jj_consume_token(PERCENT);
+                                dim = jjConsumeToken(PERCENT);
                                 break;
                             }
                             case IDENTIFIER: {
-                                dim = jj_consume_token(IDENTIFIER);
+                                dim = jjConsumeToken(IDENTIFIER);
                                 break;
                             }
                             default:
-                                jj_la1[60] = jj_gen;
-                                jj_consume_token(-1);
+                                jjLa1[60] = jjGen;
+                                jjConsumeToken(-1);
                                 throw new ParseException();
                         }
                         unit = dim.image.toLowerCase();
@@ -2033,13 +2033,13 @@ public class GssParserCC implements GssParserCCConstants {
                         break;
                     }
                     default:
-                        jj_la1[61] = jj_gen;
+                        jjLa1[61] = jjGen;
                         ;
                 }
                 break;
             }
             case UNICODE_RANGE: {
-                t = jj_consume_token(UNICODE_RANGE);
+                t = jjConsumeToken(UNICODE_RANGE);
                 unicodeRange = true;
                 tokens.add(t);
                 break;
@@ -2050,143 +2050,143 @@ public class GssParserCC implements GssParserCCConstants {
                 break;
             }
             default:
-                jj_la1[70] = jj_gen;
-                if (jj_2_3(1)) {
+                jjLa1[70] = jjGen;
+                if (jj23(1)) {
                     if (getToken(2).kind != DOT && getToken(2).kind != COLON) {
 
                     } else {
-                        jj_consume_token(-1);
+                        jjConsumeToken(-1);
                         throw new ParseException();
                     }
-                    t = jj_consume_token(IDENTIFIER);
+                    t = jjConsumeToken(IDENTIFIER);
                     tokens.add(t);
                 } else {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case FOR_VARIABLE: {
                             // For variables will be evaluated to a number eventually.
-                            t = jj_consume_token(FOR_VARIABLE);
+                            t = jjConsumeToken(FOR_VARIABLE);
                             loopVariable = true;
                             tokens.add(t);
                             break;
                         }
                         default:
-                            jj_la1[71] = jj_gen;
-                            if (jj_2_4(1)) {
+                            jjLa1[71] = jjGen;
+                            if (jj24(1)) {
                                 if (getToken(1).kind == LEFTROUND
                                         && (getToken(3).kind == COLON || getToken(4).kind == COLON)) {
 
                                 } else {
-                                    jj_consume_token(-1);
+                                    jjConsumeToken(-1);
                                     throw new ParseException();
                                 }
-                                t = jj_consume_token(LEFTROUND);
+                                t = jjConsumeToken(LEFTROUND);
                                 tokens.add(t);
                                 try {
-                                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                         case S: {
-                                            jj_consume_token(S);
+                                            jjConsumeToken(S);
                                             break;
                                         }
                                         default:
-                                            jj_la1[62] = jj_gen;
+                                            jjLa1[62] = jjGen;
                                             ;
                                     }
-                                    t = jj_consume_token(IDENTIFIER);
+                                    t = jjConsumeToken(IDENTIFIER);
                                     tokens.add(t);
-                                    t = jj_consume_token(COLON);
+                                    t = jjConsumeToken(COLON);
                                     tokens.add(t);
-                                    label_41:
+                                    label41:
                                     while (true) {
-                                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                             case S: {
                                                 ;
                                                 break;
                                             }
                                             default:
-                                                jj_la1[63] = jj_gen;
-                                                break label_41;
+                                                jjLa1[63] = jjGen;
+                                                break label41;
                                         }
-                                        jj_consume_token(S);
+                                        jjConsumeToken(S);
                                     }
-                                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                         case NUMBER: {
-                                            t = jj_consume_token(NUMBER);
+                                            t = jjConsumeToken(NUMBER);
                                             tokens.add(t);
-                                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                                 case SLASH:
                                                 case S: {
-                                                    label_42:
+                                                    label42:
                                                     while (true) {
-                                                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                                             case S: {
                                                                 ;
                                                                 break;
                                                             }
                                                             default:
-                                                                jj_la1[64] = jj_gen;
-                                                                break label_42;
+                                                                jjLa1[64] = jjGen;
+                                                                break label42;
                                                         }
-                                                        jj_consume_token(S);
+                                                        jjConsumeToken(S);
                                                     }
-                                                    t = jj_consume_token(SLASH);
+                                                    t = jjConsumeToken(SLASH);
                                                     tokens.add(t);
-                                                    label_43:
+                                                    label43:
                                                     while (true) {
-                                                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                                             case S: {
                                                                 ;
                                                                 break;
                                                             }
                                                             default:
-                                                                jj_la1[65] = jj_gen;
-                                                                break label_43;
+                                                                jjLa1[65] = jjGen;
+                                                                break label43;
                                                         }
-                                                        jj_consume_token(S);
+                                                        jjConsumeToken(S);
                                                     }
-                                                    t = jj_consume_token(NUMBER);
+                                                    t = jjConsumeToken(NUMBER);
                                                     tokens.add(t);
                                                     break;
                                                 }
                                                 default:
-                                                    jj_la1[66] = jj_gen;
+                                                    jjLa1[66] = jjGen;
                                                     ;
                                             }
-                                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                                 case IDENTIFIER: {
-                                                    dim = jj_consume_token(IDENTIFIER);
+                                                    dim = jjConsumeToken(IDENTIFIER);
                                                     tokens.add(dim);
                                                     break;
                                                 }
                                                 default:
-                                                    jj_la1[67] = jj_gen;
+                                                    jjLa1[67] = jjGen;
                                                     ;
                                             }
                                             break;
                                         }
                                         case IDENTIFIER: {
-                                            t = jj_consume_token(IDENTIFIER);
+                                            t = jjConsumeToken(IDENTIFIER);
                                             tokens.add(t);
                                             break;
                                         }
                                         default:
-                                            jj_la1[68] = jj_gen;
-                                            jj_consume_token(-1);
+                                            jjLa1[68] = jjGen;
+                                            jjConsumeToken(-1);
                                             throw new ParseException();
                                     }
-                                    label_44:
+                                    label44:
                                     while (true) {
-                                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                             case S: {
                                                 ;
                                                 break;
                                             }
                                             default:
-                                                jj_la1[69] = jj_gen;
-                                                break label_44;
+                                                jjLa1[69] = jjGen;
+                                                break label44;
                                         }
-                                        jj_consume_token(S);
+                                        jjConsumeToken(S);
                                     }
-                                    t = jj_consume_token(RIGHTROUND);
+                                    t = jjConsumeToken(RIGHTROUND);
                                     tokens.add(t);
                                 } catch (ParseException e) {
                                     if (!enableErrorRecovery || e.currentToken == null) {
@@ -2200,7 +2200,7 @@ public class GssParserCC implements GssParserCCConstants {
                             } else if (getToken(1).kind == URI) {
                                 function = uri();
                             } else {
-                                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                     case HASH_NAME: {
                                         t = hexcolor();
                                         tokens.add(t);
@@ -2212,7 +2212,7 @@ public class GssParserCC implements GssParserCCConstants {
                                         break;
                                     }
                                     case VARFUNCTION: {
-                                        function = var();
+                                        function = varNode();
                                         break;
                                     }
                                     case IDENTIFIER:
@@ -2221,26 +2221,26 @@ public class GssParserCC implements GssParserCCConstants {
                                         break;
                                     }
                                     default:
-                                        jj_la1[72] = jj_gen;
-                                        jj_consume_token(-1);
+                                        jjLa1[72] = jjGen;
+                                        jjConsumeToken(-1);
                                         throw new ParseException();
                                 }
                             }
                     }
                 }
         }
-        label_45:
+        label45:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[73] = jj_gen;
-                    break label_45;
+                    jjLa1[73] = jjGen;
+                    break label45;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         if (unit != null) {
             SourceCodeLocation location;
@@ -2288,10 +2288,10 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// extended_term
-//   : boolean_and_term [ '||' S* boolean_and_term ]*
+// extendedTerm
+//   : booleanAndTerm [ '||' S* booleanAndTerm ]*
 //   ;
-    public final CssBooleanExpressionNode extended_term() throws ParseException {
+    public final CssBooleanExpressionNode extendedTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         SourceCodeLocation endLocation;
         CssBooleanExpressionNode newNode = null;
@@ -2301,35 +2301,35 @@ public class GssParserCC implements GssParserCCConstants {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        left = boolean_and_term();
+        left = booleanAndTerm();
         value += left.toString();
-        label_46:
+        label46:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case OR: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[74] = jj_gen;
-                    break label_46;
+                    jjLa1[74] = jjGen;
+                    break label46;
             }
-            t = jj_consume_token(OR);
+            t = jjConsumeToken(OR);
             tokens.add(t);
-            label_47:
+            label47:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[75] = jj_gen;
-                        break label_47;
+                        jjLa1[75] = jjGen;
+                        break label47;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            right = boolean_and_term();
+            right = booleanAndTerm();
             value += right.toString();
             endLocation = this.getLocation();
             newNode = nodeBuilder.buildBoolExpressionNode(
@@ -2343,11 +2343,11 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// boolean_and_term
-//   :  [ boolean_negated_term | basic_term]
-//      [ '&&' S* [ boolean_negated_term | basic_term ] ]*
+// booleanAndTerm
+//   :  [ booleanNegatedTerm | basicTerm]
+//      [ '&&' S* [ booleanNegatedTerm | basicTerm ] ]*
 //   ;
-    public final CssBooleanExpressionNode boolean_and_term() throws ParseException {
+    public final CssBooleanExpressionNode booleanAndTerm() throws ParseException {
         SourceCodeLocation beginLocation = null;
         SourceCodeLocation endLocation;
         CssBooleanExpressionNode newNode = null;
@@ -2357,58 +2357,58 @@ public class GssParserCC implements GssParserCCConstants {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case EXCL_MARK: {
-                left = boolean_negated_term();
+                left = booleanNegatedTerm();
                 break;
             }
             default:
-                jj_la1[76] = jj_gen;
-                if (jj_2_5(1)) {
-                    left = basic_term();
+                jjLa1[76] = jjGen;
+                if (jj25(1)) {
+                    left = basicTerm();
                 } else {
-                    jj_consume_token(-1);
+                    jjConsumeToken(-1);
                     throw new ParseException();
                 }
         }
         value += left.toString();
-        label_48:
+        label48:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case AND: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[77] = jj_gen;
-                    break label_48;
+                    jjLa1[77] = jjGen;
+                    break label48;
             }
-            t = jj_consume_token(AND);
+            t = jjConsumeToken(AND);
             tokens.add(t);
-            label_49:
+            label49:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[78] = jj_gen;
-                        break label_49;
+                        jjLa1[78] = jjGen;
+                        break label49;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case EXCL_MARK: {
-                    right = boolean_negated_term();
+                    right = booleanNegatedTerm();
                     break;
                 }
                 default:
-                    jj_la1[79] = jj_gen;
-                    if (jj_2_6(1)) {
-                        right = basic_term();
+                    jjLa1[79] = jjGen;
+                    if (jj26(1)) {
+                        right = basicTerm();
                     } else {
-                        jj_consume_token(-1);
+                        jjConsumeToken(-1);
                         throw new ParseException();
                     }
             }
@@ -2425,33 +2425,33 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// boolean_negated_term
-//   : '!' S* basic_term
+// booleanNegatedTerm
+//   : '!' S* basicTerm
 //   ;
-    public final CssBooleanExpressionNode boolean_negated_term() throws ParseException {
+    public final CssBooleanExpressionNode booleanNegatedTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         String value = "";
         CssBooleanExpressionNode boolNode = null;
         Token t;
         List<Token> tokens = Lists.newArrayList();
-        t = jj_consume_token(EXCL_MARK);
+        t = jjConsumeToken(EXCL_MARK);
         value = "!";
         beginLocation = this.getLocation();
         tokens.add(t);
-        label_50:
+        label50:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[80] = jj_gen;
-                    break label_50;
+                    jjLa1[80] = jjGen;
+                    break label50;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
-        boolNode = basic_term();
+        boolNode = basicTerm();
         SourceCodeLocation endLocation = this.getLocation();
         {
             return nodeBuilder.buildBoolExpressionNode(CssBooleanExpressionNode.Type.NOT,
@@ -2460,29 +2460,29 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// basic_term
-//   :  term | parenthesized_term
+// basicTerm
+//   :  term | parenthesizedTerm
 //   ;
-    public final CssBooleanExpressionNode basic_term() throws ParseException {
+    public final CssBooleanExpressionNode basicTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         String value = "";
         CssBooleanExpressionNode node = null;
         CssValueNode termNode = null;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        if (jj_2_7(1)) {
+        if (jj27(1)) {
             termNode = term();
             value = termNode.toString();
         } else {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case LEFTROUND: {
-                    node = parenthesized_term();
+                    node = parenthesizedTerm();
                     value = node.toString();
                     break;
                 }
                 default:
-                    jj_la1[81] = jj_gen;
-                    jj_consume_token(-1);
+                    jjLa1[81] = jjGen;
+                    jjConsumeToken(-1);
                     throw new ParseException();
             }
         }
@@ -2500,44 +2500,44 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// parenthesized_term
-//   : '(' S* extended_term ')' S*
+// parenthesizedTerm
+//   : '(' S* extendedTerm ')' S*
 //   ;
-    public final CssBooleanExpressionNode parenthesized_term() throws ParseException {
+    public final CssBooleanExpressionNode parenthesizedTerm() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         CssBooleanExpressionNode node;
-        t = jj_consume_token(LEFTROUND);
+        t = jjConsumeToken(LEFTROUND);
         tokens.add(t);
         try {
-            label_51:
+            label51:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[82] = jj_gen;
-                        break label_51;
+                        jjLa1[82] = jjGen;
+                        break label51;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            node = extended_term();
-            t = jj_consume_token(RIGHTROUND);
+            node = extendedTerm();
+            t = jjConsumeToken(RIGHTROUND);
             tokens.add(t);
-            label_52:
+            label52:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[83] = jj_gen;
-                        break label_52;
+                        jjLa1[83] = jjGen;
+                        break label52;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
@@ -2554,23 +2554,23 @@ public class GssParserCC implements GssParserCCConstants {
         }
     }
 
-    // unary_operator
+    // unaryOperator
 //   : '-' | '+'
 //   ;
-    public final Token unary_operator() throws ParseException {
+    public final Token unaryOperator() throws ParseException {
         Token t;
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case MINUS: {
-                t = jj_consume_token(MINUS);
+                t = jjConsumeToken(MINUS);
                 break;
             }
             case WPLUS: {
-                t = jj_consume_token(WPLUS);
+                t = jjConsumeToken(WPLUS);
                 break;
             }
             default:
-                jj_la1[84] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[84] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
         {
@@ -2588,13 +2588,13 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
     public final Token hexcolor() throws ParseException {
         Token t;
-        t = jj_consume_token(HASH_NAME);
+        t = jjConsumeToken(HASH_NAME);
         {
             return t;
         }
     }
 
-    public final CssFunctionNode var() throws ParseException {
+    public final CssFunctionNode varNode() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation;
         StringBuilder functionName = new StringBuilder();
@@ -2602,65 +2602,65 @@ public class GssParserCC implements GssParserCCConstants {
         List<Token> tokens = Lists.newArrayList();
         List<CssValueNode> arguments = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        t = jj_consume_token(VARFUNCTION);
+        t = jjConsumeToken(VARFUNCTION);
         functionName.append(t.image);
         functionName.setLength(functionName.length() - 1);
         tokens.add(t);
-        label_53:
+        label53:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[85] = jj_gen;
-                    break label_53;
+                    jjLa1[85] = jjGen;
+                    break label53;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
-        t = jj_consume_token(CUSTOM_PROPERTY_NAME);
+        t = jjConsumeToken(CUSTOM_PROPERTY_NAME);
         arguments.add(new CssPropertyNode(t.image, this.getLocation()));
         tokens.add(t);
-        label_54:
+        label54:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[86] = jj_gen;
-                    break label_54;
+                    jjLa1[86] = jjGen;
+                    break label54;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case COMMA: {
-                t = jj_consume_token(COMMA);
+                t = jjConsumeToken(COMMA);
                 tokens.add(t);
-                label_55:
+                label55:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case S: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[87] = jj_gen;
-                            break label_55;
+                            jjLa1[87] = jjGen;
+                            break label55;
                     }
-                    jj_consume_token(S);
+                    jjConsumeToken(S);
                 }
                 defaultValueNode = customDeclarationValue();
                 arguments.add(defaultValueNode.getChildAt(0));
                 break;
             }
             default:
-                jj_la1[88] = jj_gen;
+                jjLa1[88] = jjGen;
                 ;
         }
-        t = jj_consume_token(RIGHTROUND);
+        t = jjConsumeToken(RIGHTROUND);
         tokens.add(t);
         SourceCodeLocation endLocation = this.getLocation(t);
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
@@ -2679,7 +2679,7 @@ public class GssParserCC implements GssParserCCConstants {
         CssPropertyValueNode expr = null;
         SourceCodeLocation beginLocation;
         beginLocation = this.getLocation(token.next);
-        t = jj_consume_token(URI);
+        t = jjConsumeToken(URI);
         {
             return createUrlFunction(t);
         }
@@ -2699,89 +2699,89 @@ public class GssParserCC implements GssParserCCConstants {
         StringBuilder functionName = new StringBuilder();
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case FUNCTION: {
-                t = jj_consume_token(FUNCTION);
+                t = jjConsumeToken(FUNCTION);
                 functionName.append(t.image);
                 functionName.setLength(functionName.length() - 1);
                 tokens.add(t);
                 break;
             }
             case IDENTIFIER: {
-                t = jj_consume_token(IDENTIFIER);
+                t = jjConsumeToken(IDENTIFIER);
                 functionName.append(t.image);
                 tokens.add(t);
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case DOT: {
-                        jj_consume_token(DOT);
+                        jjConsumeToken(DOT);
                         functionName.append(".");
                         break;
                     }
                     case COLON: {
-                        jj_consume_token(COLON);
+                        jjConsumeToken(COLON);
                         functionName.append(":");
                         break;
                     }
                     default:
-                        jj_la1[89] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[89] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
-                label_56:
+                label56:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case IDENTIFIER: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[90] = jj_gen;
-                            break label_56;
+                            jjLa1[90] = jjGen;
+                            break label56;
                     }
-                    t = jj_consume_token(IDENTIFIER);
+                    t = jjConsumeToken(IDENTIFIER);
                     functionName.append(t.image);
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case DOT: {
-                            jj_consume_token(DOT);
+                            jjConsumeToken(DOT);
                             functionName.append(".");
                             break;
                         }
                         case COLON: {
-                            jj_consume_token(COLON);
+                            jjConsumeToken(COLON);
                             functionName.append(":");
                             break;
                         }
                         default:
-                            jj_la1[91] = jj_gen;
-                            jj_consume_token(-1);
+                            jjLa1[91] = jjGen;
+                            jjConsumeToken(-1);
                             throw new ParseException();
                     }
                 }
-                t = jj_consume_token(FUNCTION);
+                t = jjConsumeToken(FUNCTION);
                 functionName.append(t.image);
                 functionName.setLength(functionName.length() - 1);
                 break;
             }
             default:
-                jj_la1[92] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[92] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
-        label_57:
+        label57:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[93] = jj_gen;
-                    break label_57;
+                    jjLa1[93] = jjGen;
+                    break label57;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         expr = expr();
-        t = jj_consume_token(RIGHTROUND);
+        t = jjConsumeToken(RIGHTROUND);
         tokens.add(t);
         SourceCodeLocation endLocation = this.getLocation();
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
@@ -2792,7 +2792,7 @@ public class GssParserCC implements GssParserCCConstants {
                 composite = (CssCompositeValueNode) child;
             }
             addArgumentsWithSeparator(args, ImmutableList.of(child), 1, " ");
-        } else if (FUNCTIONS_WITH_SPACE_SEP_OK.matcher(functionName).matches()) {
+        } else if (FUNCTIONSWITHSPACESEPOK.matcher(functionName).matches()) {
             addArgumentsWithSeparator(args, expr.childIterable(), expr.numChildren(), " ");
         } else {
             {
@@ -2819,38 +2819,38 @@ public class GssParserCC implements GssParserCCConstants {
         CssValueNode math;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        t = jj_consume_token(CALC);
+        t = jjConsumeToken(CALC);
         functionName.append(t.image);
         functionName.setLength(functionName.length() - 1);
         tokens.add(t);
-        label_58:
+        label58:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[94] = jj_gen;
-                    break label_58;
+                    jjLa1[94] = jjGen;
+                    break label58;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         math = sum(/* hasParenthesis */ false);
-        label_59:
+        label59:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[95] = jj_gen;
-                    break label_59;
+                    jjLa1[95] = jjGen;
+                    break label59;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
-        t = jj_consume_token(RIGHTROUND);
+        t = jjConsumeToken(RIGHTROUND);
         tokens.add(t);
         SourceCodeLocation endLocation = this.getLocation(t);
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
@@ -2872,45 +2872,45 @@ public class GssParserCC implements GssParserCCConstants {
         List<CssCompositeValueNode.Operator> operators = new ArrayList<>();
         operand = product(hasParenthesis);
         operands.add(operand);
-        label_60:
+        label60:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case WMINUSW:
                 case WPLUS: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[96] = jj_gen;
-                    break label_60;
+                    jjLa1[96] = jjGen;
+                    break label60;
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case WPLUS: {
-                    jj_consume_token(WPLUS);
-                    label_61:
+                    jjConsumeToken(WPLUS);
+                    label61:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[97] = jj_gen;
-                                break label_61;
+                                jjLa1[97] = jjGen;
+                                break label61;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
                     operators.add(CssCompositeValueNode.Operator.ADD);
                     break;
                 }
                 case WMINUSW: {
-                    jj_consume_token(WMINUSW);
+                    jjConsumeToken(WMINUSW);
                     operators.add(CssCompositeValueNode.Operator.SUB);
                     break;
                 }
                 default:
-                    jj_la1[98] = jj_gen;
-                    jj_consume_token(-1);
+                    jjLa1[98] = jjGen;
+                    jjConsumeToken(-1);
                     throw new ParseException();
             }
             operand = product(/* hasParenthesis */ false);
@@ -2932,9 +2932,9 @@ public class GssParserCC implements GssParserCCConstants {
         List<CssCompositeValueNode.Operator> operators = new ArrayList<>();
         operand = unit();
         operands.add(operand);
-        label_62:
+        label62:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case ASTERISK:
                 case SLASH:
                 case S: {
@@ -2942,66 +2942,66 @@ public class GssParserCC implements GssParserCCConstants {
                     break;
                 }
                 default:
-                    jj_la1[99] = jj_gen;
-                    break label_62;
+                    jjLa1[99] = jjGen;
+                    break label62;
             }
-            label_63:
+            label63:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[100] = jj_gen;
-                        break label_63;
+                        jjLa1[100] = jjGen;
+                        break label63;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case ASTERISK: {
-                    jj_consume_token(ASTERISK);
+                    jjConsumeToken(ASTERISK);
                     operators.add(CssCompositeValueNode.Operator.MULT);
-                    label_64:
+                    label64:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[101] = jj_gen;
-                                break label_64;
+                                jjLa1[101] = jjGen;
+                                break label64;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
                     operand = unit();
                     operands.add(operand);
                     break;
                 }
                 case SLASH: {
-                    jj_consume_token(SLASH);
+                    jjConsumeToken(SLASH);
                     operators.add(CssCompositeValueNode.Operator.DIV);
-                    label_65:
+                    label65:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[102] = jj_gen;
-                                break label_65;
+                                jjLa1[102] = jjGen;
+                                break label65;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
-                    t = jj_consume_token(NUMBER);
+                    t = jjConsumeToken(NUMBER);
                     operands.add(new CssNumericNode(t.image, ""));
                     break;
                 }
                 default:
-                    jj_la1[103] = jj_gen;
-                    jj_consume_token(-1);
+                    jjLa1[103] = jjGen;
+                    jjConsumeToken(-1);
                     throw new ParseException();
             }
         }
@@ -3018,21 +3018,21 @@ public class GssParserCC implements GssParserCCConstants {
         String sign = "";
         Token dim = null;
         CssValueNode node = null;
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case MINUS:
             case WPLUS:
             case NUMBER:
             case IDENTIFIER:
             case VARFUNCTION: {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case VARFUNCTION: {
-                        node = var();
+                        node = varNode();
                         {
                             return node;
                         }
                     }
                     case IDENTIFIER: {
-                        t = jj_consume_token(IDENTIFIER);
+                        t = jjConsumeToken(IDENTIFIER);
                         {
                             return new CssLiteralNode(t.image, this.getLocation(t));
                         }
@@ -3040,41 +3040,41 @@ public class GssParserCC implements GssParserCCConstants {
                     case MINUS:
                     case WPLUS:
                     case NUMBER: {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case MINUS:
                             case WPLUS: {
-                                t = unary_operator();
+                                t = unaryOperator();
                                 sign = t.image;
                                 break;
                             }
                             default:
-                                jj_la1[104] = jj_gen;
+                                jjLa1[104] = jjGen;
                                 ;
                         }
-                        t = jj_consume_token(NUMBER);
+                        t = jjConsumeToken(NUMBER);
 
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case PERCENT:
                             case IDENTIFIER: {
-                                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                     case PERCENT: {
-                                        dim = jj_consume_token(PERCENT);
+                                        dim = jjConsumeToken(PERCENT);
                                         break;
                                     }
                                     case IDENTIFIER: {
-                                        dim = jj_consume_token(IDENTIFIER);
+                                        dim = jjConsumeToken(IDENTIFIER);
                                         break;
                                     }
                                     default:
-                                        jj_la1[105] = jj_gen;
-                                        jj_consume_token(-1);
+                                        jjLa1[105] = jjGen;
+                                        jjConsumeToken(-1);
                                         throw new ParseException();
                                 }
 
                                 break;
                             }
                             default:
-                                jj_la1[106] = jj_gen;
+                                jjLa1[106] = jjGen;
                                 ;
                         }
                         {
@@ -3082,44 +3082,44 @@ public class GssParserCC implements GssParserCCConstants {
                         }
                     }
                     default:
-                        jj_la1[107] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[107] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
             }
             case LEFTROUND: {
-                jj_consume_token(LEFTROUND);
+                jjConsumeToken(LEFTROUND);
 
                 try {
-                    label_66:
+                    label66:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[108] = jj_gen;
-                                break label_66;
+                                jjLa1[108] = jjGen;
+                                break label66;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
                     node = sum(/* hasParenthesis */ true);
 
-                    label_67:
+                    label67:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[109] = jj_gen;
-                                break label_67;
+                                jjLa1[109] = jjGen;
+                                break label67;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
-                    jj_consume_token(RIGHTROUND);
+                    jjConsumeToken(RIGHTROUND);
                     {
                         return node;
                     }
@@ -3134,14 +3134,14 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             }
             default:
-                jj_la1[110] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[110] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
     }
 
     // (non-standard GSS extension)
-// at_function
+// atFunction
 //   : FUNCTION S* expr? ')' S*
 //   ;
     public final CssFunctionNode atFunction() throws ParseException {
@@ -3151,42 +3151,42 @@ public class GssParserCC implements GssParserCCConstants {
         StringBuilder functionName = new StringBuilder();
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
-        t = jj_consume_token(FUNCTION);
+        t = jjConsumeToken(FUNCTION);
         functionName.append(t.image);
         functionName.setLength(functionName.length() - 1);
         tokens.add(t);
-        label_68:
+        label68:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[111] = jj_gen;
-                    break label_68;
+                    jjLa1[111] = jjGen;
+                    break label68;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
-        if (jj_2_8(1)) {
+        if (jj28(1)) {
             expr = expr();
         } else {
             ;
         }
-        t = jj_consume_token(RIGHTROUND);
+        t = jjConsumeToken(RIGHTROUND);
         tokens.add(t);
-        label_69:
+        label69:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[112] = jj_gen;
-                    break label_69;
+                    jjLa1[112] = jjGen;
+                    break label69;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         SourceCodeLocation endLocation = this.getLocation();
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
@@ -3206,28 +3206,28 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // important
-//   : IMPORTANT_SYM S*
+//   : IMPORTANTSYM S*
 //   ;
     public final CssPriorityNode important() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         SourceCodeLocation beginLocation, endLocation;
-        t = jj_consume_token(IMPORTANT_SYM);
+        t = jjConsumeToken(IMPORTANT_SYM);
         beginLocation = this.getLocation();
         endLocation = this.getLocation();
         tokens.add(t);
-        label_70:
+        label70:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[113] = jj_gen;
-                    break label_70;
+                    jjLa1[113] = jjGen;
+                    break label70;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         {
 
@@ -3236,11 +3236,11 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// at_rule
-//   : ATKEYWORD S* [ [ composite_term | extended_term ] S* ]*
+// atRule
+//   : ATKEYWORD S* [ [ compositeTerm | extendedTerm ] S* ]*
 //     [ [ '{' S* block  '}'  ] | ';' ] S*
 //   ;
-    public final CssAtRuleNode at_rule() throws ParseException {
+    public final CssAtRuleNode atRule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation = null;
         CssLiteralNode name;
@@ -3249,51 +3249,51 @@ public class GssParserCC implements GssParserCCConstants {
         List<CssValueNode> parameters = Lists.newArrayList();
         List<Token> tokens = Lists.newArrayList();
         try {
-            t = jj_consume_token(ATKEYWORD);
+            t = jjConsumeToken(ATKEYWORD);
             beginLocation = this.getLocation(t);
             name = new CssLiteralNode(t.image.substring(1), beginLocation);
             tokens.add(t);
-            label_71:
+            label71:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[114] = jj_gen;
-                        break label_71;
+                        jjLa1[114] = jjGen;
+                        break label71;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            label_72:
+            label72:
             while (true) {
-                if (jj_2_9(1)) {
+                if (jj29(1)) {
                     ;
                 } else {
-                    break label_72;
+                    break label72;
                 }
-                if (jj_2_10(1)) {
-                    v = composite_term();
-                } else if (jj_2_11(1)) {
-                    v = extended_term();
+                if (jj210(1)) {
+                    v = compositeTerm();
+                } else if (jj211(1)) {
+                    v = extendedTerm();
                 } else {
-                    jj_consume_token(-1);
+                    jjConsumeToken(-1);
                     throw new ParseException();
                 }
                 parameters.add(v);
-                label_73:
+                label73:
                 while (true) {
-                    switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                    switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                         case S: {
                             ;
                             break;
                         }
                         default:
-                            jj_la1[115] = jj_gen;
-                            break label_73;
+                            jjLa1[115] = jjGen;
+                            break label73;
                     }
-                    jj_consume_token(S);
+                    jjConsumeToken(S);
                 }
             }
         } catch (ParseException e) {
@@ -3307,26 +3307,26 @@ public class GssParserCC implements GssParserCCConstants {
                 throw e;
             }
         }
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTBRACE: {
-                t = jj_consume_token(LEFTBRACE);
+                t = jjConsumeToken(LEFTBRACE);
                 tokens.add(t);
                 try {
-                    label_74:
+                    label74:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[116] = jj_gen;
-                                break label_74;
+                                jjLa1[116] = jjGen;
+                                break label74;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
                     block = block(true);
-                    t = jj_consume_token(RIGHTBRACE);
+                    t = jjConsumeToken(RIGHTBRACE);
                     tokens.add(t);
                 } catch (ParseException e) {
                     if (!enableErrorRecovery || e.currentToken == null) {
@@ -3340,12 +3340,12 @@ public class GssParserCC implements GssParserCCConstants {
                 break;
             }
             case SEMICOLON: {
-                t = jj_consume_token(SEMICOLON);
+                t = jjConsumeToken(SEMICOLON);
                 tokens.add(t);
                 break;
             }
             default:
-                jj_la1[117] = jj_gen;
+                jjLa1[117] = jjGen;
                 ParseException e = generateParseException();
                 if (enableErrorRecovery && e.currentToken != null) {
                     if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
@@ -3365,13 +3365,13 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// at_rule_with_decl_block
+// atRuleWithDeclBlock
 //   : ATRULESWITHDECLBLOCK S*
-//     [  at_function
+//     [  atFunction
 //      | [ IDENT? ':' IDENT S* ]
-//      | [ [ composite_term | extended_term ] S* ]*
+//      | [ [ compositeTerm | extendedTerm ] S* ]*
 //     ]
-//     [ [ '{' S* style_declaration '}  ] | ';' ] S*
+//     [ [ '{' S* styleDeclaration '}  ] | ';' ] S*
 //   ;
 // TODO(fbenz): Try to reuse selctor parsing instead of [ IDENT? ':' IDENT S* ].
 // The problem is that @-rules take a list of value nodes and selectors are not
@@ -3386,41 +3386,41 @@ public class GssParserCC implements GssParserCCConstants {
         List<Token> tokens = Lists.newArrayList();
         List<Token> pseudoPageTokens = Lists.newArrayList();
         try {
-            t = jj_consume_token(ATRULESWITHDECLBLOCK);
+            t = jjConsumeToken(ATRULESWITHDECLBLOCK);
             beginLocation = this.getLocation(t);
             name = new CssLiteralNode(t.image.substring(1), beginLocation);
             tokens.add(t);
-            label_75:
+            label75:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[118] = jj_gen;
-                        break label_75;
+                        jjLa1[118] = jjGen;
+                        break label75;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case FUNCTION: {
                     v = atFunction();
                     parameters.add(v);
                     break;
                 }
                 default:
-                    jj_la1[122] = jj_gen;
-                    if (jj_2_15(1)) {
+                    jjLa1[122] = jjGen;
+                    if (jj215(1)) {
                         if (getToken(1).kind == COLON || getToken(2).kind == COLON) {
 
                         } else {
-                            jj_consume_token(-1);
+                            jjConsumeToken(-1);
                             throw new ParseException();
                         }
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case IDENTIFIER: {
-                                t = jj_consume_token(IDENTIFIER);
+                                t = jjConsumeToken(IDENTIFIER);
                                 pseudoPageTokens.add(t);
                                 v = nodeBuilder.buildLiteralNode(t.image, getLocation(t), pseudoPageTokens);
                                 parameters.add(v);
@@ -3428,57 +3428,57 @@ public class GssParserCC implements GssParserCCConstants {
                                 break;
                             }
                             default:
-                                jj_la1[119] = jj_gen;
+                                jjLa1[119] = jjGen;
                                 ;
                         }
-                        t = jj_consume_token(COLON);
+                        t = jjConsumeToken(COLON);
                         pseudoPageTokens.add(t);
-                        t = jj_consume_token(IDENTIFIER);
+                        t = jjConsumeToken(IDENTIFIER);
                         pseudoPageTokens.add(t);
                         v = nodeBuilder.buildLiteralNode(":" + t.image, getLocation(t), pseudoPageTokens);
                         parameters.add(v);
-                        label_76:
+                        label76:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[120] = jj_gen;
-                                    break label_76;
+                                    jjLa1[120] = jjGen;
+                                    break label76;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
                     } else {
-                        label_77:
+                        label77:
                         while (true) {
-                            if (jj_2_12(1)) {
+                            if (jj212(1)) {
                                 ;
                             } else {
-                                break label_77;
+                                break label77;
                             }
-                            if (jj_2_13(1)) {
-                                v = composite_term();
-                            } else if (jj_2_14(1)) {
-                                v = extended_term();
+                            if (jj213(1)) {
+                                v = compositeTerm();
+                            } else if (jj214(1)) {
+                                v = extendedTerm();
                             } else {
-                                jj_consume_token(-1);
+                                jjConsumeToken(-1);
                                 throw new ParseException();
                             }
                             parameters.add(v);
-                            label_78:
+                            label78:
                             while (true) {
-                                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                     case S: {
                                         ;
                                         break;
                                     }
                                     default:
-                                        jj_la1[121] = jj_gen;
-                                        break label_78;
+                                        jjLa1[121] = jjGen;
+                                        break label78;
                                 }
-                                jj_consume_token(S);
+                                jjConsumeToken(S);
                             }
                         }
                     }
@@ -3494,26 +3494,26 @@ public class GssParserCC implements GssParserCCConstants {
                 throw e;
             }
         }
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTBRACE: {
-                t = jj_consume_token(LEFTBRACE);
+                t = jjConsumeToken(LEFTBRACE);
                 tokens.add(t);
                 try {
-                    label_79:
+                    label79:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[123] = jj_gen;
-                                break label_79;
+                                jjLa1[123] = jjGen;
+                                break label79;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
                     block = styleDeclaration();
-                    t = jj_consume_token(RIGHTBRACE);
+                    t = jjConsumeToken(RIGHTBRACE);
                     tokens.add(t);
                 } catch (ParseException e) {
                     if (!enableErrorRecovery || e.currentToken == null) {
@@ -3527,12 +3527,12 @@ public class GssParserCC implements GssParserCCConstants {
                 break;
             }
             case SEMICOLON: {
-                t = jj_consume_token(SEMICOLON);
+                t = jjConsumeToken(SEMICOLON);
                 tokens.add(t);
                 break;
             }
             default:
-                jj_la1[124] = jj_gen;
+                jjLa1[124] = jjGen;
                 ParseException e = generateParseException();
                 if (enableErrorRecovery && e.currentToken != null) {
                     if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
@@ -3552,13 +3552,13 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (non-standard GSS extension)
-// inner_at_rule
+// innerAtRule
 //   : ATKEYWORD S*
-//    [  at_function
+//    [  atFunction
 //     | [ IDENT? ':' IDENT S* ]
-//     | [[ composite_term | extended_term ] S* ]*
+//     | [[ compositeTerm | extendedTerm ] S* ]*
 //    ]
-//    [ [ '{' S* style_declaration '} ] | ';' ] S*
+//    [ [ '{' S* styleDeclaration '} ] | ';' ] S*
 //   ;
     public final CssAtRuleNode innerAtRule() throws ParseException {
         Token t;
@@ -3570,41 +3570,41 @@ public class GssParserCC implements GssParserCCConstants {
         List<Token> tokens = Lists.newArrayList();
         List<Token> pseudoPageTokens = Lists.newArrayList();
         try {
-            t = jj_consume_token(ATKEYWORD);
+            t = jjConsumeToken(ATKEYWORD);
             beginLocation = this.getLocation(t);
             name = new CssLiteralNode(t.image.substring(1), beginLocation);
             tokens.add(t);
-            label_80:
+            label80:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[125] = jj_gen;
-                        break label_80;
+                        jjLa1[125] = jjGen;
+                        break label80;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case FUNCTION: {
                     v = atFunction();
                     parameters.add(v);
                     break;
                 }
                 default:
-                    jj_la1[129] = jj_gen;
-                    if (jj_2_19(1)) {
+                    jjLa1[129] = jjGen;
+                    if (jj219(1)) {
                         if (getToken(1).kind == COLON || getToken(2).kind == COLON) {
 
                         } else {
-                            jj_consume_token(-1);
+                            jjConsumeToken(-1);
                             throw new ParseException();
                         }
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case IDENTIFIER: {
-                                t = jj_consume_token(IDENTIFIER);
+                                t = jjConsumeToken(IDENTIFIER);
                                 pseudoPageTokens.add(t);
                                 v = nodeBuilder.buildLiteralNode(t.image, getLocation(t), pseudoPageTokens);
                                 parameters.add(v);
@@ -3612,57 +3612,57 @@ public class GssParserCC implements GssParserCCConstants {
                                 break;
                             }
                             default:
-                                jj_la1[126] = jj_gen;
+                                jjLa1[126] = jjGen;
                                 ;
                         }
-                        t = jj_consume_token(COLON);
+                        t = jjConsumeToken(COLON);
                         pseudoPageTokens.add(t);
-                        t = jj_consume_token(IDENTIFIER);
+                        t = jjConsumeToken(IDENTIFIER);
                         pseudoPageTokens.add(t);
                         v = nodeBuilder.buildLiteralNode(":" + t.image, getLocation(t), pseudoPageTokens);
                         parameters.add(v);
-                        label_81:
+                        label81:
                         while (true) {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case S: {
                                     ;
                                     break;
                                 }
                                 default:
-                                    jj_la1[127] = jj_gen;
-                                    break label_81;
+                                    jjLa1[127] = jjGen;
+                                    break label81;
                             }
-                            jj_consume_token(S);
+                            jjConsumeToken(S);
                         }
                     } else {
-                        label_82:
+                        label82:
                         while (true) {
-                            if (jj_2_16(1)) {
+                            if (jj216(1)) {
                                 ;
                             } else {
-                                break label_82;
+                                break label82;
                             }
-                            if (jj_2_17(1)) {
-                                v = composite_term();
-                            } else if (jj_2_18(1)) {
-                                v = extended_term();
+                            if (jj217(1)) {
+                                v = compositeTerm();
+                            } else if (jj218(1)) {
+                                v = extendedTerm();
                             } else {
-                                jj_consume_token(-1);
+                                jjConsumeToken(-1);
                                 throw new ParseException();
                             }
                             parameters.add(v);
-                            label_83:
+                            label83:
                             while (true) {
-                                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                     case S: {
                                         ;
                                         break;
                                     }
                                     default:
-                                        jj_la1[128] = jj_gen;
-                                        break label_83;
+                                        jjLa1[128] = jjGen;
+                                        break label83;
                                 }
-                                jj_consume_token(S);
+                                jjConsumeToken(S);
                             }
                         }
                     }
@@ -3678,26 +3678,26 @@ public class GssParserCC implements GssParserCCConstants {
                 throw e;
             }
         }
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTBRACE: {
-                t = jj_consume_token(LEFTBRACE);
+                t = jjConsumeToken(LEFTBRACE);
                 tokens.add(t);
                 try {
-                    label_84:
+                    label84:
                     while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                             case S: {
                                 ;
                                 break;
                             }
                             default:
-                                jj_la1[130] = jj_gen;
-                                break label_84;
+                                jjLa1[130] = jjGen;
+                                break label84;
                         }
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                     }
                     block = styleDeclaration();
-                    t = jj_consume_token(RIGHTBRACE);
+                    t = jjConsumeToken(RIGHTBRACE);
                     tokens.add(t);
                 } catch (ParseException e) {
                     if (!enableErrorRecovery || e.currentToken == null) {
@@ -3711,12 +3711,12 @@ public class GssParserCC implements GssParserCCConstants {
                 break;
             }
             case SEMICOLON: {
-                t = jj_consume_token(SEMICOLON);
+                t = jjConsumeToken(SEMICOLON);
                 tokens.add(t);
                 break;
             }
             default:
-                jj_la1[131] = jj_gen;
+                jjLa1[131] = jjGen;
                 ParseException e = generateParseException();
                 if (enableErrorRecovery && e.currentToken != null) {
                     if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
@@ -3737,11 +3737,11 @@ public class GssParserCC implements GssParserCCConstants {
 
     // (WebKit specific extension. We need a separate rule for the
 //  WebKit keyframes, because they don't follow the standard grammar exactly.)
-// webkit_keyframes_rule
+// webkitKeyframesRule
 //   : '@-webkit-keyframes' S* IDENTIFIER S*
-//     '{' S* webkit_keyframes_block  '}'*
+//     '{' S* webkitKeyframesBlock  '}'*
 //   ;
-    public final CssAtRuleNode webkit_keyframes_rule() throws ParseException {
+    public final CssAtRuleNode webkitKeyframesRule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation = null;
         CssLiteralNode name;
@@ -3749,41 +3749,41 @@ public class GssParserCC implements GssParserCCConstants {
         List<CssValueNode> parameters = Lists.newArrayList();
         List<Token> tokens = Lists.newArrayList();
         try {
-            t = jj_consume_token(WEBKITKEYFRAMES);
+            t = jjConsumeToken(WEBKITKEYFRAMES);
             beginLocation = this.getLocation(t);
             name = new CssLiteralNode(t.image.substring(1), beginLocation);
             tokens.add(t);
-            label_85:
+            label85:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[132] = jj_gen;
-                        break label_85;
+                        jjLa1[132] = jjGen;
+                        break label85;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            t = jj_consume_token(IDENTIFIER);
+            t = jjConsumeToken(IDENTIFIER);
             List<Token> identifierTokens = Lists.newArrayList();
             identifierTokens.add(t);
             CssLiteralNode l =
                     nodeBuilder.buildLiteralNode(t.image, getLocation(t), identifierTokens);
             parameters.add(l);
-            label_86:
+            label86:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[133] = jj_gen;
-                        break label_86;
+                        jjLa1[133] = jjGen;
+                        break label86;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
@@ -3796,24 +3796,24 @@ public class GssParserCC implements GssParserCCConstants {
                 throw e;
             }
         }
-        t = jj_consume_token(LEFTBRACE);
+        t = jjConsumeToken(LEFTBRACE);
         tokens.add(t);
         try {
-            label_87:
+            label87:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[134] = jj_gen;
-                        break label_87;
+                        jjLa1[134] = jjGen;
+                        break label87;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
-            block = webkit_keyframes_block();
-            t = jj_consume_token(RIGHTBRACE);
+            block = webkitKeyframesBlock();
+            t = jjConsumeToken(RIGHTBRACE);
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
@@ -3833,39 +3833,39 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (WebKit specific extension)
-// webkit_keyframes_block
-//   : [ webkit_keyframe_ruleset S* ]*
+// webkitKeyframesBlock
+//   : [ webkitKeyframeRuleset S* ]*
 //   ;
-    public final CssBlockNode webkit_keyframes_block() throws ParseException {
+    public final CssBlockNode webkitKeyframesBlock() throws ParseException {
         CssBlockNode block;
         CssNode n;
         block = new CssBlockNode(true);
-        label_88:
+        label88:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case NUMBER:
                 case IDENTIFIER: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[135] = jj_gen;
-                    break label_88;
+                    jjLa1[135] = jjGen;
+                    break label88;
             }
-            n = webkit_keyframe_ruleSet();
+            n = webkitKeyframeRuleSet();
             block.addChildToBack(n);
-            label_89:
+            label89:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[136] = jj_gen;
-                        break label_89;
+                        jjLa1[136] = jjGen;
+                        break label89;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
         }
         {
@@ -3874,17 +3874,17 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (WebKit specific extension)
-// webkit_keyframe_ruleset
-//   : key_list '{' style_declarations '}'
+// webkitKeyframeRuleset
+//   : keyList '{' styleDeclarations '}'
 //   ;
-    public final CssKeyframeRulesetNode webkit_keyframe_ruleSet() throws ParseException {
+    public final CssKeyframeRulesetNode webkitKeyframeRuleSet() throws ParseException {
         CssKeyListNode keys;
         CssDeclarationBlockNode declarations;
         Token t;
         List<Token> tokens = Lists.newArrayList();
         try {
             keys = keyList();
-            t = jj_consume_token(LEFTBRACE);
+            t = jjConsumeToken(LEFTBRACE);
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
@@ -3899,7 +3899,7 @@ public class GssParserCC implements GssParserCCConstants {
         }
         try {
             declarations = styleDeclaration();
-            t = jj_consume_token(RIGHTBRACE);
+            t = jjConsumeToken(RIGHTBRACE);
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
@@ -3918,7 +3918,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     // (WebKit specific extension)
-// key_list
+// keyList
 //   : key [ ',' S* key ]*
 //   ;
     public final CssKeyListNode keyList() throws ParseException {
@@ -3927,31 +3927,31 @@ public class GssParserCC implements GssParserCCConstants {
         Token t;
         key = key();
         list.addChildToBack(key);
-        label_90:
+        label90:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case COMMA: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[137] = jj_gen;
-                    break label_90;
+                    jjLa1[137] = jjGen;
+                    break label90;
             }
-            t = jj_consume_token(COMMA);
+            t = jjConsumeToken(COMMA);
             nodeBuilder.attachComment(t, key);
-            label_91:
+            label91:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
                         ;
                         break;
                     }
                     default:
-                        jj_la1[138] = jj_gen;
-                        break label_91;
+                        jjLa1[138] = jjGen;
+                        break label91;
                 }
-                jj_consume_token(S);
+                jjConsumeToken(S);
             }
             key = key();
             list.addChildToBack(key);
@@ -3972,38 +3972,38 @@ public class GssParserCC implements GssParserCCConstants {
         List<Token> tokens = Lists.newArrayList();
         SourceCodeLocation beginLocation;
         beginLocation = this.getLocation(token.next);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case NUMBER: {
-                key = jj_consume_token(NUMBER);
+                key = jjConsumeToken(NUMBER);
                 tokens.add(key);
-                dim = jj_consume_token(PERCENT);
+                dim = jjConsumeToken(PERCENT);
                 tokens.add(dim);
                 value = key.image + dim.image;
                 break;
             }
             case IDENTIFIER: {
-                key = jj_consume_token(IDENTIFIER);
+                key = jjConsumeToken(IDENTIFIER);
                 tokens.add(key);
                 value = key.image;
                 break;
             }
             default:
-                jj_la1[139] = jj_gen;
-                jj_consume_token(-1);
+                jjLa1[139] = jjGen;
+                jjConsumeToken(-1);
                 throw new ParseException();
         }
-        label_92:
+        label92:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[140] = jj_gen;
-                    break label_92;
+                    jjLa1[140] = jjGen;
+                    break label92;
             }
-            t = jj_consume_token(S);
+            t = jjConsumeToken(S);
             tokens.add(t);
         }
         SourceCodeLocation endLocation = this.getLocation();
@@ -4017,8 +4017,8 @@ public class GssParserCC implements GssParserCCConstants {
 
     // (non-standard GSS extension)
 // block
-//   : [ [  ruleset | at_rule | webkit_keyframes_rule
-//        | at_rule_with_decl_block
+//   : [ [  ruleset | atRule | webkitKeyframesRule
+//        | atRuleWithDeclBlock
 //       ] S*
 //     ]*
 //   ;
@@ -4030,9 +4030,9 @@ public class GssParserCC implements GssParserCCConstants {
         } else {
             block = globalBlock;
         }
-        label_93:
+        label93:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case COLON:
                 case DOT:
                 case ASTERISK:
@@ -4047,11 +4047,11 @@ public class GssParserCC implements GssParserCCConstants {
                     break;
                 }
                 default:
-                    jj_la1[141] = jj_gen;
-                    break label_93;
+                    jjLa1[141] = jjGen;
+                    break label93;
             }
             try {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case COLON:
                     case DOT:
                     case ASTERISK:
@@ -4062,17 +4062,17 @@ public class GssParserCC implements GssParserCCConstants {
                         break;
                     }
                     default:
-                        jj_la1[142] = jj_gen;
-                        if (jj_2_20(2147483647)) {
+                        jjLa1[142] = jjGen;
+                        if (jj220(2147483647)) {
                             n = atRuleWithCrazySyntax();
                         } else {
-                            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                                 case ATKEYWORD: {
-                                    n = at_rule();
+                                    n = atRule();
                                     break;
                                 }
                                 case WEBKITKEYFRAMES: {
-                                    n = webkit_keyframes_rule();
+                                    n = webkitKeyframesRule();
                                     break;
                                 }
                                 case ATRULESWITHDECLBLOCK: {
@@ -4080,8 +4080,8 @@ public class GssParserCC implements GssParserCCConstants {
                                     break;
                                 }
                                 default:
-                                    jj_la1[143] = jj_gen;
-                                    jj_consume_token(-1);
+                                    jjLa1[143] = jjGen;
+                                    jjConsumeToken(-1);
                                     throw new ParseException();
                             }
                         }
@@ -4093,9 +4093,9 @@ public class GssParserCC implements GssParserCCConstants {
                 }
                 handledErrors.add(new GssParserException(getLocation(e.currentToken.next), e));
             }
-            label_94:
+            label94:
             while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case CDO:
                     case CDC:
                     case S: {
@@ -4103,25 +4103,25 @@ public class GssParserCC implements GssParserCCConstants {
                         break;
                     }
                     default:
-                        jj_la1[144] = jj_gen;
-                        break label_94;
+                        jjLa1[144] = jjGen;
+                        break label94;
                 }
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case S: {
-                        jj_consume_token(S);
+                        jjConsumeToken(S);
                         break;
                     }
                     case CDO: {
-                        jj_consume_token(CDO);
+                        jjConsumeToken(CDO);
                         break;
                     }
                     case CDC: {
-                        jj_consume_token(CDC);
+                        jjConsumeToken(CDC);
                         break;
                     }
                     default:
-                        jj_la1[145] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[145] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
             }
@@ -4132,9 +4132,9 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     public final void start() throws ParseException {
-        label_95:
+        label95:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case CDO:
                 case CDC:
                 case S: {
@@ -4142,30 +4142,30 @@ public class GssParserCC implements GssParserCCConstants {
                     break;
                 }
                 default:
-                    jj_la1[146] = jj_gen;
-                    break label_95;
+                    jjLa1[146] = jjGen;
+                    break label95;
             }
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
-                    jj_consume_token(S);
+                    jjConsumeToken(S);
                     break;
                 }
                 case CDO: {
-                    jj_consume_token(CDO);
+                    jjConsumeToken(CDO);
                     break;
                 }
                 case CDC: {
-                    jj_consume_token(CDC);
+                    jjConsumeToken(CDC);
                     break;
                 }
                 default:
-                    jj_la1[147] = jj_gen;
-                    jj_consume_token(-1);
+                    jjLa1[147] = jjGen;
+                    jjConsumeToken(-1);
                     throw new ParseException();
             }
         }
         block(false);
-        jj_consume_token(0);
+        jjConsumeToken(0);
         try {
             validateFinalBlockCommentIfPresent();
         } catch (ParseException e) {
@@ -4179,7 +4179,7 @@ public class GssParserCC implements GssParserCCConstants {
     // CSS3 has very few syntactic constraints on at-rules. We shouldn't let
 // our inability to understand the details of future or non-standard at-rules
 // prevent us from parsing the rest of the stylesheet.
-// at_rule_with_crazy_syntax
+// atRuleWithCrazySyntax
 //   : ATKEYWORD S* [^;{] LOOKAHEAD( ( ';' | <?LEFTBRACE> ) ) ';'?
     public final CssAtRuleNode atRuleWithCrazySyntax() throws ParseException {
         Token t;
@@ -4199,43 +4199,43 @@ public class GssParserCC implements GssParserCCConstants {
         // at that disjunction to ensure that the parser eventually falls back to
         // this rule. It will cost about 1.5% cpu time, but it will keep us from
         // adding any more code complexity here.
-        t = jj_consume_token(ATLIST);
+        t = jjConsumeToken(ATLIST);
         beginLocation = this.getLocation(t);
         name = new CssLiteralNode(t.image.substring(1), beginLocation);
         tokens.add(t);
-        label_96:
+        label96:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[148] = jj_gen;
-                    break label_96;
+                    jjLa1[148] = jjGen;
+                    break label96;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         s = scanCrazyContent(";{");
         nonBlockContent = new CssLiteralNode(s);
         tokens.add(t);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTBRACE: {
                 blockishContent = crazyBlockBrace();
                 break;
             }
             default:
-                jj_la1[149] = jj_gen;
+                jjLa1[149] = jjGen;
                 ;
         }
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case SEMICOLON: {
-                t = jj_consume_token(SEMICOLON);
+                t = jjConsumeToken(SEMICOLON);
                 tokens.add(t);
                 break;
             }
             default:
-                jj_la1[150] = jj_gen;
+                jjLa1[150] = jjGen;
                 ;
         }
         endLocation = this.getLocation(tokens.get(tokens.size() - 1));
@@ -4266,27 +4266,27 @@ public class GssParserCC implements GssParserCCConstants {
         CssLiteralNode childContent = null;
         CssLiteralNode childCrazy = null;
         StringBuilder result = new StringBuilder();
-        t = jj_consume_token(LEFTBRACE);
-        label_97:
+        t = jjConsumeToken(LEFTBRACE);
+        label97:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[151] = jj_gen;
-                    break label_97;
+                    jjLa1[151] = jjGen;
+                    break label97;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         s = scanCrazyContent("{[()]}");
         childContent = new CssLiteralNode(s);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTSQUARE:
             case LEFTROUND:
             case LEFTBRACE: {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case LEFTBRACE: {
                         childCrazy = crazyBlockBrace();
                         break;
@@ -4300,17 +4300,17 @@ public class GssParserCC implements GssParserCCConstants {
                         break;
                     }
                     default:
-                        jj_la1[152] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[152] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
                 break;
             }
             default:
-                jj_la1[153] = jj_gen;
+                jjLa1[153] = jjGen;
                 ;
         }
-        t = jj_consume_token(RIGHTBRACE);
+        t = jjConsumeToken(RIGHTBRACE);
         endLocation = this.getLocation(t);
         result.append("{");
         if (childContent != null) result.append(childContent.getValue());
@@ -4331,27 +4331,27 @@ public class GssParserCC implements GssParserCCConstants {
         CssLiteralNode childContent = null;
         CssLiteralNode childCrazy = null;
         StringBuilder result = new StringBuilder();
-        t = jj_consume_token(LEFTSQUARE);
-        label_98:
+        t = jjConsumeToken(LEFTSQUARE);
+        label98:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[154] = jj_gen;
-                    break label_98;
+                    jjLa1[154] = jjGen;
+                    break label98;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         s = scanCrazyContent("{[()]}");
         childContent = new CssLiteralNode(s);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTSQUARE:
             case LEFTROUND:
             case LEFTBRACE: {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case LEFTBRACE: {
                         childCrazy = crazyBlockBrace();
                         break;
@@ -4365,17 +4365,17 @@ public class GssParserCC implements GssParserCCConstants {
                         break;
                     }
                     default:
-                        jj_la1[155] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[155] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
                 break;
             }
             default:
-                jj_la1[156] = jj_gen;
+                jjLa1[156] = jjGen;
                 ;
         }
-        t = jj_consume_token(RIGHTSQUARE);
+        t = jjConsumeToken(RIGHTSQUARE);
         endLocation = this.getLocation(t);
         result.append("[");
         if (childContent != null) result.append(childContent.getValue());
@@ -4396,27 +4396,27 @@ public class GssParserCC implements GssParserCCConstants {
         CssLiteralNode childContent = null;
         CssLiteralNode childCrazy = null;
         StringBuilder result = new StringBuilder();
-        t = jj_consume_token(LEFTROUND);
-        label_99:
+        t = jjConsumeToken(LEFTROUND);
+        label99:
         while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+            switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                 case S: {
                     ;
                     break;
                 }
                 default:
-                    jj_la1[157] = jj_gen;
-                    break label_99;
+                    jjLa1[157] = jjGen;
+                    break label99;
             }
-            jj_consume_token(S);
+            jjConsumeToken(S);
         }
         s = scanCrazyContent("{[()]}");
         childContent = new CssLiteralNode(s);
-        switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+        switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTSQUARE:
             case LEFTROUND:
             case LEFTBRACE: {
-                switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
                     case LEFTBRACE: {
                         childCrazy = crazyBlockBrace();
                         break;
@@ -4430,17 +4430,17 @@ public class GssParserCC implements GssParserCCConstants {
                         break;
                     }
                     default:
-                        jj_la1[158] = jj_gen;
-                        jj_consume_token(-1);
+                        jjLa1[158] = jjGen;
+                        jjConsumeToken(-1);
                         throw new ParseException();
                 }
                 break;
             }
             default:
-                jj_la1[159] = jj_gen;
+                jjLa1[159] = jjGen;
                 ;
         }
-        t = jj_consume_token(RIGHTROUND);
+        t = jjConsumeToken(RIGHTROUND);
         endLocation = this.getLocation(t);
         result.append("(");
         if (childContent != null) result.append(childContent.getValue());
@@ -4498,306 +4498,306 @@ public class GssParserCC implements GssParserCCConstants {
 
     void validateFinalBlockCommentIfPresent() throws ParseException, ParseException {
         if (token.specialToken != null
-                && !VALID_BLOCK_COMMENT_PATTERN.matcher(token.specialToken.image).matches()) {
+                && !VALIDBLOCKCOMMENTPATTERN.matcher(token.specialToken.image).matches()) {
             // Manually construct a ParseException since this syntax error occurs after the last token,
             // and we don't want the ParseException to reference a non-existent token.
             throw new ParseException("unterminated block comment at EOF");
         }
     }
 
-    private boolean jj_2_1(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj21(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_1();
+            return !jj31();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(0, xla);
+            jjSave(0, xla);
         }
     }
 
-    private boolean jj_2_2(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj22(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_2();
+            return !jj32();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(1, xla);
+            jjSave(1, xla);
         }
     }
 
-    private boolean jj_2_3(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj23(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_3();
+            return !jj33();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(2, xla);
+            jjSave(2, xla);
         }
     }
 
-    private boolean jj_2_4(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj24(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_4();
+            return !jj34();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(3, xla);
+            jjSave(3, xla);
         }
     }
 
-    private boolean jj_2_5(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj25(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_5();
+            return !jj35();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(4, xla);
+            jjSave(4, xla);
         }
     }
 
-    private boolean jj_2_6(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj26(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_6();
+            return !jj36();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(5, xla);
+            jjSave(5, xla);
         }
     }
 
-    private boolean jj_2_7(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj27(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_7();
+            return !jj37();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(6, xla);
+            jjSave(6, xla);
         }
     }
 
-    private boolean jj_2_8(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj28(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_8();
+            return !jj38();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(7, xla);
+            jjSave(7, xla);
         }
     }
 
-    private boolean jj_2_9(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj29(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_9();
+            return !jj39();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(8, xla);
+            jjSave(8, xla);
         }
     }
 
-    private boolean jj_2_10(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj210(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_10();
+            return !jj310();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(9, xla);
+            jjSave(9, xla);
         }
     }
 
-    private boolean jj_2_11(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj211(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_11();
+            return !jj311();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(10, xla);
+            jjSave(10, xla);
         }
     }
 
-    private boolean jj_2_12(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj212(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_12();
+            return !jj312();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(11, xla);
+            jjSave(11, xla);
         }
     }
 
-    private boolean jj_2_13(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj213(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_13();
+            return !jj313();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(12, xla);
+            jjSave(12, xla);
         }
     }
 
-    private boolean jj_2_14(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj214(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_14();
+            return !jj314();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(13, xla);
+            jjSave(13, xla);
         }
     }
 
-    private boolean jj_2_15(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj215(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_15();
+            return !jj315();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(14, xla);
+            jjSave(14, xla);
         }
     }
 
-    private boolean jj_2_16(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj216(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_16();
+            return !jj316();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(15, xla);
+            jjSave(15, xla);
         }
     }
 
-    private boolean jj_2_17(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj217(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_17();
+            return !jj317();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(16, xla);
+            jjSave(16, xla);
         }
     }
 
-    private boolean jj_2_18(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj218(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_18();
+            return !jj318();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(17, xla);
+            jjSave(17, xla);
         }
     }
 
-    private boolean jj_2_19(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj219(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_19();
+            return !jj319();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(18, xla);
+            jjSave(18, xla);
         }
     }
 
-    private boolean jj_2_20(int xla) {
-        jj_la = xla;
-        jj_lastpos = jj_scanpos = token;
+    private boolean jj220(int xla) {
+        jjLa = xla;
+        jjLastpos = jjScanpos = token;
         try {
-            return !jj_3_20();
+            return !jj320();
         } catch (LookaheadSuccess ls) {
             return true;
         } finally {
-            jj_save(19, xla);
+            jjSave(19, xla);
         }
     }
 
-    private boolean jj_3R_130() {
-        return jj_3R_143();
+    private boolean jj3R130() {
+        return jj3R143();
     }
 
-    private boolean jj_3R_129() {
-        return jj_3R_142();
+    private boolean jj3R129() {
+        return jj3R142();
     }
 
-    private boolean jj_3R_128() {
-        return jj_3R_141();
+    private boolean jj3R128() {
+        return jj3R141();
     }
 
-    private boolean jj_3R_127() {
-        return jj_3R_140();
+    private boolean jj3R127() {
+        return jj3R140();
     }
 
-    private boolean jj_3_11() {
-        return jj_3R_108();
+    private boolean jj311() {
+        return jj3R108();
     }
 
-    private boolean jj_3R_126() {
-        return jj_3R_139();
+    private boolean jj3R126() {
+        return jj3R139();
     }
 
-    private boolean jj_3_18() {
-        return jj_3R_108();
+    private boolean jj318() {
+        return jj3R108();
     }
 
-    private boolean jj_3R_113() {
-        if (jj_scan_token(WPLUS)) return true;
+    private boolean jj3R113() {
+        if (jjScanToken(WPLUS)) return true;
         Token xsp;
         while (true) {
-            xsp = jj_scanpos;
-            if (jj_scan_token(45)) {
-                jj_scanpos = xsp;
+            xsp = jjScanpos;
+            if (jjScanToken(45)) {
+                jjScanpos = xsp;
                 break;
             }
         }
         return false;
     }
 
-    private boolean jj_3R_100() {
+    private boolean jj3R100() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_113()) {
-            jj_scanpos = xsp;
-            if (jj_3R_114()) {
-                jj_scanpos = xsp;
-                if (jj_3R_115()) {
-                    jj_scanpos = xsp;
-                    if (jj_3R_116()) {
-                        jj_scanpos = xsp;
-                        return jj_3R_117();
+        xsp = jjScanpos;
+        if (jj3R113()) {
+            jjScanpos = xsp;
+            if (jj3R114()) {
+                jjScanpos = xsp;
+                if (jj3R115()) {
+                    jjScanpos = xsp;
+                    if (jj3R116()) {
+                        jjScanpos = xsp;
+                        return jj3R117();
                     }
                 }
             }
@@ -4805,231 +4805,231 @@ public class GssParserCC implements GssParserCCConstants {
         return false;
     }
 
-    private boolean jj_3R_136() {
-        return jj_scan_token(LEFTROUND);
+    private boolean jj3R136() {
+        return jjScanToken(LEFTROUND);
     }
 
-    private boolean jj_3R_104() {
+    private boolean jj3R104() {
         return false;
     }
 
-    private boolean jj_3R_133() {
+    private boolean jj3R133() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(66)) {
-            jj_scanpos = xsp;
-            return jj_scan_token(5);
+        xsp = jjScanpos;
+        if (jjScanToken(66)) {
+            jjScanpos = xsp;
+            return jjScanToken(5);
         }
         return false;
     }
 
-    private boolean jj_3_10() {
-        return jj_3R_102();
+    private boolean jj310() {
+        return jj3R102();
     }
 
-    private boolean jj_3_9() {
+    private boolean jj39() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3_10()) {
-            jj_scanpos = xsp;
-            return jj_3_11();
+        xsp = jjScanpos;
+        if (jj310()) {
+            jjScanpos = xsp;
+            return jj311();
         }
         return false;
     }
 
-    private boolean jj_3_17() {
-        return jj_3R_102();
+    private boolean jj317() {
+        return jj3R102();
     }
 
-    private boolean jj_3R_158() {
-        return jj_scan_token(COLON);
+    private boolean jj3R158() {
+        return jjScanToken(COLON);
     }
 
-    private boolean jj_3R_103() {
+    private boolean jj3R103() {
         return false;
     }
 
-    private boolean jj_3_16() {
+    private boolean jj316() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3_17()) {
-            jj_scanpos = xsp;
-            return jj_3_18();
+        xsp = jjScanpos;
+        if (jj317()) {
+            jjScanpos = xsp;
+            return jj318();
         }
         return false;
     }
 
-    private boolean jj_3_4() {
-        jj_lookingAhead = true;
-        jj_semLA = getToken(1).kind == LEFTROUND
+    private boolean jj34() {
+        jjLookingAhead = true;
+        jjSemLA = getToken(1).kind == LEFTROUND
                 && (getToken(3).kind == COLON || getToken(4).kind == COLON);
-        jj_lookingAhead = false;
-        if (!jj_semLA || jj_3R_104()) return true;
-        return jj_scan_token(LEFTROUND);
+        jjLookingAhead = false;
+        if (!jjSemLA || jj3R104()) return true;
+        return jjScanToken(LEFTROUND);
     }
 
-    private boolean jj_3R_148() {
-        return jj_3R_158();
+    private boolean jj3R148() {
+        return jj3R158();
     }
 
-    private boolean jj_3R_147() {
-        return jj_3R_157();
+    private boolean jj3R147() {
+        return jj3R157();
     }
 
-    private boolean jj_3R_121() {
-        return jj_3R_136();
+    private boolean jj3R121() {
+        return jj3R136();
     }
 
-    private boolean jj_3R_146() {
-        return jj_3R_156();
+    private boolean jj3R146() {
+        return jj3R156();
     }
 
-    private boolean jj_3_7() {
-        return jj_3R_106();
+    private boolean jj37() {
+        return jj3R106();
     }
 
-    private boolean jj_3R_111() {
+    private boolean jj3R111() {
         return false;
     }
 
-    private boolean jj_3R_145() {
-        return jj_3R_155();
+    private boolean jj3R145() {
+        return jj3R155();
     }
 
-    private boolean jj_3R_125() {
-        return jj_scan_token(FOR_VARIABLE);
+    private boolean jj3R125() {
+        return jjScanToken(FOR_VARIABLE);
     }
 
-    private boolean jj_3R_134() {
+    private boolean jj3R134() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_145()) {
-            jj_scanpos = xsp;
-            if (jj_3R_146()) {
-                jj_scanpos = xsp;
-                if (jj_3R_147()) {
-                    jj_scanpos = xsp;
-                    return jj_3R_148();
+        xsp = jjScanpos;
+        if (jj3R145()) {
+            jjScanpos = xsp;
+            if (jj3R146()) {
+                jjScanpos = xsp;
+                if (jj3R147()) {
+                    jjScanpos = xsp;
+                    return jj3R148();
                 }
             }
         }
         return false;
     }
 
-    private boolean jj_3R_141() {
-        return jj_scan_token(CALC);
+    private boolean jj3R141() {
+        return jjScanToken(CALC);
     }
 
-    private boolean jj_3R_119() {
+    private boolean jj3R119() {
         Token xsp;
-        if (jj_3R_134()) return true;
+        if (jj3R134()) return true;
         while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_134()) {
-                jj_scanpos = xsp;
+            xsp = jjScanpos;
+            if (jj3R134()) {
+                jjScanpos = xsp;
                 break;
             }
         }
         return false;
     }
 
-    private boolean jj_3_3() {
-        jj_lookingAhead = true;
-        jj_semLA = getToken(2).kind != DOT && getToken(2).kind != COLON;
-        jj_lookingAhead = false;
-        if (!jj_semLA || jj_3R_103()) return true;
-        return jj_scan_token(IDENTIFIER);
+    private boolean jj33() {
+        jjLookingAhead = true;
+        jjSemLA = getToken(2).kind != DOT && getToken(2).kind != COLON;
+        jjLookingAhead = false;
+        if (!jjSemLA || jj3R103()) return true;
+        return jjScanToken(IDENTIFIER);
     }
 
-    private boolean jj_3R_105() {
+    private boolean jj3R105() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3_7()) {
-            jj_scanpos = xsp;
-            return jj_3R_121();
+        xsp = jjScanpos;
+        if (jj37()) {
+            jjScanpos = xsp;
+            return jj3R121();
         }
         return false;
     }
 
-    private boolean jj_3R_124() {
-        return jj_3R_138();
+    private boolean jj3R124() {
+        return jj3R138();
     }
 
-    private boolean jj_3R_112() {
-        return jj_scan_token(IDENTIFIER);
+    private boolean jj3R112() {
+        return jjScanToken(IDENTIFIER);
     }
 
-    private boolean jj_3R_123() {
-        return jj_scan_token(UNICODE_RANGE);
+    private boolean jj3R123() {
+        return jjScanToken(UNICODE_RANGE);
     }
 
-    private boolean jj_3R_118() {
-        return jj_3R_133();
+    private boolean jj3R118() {
+        return jj3R133();
     }
 
-    private boolean jj_3R_137() {
-        return jj_3R_149();
+    private boolean jj3R137() {
+        return jj3R149();
     }
 
-    private boolean jj_3_19() {
-        jj_lookingAhead = true;
-        jj_semLA = getToken(1).kind == COLON || getToken(2).kind == COLON;
-        jj_lookingAhead = false;
-        if (!jj_semLA || jj_3R_111()) return true;
+    private boolean jj319() {
+        jjLookingAhead = true;
+        jjSemLA = getToken(1).kind == COLON || getToken(2).kind == COLON;
+        jjLookingAhead = false;
+        if (!jjSemLA || jj3R111()) return true;
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_112()) jj_scanpos = xsp;
-        return jj_scan_token(COLON);
+        xsp = jjScanpos;
+        if (jj3R112()) jjScanpos = xsp;
+        return jjScanToken(COLON);
     }
 
-    private boolean jj_3R_155() {
-        return jj_scan_token(HASH_NAME);
+    private boolean jj3R155() {
+        return jjScanToken(HASH_NAME);
     }
 
-    private boolean jj_3R_122() {
+    private boolean jj3R122() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_137()) jj_scanpos = xsp;
-        return jj_scan_token(NUMBER);
+        xsp = jjScanpos;
+        if (jj3R137()) jjScanpos = xsp;
+        return jjScanToken(NUMBER);
     }
 
-    private boolean jj_3R_101() {
+    private boolean jj3R101() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_118()) {
-            jj_scanpos = xsp;
-            return jj_3R_119();
+        xsp = jjScanpos;
+        if (jj3R118()) {
+            jjScanpos = xsp;
+            return jj3R119();
         }
         return false;
     }
 
-    private boolean jj_3R_106() {
+    private boolean jj3R106() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_122()) {
-            jj_scanpos = xsp;
-            if (jj_3R_123()) {
-                jj_scanpos = xsp;
-                if (jj_3R_124()) {
-                    jj_scanpos = xsp;
-                    if (jj_3_3()) {
-                        jj_scanpos = xsp;
-                        if (jj_3R_125()) {
-                            jj_scanpos = xsp;
-                            if (jj_3_4()) {
-                                jj_scanpos = xsp;
-                                jj_lookingAhead = true;
-                                jj_semLA = getToken(1).kind == URI;
-                                jj_lookingAhead = false;
-                                if (!jj_semLA || jj_3R_126()) {
-                                    jj_scanpos = xsp;
-                                    if (jj_3R_127()) {
-                                        jj_scanpos = xsp;
-                                        if (jj_3R_128()) {
-                                            jj_scanpos = xsp;
-                                            if (jj_3R_129()) {
-                                                jj_scanpos = xsp;
-                                                return jj_3R_130();
+        xsp = jjScanpos;
+        if (jj3R122()) {
+            jjScanpos = xsp;
+            if (jj3R123()) {
+                jjScanpos = xsp;
+                if (jj3R124()) {
+                    jjScanpos = xsp;
+                    if (jj33()) {
+                        jjScanpos = xsp;
+                        if (jj3R125()) {
+                            jjScanpos = xsp;
+                            if (jj34()) {
+                                jjScanpos = xsp;
+                                jjLookingAhead = true;
+                                jjSemLA = getToken(1).kind == URI;
+                                jjLookingAhead = false;
+                                if (!jjSemLA || jj3R126()) {
+                                    jjScanpos = xsp;
+                                    if (jj3R127()) {
+                                        jjScanpos = xsp;
+                                        if (jj3R128()) {
+                                            jjScanpos = xsp;
+                                            if (jj3R129()) {
+                                                jjScanpos = xsp;
+                                                return jj3R130();
                                             }
                                         }
                                     }
@@ -5043,222 +5043,222 @@ public class GssParserCC implements GssParserCCConstants {
         return false;
     }
 
-    private boolean jj_3R_154() {
-        return jj_scan_token(EXCL_MARK);
+    private boolean jj3R154() {
+        return jjScanToken(EXCL_MARK);
     }
 
-    private boolean jj_3R_156() {
-        return jj_scan_token(DOT);
+    private boolean jj3R156() {
+        return jjScanToken(DOT);
     }
 
-    private boolean jj_3R_153() {
-        return jj_scan_token(IDENTIFIER);
+    private boolean jj3R153() {
+        return jjScanToken(IDENTIFIER);
     }
 
-    private boolean jj_3R_152() {
-        return jj_scan_token(FUNCTION);
+    private boolean jj3R152() {
+        return jjScanToken(FUNCTION);
     }
 
-    private boolean jj_3R_143() {
+    private boolean jj3R143() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_152()) {
-            jj_scanpos = xsp;
-            return jj_3R_153();
+        xsp = jjScanpos;
+        if (jj3R152()) {
+            jjScanpos = xsp;
+            return jj3R153();
         }
         return false;
     }
 
-    private boolean jj_3R_135() {
-        return jj_3R_106();
+    private boolean jj3R135() {
+        return jj3R106();
     }
 
-    private boolean jj_3_6() {
-        return jj_3R_105();
+    private boolean jj36() {
+        return jj3R105();
     }
 
-    private boolean jj_3_8() {
-        return jj_3R_107();
+    private boolean jj38() {
+        return jj3R107();
     }
 
-    private boolean jj_3_14() {
-        return jj_3R_108();
+    private boolean jj314() {
+        return jj3R108();
     }
 
-    private boolean jj_3_1() {
-        if (jj_3R_100()) return true;
-        return jj_3R_101();
+    private boolean jj31() {
+        if (jj3R100()) return true;
+        return jj3R101();
     }
 
-    private boolean jj_3_5() {
-        return jj_3R_105();
+    private boolean jj35() {
+        return jj3R105();
     }
 
-    private boolean jj_3R_144() {
-        return jj_3R_154();
+    private boolean jj3R144() {
+        return jj3R154();
     }
 
-    private boolean jj_3R_139() {
-        return jj_scan_token(URI);
+    private boolean jj3R139() {
+        return jjScanToken(URI);
     }
 
-    private boolean jj_3R_131() {
+    private boolean jj3R131() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_144()) {
-            jj_scanpos = xsp;
-            return jj_3_5();
+        xsp = jjScanpos;
+        if (jj3R144()) {
+            jjScanpos = xsp;
+            return jj35();
         }
         return false;
     }
 
-    private boolean jj_3R_120() {
-        return jj_3R_135();
+    private boolean jj3R120() {
+        return jj3R135();
     }
 
-    private boolean jj_3R_157() {
-        return jj_scan_token(LEFTSQUARE);
+    private boolean jj3R157() {
+        return jjScanToken(LEFTSQUARE);
     }
 
-    private boolean jj_3_13() {
-        return jj_3R_102();
+    private boolean jj313() {
+        return jj3R102();
     }
 
-    private boolean jj_3_12() {
+    private boolean jj312() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3_13()) {
-            jj_scanpos = xsp;
-            return jj_3_14();
+        xsp = jjScanpos;
+        if (jj313()) {
+            jjScanpos = xsp;
+            return jj314();
         }
         return false;
     }
 
-    private boolean jj_3R_109() {
+    private boolean jj3R109() {
         return false;
     }
 
-    private boolean jj_3R_110() {
-        return jj_scan_token(IDENTIFIER);
+    private boolean jj3R110() {
+        return jjScanToken(IDENTIFIER);
     }
 
-    private boolean jj_3R_102() {
-        return jj_3R_120();
+    private boolean jj3R102() {
+        return jj3R120();
     }
 
-    private boolean jj_3_15() {
-        jj_lookingAhead = true;
-        jj_semLA = getToken(1).kind == COLON || getToken(2).kind == COLON;
-        jj_lookingAhead = false;
-        if (!jj_semLA || jj_3R_109()) return true;
+    private boolean jj315() {
+        jjLookingAhead = true;
+        jjSemLA = getToken(1).kind == COLON || getToken(2).kind == COLON;
+        jjLookingAhead = false;
+        if (!jjSemLA || jj3R109()) return true;
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_110()) jj_scanpos = xsp;
-        return jj_scan_token(COLON);
+        xsp = jjScanpos;
+        if (jj3R110()) jjScanpos = xsp;
+        return jjScanToken(COLON);
     }
 
-    private boolean jj_3R_108() {
-        return jj_3R_131();
+    private boolean jj3R108() {
+        return jj3R131();
     }
 
-    private boolean jj_3R_142() {
-        return jj_scan_token(VARFUNCTION);
+    private boolean jj3R142() {
+        return jjScanToken(VARFUNCTION);
     }
 
-    private boolean jj_3R_132() {
-        return jj_scan_token(S);
+    private boolean jj3R132() {
+        return jjScanToken(S);
     }
 
-    private boolean jj_3_2() {
-        return jj_3R_102();
+    private boolean jj32() {
+        return jj3R102();
     }
 
-    private boolean jj_3R_107() {
-        return jj_3R_102();
+    private boolean jj3R107() {
+        return jj3R102();
     }
 
-    private boolean jj_3R_117() {
+    private boolean jj3R117() {
         Token xsp;
-        if (jj_3R_132()) return true;
+        if (jj3R132()) return true;
         while (true) {
-            xsp = jj_scanpos;
-            if (jj_3R_132()) {
-                jj_scanpos = xsp;
+            xsp = jjScanpos;
+            if (jj3R132()) {
+                jjScanpos = xsp;
                 break;
             }
         }
         return false;
     }
 
-    private boolean jj_3R_140() {
-        return jj_scan_token(HASH_NAME);
+    private boolean jj3R140() {
+        return jjScanToken(HASH_NAME);
     }
 
-    private boolean jj_3R_116() {
-        if (jj_scan_token(WDEEP)) return true;
+    private boolean jj3R116() {
+        if (jjScanToken(WDEEP)) return true;
         Token xsp;
         while (true) {
-            xsp = jj_scanpos;
-            if (jj_scan_token(45)) {
-                jj_scanpos = xsp;
+            xsp = jjScanpos;
+            if (jjScanToken(45)) {
+                jjScanpos = xsp;
                 break;
             }
         }
         return false;
     }
 
-    private boolean jj_3R_151() {
-        return jj_scan_token(SINGLE_QUOTED_STRING);
+    private boolean jj3R151() {
+        return jjScanToken(SINGLE_QUOTED_STRING);
     }
 
-    private boolean jj_3R_150() {
-        return jj_scan_token(DOUBLE_QUOTED_STRING);
+    private boolean jj3R150() {
+        return jjScanToken(DOUBLE_QUOTED_STRING);
     }
 
-    private boolean jj_3_20() {
-        return jj_scan_token(ATLIST);
+    private boolean jj320() {
+        return jjScanToken(ATLIST);
     }
 
-    private boolean jj_3R_138() {
+    private boolean jj3R138() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_3R_150()) {
-            jj_scanpos = xsp;
-            return jj_3R_151();
+        xsp = jjScanpos;
+        if (jj3R150()) {
+            jjScanpos = xsp;
+            return jj3R151();
         }
         return false;
     }
 
-    private boolean jj_3R_115() {
-        if (jj_scan_token(WTILDE)) return true;
+    private boolean jj3R115() {
+        if (jjScanToken(WTILDE)) return true;
         Token xsp;
         while (true) {
-            xsp = jj_scanpos;
-            if (jj_scan_token(45)) {
-                jj_scanpos = xsp;
+            xsp = jjScanpos;
+            if (jjScanToken(45)) {
+                jjScanpos = xsp;
                 break;
             }
         }
         return false;
     }
 
-    private boolean jj_3R_149() {
+    private boolean jj3R149() {
         Token xsp;
-        xsp = jj_scanpos;
-        if (jj_scan_token(7)) {
-            jj_scanpos = xsp;
-            return jj_scan_token(49);
+        xsp = jjScanpos;
+        if (jjScanToken(7)) {
+            jjScanpos = xsp;
+            return jjScanToken(49);
         }
         return false;
     }
 
-    private boolean jj_3R_114() {
-        if (jj_scan_token(WGREATER)) return true;
+    private boolean jj3R114() {
+        if (jjScanToken(WGREATER)) return true;
         Token xsp;
         while (true) {
-            xsp = jj_scanpos;
-            if (jj_scan_token(45)) {
-                jj_scanpos = xsp;
+            xsp = jjScanpos;
+            if (jjScanToken(45)) {
+                jjScanpos = xsp;
                 break;
             }
         }
@@ -5268,7 +5268,7 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Generated Token Manager.
      */
-    public GssParserCCTokenManager token_source;
+    public GssParserCCTokenManager tokenSource;
     /**
      * Current token.
      */
@@ -5276,105 +5276,105 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Next token.
      */
-    public Token jj_nt;
-    private int jj_ntk;
-    private Token jj_scanpos, jj_lastpos;
-    private int jj_la;
+    public Token jjNt;
+    private int jjNtk;
+    private Token jjScanpos, jjLastpos;
+    private int jjLa;
     /**
      * Whether we are looking ahead.
      */
-    private boolean jj_lookingAhead = false;
-    private boolean jj_semLA;
-    private int jj_gen;
-    final private int[] jj_la1 = new int[160];
-    static private int[] jj_la1_0;
-    static private int[] jj_la1_1;
-    static private int[] jj_la1_2;
+    private boolean jjLookingAhead = false;
+    private boolean jjSemLA;
+    private int jjGen;
+    final private int[] jjLa1 = new int[160];
+    static private int[] jjLa10;
+    static private int[] jjLa11;
+    static private int[] jjLa12;
 
     static {
-        jj_la1_init_0();
-        jj_la1_init_1();
-        jj_la1_init_2();
+        jjLa1Init0();
+        jjLa1Init1();
+        jjLa1Init2();
     }
 
-    private static void jj_la1_init_0() {
-        jj_la1_0 = new int[]{0x0, 0x8000, 0x0, 0x0, 0x8020000, 0x8020000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x80, 0x0, 0x80, 0x0, 0x0, 0x100, 0x0, 0x0, 0x0, 0x100, 0x218, 0x218, 0x218, 0x218, 0x238, 0x20, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x20, 0x0, 0x4, 0x0, 0x20, 0x0, 0x20, 0x4, 0x20, 0x0, 0x0, 0x20, 0x0, 0x0, 0x0, 0x0, 0x8000, 0x0, 0x100, 0x0, 0x40, 0x0, 0x80, 0x20000, 0x20000, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0, 0x0, 0x0, 0x80, 0x0, 0x0, 0x0, 0x80000000, 0x0, 0x10000, 0x40000000, 0x0, 0x10000, 0x0, 0x800, 0x0, 0x0, 0x80, 0x0, 0x0, 0x0, 0x8000, 0x18, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x60, 0x0, 0x0, 0x0, 0x60, 0x80, 0x20000, 0x20000, 0x80, 0x0, 0x0, 0x880, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2004, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2004, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2004, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8000, 0x0, 0x0, 0x0, 0x238, 0x238, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2000, 0x4, 0x0, 0x2a00, 0x2a00, 0x0, 0x2a00, 0x2a00, 0x0, 0x2a00, 0x2a00,};
+    private static void jjLa1Init0() {
+        jjLa10 = new int[]{0x0, 0x8000, 0x0, 0x0, 0x8020000, 0x8020000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x80, 0x0, 0x80, 0x0, 0x0, 0x100, 0x0, 0x0, 0x0, 0x100, 0x218, 0x218, 0x218, 0x218, 0x238, 0x20, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x20, 0x0, 0x4, 0x0, 0x20, 0x0, 0x20, 0x4, 0x20, 0x0, 0x0, 0x20, 0x0, 0x0, 0x0, 0x0, 0x8000, 0x0, 0x100, 0x0, 0x40, 0x0, 0x80, 0x20000, 0x20000, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0, 0x0, 0x0, 0x80, 0x0, 0x0, 0x0, 0x80000000, 0x0, 0x10000, 0x40000000, 0x0, 0x10000, 0x0, 0x800, 0x0, 0x0, 0x80, 0x0, 0x0, 0x0, 0x8000, 0x18, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x60, 0x0, 0x0, 0x0, 0x60, 0x80, 0x20000, 0x20000, 0x80, 0x0, 0x0, 0x880, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2004, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2004, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2004, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8000, 0x0, 0x0, 0x0, 0x238, 0x238, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2000, 0x4, 0x0, 0x2a00, 0x2a00, 0x0, 0x2a00, 0x2a00, 0x0, 0x2a00, 0x2a00,};
     }
 
-    private static void jj_la1_init_1() {
-        jj_la1_1 = new int[]{0x60000000, 0x0, 0x2000, 0x2000, 0x0, 0x0, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x0, 0x4030000, 0x2000, 0x4030000, 0x2000, 0x2000, 0x1f, 0x2000, 0x60000000, 0x2000, 0x1f, 0x8000000, 0x8000000, 0x8000000, 0x8000000, 0x8000000, 0x0, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x1e2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x0, 0x0, 0x2000, 0x2000, 0x0, 0x2000, 0x2000, 0x2000, 0x10000000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x20000, 0x0, 0x0, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x4000000, 0x2000, 0x64020000, 0x0, 0x8000000, 0x2000, 0x0, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x20000, 0x2000, 0x2000, 0x2000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2000, 0x2000, 0x2000, 0x30000, 0x2000, 0x30000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x20000, 0x0, 0x0, 0x4020000, 0x2000, 0x2000, 0x4020000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x2000, 0x4000000, 0x2000, 0x0, 0x2000, 0x4000000, 0x2000, 0x8000000, 0x8000000, 0x0, 0x2060, 0x2060, 0x2060, 0x2060, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x0,};
+    private static void jjLa1Init1() {
+        jjLa11 = new int[]{0x60000000, 0x0, 0x2000, 0x2000, 0x0, 0x0, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x0, 0x4030000, 0x2000, 0x4030000, 0x2000, 0x2000, 0x1f, 0x2000, 0x60000000, 0x2000, 0x1f, 0x8000000, 0x8000000, 0x8000000, 0x8000000, 0x8000000, 0x0, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x1e2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x0, 0x0, 0x2000, 0x2000, 0x0, 0x2000, 0x2000, 0x2000, 0x10000000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x20000, 0x0, 0x0, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x4000000, 0x2000, 0x64020000, 0x0, 0x8000000, 0x2000, 0x0, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x20000, 0x2000, 0x2000, 0x2000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2000, 0x2000, 0x2000, 0x30000, 0x2000, 0x30000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x20000, 0x0, 0x0, 0x4020000, 0x2000, 0x2000, 0x4020000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x0, 0x2000, 0x0, 0x2000, 0x2000, 0x2000, 0x4000000, 0x2000, 0x0, 0x2000, 0x4000000, 0x2000, 0x8000000, 0x8000000, 0x0, 0x2060, 0x2060, 0x2060, 0x2060, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x0, 0x2000, 0x0, 0x0,};
     }
 
-    private static void jj_la1_init_2() {
-        jj_la1_2 = new int[]{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x434, 0x434, 0x6, 0x0, 0x6, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xc, 0x0, 0x4000, 0x0, 0xc, 0x0, 0xc, 0x4000, 0xc, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x0, 0x200, 0x2, 0x4c4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x404, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x84, 0x0, 0x0, 0x84, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x400, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x400, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x0, 0x4, 0x0, 0x7804, 0x4, 0x7000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,};
+    private static void jjLa1Init2() {
+        jjLa12 = new int[]{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x434, 0x434, 0x6, 0x0, 0x6, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xc, 0x0, 0x4000, 0x0, 0xc, 0x0, 0xc, 0x4000, 0xc, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x0, 0x200, 0x2, 0x4c4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x404, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x84, 0x0, 0x0, 0x84, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x400, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x400, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x0, 0x4, 0x0, 0x7804, 0x4, 0x7000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,};
     }
 
-    final private JJCalls[] jj_2_rtns = new JJCalls[20];
-    private boolean jj_rescan = false;
-    private int jj_gc = 0;
+    final private JJCalls[] jj2Rtns = new JJCalls[20];
+    private boolean jjRescan = false;
+    private int jjGc = 0;
 
     /**
      * Constructor with user supplied CharStream.
      */
     public GssParserCC(CharStream stream) {
-        token_source = new GssParserCCTokenManager(stream);
+        tokenSource = new GssParserCCTokenManager(stream);
         token = new Token();
-        jj_ntk = -1;
-        jj_gen = 0;
-        for (int i = 0; i < 160; i++) jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+        jjNtk = -1;
+        jjGen = 0;
+        for (int i = 0; i < 160; i++) jjLa1[i] = -1;
+        for (int i = 0; i < jj2Rtns.length; i++) jj2Rtns[i] = new JJCalls();
     }
 
     /**
      * Reinitialise.
      */
     public void ReInit(CharStream stream) {
-        token_source.ReInit(stream);
+        tokenSource.ReInit(stream);
         token = new Token();
-        jj_ntk = -1;
-        jj_lookingAhead = false;
-        jj_gen = 0;
-        for (int i = 0; i < 160; i++) jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+        jjNtk = -1;
+        jjLookingAhead = false;
+        jjGen = 0;
+        for (int i = 0; i < 160; i++) jjLa1[i] = -1;
+        for (int i = 0; i < jj2Rtns.length; i++) jj2Rtns[i] = new JJCalls();
     }
 
     /**
      * Constructor with generated Token Manager.
      */
     public GssParserCC(GssParserCCTokenManager tm) {
-        token_source = tm;
+        tokenSource = tm;
         token = new Token();
-        jj_ntk = -1;
-        jj_gen = 0;
-        for (int i = 0; i < 160; i++) jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+        jjNtk = -1;
+        jjGen = 0;
+        for (int i = 0; i < 160; i++) jjLa1[i] = -1;
+        for (int i = 0; i < jj2Rtns.length; i++) jj2Rtns[i] = new JJCalls();
     }
 
     /**
      * Reinitialise.
      */
     public void ReInit(GssParserCCTokenManager tm) {
-        token_source = tm;
+        tokenSource = tm;
         token = new Token();
-        jj_ntk = -1;
-        jj_gen = 0;
-        for (int i = 0; i < 160; i++) jj_la1[i] = -1;
-        for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
+        jjNtk = -1;
+        jjGen = 0;
+        for (int i = 0; i < 160; i++) jjLa1[i] = -1;
+        for (int i = 0; i < jj2Rtns.length; i++) jj2Rtns[i] = new JJCalls();
     }
 
-    private Token jj_consume_token(int kind) throws ParseException {
+    private Token jjConsumeToken(int kind) throws ParseException {
         Token oldToken;
         if ((oldToken = token).next != null) token = token.next;
-        else token = token.next = token_source.getNextToken();
-        jj_ntk = -1;
+        else token = token.next = tokenSource.getNextToken();
+        jjNtk = -1;
         if (token.kind == kind) {
-            jj_gen++;
-            if (++jj_gc > 100) {
-                jj_gc = 0;
-                for (JJCalls jj_2_rtn : jj_2_rtns) {
-                    JJCalls c = jj_2_rtn;
+            jjGen++;
+            if (++jjGc > 100) {
+                jjGc = 0;
+                for (JJCalls jj2Rtn : jj2Rtns) {
+                    JJCalls c = jj2Rtn;
                     while (c != null) {
-                        if (c.gen < jj_gen) c.first = null;
+                        if (c.gen < jjGen) c.first = null;
                         c = c.next;
                     }
                 }
@@ -5382,7 +5382,7 @@ public class GssParserCC implements GssParserCCConstants {
             return token;
         }
         token = oldToken;
-        jj_kind = kind;
+        jjKind = kind;
         throw generateParseException();
     }
 
@@ -5390,30 +5390,30 @@ public class GssParserCC implements GssParserCCConstants {
     static private final class LookaheadSuccess extends Error {
     }
 
-    final private LookaheadSuccess jj_ls = new LookaheadSuccess();
+    final private LookaheadSuccess jjLs = new LookaheadSuccess();
 
-    private boolean jj_scan_token(int kind) {
-        if (jj_scanpos == jj_lastpos) {
-            jj_la--;
-            if (jj_scanpos.next == null) {
-                jj_lastpos = jj_scanpos = jj_scanpos.next = token_source.getNextToken();
+    private boolean jjScanToken(int kind) {
+        if (jjScanpos == jjLastpos) {
+            jjLa--;
+            if (jjScanpos.next == null) {
+                jjLastpos = jjScanpos = jjScanpos.next = tokenSource.getNextToken();
             } else {
-                jj_lastpos = jj_scanpos = jj_scanpos.next;
+                jjLastpos = jjScanpos = jjScanpos.next;
             }
         } else {
-            jj_scanpos = jj_scanpos.next;
+            jjScanpos = jjScanpos.next;
         }
-        if (jj_rescan) {
+        if (jjRescan) {
             int i = 0;
             Token tok = token;
-            while (tok != null && tok != jj_scanpos) {
+            while (tok != null && tok != jjScanpos) {
                 i++;
                 tok = tok.next;
             }
-            if (tok != null) jj_add_error_token(kind, i);
+            if (tok != null) jjAddErrorToken(kind, i);
         }
-        if (jj_scanpos.kind != kind) return true;
-        if (jj_la == 0 && jj_scanpos == jj_lastpos) throw jj_ls;
+        if (jjScanpos.kind != kind) return true;
+        if (jjLa == 0 && jjScanpos == jjLastpos) throw jjLs;
         return false;
     }
 
@@ -5423,9 +5423,9 @@ public class GssParserCC implements GssParserCCConstants {
      */
     public final Token getNextToken() {
         if (token.next != null) token = token.next;
-        else token = token.next = token_source.getNextToken();
-        jj_ntk = -1;
-        jj_gen++;
+        else token = token.next = tokenSource.getNextToken();
+        jjNtk = -1;
+        jjGen++;
         return token;
     }
 
@@ -5433,59 +5433,59 @@ public class GssParserCC implements GssParserCCConstants {
      * Get the specific Token.
      */
     public final Token getToken(int index) {
-        Token t = jj_lookingAhead ? jj_scanpos : token;
+        Token t = jjLookingAhead ? jjScanpos : token;
         for (int i = 0; i < index; i++) {
             if (t.next != null) t = t.next;
-            else t = t.next = token_source.getNextToken();
+            else t = t.next = tokenSource.getNextToken();
         }
         return t;
     }
 
-    private int jj_ntk_f() {
-        if ((jj_nt = token.next) == null)
-            return (jj_ntk = (token.next = token_source.getNextToken()).kind);
+    private int jjNtkF() {
+        if ((jjNt = token.next) == null)
+            return (jjNtk = (token.next = tokenSource.getNextToken()).kind);
         else
-            return (jj_ntk = jj_nt.kind);
+            return (jjNtk = jjNt.kind);
     }
 
-    private List<int[]> jj_expentries = new ArrayList<>();
-    private int[] jj_expentry;
-    private int jj_kind = -1;
-    private int[] jj_lasttokens = new int[100];
-    private int jj_endpos;
+    private List<int[]> jjExpentries = new ArrayList<>();
+    private int[] jjExpentry;
+    private int jjKind = -1;
+    private int[] jjLasttokens = new int[100];
+    private int jjEndpos;
 
-    private void jj_add_error_token(int kind, int pos) {
+    private void jjAddErrorToken(int kind, int pos) {
         if (pos >= 100) {
             return;
         }
 
-        if (pos == jj_endpos + 1) {
-            jj_lasttokens[jj_endpos++] = kind;
-        } else if (jj_endpos != 0) {
-            jj_expentry = new int[jj_endpos];
+        if (pos == jjEndpos + 1) {
+            jjLasttokens[jjEndpos++] = kind;
+        } else if (jjEndpos != 0) {
+            jjExpentry = new int[jjEndpos];
 
-            System.arraycopy(jj_lasttokens, 0, jj_expentry, 0, jj_endpos);
+            System.arraycopy(jjLasttokens, 0, jjExpentry, 0, jjEndpos);
 
-            for (int[] oldentry : jj_expentries) {
-                if (oldentry.length == jj_expentry.length) {
+            for (int[] oldentry : jjExpentries) {
+                if (oldentry.length == jjExpentry.length) {
                     boolean isMatched = true;
 
-                    for (int i = 0; i < jj_expentry.length; i++) {
-                        if (oldentry[i] != jj_expentry[i]) {
+                    for (int i = 0; i < jjExpentry.length; i++) {
+                        if (oldentry[i] != jjExpentry[i]) {
                             isMatched = false;
                             break;
                         }
 
                     }
                     if (isMatched) {
-                        jj_expentries.add(jj_expentry);
+                        jjExpentries.add(jjExpentry);
                         break;
                     }
                 }
             }
 
             if (pos != 0) {
-                jj_lasttokens[(jj_endpos = pos) - 1] = kind;
+                jjLasttokens[(jjEndpos = pos) - 1] = kind;
             }
         }
     }
@@ -5494,22 +5494,22 @@ public class GssParserCC implements GssParserCCConstants {
      * Generate ParseException.
      */
     public ParseException generateParseException() {
-        jj_expentries.clear();
+        jjExpentries.clear();
         boolean[] la1tokens = new boolean[80];
-        if (jj_kind >= 0) {
-            la1tokens[jj_kind] = true;
-            jj_kind = -1;
+        if (jjKind >= 0) {
+            la1tokens[jjKind] = true;
+            jjKind = -1;
         }
         for (int i = 0; i < 160; i++) {
-            if (jj_la1[i] == jj_gen) {
+            if (jjLa1[i] == jjGen) {
                 for (int j = 0; j < 32; j++) {
-                    if ((jj_la1_0[i] & (1 << j)) != 0) {
+                    if ((jjLa10[i] & (1 << j)) != 0) {
                         la1tokens[j] = true;
                     }
-                    if ((jj_la1_1[i] & (1 << j)) != 0) {
+                    if ((jjLa11[i] & (1 << j)) != 0) {
                         la1tokens[32 + j] = true;
                     }
-                    if ((jj_la1_2[i] & (1 << j)) != 0) {
+                    if ((jjLa12[i] & (1 << j)) != 0) {
                         la1tokens[64 + j] = true;
                     }
                 }
@@ -5517,17 +5517,17 @@ public class GssParserCC implements GssParserCCConstants {
         }
         for (int i = 0; i < 80; i++) {
             if (la1tokens[i]) {
-                jj_expentry = new int[1];
-                jj_expentry[0] = i;
-                jj_expentries.add(jj_expentry);
+                jjExpentry = new int[1];
+                jjExpentry[0] = i;
+                jjExpentries.add(jjExpentry);
             }
         }
-        jj_endpos = 0;
-        jj_rescan_token();
-        jj_add_error_token(0, 0);
-        int[][] exptokseq = new int[jj_expentries.size()][];
-        for (int i = 0; i < jj_expentries.size(); i++) {
-            exptokseq[i] = jj_expentries.get(i);
+        jjEndpos = 0;
+        jjRescanToken();
+        jjAddErrorToken(0, 0);
+        int[][] exptokseq = new int[jjExpentries.size()][];
+        for (int i = 0; i < jjExpentries.size(); i++) {
+            exptokseq[i] = jjExpentries.get(i);
         }
         return new ParseException(token, exptokseq, tokenImage);
     }
@@ -5535,85 +5535,85 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Enable tracing.
      */
-    public final void enable_tracing() {
+    public final void enableTracing() {
     }
 
     /**
      * Disable tracing.
      */
-    public final void disable_tracing() {
+    public final void disableTracing() {
     }
 
-    private void jj_rescan_token() {
-        jj_rescan = true;
+    private void jjRescanToken() {
+        jjRescan = true;
         for (int i = 0; i < 20; i++) {
             try {
-                JJCalls p = jj_2_rtns[i];
+                JJCalls p = jj2Rtns[i];
 
                 do {
-                    if (p.gen > jj_gen) {
-                        jj_la = p.arg;
-                        jj_lastpos = jj_scanpos = p.first;
+                    if (p.gen > jjGen) {
+                        jjLa = p.arg;
+                        jjLastpos = jjScanpos = p.first;
                         switch (i) {
                             case 0:
-                                jj_3_1();
+                                jj31();
                                 break;
                             case 1:
-                                jj_3_2();
+                                jj32();
                                 break;
                             case 2:
-                                jj_3_3();
+                                jj33();
                                 break;
                             case 3:
-                                jj_3_4();
+                                jj34();
                                 break;
                             case 4:
-                                jj_3_5();
+                                jj35();
                                 break;
                             case 5:
-                                jj_3_6();
+                                jj36();
                                 break;
                             case 6:
-                                jj_3_7();
+                                jj37();
                                 break;
                             case 7:
-                                jj_3_8();
+                                jj38();
                                 break;
                             case 8:
-                                jj_3_9();
+                                jj39();
                                 break;
                             case 9:
-                                jj_3_10();
+                                jj310();
                                 break;
                             case 10:
-                                jj_3_11();
+                                jj311();
                                 break;
                             case 11:
-                                jj_3_12();
+                                jj312();
                                 break;
                             case 12:
-                                jj_3_13();
+                                jj313();
                                 break;
                             case 13:
-                                jj_3_14();
+                                jj314();
                                 break;
                             case 14:
-                                jj_3_15();
+                                jj315();
                                 break;
                             case 15:
-                                jj_3_16();
+                                jj316();
                                 break;
                             case 16:
-                                jj_3_17();
+                                jj317();
                                 break;
                             case 17:
-                                jj_3_18();
+                                jj318();
                                 break;
                             case 18:
-                                jj_3_19();
+                                jj319();
                                 break;
                             case 19:
-                                jj_3_20();
+                                jj320();
                                 break;
                         }
                     }
@@ -5623,12 +5623,12 @@ public class GssParserCC implements GssParserCCConstants {
             } catch (LookaheadSuccess ls) {
             }
         }
-        jj_rescan = false;
+        jjRescan = false;
     }
 
-    private void jj_save(int index, int xla) {
-        JJCalls p = jj_2_rtns[index];
-        while (p.gen > jj_gen) {
+    private void jjSave(int index, int xla) {
+        JJCalls p = jj2Rtns[index];
+        while (p.gen > jjGen) {
             if (p.next == null) {
                 p = p.next = new JJCalls();
                 break;
@@ -5636,7 +5636,7 @@ public class GssParserCC implements GssParserCCConstants {
             p = p.next;
         }
 
-        p.gen = jj_gen + xla - jj_la;
+        p.gen = jjGen + xla - jjLa;
         p.first = token;
         p.arg = xla;
     }
