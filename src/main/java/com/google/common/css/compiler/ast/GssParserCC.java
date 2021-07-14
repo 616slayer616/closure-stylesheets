@@ -4660,10 +4660,13 @@ public class GssParserCC implements GssParserCCConstants {
          * Next token.
          */
         Token jjNt;
-        if ((jjNt = token.next) == null)
-            return (jjNtk = (token.next = tokenSource.getNextToken()).kind);
-        else
-            return (jjNtk = jjNt.kind);
+        if ((jjNt = token.next) == null) {
+            token.next = tokenSource.getNextToken();
+            jjNtk = (token.next).kind;
+        } else {
+            jjNtk = jjNt.kind;
+        }
+        return jjNtk;
     }
 
     private final List<int[]> jjExpentries = new ArrayList<>();
@@ -4703,7 +4706,8 @@ public class GssParserCC implements GssParserCCConstants {
             }
 
             if (pos != 0) {
-                jjLasttokens[(jjEndpos = pos) - 1] = kind;
+                jjEndpos = pos;
+                jjLasttokens[jjEndpos - 1] = kind;
             }
         }
     }
