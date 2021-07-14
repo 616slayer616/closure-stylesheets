@@ -44,7 +44,7 @@ public class CreateStandardAtRuleNodesTest extends PassesTestBase {
   }
 
   @Test
-  public void testCharsetRemoval() throws Exception {
+  public void testCharset() throws Exception {
     parseAndRun("@charset \"x\";");
     assertThat(getFirstActualNode()).isInstanceOf(CssCharSetNode.class);
     CssCharSetNode sourceCodeRule = (CssCharSetNode) getFirstActualNode();

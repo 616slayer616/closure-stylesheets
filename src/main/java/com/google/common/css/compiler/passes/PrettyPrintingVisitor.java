@@ -19,50 +19,12 @@ package com.google.common.css.compiler.passes;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Preconditions;
+import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.CssAtRuleNode.Type;
-import com.google.common.css.compiler.ast.CssAttributeSelectorNode;
-import com.google.common.css.compiler.ast.CssBlockNode;
-import com.google.common.css.compiler.ast.CssClassSelectorNode;
-import com.google.common.css.compiler.ast.CssCombinatorNode;
-import com.google.common.css.compiler.ast.CssCommentNode;
-import com.google.common.css.compiler.ast.CssComponentNode;
-import com.google.common.css.compiler.ast.CssCompositeValueNode;
-import com.google.common.css.compiler.ast.CssConditionalBlockNode;
-import com.google.common.css.compiler.ast.CssConditionalRuleNode;
-import com.google.common.css.compiler.ast.CssDeclarationBlockNode;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssDefinitionNode;
-import com.google.common.css.compiler.ast.CssFontFaceNode;
-import com.google.common.css.compiler.ast.CssFunctionNode;
-import com.google.common.css.compiler.ast.CssIdSelectorNode;
-import com.google.common.css.compiler.ast.CssImportRuleNode;
-import com.google.common.css.compiler.ast.CssKeyListNode;
-import com.google.common.css.compiler.ast.CssKeyNode;
-import com.google.common.css.compiler.ast.CssKeyframeRulesetNode;
-import com.google.common.css.compiler.ast.CssKeyframesNode;
-import com.google.common.css.compiler.ast.CssMediaRuleNode;
-import com.google.common.css.compiler.ast.CssMixinDefinitionNode;
-import com.google.common.css.compiler.ast.CssMixinNode;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssPageRuleNode;
-import com.google.common.css.compiler.ast.CssPageSelectorNode;
-import com.google.common.css.compiler.ast.CssPropertyValueNode;
-import com.google.common.css.compiler.ast.CssProvideNode;
-import com.google.common.css.compiler.ast.CssPseudoClassNode;
 import com.google.common.css.compiler.ast.CssPseudoClassNode.FunctionType;
-import com.google.common.css.compiler.ast.CssPseudoElementNode;
-import com.google.common.css.compiler.ast.CssRefinerNode;
-import com.google.common.css.compiler.ast.CssRequireNode;
-import com.google.common.css.compiler.ast.CssRootNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssSelectorListNode;
-import com.google.common.css.compiler.ast.CssSelectorNode;
-import com.google.common.css.compiler.ast.CssStringNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.CssUnknownAtRuleNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
+
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * A pretty-printer for {@link CssTree} instances. This is work in progress. Look at
@@ -153,6 +115,23 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
     maybeAppendComments(node);
     buffer.append(node.getType().toString());
     return true;
+  }
+
+  @Override
+  public boolean enterCharSet(CssCharSetNode node) {
+    maybeAppendComments(node);
+    buffer.append(node.getType().toString());
+    buffer.append(' ');
+    List<CssValueNode> parameters = node.getParameters();
+    if (!parameters.isEmpty()) {
+      buffer.append(parameters.get(0));
+    }
+    return true;
+  }
+
+  @Override
+  public void leaveCharSet(CssCharSetNode node) {
+    buffer.append(';');
   }
 
   @Override

@@ -19,43 +19,10 @@ package com.google.common.css.compiler.passes;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.css.compiler.ast.CssAttributeSelectorNode;
-import com.google.common.css.compiler.ast.CssBlockNode;
-import com.google.common.css.compiler.ast.CssBooleanExpressionNode;
-import com.google.common.css.compiler.ast.CssClassSelectorNode;
-import com.google.common.css.compiler.ast.CssCombinatorNode;
-import com.google.common.css.compiler.ast.CssCompositeValueNode;
-import com.google.common.css.compiler.ast.CssConditionalBlockNode;
-import com.google.common.css.compiler.ast.CssDeclarationBlockNode;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssDefinitionNode;
-import com.google.common.css.compiler.ast.CssFontFaceNode;
-import com.google.common.css.compiler.ast.CssFunctionNode;
-import com.google.common.css.compiler.ast.CssIdSelectorNode;
-import com.google.common.css.compiler.ast.CssImportRuleNode;
-import com.google.common.css.compiler.ast.CssKeyListNode;
-import com.google.common.css.compiler.ast.CssKeyNode;
-import com.google.common.css.compiler.ast.CssKeyframesNode;
-import com.google.common.css.compiler.ast.CssMediaRuleNode;
-import com.google.common.css.compiler.ast.CssNode;
-import com.google.common.css.compiler.ast.CssNodesListNode;
-import com.google.common.css.compiler.ast.CssNumericNode;
-import com.google.common.css.compiler.ast.CssPageRuleNode;
-import com.google.common.css.compiler.ast.CssPageSelectorNode;
-import com.google.common.css.compiler.ast.CssPriorityNode;
-import com.google.common.css.compiler.ast.CssPropertyValueNode;
-import com.google.common.css.compiler.ast.CssPseudoClassNode;
+import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.CssPseudoClassNode.FunctionType;
-import com.google.common.css.compiler.ast.CssPseudoElementNode;
-import com.google.common.css.compiler.ast.CssRefinerNode;
-import com.google.common.css.compiler.ast.CssSelectorListNode;
-import com.google.common.css.compiler.ast.CssSelectorNode;
-import com.google.common.css.compiler.ast.CssStringNode;
-import com.google.common.css.compiler.ast.CssTree;
-import com.google.common.css.compiler.ast.CssUnknownAtRuleNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.VisitController;
+
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -159,6 +126,21 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
   public boolean enterFontFace(CssFontFaceNode node) {
     buffer.append(node.getType().toString());
     return true;
+  }
+
+  @Override
+  public boolean enterCharSet(CssCharSetNode node) {
+    buffer.append(node.getType().toString());
+    List<CssValueNode> parameters = node.getParameters();
+    if (!parameters.isEmpty()) {
+      buffer.append(parameters.get(0));
+    }
+    return true;
+  }
+
+  @Override
+  public void leaveCharSet(CssCharSetNode node) {
+    buffer.append(';');
   }
 
   @Override

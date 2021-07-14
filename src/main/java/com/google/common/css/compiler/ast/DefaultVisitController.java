@@ -765,6 +765,28 @@ class DefaultVisitController implements MutatingVisitController {
   }
 
   @VisibleForTesting
+  class VisitCharSetState extends VisitChildrenOptionalState<CssNode> {
+
+    private final CssCharSetNode node;
+
+    VisitCharSetState(CssCharSetNode node) {
+      this.node = node;
+    }
+
+    @Override
+    public void doVisit() {
+      if (visitor.enterCharSet(node)) {
+        visitor.leaveCharSet(node);
+      }
+    }
+
+    @Override
+    public void transitionToNextState() {
+      stateStack.pop();
+    }
+  }
+
+  @VisibleForTesting
   class VisitConditionalBlockState extends BaseVisitState<CssNode> {
 
     private final CssConditionalBlockNode block;
@@ -2087,6 +2109,10 @@ class DefaultVisitController implements MutatingVisitController {
     // VisitUnknownAtRuleBlockState
     if (child instanceof CssFontFaceNode) {
       return new VisitFontFaceState((CssFontFaceNode) child);
+    }
+
+    if (child instanceof CssCharSetNode) {
+      return new VisitCharSetState((CssCharSetNode) child);
     }
 
     // VisitUnknownAtRuleBlockState
