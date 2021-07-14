@@ -34,6 +34,7 @@ import org.kohsuke.args4j.Option;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -332,10 +333,8 @@ public class ClosureCommandLineCompiler extends DefaultCommandLineCompiler {
 
         // Create the GssFunctionMapProvider using reflection.
         try {
-            return (GssFunctionMapProvider) clazz.newInstance();
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+            return (GssFunctionMapProvider) clazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }

@@ -211,9 +211,8 @@ public enum OutputRenamingMapFormat {
      * names to originals into their format string, and may be overridden by formats that do something
      * different.
      */
-    void readMapInto(BufferedReader in, ImmutableMap.Builder<? super String, ? super String> builder)
-            throws IOException {
-        JsonElement json = new JsonParser().parse(in);
+    void readMapInto(BufferedReader in, ImmutableMap.Builder<? super String, ? super String> builder) throws IOException {
+        JsonElement json = JsonParser.parseReader(in);
         for (Map.Entry<String, JsonElement> e : json.getAsJsonObject().entrySet()) {
             builder.put(e.getKey(), e.getValue().getAsString());
         }
@@ -225,7 +224,7 @@ public enum OutputRenamingMapFormat {
      */
     private static void requireEndOfInput(BufferedReader in) throws IOException {
         for (int ch; (ch = in.read()) >= 0; ) {
-            if (!Character.isSpace((char) ch)) {
+            if (!Character.isWhitespace((char) ch)) {
                 throw new IOException("Expected end of input, not '" + escape((char) ch) + "'");
             }
         }
