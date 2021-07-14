@@ -234,6 +234,7 @@ public abstract class CssAtRuleNode extends CssNodesListNode<CssValueNode> {
     }
 
     void setBlock(@Nullable CssAbstractBlockNode block) {
+        Preconditions.checkArgument(block != null);
         Preconditions.checkArgument(block.isEnclosedWithBraces(),
                 "Only blocks that are enclosed with braces are valid for @-rules.");
         removeAsParentOfNode(this.block);
