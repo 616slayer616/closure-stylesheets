@@ -33,313 +33,315 @@ import javax.annotation.Nullable;
  */
 public class TemplateCompactPrintingVisitor<T> extends CompactPrintingVisitor {
 
-  /** Chunk to be printed by this printer. */
-  private final T chunk;
+    /**
+     * Chunk to be printed by this printer.
+     */
+    private final T chunk;
 
-  /**
-   * Whether currently visited selector (including its children) belongs to printed chunk and
-   * should be printed.
-   */
-  private boolean printSelector;
+    /**
+     * Whether currently visited selector (including its children) belongs to printed chunk and
+     * should be printed.
+     */
+    private boolean printSelector;
 
-  public TemplateCompactPrintingVisitor(
-      VisitController visitController,
-      T chunk,
-      @Nullable CodeBuffer buffer) {
-    super(visitController, buffer);
-    this.chunk = chunk;
-  }
-
-  @Override
-  protected void appendValueNode(CssValueNode node) {
-    if (node instanceof CssConstantReferenceNode) {
-      buffer.append(TemplateCompactPrinter.REFERENCE_START);
-      super.appendValueNode(node);
-      buffer.append(TemplateCompactPrinter.REFERENCE_END);
-    } else {
-      super.appendValueNode(node);
+    public TemplateCompactPrintingVisitor(
+            VisitController visitController,
+            T chunk,
+            @Nullable CodeBuffer buffer) {
+        super(visitController, buffer);
+        this.chunk = chunk;
     }
-  }
 
-  @Override
-  public boolean enterDeclaration(CssDeclarationNode declaration) {
-    buffer.append(TemplateCompactPrinter.DECLARATION_START);
-    return super.enterDeclaration(declaration);
-  }
-
-  @Override
-  public void leaveDeclaration(CssDeclarationNode declaration) {
-    super.leaveDeclaration(declaration);
-    buffer.append(TemplateCompactPrinter.DECLARATION_END);
-  }
-
-  @Override
-  public boolean enterRuleset(CssRulesetNode ruleset) {
-    boolean printRuleset = false;
-    for (CssSelectorNode selector : ruleset.getSelectors().childIterable()) {
-      if (chunk.equals(selector.getChunk())) {
-        printRuleset = true;
-        break;
-      }
+    @Override
+    protected void appendValueNode(CssValueNode node) {
+        if (node instanceof CssConstantReferenceNode) {
+            buffer.append(TemplateCompactPrinter.REFERENCE_START);
+            super.appendValueNode(node);
+            buffer.append(TemplateCompactPrinter.REFERENCE_END);
+        } else {
+            super.appendValueNode(node);
+        }
     }
-    if (printRuleset) {
-      buffer.append(TemplateCompactPrinter.RULE_START);
+
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declaration) {
+        buffer.append(TemplateCompactPrinter.DECLARATION_START);
+        return super.enterDeclaration(declaration);
     }
-    return printRuleset;
-  }
 
-  @Override
-  public void leaveRuleset(CssRulesetNode ruleset) {
-    // only called if enterRuleset returns true
-    buffer.append(TemplateCompactPrinter.RULE_END);
-    super.leaveRuleset(ruleset);
-  }
-
-  @Override
-  public boolean enterMediaRule(CssMediaRuleNode media) {
-    buffer.append(TemplateCompactPrinter.RULE_START);
-    printSelector = chunk.equals(media.getChunk());
-    boolean printMediaRule = printSelector && super.enterMediaRule(media);
-    if (!printMediaRule) {
-      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    @Override
+    public void leaveDeclaration(CssDeclarationNode declaration) {
+        super.leaveDeclaration(declaration);
+        buffer.append(TemplateCompactPrinter.DECLARATION_END);
     }
-    return printMediaRule;
-  }
 
-  @Override
-  public void leaveMediaRule(CssMediaRuleNode media) {
-    // only called if enterMediaRule returns true
-    if (printSelector) {
-      super.leaveMediaRule(media);
+    @Override
+    public boolean enterRuleset(CssRulesetNode ruleset) {
+        boolean printRuleset = false;
+        for (CssSelectorNode selector : ruleset.getSelectors().childIterable()) {
+            if (chunk.equals(selector.getChunk())) {
+                printRuleset = true;
+                break;
+            }
+        }
+        if (printRuleset) {
+            buffer.append(TemplateCompactPrinter.RULE_START);
+        }
+        return printRuleset;
     }
-    buffer.append(TemplateCompactPrinter.RULE_END);
-  }
 
-  @Override
-  public boolean enterSelector(CssSelectorNode selector) {
-    printSelector = chunk.equals(selector.getChunk());
-    if (printSelector) {
-      return super.enterSelector(selector);
+    @Override
+    public void leaveRuleset(CssRulesetNode ruleset) {
+        // only called if enterRuleset returns true
+        buffer.append(TemplateCompactPrinter.RULE_END);
+        super.leaveRuleset(ruleset);
     }
-    return true;
-  }
 
-  @Override
-  public void leaveSelector(CssSelectorNode selector) {
-    if (printSelector) {
-      super.leaveSelector(selector);
+    @Override
+    public boolean enterMediaRule(CssMediaRuleNode media) {
+        buffer.append(TemplateCompactPrinter.RULE_START);
+        printSelector = chunk.equals(media.getChunk());
+        boolean printMediaRule = printSelector && super.enterMediaRule(media);
+        if (!printMediaRule) {
+            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+        }
+        return printMediaRule;
     }
-  }
 
-  @Override
-  public boolean enterFontFace(CssFontFaceNode cssFontFaceNode) {
-    buffer.append(TemplateCompactPrinter.RULE_START);
-    printSelector = chunk.equals(cssFontFaceNode.getChunk());
-    boolean printFontFace = printSelector && super.enterFontFace(cssFontFaceNode);
-    if (!printFontFace) {
-      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    @Override
+    public void leaveMediaRule(CssMediaRuleNode media) {
+        // only called if enterMediaRule returns true
+        if (printSelector) {
+            super.leaveMediaRule(media);
+        }
+        buffer.append(TemplateCompactPrinter.RULE_END);
     }
-    return printFontFace;
-  }
 
-  @Override
-  public void leaveFontFace(CssFontFaceNode cssFontFaceNode) {
-    // only called if enterFontFace returns true
-    if (printSelector) {
-      super.leaveFontFace(cssFontFaceNode);
+    @Override
+    public boolean enterSelector(CssSelectorNode selector) {
+        printSelector = chunk.equals(selector.getChunk());
+        if (printSelector) {
+            return super.enterSelector(selector);
+        }
+        return true;
     }
-    buffer.append(TemplateCompactPrinter.RULE_END);
-  }
 
-  @Override
-  public boolean enterCharSet(CssCharSetNode cssCharSetNode) {
-    buffer.append(TemplateCompactPrinter.RULE_START);
-    boolean printFontFace = super.enterCharSet(cssCharSetNode);
-    if (! printFontFace) {
-      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    @Override
+    public void leaveSelector(CssSelectorNode selector) {
+        if (printSelector) {
+            super.leaveSelector(selector);
+        }
     }
-    return printFontFace;
-  }
 
-  @Override
-  public void leaveCharSet(CssCharSetNode cssCharSetNode) {
-    // only called if enterCharSet returns true
-    if (printSelector) {
-      super.leaveCharSet(cssCharSetNode);
+    @Override
+    public boolean enterFontFace(CssFontFaceNode cssFontFaceNode) {
+        buffer.append(TemplateCompactPrinter.RULE_START);
+        printSelector = chunk.equals(cssFontFaceNode.getChunk());
+        boolean printFontFace = printSelector && super.enterFontFace(cssFontFaceNode);
+        if (!printFontFace) {
+            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+        }
+        return printFontFace;
     }
-    buffer.append(TemplateCompactPrinter.RULE_END);
-  }
 
-  @Override
-  public boolean enterKeyframeRuleset(CssKeyframeRulesetNode ruleset) {
-    buffer.append(TemplateCompactPrinter.RULE_START);
-    boolean printKeyframeRuleset = super.enterKeyframeRuleset(ruleset);
-    if (!printKeyframeRuleset) {
-      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    @Override
+    public void leaveFontFace(CssFontFaceNode cssFontFaceNode) {
+        // only called if enterFontFace returns true
+        if (printSelector) {
+            super.leaveFontFace(cssFontFaceNode);
+        }
+        buffer.append(TemplateCompactPrinter.RULE_END);
     }
-    return printKeyframeRuleset;
-  }
 
-  @Override
-  public void leaveKeyframeRuleset(CssKeyframeRulesetNode ruleset) {
-    // only called if enterKeyframeRuleset returns true
-    super.leaveKeyframeRuleset(ruleset);
-    buffer.append(TemplateCompactPrinter.RULE_END);
-  }
-
-  @Override
-  public boolean enterKeyframesRule(CssKeyframesNode keyframes) {
-    printSelector = chunk.equals(keyframes.getChunk());
-    if (!printSelector) {
-      return false;
+    @Override
+    public boolean enterCharSet(CssCharSetNode cssCharSetNode) {
+        buffer.append(TemplateCompactPrinter.RULE_START);
+        boolean printFontFace = super.enterCharSet(cssCharSetNode);
+        if (!printFontFace) {
+            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+        }
+        return printFontFace;
     }
-    return super.enterKeyframesRule(keyframes);
-  }
 
-  @Override
-  public void leaveKeyframesRule(CssKeyframesNode keyframes) {
-    if (printSelector) {
-      super.leaveKeyframesRule(keyframes);
+    @Override
+    public void leaveCharSet(CssCharSetNode cssCharSetNode) {
+        // only called if enterCharSet returns true
+        if (printSelector) {
+            super.leaveCharSet(cssCharSetNode);
+        }
+        buffer.append(TemplateCompactPrinter.RULE_END);
     }
-  }
 
-  @Override
-  public boolean enterPageRule(CssPageRuleNode node) {
-    buffer.append(TemplateCompactPrinter.RULE_START);
-    boolean printPageRule = super.enterPageRule(node);
-    if (!printPageRule) {
-      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    @Override
+    public boolean enterKeyframeRuleset(CssKeyframeRulesetNode ruleset) {
+        buffer.append(TemplateCompactPrinter.RULE_START);
+        boolean printKeyframeRuleset = super.enterKeyframeRuleset(ruleset);
+        if (!printKeyframeRuleset) {
+            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+        }
+        return printKeyframeRuleset;
     }
-    return printPageRule;
-  }
 
-  @Override
-  public void leavePageRule(CssPageRuleNode node) {
-    // only called if enterPageRule returns true
-    super.leavePageRule(node);
-    buffer.append(TemplateCompactPrinter.RULE_END);
-  }
-
-  @Override
-  public boolean enterClassSelector(CssClassSelectorNode node) {
-    if (printSelector) {
-      return super.enterClassSelector(node);
+    @Override
+    public void leaveKeyframeRuleset(CssKeyframeRulesetNode ruleset) {
+        // only called if enterKeyframeRuleset returns true
+        super.leaveKeyframeRuleset(ruleset);
+        buffer.append(TemplateCompactPrinter.RULE_END);
     }
-    return true;
-  }
 
-  @Override
-  public void leaveClassSelector(CssClassSelectorNode node) {
-    if (printSelector) {
-      super.leaveClassSelector(node);
+    @Override
+    public boolean enterKeyframesRule(CssKeyframesNode keyframes) {
+        printSelector = chunk.equals(keyframes.getChunk());
+        if (!printSelector) {
+            return false;
+        }
+        return super.enterKeyframesRule(keyframes);
     }
-  }
 
-  @Override
-  public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
-    buffer.append(TemplateCompactPrinter.RULE_START);
-    boolean printUnknownAtRule = super.enterUnknownAtRule(node);
-    if (!printUnknownAtRule) {
-      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    @Override
+    public void leaveKeyframesRule(CssKeyframesNode keyframes) {
+        if (printSelector) {
+            super.leaveKeyframesRule(keyframes);
+        }
     }
-    return printUnknownAtRule;
-  }
 
-  @Override
-  public void leaveUnknownAtRule(CssUnknownAtRuleNode node) {
-    // only called if enterUnknownAtRule returns true
-    super.leaveUnknownAtRule(node);
-    buffer.append(TemplateCompactPrinter.RULE_END);
-  }
-
-  @Override
-  public boolean enterImportRule(CssImportRuleNode node) {
-    buffer.append(TemplateCompactPrinter.RULE_START);
-    boolean printImportRule = super.enterImportRule(node);
-    if (!printImportRule) {
-      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    @Override
+    public boolean enterPageRule(CssPageRuleNode node) {
+        buffer.append(TemplateCompactPrinter.RULE_START);
+        boolean printPageRule = super.enterPageRule(node);
+        if (!printPageRule) {
+            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+        }
+        return printPageRule;
     }
-    return printImportRule;
-  }
 
-  @Override
-  public void leaveImportRule(CssImportRuleNode node) {
-    super.leaveImportRule(node);
-    buffer.append(TemplateCompactPrinter.RULE_END);
-  }
-
-  @Override
-  public boolean enterIdSelector(CssIdSelectorNode node) {
-    if (printSelector) {
-      return super.enterIdSelector(node);
+    @Override
+    public void leavePageRule(CssPageRuleNode node) {
+        // only called if enterPageRule returns true
+        super.leavePageRule(node);
+        buffer.append(TemplateCompactPrinter.RULE_END);
     }
-    return true;
-  }
 
-  @Override
-  public void leaveIdSelector(CssIdSelectorNode node) {
-    if (printSelector) {
-      super.leaveIdSelector(node);
+    @Override
+    public boolean enterClassSelector(CssClassSelectorNode node) {
+        if (printSelector) {
+            return super.enterClassSelector(node);
+        }
+        return true;
     }
-  }
 
-  @Override
-  public boolean enterPseudoClass(CssPseudoClassNode node) {
-    if (printSelector) {
-      return super.enterPseudoClass(node);
+    @Override
+    public void leaveClassSelector(CssClassSelectorNode node) {
+        if (printSelector) {
+            super.leaveClassSelector(node);
+        }
     }
-    return true;
-  }
 
-  @Override
-  public void leavePseudoClass(CssPseudoClassNode node) {
-    if (printSelector) {
-      super.leavePseudoClass(node);
+    @Override
+    public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
+        buffer.append(TemplateCompactPrinter.RULE_START);
+        boolean printUnknownAtRule = super.enterUnknownAtRule(node);
+        if (!printUnknownAtRule) {
+            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+        }
+        return printUnknownAtRule;
     }
-  }
 
-  @Override
-  public boolean enterPseudoElement(CssPseudoElementNode node) {
-    if (printSelector) {
-      return super.enterPseudoElement(node);
+    @Override
+    public void leaveUnknownAtRule(CssUnknownAtRuleNode node) {
+        // only called if enterUnknownAtRule returns true
+        super.leaveUnknownAtRule(node);
+        buffer.append(TemplateCompactPrinter.RULE_END);
     }
-    return true;
-  }
 
-  @Override
-  public void leavePseudoElement(CssPseudoElementNode node) {
-    if (printSelector) {
-      super.leavePseudoElement(node);
+    @Override
+    public boolean enterImportRule(CssImportRuleNode node) {
+        buffer.append(TemplateCompactPrinter.RULE_START);
+        boolean printImportRule = super.enterImportRule(node);
+        if (!printImportRule) {
+            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+        }
+        return printImportRule;
     }
-  }
 
-  @Override
-  public boolean enterAttributeSelector(CssAttributeSelectorNode node) {
-    if (printSelector) {
-      return super.enterAttributeSelector(node);
+    @Override
+    public void leaveImportRule(CssImportRuleNode node) {
+        super.leaveImportRule(node);
+        buffer.append(TemplateCompactPrinter.RULE_END);
     }
-    return true;
-  }
 
-  @Override
-  public void leaveAttributeSelector(CssAttributeSelectorNode node) {
-    if (printSelector) {
-      super.leaveAttributeSelector(node);
+    @Override
+    public boolean enterIdSelector(CssIdSelectorNode node) {
+        if (printSelector) {
+            return super.enterIdSelector(node);
+        }
+        return true;
     }
-  }
 
-  @Override
-  public boolean enterCombinator(CssCombinatorNode combinator) {
-    if (printSelector) {
-      return super.enterCombinator(combinator);
+    @Override
+    public void leaveIdSelector(CssIdSelectorNode node) {
+        if (printSelector) {
+            super.leaveIdSelector(node);
+        }
     }
-    return true;
-  }
 
-  @Override
-  public void leaveCombinator(CssCombinatorNode combinator) {
-    if (printSelector) {
-      super.leaveCombinator(combinator);
+    @Override
+    public boolean enterPseudoClass(CssPseudoClassNode node) {
+        if (printSelector) {
+            return super.enterPseudoClass(node);
+        }
+        return true;
     }
-  }
+
+    @Override
+    public void leavePseudoClass(CssPseudoClassNode node) {
+        if (printSelector) {
+            super.leavePseudoClass(node);
+        }
+    }
+
+    @Override
+    public boolean enterPseudoElement(CssPseudoElementNode node) {
+        if (printSelector) {
+            return super.enterPseudoElement(node);
+        }
+        return true;
+    }
+
+    @Override
+    public void leavePseudoElement(CssPseudoElementNode node) {
+        if (printSelector) {
+            super.leavePseudoElement(node);
+        }
+    }
+
+    @Override
+    public boolean enterAttributeSelector(CssAttributeSelectorNode node) {
+        if (printSelector) {
+            return super.enterAttributeSelector(node);
+        }
+        return true;
+    }
+
+    @Override
+    public void leaveAttributeSelector(CssAttributeSelectorNode node) {
+        if (printSelector) {
+            super.leaveAttributeSelector(node);
+        }
+    }
+
+    @Override
+    public boolean enterCombinator(CssCombinatorNode combinator) {
+        if (printSelector) {
+            return super.enterCombinator(combinator);
+        }
+        return true;
+    }
+
+    @Override
+    public void leaveCombinator(CssCombinatorNode combinator) {
+        if (printSelector) {
+            super.leaveCombinator(combinator);
+        }
+    }
 }

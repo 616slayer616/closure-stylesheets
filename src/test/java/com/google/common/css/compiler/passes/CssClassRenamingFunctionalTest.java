@@ -30,68 +30,68 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CssClassRenamingFunctionalTest extends PassesTestBase {
 
-  @Test
-  public void testCssClassRenaming1() {
-    testTreeConstruction(linesToString(
-        ".CSS_RULE_1 {",
-        "  padding: 1px;",
-        "}",
-        ".CSS_RULE_2 {",
-        "  border: 2px;",
-        "}"),
-        "[[.CSS_RULE_1_]{[padding:[[1px]];]}" +
-        "[.CSS_RULE_2_]{[border:[[2px]];]}]");
-  }
+    @Test
+    public void testCssClassRenaming1() {
+        testTreeConstruction(linesToString(
+                ".CSS_RULE_1 {",
+                "  padding: 1px;",
+                "}",
+                ".CSS_RULE_2 {",
+                "  border: 2px;",
+                "}"),
+                "[[.CSS_RULE_1_]{[padding:[[1px]];]}" +
+                        "[.CSS_RULE_2_]{[border:[[2px]];]}]");
+    }
 
-  @Test
-  public void testCssClassRenaming2() {
-    testTreeConstruction(linesToString(
-        ".CSS_RULE_1 .CSS_RULE_2 {",
-        "  padding: 1px;",
-        "}",
-        ".CSS_RULE_2 {",
-        "  border: 2px;",
-        "}"),
-        "[[.CSS_RULE_1_ .CSS_RULE_2_]{[padding:[[1px]];]}" +
-        "[.CSS_RULE_2_]{[border:[[2px]];]}]");
-  }
+    @Test
+    public void testCssClassRenaming2() {
+        testTreeConstruction(linesToString(
+                ".CSS_RULE_1 .CSS_RULE_2 {",
+                "  padding: 1px;",
+                "}",
+                ".CSS_RULE_2 {",
+                "  border: 2px;",
+                "}"),
+                "[[.CSS_RULE_1_ .CSS_RULE_2_]{[padding:[[1px]];]}" +
+                        "[.CSS_RULE_2_]{[border:[[2px]];]}]");
+    }
 
-  @Test
-  public void testCssClassRenaming3() {
-    testTreeConstruction(linesToString(
-        "div.CSS_RULE_1 {",
-        "  padding: 1px;",
-        "}"),
-        "[[div.CSS_RULE_1_]{[padding:[[1px]];]}]");
-  }
+    @Test
+    public void testCssClassRenaming3() {
+        testTreeConstruction(linesToString(
+                "div.CSS_RULE_1 {",
+                "  padding: 1px;",
+                "}"),
+                "[[div.CSS_RULE_1_]{[padding:[[1px]];]}]");
+    }
 
-  @Test
-  public void testCssClassRenaming4() {
-    testTreeConstruction(linesToString(
-        ".CSS_RULE_1#ID_ID {",
-        "  padding: 1px;",
-        "}"),
-        "[[.CSS_RULE_1_#ID_ID^]{[padding:[[1px]];]}]");
-  }
+    @Test
+    public void testCssClassRenaming4() {
+        testTreeConstruction(linesToString(
+                ".CSS_RULE_1#ID_ID {",
+                "  padding: 1px;",
+                "}"),
+                "[[.CSS_RULE_1_#ID_ID^]{[padding:[[1px]];]}]");
+    }
 
-  @Override
-  protected void runPass() {
-    SubstitutionMap classMap = new SubstitutionMap() {
-        /** {@inheritDoc} */
-        @Override
-        public String get(String key) {
-          return key.startsWith("CSS_") ? key + '_' : key;
-        }
-    };
-    SubstitutionMap idMap = new SubstitutionMap() {
-      /** {@inheritDoc} */
-      @Override
-      public String get(String key) {
-        return key.startsWith("ID_") ? key + '^' : key;
-      }
-  };
-    CssClassRenaming pass = 
-        new CssClassRenaming(tree.getMutatingVisitController(), classMap, idMap);
-    pass.runPass();
-  }
+    @Override
+    protected void runPass() {
+        SubstitutionMap classMap = new SubstitutionMap() {
+            /** {@inheritDoc} */
+            @Override
+            public String get(String key) {
+                return key.startsWith("CSS_") ? key + '_' : key;
+            }
+        };
+        SubstitutionMap idMap = new SubstitutionMap() {
+            /** {@inheritDoc} */
+            @Override
+            public String get(String key) {
+                return key.startsWith("ID_") ? key + '^' : key;
+            }
+        };
+        CssClassRenaming pass =
+                new CssClassRenaming(tree.getMutatingVisitController(), classMap, idMap);
+        pass.runPass();
+    }
 }

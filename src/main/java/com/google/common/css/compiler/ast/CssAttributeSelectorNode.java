@@ -26,73 +26,75 @@ import com.google.common.css.compiler.ast.CssSelectorNode.Specificity;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssAttributeSelectorNode extends CssRefinerNode {
-  /** Indicates which kind of attribute selector is used. */
-  private MatchType matchType;
-  private String attributeName;
-  private CssValueNode value;
+    /**
+     * Indicates which kind of attribute selector is used.
+     */
+    private MatchType matchType;
+    private String attributeName;
+    private CssValueNode value;
 
-  /**
-   * Determines how the given value has to match the value of the attribute so
-   * that the attribute is selected.
-   */
-  public enum MatchType {
-    ANY(""),                // [attr]
-    EXACT("="),             // [attr=val]
-    ONE_WORD("~="),         // [attr~=val]
-    EXACT_OR_DASH("|="),    // [attr|=val]
-    PREFIX("^="),           // [attr^=val]
-    SUFFIX("$="),           // [attr$=val]
-    CONTAINS("*=");         // [attr*=val]
+    /**
+     * Determines how the given value has to match the value of the attribute so
+     * that the attribute is selected.
+     */
+    public enum MatchType {
+        ANY(""),                // [attr]
+        EXACT("="),             // [attr=val]
+        ONE_WORD("~="),         // [attr~=val]
+        EXACT_OR_DASH("|="),    // [attr|=val]
+        PREFIX("^="),           // [attr^=val]
+        SUFFIX("$="),           // [attr$=val]
+        CONTAINS("*=");         // [attr*=val]
 
-    private final String symbol;
+        private final String symbol;
 
-    private MatchType(String symbol) {
-      this.symbol = symbol;
+        private MatchType(String symbol) {
+            this.symbol = symbol;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
     }
 
-    public String getSymbol() {
-      return symbol;
+    public CssAttributeSelectorNode(MatchType matchType, String attributeName,
+                                    CssValueNode value, SourceCodeLocation sourceCodeLocation) {
+        super(Refiner.ATTRIBUTE, "", sourceCodeLocation);
+        this.matchType = matchType;
+        this.attributeName = attributeName;
+        this.value = value;
     }
-  }
 
-  public CssAttributeSelectorNode(MatchType matchType, String attributeName,
-      CssValueNode value, SourceCodeLocation sourceCodeLocation) {
-    super(Refiner.ATTRIBUTE, "", sourceCodeLocation);
-    this.matchType = matchType;
-    this.attributeName = attributeName;
-    this.value = value;
-  }
+    protected CssAttributeSelectorNode(CssAttributeSelectorNode node) {
+        this(node.matchType, node.attributeName, node.value,
+                node.getSourceCodeLocation());
+    }
 
-  protected CssAttributeSelectorNode(CssAttributeSelectorNode node) {
-    this(node.matchType, node.attributeName, node.value,
-        node.getSourceCodeLocation());
-  }
+    @Override
+    public CssAttributeSelectorNode deepCopy() {
+        return new CssAttributeSelectorNode(this);
+    }
 
-  @Override
-  public CssAttributeSelectorNode deepCopy() {
-    return new CssAttributeSelectorNode(this);
-  }
+    public MatchType getMatchType() {
+        return matchType;
+    }
 
-  public MatchType getMatchType() {
-    return matchType;
-  }
+    public String getMatchSymbol() {
+        return matchType.getSymbol();
+    }
 
-  public String getMatchSymbol() {
-    return matchType.getSymbol();
-  }
+    public String getAttributeName() {
+        return attributeName;
+    }
 
-  public String getAttributeName() {
-    return attributeName;
-  }
+    public CssValueNode getValue() {
+        return value;
+    }
 
-  public CssValueNode getValue() {
-    return value;
-  }
-
-  @Override
-  public Specificity getSpecificity() {
-    // c++ (c = the number of class selectors, attributes selectors,
-    // and pseudo-classes in the selector)
-    return new Specificity(0, 1, 0);
-  }
+    @Override
+    public Specificity getSpecificity() {
+        // c++ (c = the number of class selectors, attributes selectors,
+        // and pseudo-classes in the selector)
+        return new Specificity(0, 1, 0);
+    }
 }

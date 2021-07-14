@@ -28,72 +28,76 @@ import com.google.common.css.compiler.ast.CssSelectorNode.Specificity;
  * @author fbenz@google.com (Florian Benz)
  */
 public abstract class CssRefinerNode extends CssNode {
-  /** Type of refiner. */
-  protected Refiner refinerType;
-  /** Name of the refiner. */
-  protected String refinerName;
+    /**
+     * Type of refiner.
+     */
+    protected Refiner refinerType;
+    /**
+     * Name of the refiner.
+     */
+    protected String refinerName;
 
-  /**
-   * Contains the list of all possible CSS refiners.
-   */
-  // TODO(fbenz): The handling of the pre- and suffixes should be moved to
-  // the corresponding classes.
-  public enum Refiner {
-    CLASS(".", ""),
-    ID("#", ""),
-    PSEUDO_CLASS(":", ""),
-    PSEUDO_ELEMENT("::", ""),
-    ATTRIBUTE("[", "]");
+    /**
+     * Contains the list of all possible CSS refiners.
+     */
+    // TODO(fbenz): The handling of the pre- and suffixes should be moved to
+    // the corresponding classes.
+    public enum Refiner {
+        CLASS(".", ""),
+        ID("#", ""),
+        PSEUDO_CLASS(":", ""),
+        PSEUDO_ELEMENT("::", ""),
+        ATTRIBUTE("[", "]");
 
-    private final String prefix;
-    private final String suffix;
+        private final String prefix;
+        private final String suffix;
 
-    private Refiner(String prefix, String suffix) {
-      this.prefix = prefix;
-      this.suffix = suffix;
+        private Refiner(String prefix, String suffix) {
+            this.prefix = prefix;
+            this.suffix = suffix;
+        }
+
+        @Override
+        public String toString() {
+            return prefix + suffix;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+        public String getSuffix() {
+            return suffix;
+        }
     }
 
-    @Override
-    public String toString() {
-      return prefix + suffix;
+    protected CssRefinerNode(Refiner refinerType,
+                             String refinerName, SourceCodeLocation sourceCodeLocation) {
+        super(sourceCodeLocation);
+        this.refinerType = refinerType;
+        this.refinerName = refinerName;
+    }
+
+    public String getRefinerName() {
+        return refinerName;
+    }
+
+    public Refiner getRefinerType() {
+        return refinerType;
     }
 
     public String getPrefix() {
-      return prefix;
+        return refinerType.getPrefix();
     }
 
     public String getSuffix() {
-      return suffix;
+        return refinerType.getSuffix();
     }
-  }
 
-  protected CssRefinerNode(Refiner refinerType,
-      String refinerName, SourceCodeLocation sourceCodeLocation) {
-    super(sourceCodeLocation);
-    this.refinerType = refinerType;
-    this.refinerName = refinerName;
-  }
+    public abstract Specificity getSpecificity();
 
-  public String getRefinerName() {
-    return refinerName;
-  }
-
-  public Refiner getRefinerType() {
-    return refinerType;
-  }
-
-  public String getPrefix() {
-    return refinerType.getPrefix();
-  }
-
-  public String getSuffix() {
-    return refinerType.getSuffix();
-  }
-
-  public abstract Specificity getSpecificity();
-
-  @Override
-  public String toString() {
-    return refinerType.getPrefix() + refinerName + refinerType.getSuffix();
-  }
+    @Override
+    public String toString() {
+        return refinerType.getPrefix() + refinerName + refinerType.getSuffix();
+    }
 }

@@ -25,29 +25,30 @@ import javax.annotation.Nullable;
  * @author bolinfest@google.com (Michael Bolin)
  */
 public enum Vendor {
-  WEBKIT("-webkit-"),
-  MOZILLA("-moz-"),
-  MICROSOFT("-ms-"),
-  OPERA("-o-"),
-  KONQUEROR("-khtml-"),
-  ;
+    WEBKIT("-webkit-"),
+    MOZILLA("-moz-"),
+    MICROSOFT("-ms-"),
+    OPERA("-o-"),
+    KONQUEROR("-khtml-"),
+    ;
 
-  private final String prefix;
+    private final String prefix;
 
-  Vendor(String prefix) {
-    this.prefix = prefix;
-  }
-
-  public static @Nullable Vendor parseProperty(String propertyName) {
-    for (Vendor vendor : values()) {
-      if (propertyName.startsWith(vendor.prefix)) {
-        return vendor;
-      }
+    Vendor(String prefix) {
+        this.prefix = prefix;
     }
-    return null;
-  }
 
-  public String getPrefix() {
-    return prefix;
-  }
+    public static @Nullable
+    Vendor parseProperty(String propertyName) {
+        for (Vendor vendor : values()) {
+            if (propertyName.startsWith(vendor.prefix)) {
+                return vendor;
+            }
+        }
+        return null;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
 }

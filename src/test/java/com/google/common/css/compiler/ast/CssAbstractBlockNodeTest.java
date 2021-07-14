@@ -18,11 +18,12 @@ package com.google.common.css.compiler.ast;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.List;
 
 /**
  * Unit tests for {@link CssAbstractBlockNode}.
@@ -31,103 +32,103 @@ import org.junit.runners.JUnit4;
  */
 @RunWith(JUnit4.class)
 public class CssAbstractBlockNodeTest {
-  private ImmutableList<Class<? extends CssNode>> validSuperclasses =
-      ImmutableList.<Class<? extends CssNode>>of(CssValueNode.class);
+    private ImmutableList<Class<? extends CssNode>> validSuperclasses =
+            ImmutableList.<Class<? extends CssNode>>of(CssValueNode.class);
 
-  @Test
-  public void testConstructor() {
-    List<CssNode> children = Lists.newArrayList();
-    children.add(new CssLiteralNode("a"));
-    children.add(new CssNumericNode("20", "px"));
-    try {
-      new TestBlock(children, validSuperclasses);
-    } catch (IllegalStateException e) {
-      Assert.fail(e.getMessage());
-    }
-  }
-
-  @Test
-  public void testDeepCopy() {
-    List<CssNode> children = Lists.newArrayList();
-    children.add(new CssLiteralNode("a"));
-    children.add(new CssNumericNode("20", "px"));
-    try {
-      TestBlock testBlock = new TestBlock(children, validSuperclasses);
-      testBlock.deepCopy();
-    } catch (IllegalStateException e) {
-      Assert.fail(e.getMessage());
-    }
-  }
-
-  @Test
-  public void testAddChild() {
-    TestBlock testBlock = new TestBlock(validSuperclasses);
-    try {
-      testBlock.addChildToBack(new CssLiteralNode("a"));
-    } catch (IllegalStateException e) {
-      Assert.fail(e.getMessage());
-    }
-  }
-
-  @Test
-  public void testAddChildren() {
-    TestBlock testBlock = new TestBlock(validSuperclasses);
-    List<CssNode> children = Lists.newArrayList();
-    children.add(new CssLiteralNode("a"));
-    children.add(new CssNumericNode("20", "px"));
-    try {
-      testBlock.setChildren(children);
-    } catch (IllegalStateException e) {
-      Assert.fail(e.getMessage());
-    }
-  }
-
-  @Test
-  public void testAddChildError() {
-    TestBlock testBlock = new TestBlock(validSuperclasses);
-    try {
-      testBlock.addChildToBack(new CssBlockNode());
-      Assert.fail("An IllegalStateException should have been thrown.");
-    } catch (IllegalStateException e) {
-      // expected exception
-    }
-  }
-
-  @Test
-  public void testAddChildrenError() {
-    TestBlock testBlock = new TestBlock(validSuperclasses);
-    List<CssNode> children = Lists.newArrayList();
-    children.add(new CssLiteralNode("a"));
-    children.add(new CssNumericNode("20", "px"));
-    children.add(new CssBlockNode());
-    try {
-      testBlock.setChildren(children);
-      Assert.fail("An IllegalStateException should have been thrown.");
-    } catch (IllegalStateException e) {
-      // expected exception
-    }
-  }
-
-  private class TestBlock extends CssAbstractBlockNode {
-
-    public TestBlock(
-        ImmutableList<Class<? extends CssNode>> validSuperclasses) {
-      super(true /* isEnclosedWithBraces */, validSuperclasses);
+    @Test
+    public void testConstructor() {
+        List<CssNode> children = Lists.newArrayList();
+        children.add(new CssLiteralNode("a"));
+        children.add(new CssNumericNode("20", "px"));
+        try {
+            new TestBlock(children, validSuperclasses);
+        } catch (IllegalStateException e) {
+            Assert.fail(e.getMessage());
+        }
     }
 
-    public TestBlock(List<CssNode> children,
-        ImmutableList<Class<? extends CssNode>> validSuperclasses) {
-      super(true /* isEnclosedWithBraces */, children, null /* comments */,
-          validSuperclasses);
+    @Test
+    public void testDeepCopy() {
+        List<CssNode> children = Lists.newArrayList();
+        children.add(new CssLiteralNode("a"));
+        children.add(new CssNumericNode("20", "px"));
+        try {
+            TestBlock testBlock = new TestBlock(children, validSuperclasses);
+            testBlock.deepCopy();
+        } catch (IllegalStateException e) {
+            Assert.fail(e.getMessage());
+        }
     }
 
-    public TestBlock(TestBlock node) {
-      super(node);
+    @Test
+    public void testAddChild() {
+        TestBlock testBlock = new TestBlock(validSuperclasses);
+        try {
+            testBlock.addChildToBack(new CssLiteralNode("a"));
+        } catch (IllegalStateException e) {
+            Assert.fail(e.getMessage());
+        }
     }
 
-    @Override
-    public TestBlock deepCopy() {
-      return new TestBlock(this);
+    @Test
+    public void testAddChildren() {
+        TestBlock testBlock = new TestBlock(validSuperclasses);
+        List<CssNode> children = Lists.newArrayList();
+        children.add(new CssLiteralNode("a"));
+        children.add(new CssNumericNode("20", "px"));
+        try {
+            testBlock.setChildren(children);
+        } catch (IllegalStateException e) {
+            Assert.fail(e.getMessage());
+        }
     }
-  }
+
+    @Test
+    public void testAddChildError() {
+        TestBlock testBlock = new TestBlock(validSuperclasses);
+        try {
+            testBlock.addChildToBack(new CssBlockNode());
+            Assert.fail("An IllegalStateException should have been thrown.");
+        } catch (IllegalStateException e) {
+            // expected exception
+        }
+    }
+
+    @Test
+    public void testAddChildrenError() {
+        TestBlock testBlock = new TestBlock(validSuperclasses);
+        List<CssNode> children = Lists.newArrayList();
+        children.add(new CssLiteralNode("a"));
+        children.add(new CssNumericNode("20", "px"));
+        children.add(new CssBlockNode());
+        try {
+            testBlock.setChildren(children);
+            Assert.fail("An IllegalStateException should have been thrown.");
+        } catch (IllegalStateException e) {
+            // expected exception
+        }
+    }
+
+    private class TestBlock extends CssAbstractBlockNode {
+
+        public TestBlock(
+                ImmutableList<Class<? extends CssNode>> validSuperclasses) {
+            super(true /* isEnclosedWithBraces */, validSuperclasses);
+        }
+
+        public TestBlock(List<CssNode> children,
+                         ImmutableList<Class<? extends CssNode>> validSuperclasses) {
+            super(true /* isEnclosedWithBraces */, children, null /* comments */,
+                    validSuperclasses);
+        }
+
+        public TestBlock(TestBlock node) {
+            super(node);
+        }
+
+        @Override
+        public TestBlock deepCopy() {
+            return new TestBlock(this);
+        }
+    }
 }

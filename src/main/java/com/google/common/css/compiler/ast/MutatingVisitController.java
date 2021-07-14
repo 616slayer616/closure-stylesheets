@@ -19,13 +19,14 @@ package com.google.common.css.compiler.ast;
 import java.util.List;
 
 /**
+ *
  */
 public interface MutatingVisitController extends VisitController {
-  // Add more primitive mutator operations as they become needed.
+    // Add more primitive mutator operations as they become needed.
 
-  void removeCurrentNode();
+    void removeCurrentNode();
 
-  <T extends CssNode> void replaceCurrentBlockChildWith(
-      List<T> replacementNodes,
-      boolean visitTheReplacementNodes);
+    <T extends CssNode> void replaceCurrentBlockChildWith(
+            List<T> replacementNodes,
+            boolean visitTheReplacementNodes);
 }

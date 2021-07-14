@@ -27,23 +27,26 @@ import com.google.common.css.compiler.ast.GssError;
  * @author bolinfest@google.com (Michael Bolin)
  */
 public class DummyErrorManager implements ErrorManager {
-  private static final DummyErrorManager INSTANCE = new DummyErrorManager();
+    private static final DummyErrorManager INSTANCE = new DummyErrorManager();
 
-  public static DummyErrorManager getInstance() {
-    return INSTANCE;
-  }
+    public static DummyErrorManager getInstance() {
+        return INSTANCE;
+    }
 
-  @Override
-  public void report(GssError error) {}
+    @Override
+    public void report(GssError error) {
+    }
 
-  @Override
-  public void reportWarning(GssError warning) {}
+    @Override
+    public void reportWarning(GssError warning) {
+    }
 
-  @Override
-  public void generateReport() {}
+    @Override
+    public void generateReport() {
+    }
 
-  @Override
-  public boolean hasErrors() {
-    return false;
-  }
+    @Override
+    public boolean hasErrors() {
+        return false;
+    }
 }

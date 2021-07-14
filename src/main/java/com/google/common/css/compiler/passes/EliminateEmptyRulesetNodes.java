@@ -27,25 +27,25 @@ import com.google.common.css.compiler.ast.MutatingVisitController;
  * @author oana@google.com (Oana Florescu)
  */
 public class EliminateEmptyRulesetNodes extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final MutatingVisitController visitController;
+    private final MutatingVisitController visitController;
 
-  public EliminateEmptyRulesetNodes(MutatingVisitController visitController) {
-    this.visitController = visitController;
-  }
-
-  @Override
-  public boolean enterRuleset(CssRulesetNode node) {
-    if (node.getDeclarations().isEmpty()) {
-      visitController.removeCurrentNode();
-      return false;
+    public EliminateEmptyRulesetNodes(MutatingVisitController visitController) {
+        this.visitController = visitController;
     }
-    return true;
-  }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
+    @Override
+    public boolean enterRuleset(CssRulesetNode node) {
+        if (node.getDeclarations().isEmpty()) {
+            visitController.removeCurrentNode();
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+    }
 }

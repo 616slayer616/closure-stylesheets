@@ -18,16 +18,15 @@ package com.google.common.css;
 
 /**
  * Provides substitution maps for use with command-line compilers.
- *
+ * <p>
  * Any implementation should provide a parameterless constructor, as the
  * provider is instantiated via {@link Class#newInstance()}.
- *
  */
 public interface SubstitutionMapProvider {
-  /**
-   * Gets the substitution map.
-   *
-   * @return The substitution map provided by this class.
-   */
-  SubstitutionMap get();
+    /**
+     * Gets the substitution map.
+     *
+     * @return The substitution map provided by this class.
+     */
+    SubstitutionMap get();
 }

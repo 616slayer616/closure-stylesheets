@@ -26,67 +26,69 @@ import javax.annotation.Nullable;
  * @author oana@google.com (Oana Florescu)
  */
 public class CssPropertyNode extends CssValueNode {
-  private final Property property;
+    private final Property property;
 
-  /**
-   * Creates a property node with the specified value.
-   */
-  public CssPropertyNode(String value) {
-    this(value, null);
-  }
+    /**
+     * Creates a property node with the specified value.
+     */
+    public CssPropertyNode(String value) {
+        this(value, null);
+    }
 
-  /**
-   * Creates a property node with the specified value and source code location.
-   */
-  public CssPropertyNode(
-      String value, @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(value, sourceCodeLocation);
-    this.property = Property.byName(value);
-  }
+    /**
+     * Creates a property node with the specified value and source code location.
+     */
+    public CssPropertyNode(
+            String value, @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(value, sourceCodeLocation);
+        this.property = Property.byName(value);
+    }
 
-  /**
-   * Creates a property node by deep-copying the specified property node.
-   */
-  public CssPropertyNode(CssPropertyNode node) {
-    super(node);
-    this.property = node.property;
-  }
+    /**
+     * Creates a property node by deep-copying the specified property node.
+     */
+    public CssPropertyNode(CssPropertyNode node) {
+        super(node);
+        this.property = node.property;
+    }
 
-  @Override
-  public CssPropertyNode deepCopy() {
-    return new CssPropertyNode(this);
-  }
+    @Override
+    public CssPropertyNode deepCopy() {
+        return new CssPropertyNode(this);
+    }
 
-  public Property getProperty() {
-    return property;
-  }
+    public Property getProperty() {
+        return property;
+    }
 
-  public String getPropertyName() {
-    return property.getName();
-  }
+    public String getPropertyName() {
+        return property.getName();
+    }
 
-  /**
-   * @return whether this is a CSS custom property.
-   */
-  public boolean isCustom() { return property.isCustom(); }
+    /**
+     * @return whether this is a CSS custom property.
+     */
+    public boolean isCustom() {
+        return property.isCustom();
+    }
 
-  /**
-   * Gets the partition of this property. All properties with the same partition
-   * share a common shorthand. A non-standard property is its own single
-   * partition.
-   * <p>
-   * For example, {@code padding}, {@code padding-bottom}, {@code padding-left},
-   * {@code padding-right}, {@code padding-top} are all in the {@code padding}
-   * partition. As another example, {@code z-index} is its own single partition.
-   *
-   * @return a string representing the partition
-   */
-  public String getPartition() {
-    return property.getPartition();
-  }
+    /**
+     * Gets the partition of this property. All properties with the same partition
+     * share a common shorthand. A non-standard property is its own single
+     * partition.
+     * <p>
+     * For example, {@code padding}, {@code padding-bottom}, {@code padding-left},
+     * {@code padding-right}, {@code padding-top} are all in the {@code padding}
+     * partition. As another example, {@code z-index} is its own single partition.
+     *
+     * @return a string representing the partition
+     */
+    public String getPartition() {
+        return property.getPartition();
+    }
 
-  @Override
-  public String toString() {
-    return property.getName();
-  }
+    @Override
+    public String toString() {
+        return property.getName();
+    }
 }

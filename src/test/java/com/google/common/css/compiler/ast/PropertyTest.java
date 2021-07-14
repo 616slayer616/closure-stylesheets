@@ -16,12 +16,12 @@
 
 package com.google.common.css.compiler.ast;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.Vendor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Unit test for {@link Property}. For legacy reasons, much of the behavior of {@link Property} is
@@ -32,74 +32,74 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class PropertyTest {
 
-  @Test
-  public void testBorderRadius() {
-    Property borderRadius = Property.byName("border-radius");
-    assertThat(borderRadius.isRecognizedProperty()).isTrue();
-    assertThat(borderRadius.getVendor()).isNull();
-    assertThat(borderRadius.getPartition()).isEqualTo("border-radius");
-    assertThat(borderRadius.getShorthands()).containsExactly("border-radius");
+    @Test
+    public void testBorderRadius() {
+        Property borderRadius = Property.byName("border-radius");
+        assertThat(borderRadius.isRecognizedProperty()).isTrue();
+        assertThat(borderRadius.getVendor()).isNull();
+        assertThat(borderRadius.getPartition()).isEqualTo("border-radius");
+        assertThat(borderRadius.getShorthands()).containsExactly("border-radius");
 
-    Property borderTopLeftRadius = Property.byName("border-top-left-radius");
-    assertThat(borderTopLeftRadius.isRecognizedProperty()).isTrue();
-    assertThat(borderRadius.getVendor()).isNull();
-    assertThat(borderRadius.getPartition()).isEqualTo("border-radius");
-    assertThat(borderRadius.getShorthands()).containsExactly("border-radius");
-  }
+        Property borderTopLeftRadius = Property.byName("border-top-left-radius");
+        assertThat(borderTopLeftRadius.isRecognizedProperty()).isTrue();
+        assertThat(borderRadius.getVendor()).isNull();
+        assertThat(borderRadius.getPartition()).isEqualTo("border-radius");
+        assertThat(borderRadius.getShorthands()).containsExactly("border-radius");
+    }
 
-  @Test
-  public void testWebkitBorderRadius() {
-    Property webkitBorderRadius = Property.byName("-webkit-border-radius");
-    assertThat(webkitBorderRadius.isRecognizedProperty()).isTrue();
-    assertThat(webkitBorderRadius.getVendor()).isEqualTo(Vendor.WEBKIT);
-    assertThat(webkitBorderRadius.getPartition()).isEqualTo("-webkit-border-radius");
-    assertThat(webkitBorderRadius.getShorthands()).containsExactly("-webkit-border-radius");
+    @Test
+    public void testWebkitBorderRadius() {
+        Property webkitBorderRadius = Property.byName("-webkit-border-radius");
+        assertThat(webkitBorderRadius.isRecognizedProperty()).isTrue();
+        assertThat(webkitBorderRadius.getVendor()).isEqualTo(Vendor.WEBKIT);
+        assertThat(webkitBorderRadius.getPartition()).isEqualTo("-webkit-border-radius");
+        assertThat(webkitBorderRadius.getShorthands()).containsExactly("-webkit-border-radius");
 
-    Property webkitBorderBottomRightRadius = Property.byName(
-        "-webkit-border-bottom-right-radius");
-    assertThat(webkitBorderBottomRightRadius.isRecognizedProperty()).isTrue();
-    assertThat(webkitBorderBottomRightRadius.getVendor()).isEqualTo(Vendor.WEBKIT);
-    assertThat(webkitBorderBottomRightRadius.getPartition()).isEqualTo("-webkit-border-radius");
-    assertThat(webkitBorderBottomRightRadius.getShorthands())
-        .containsExactly("-webkit-border-radius");
-  }
+        Property webkitBorderBottomRightRadius = Property.byName(
+                "-webkit-border-bottom-right-radius");
+        assertThat(webkitBorderBottomRightRadius.isRecognizedProperty()).isTrue();
+        assertThat(webkitBorderBottomRightRadius.getVendor()).isEqualTo(Vendor.WEBKIT);
+        assertThat(webkitBorderBottomRightRadius.getPartition()).isEqualTo("-webkit-border-radius");
+        assertThat(webkitBorderBottomRightRadius.getShorthands())
+                .containsExactly("-webkit-border-radius");
+    }
 
-  @Test
-  public void testMozBorderRadius() {
-    Property mozBorderRadius = Property.byName("-moz-border-radius");
-    assertThat(mozBorderRadius.isRecognizedProperty()).isTrue();
-    assertThat(mozBorderRadius.getVendor()).isEqualTo(Vendor.MOZILLA);
-    assertThat(mozBorderRadius.getPartition()).isEqualTo("-moz-border-radius");
-    assertThat(mozBorderRadius.getShorthands()).containsExactly("-moz-border-radius");
+    @Test
+    public void testMozBorderRadius() {
+        Property mozBorderRadius = Property.byName("-moz-border-radius");
+        assertThat(mozBorderRadius.isRecognizedProperty()).isTrue();
+        assertThat(mozBorderRadius.getVendor()).isEqualTo(Vendor.MOZILLA);
+        assertThat(mozBorderRadius.getPartition()).isEqualTo("-moz-border-radius");
+        assertThat(mozBorderRadius.getShorthands()).containsExactly("-moz-border-radius");
 
-    Property mozBorderRadiusTopLeft = Property.byName(
-        "-moz-border-radius-topright");
-    assertThat(mozBorderRadiusTopLeft.isRecognizedProperty()).isTrue();
-    assertThat(mozBorderRadiusTopLeft.getVendor()).isEqualTo(Vendor.MOZILLA);
-    assertThat(mozBorderRadiusTopLeft.getPartition()).isEqualTo("-moz-border-radius");
-    assertThat(mozBorderRadiusTopLeft.getShorthands()).containsExactly("-moz-border-radius");
-  }
+        Property mozBorderRadiusTopLeft = Property.byName(
+                "-moz-border-radius-topright");
+        assertThat(mozBorderRadiusTopLeft.isRecognizedProperty()).isTrue();
+        assertThat(mozBorderRadiusTopLeft.getVendor()).isEqualTo(Vendor.MOZILLA);
+        assertThat(mozBorderRadiusTopLeft.getPartition()).isEqualTo("-moz-border-radius");
+        assertThat(mozBorderRadiusTopLeft.getShorthands()).containsExactly("-moz-border-radius");
+    }
 
-  @Test
-  public void testCustomBorderProperty() {
-    Property borderHeight = Property.byName("border-height");
-    assertThat(borderHeight.isRecognizedProperty()).isFalse();
-    assertThat(borderHeight.getShorthands()).isEmpty();
+    @Test
+    public void testCustomBorderProperty() {
+        Property borderHeight = Property.byName("border-height");
+        assertThat(borderHeight.isRecognizedProperty()).isFalse();
+        assertThat(borderHeight.getShorthands()).isEmpty();
 
-    Property borderLeftHeight = Property.byName("border-left-height");
-    assertThat(borderLeftHeight.isRecognizedProperty()).isFalse();
-    assertThat(borderHeight.getShorthands()).isEmpty();
+        Property borderLeftHeight = Property.byName("border-left-height");
+        assertThat(borderLeftHeight.isRecognizedProperty()).isFalse();
+        assertThat(borderHeight.getShorthands()).isEmpty();
 
-    Property borderRightHeight = Property.byName("border-right-height");
-    assertThat(borderRightHeight.isRecognizedProperty()).isFalse();
-    assertThat(borderHeight.getShorthands()).isEmpty();
+        Property borderRightHeight = Property.byName("border-right-height");
+        assertThat(borderRightHeight.isRecognizedProperty()).isFalse();
+        assertThat(borderHeight.getShorthands()).isEmpty();
 
-    Property borderTopHeight = Property.byName("border-top-height");
-    assertThat(borderTopHeight.isRecognizedProperty()).isFalse();
-    assertThat(borderHeight.getShorthands()).isEmpty();
+        Property borderTopHeight = Property.byName("border-top-height");
+        assertThat(borderTopHeight.isRecognizedProperty()).isFalse();
+        assertThat(borderHeight.getShorthands()).isEmpty();
 
-    Property borderBottomHeight = Property.byName("border-bottom-height");
-    assertThat(borderBottomHeight.isRecognizedProperty()).isFalse();
-    assertThat(borderHeight.getShorthands()).isEmpty();
-  }
+        Property borderBottomHeight = Property.byName("border-bottom-height");
+        assertThat(borderBottomHeight.isRecognizedProperty()).isFalse();
+        assertThat(borderHeight.getShorthands()).isEmpty();
+    }
 }

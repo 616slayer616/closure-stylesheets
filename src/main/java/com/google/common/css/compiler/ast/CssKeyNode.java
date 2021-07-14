@@ -30,74 +30,78 @@ import javax.annotation.Nullable;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssKeyNode extends CssNode implements ChunkAware {
-  /** Value of the key held by this node. */
-  private String keyValue;
-  /** The chunk this key belongs to. */
-  private Object chunk;
+    /**
+     * Value of the key held by this node.
+     */
+    private String keyValue;
+    /**
+     * The chunk this key belongs to.
+     */
+    private Object chunk;
 
-  /**
-   * Constructor of a key node.
-   *
-   * @param keyValue
-   * @param sourceCodeLocation
-   */
-  public CssKeyNode(@Nullable String keyValue,
-      @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(sourceCodeLocation);
-    this.keyValue = keyValue;
-  }
-
-  /**
-   * Constructor of a key node.
-   *
-   * @param keyValue
-   */
-  public CssKeyNode(String keyValue) {
-    this(keyValue, null);
-  }
-
-  /**
-   * Copy-constructor of a key node.
-   *
-   * @param node
-   */
-  public CssKeyNode(CssKeyNode node) {
-    this(node.getKeyValue(), node.getSourceCodeLocation());
-    this.chunk = node.getChunk();
-  }
-
-  @Override
-  public CssKeyNode deepCopy() {
-    return new CssKeyNode(this);
-  }
-
-  public void setKeyValue(String keyValue) {
-    this.keyValue = keyValue;
-  }
-
-  public String getKeyValue() {
-    return keyValue;
-  }
-
-  @Override
-  public void setChunk(Object chunk) {
-    this.chunk = chunk;
-  }
-
-  @Override
-  public Object getChunk() {
-    return chunk;
-  }
-
-  /**
-   * For debugging only.
-   */
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    if (keyValue != null) {
-      sb.append(keyValue);
+    /**
+     * Constructor of a key node.
+     *
+     * @param keyValue
+     * @param sourceCodeLocation
+     */
+    public CssKeyNode(@Nullable String keyValue,
+                      @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(sourceCodeLocation);
+        this.keyValue = keyValue;
     }
-    return sb.toString();
-  }
+
+    /**
+     * Constructor of a key node.
+     *
+     * @param keyValue
+     */
+    public CssKeyNode(String keyValue) {
+        this(keyValue, null);
+    }
+
+    /**
+     * Copy-constructor of a key node.
+     *
+     * @param node
+     */
+    public CssKeyNode(CssKeyNode node) {
+        this(node.getKeyValue(), node.getSourceCodeLocation());
+        this.chunk = node.getChunk();
+    }
+
+    @Override
+    public CssKeyNode deepCopy() {
+        return new CssKeyNode(this);
+    }
+
+    public void setKeyValue(String keyValue) {
+        this.keyValue = keyValue;
+    }
+
+    public String getKeyValue() {
+        return keyValue;
+    }
+
+    @Override
+    public void setChunk(Object chunk) {
+        this.chunk = chunk;
+    }
+
+    @Override
+    public Object getChunk() {
+        return chunk;
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (keyValue != null) {
+            sb.append(keyValue);
+        }
+        return sb.toString();
+    }
 }

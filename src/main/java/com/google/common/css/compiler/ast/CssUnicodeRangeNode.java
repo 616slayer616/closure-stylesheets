@@ -27,20 +27,20 @@ import javax.annotation.Nullable;
  */
 public class CssUnicodeRangeNode extends CssValueNode {
 
-  public CssUnicodeRangeNode(String value, @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(value, sourceCodeLocation);
-  }
+    public CssUnicodeRangeNode(String value, @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(value, sourceCodeLocation);
+    }
 
-  public CssUnicodeRangeNode(String value) {
-    this(value, null);
-  }
+    public CssUnicodeRangeNode(String value) {
+        this(value, null);
+    }
 
-  public CssUnicodeRangeNode(CssUnicodeRangeNode node) {
-    super(node);
-  }
+    public CssUnicodeRangeNode(CssUnicodeRangeNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssUnicodeRangeNode deepCopy() {
-    return new CssUnicodeRangeNode(this);
-  }
+    @Override
+    public CssUnicodeRangeNode deepCopy() {
+        return new CssUnicodeRangeNode(this);
+    }
 }

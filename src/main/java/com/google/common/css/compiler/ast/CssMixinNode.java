@@ -28,42 +28,42 @@ import com.google.common.css.SourceCodeLocation;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssMixinNode extends CssAtRuleNode {
-  private final String definitionName;
-  private final CssFunctionArgumentsNode args;
+    private final String definitionName;
+    private final CssFunctionArgumentsNode args;
 
-  public CssMixinNode(String definitionName, CssFunctionArgumentsNode args,
-      SourceCodeLocation location) {
-    super(Type.MIXIN, new CssLiteralNode("mixin"));
-    this.definitionName = definitionName;
-    this.args = args;
-    super.setSourceCodeLocation(location);
-    becomeParentForNode(args);
-  }
+    public CssMixinNode(String definitionName, CssFunctionArgumentsNode args,
+                        SourceCodeLocation location) {
+        super(Type.MIXIN, new CssLiteralNode("mixin"));
+        this.definitionName = definitionName;
+        this.args = args;
+        super.setSourceCodeLocation(location);
+        becomeParentForNode(args);
+    }
 
-  /**
-   * Creates a new mixin node that is a deep copy of the given node.
-   */
-  public CssMixinNode(CssMixinNode node) {
-    super(node);
-    this.definitionName = new String(node.definitionName);
-    this.args = node.args.deepCopy();
-  }
+    /**
+     * Creates a new mixin node that is a deep copy of the given node.
+     */
+    public CssMixinNode(CssMixinNode node) {
+        super(node);
+        this.definitionName = new String(node.definitionName);
+        this.args = node.args.deepCopy();
+    }
 
-  @Override
-  public CssMixinNode deepCopy() {
-    CssMixinNode copy = new CssMixinNode(this);
-    copy.setSourceCodeLocation(this.getSourceCodeLocation());
-    return copy;
-  }
+    @Override
+    public CssMixinNode deepCopy() {
+        CssMixinNode copy = new CssMixinNode(this);
+        copy.setSourceCodeLocation(this.getSourceCodeLocation());
+        return copy;
+    }
 
-  public String getDefinitionName() {
-    return definitionName;
-  }
+    public String getDefinitionName() {
+        return definitionName;
+    }
 
-  /**
-   * Returns the arguments belonging to this mixin as a node.
-   */
-  public CssFunctionArgumentsNode getArguments() {
-    return args;
-  }
+    /**
+     * Returns the arguments belonging to this mixin as a node.
+     */
+    public CssFunctionArgumentsNode getArguments() {
+        return args;
+    }
 }

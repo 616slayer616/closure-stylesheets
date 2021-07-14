@@ -25,42 +25,42 @@ import com.google.common.css.SourceCodeLocation;
  */
 public class CssHexColorNode extends CssValueNode {
 
-  /**
-   * Constructor of a color node.
-   *
-   * @param color
-   */
-  public CssHexColorNode(String color) {
-    super(color, null);
-  }
+    /**
+     * Constructor of a color node.
+     *
+     * @param color
+     */
+    public CssHexColorNode(String color) {
+        super(color, null);
+    }
 
-  /**
-   * Constructor of a color node.
-   *
-   * @param color
-   * @param sourceCodeLocation
-   */
-  public CssHexColorNode(String color,
-                         SourceCodeLocation sourceCodeLocation) {
-    super(color, sourceCodeLocation);
-  }
+    /**
+     * Constructor of a color node.
+     *
+     * @param color
+     * @param sourceCodeLocation
+     */
+    public CssHexColorNode(String color,
+                           SourceCodeLocation sourceCodeLocation) {
+        super(color, sourceCodeLocation);
+    }
 
-  /**
-   * Copy constructor.
-   *
-   * @param node
-   */
-  public CssHexColorNode(CssHexColorNode node) {
-    super(node);
-  }
-  
-  @Override
-  public CssHexColorNode deepCopy() {
-    return new CssHexColorNode(this);
-  }
-  
-  @Override
-  public String toString() {
-    return getValue().toLowerCase();
-  }
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssHexColorNode(CssHexColorNode node) {
+        super(node);
+    }
+
+    @Override
+    public CssHexColorNode deepCopy() {
+        return new CssHexColorNode(this);
+    }
+
+    @Override
+    public String toString() {
+        return getValue().toLowerCase();
+    }
 }

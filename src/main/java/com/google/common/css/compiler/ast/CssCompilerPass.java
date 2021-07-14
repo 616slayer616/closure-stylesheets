@@ -17,9 +17,10 @@
 package com.google.common.css.compiler.ast;
 
 /**
+ *
  */
 public interface CssCompilerPass {
 
-  void runPass();
+    void runPass();
 
 }

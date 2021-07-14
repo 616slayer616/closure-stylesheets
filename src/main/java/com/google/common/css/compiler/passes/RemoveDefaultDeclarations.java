@@ -16,13 +16,7 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssCompositeValueNode;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssPriorityNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.MutatingVisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
  * Compiler pass that removes declaration nodes that have all the property
@@ -31,65 +25,65 @@ import com.google.common.css.compiler.ast.MutatingVisitController;
  * @author oana@google.com (Oana Florescu)
  */
 public class RemoveDefaultDeclarations extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final MutatingVisitController visitController;
+    private final MutatingVisitController visitController;
 
-  private boolean canRemoveDefaultValue = false;
+    private boolean canRemoveDefaultValue = false;
 
-  public RemoveDefaultDeclarations(MutatingVisitController visitController) {
-    this.visitController = visitController;
-  }
-
-  @Override
-  public boolean enterCompositeValueNode(CssCompositeValueNode node) {
-    removeDefault(node);
-    return true;
-  }
-
-  @Override
-  public boolean enterValueNode(CssValueNode node) {
-    removeDefault(node);
-    return true;
-  }
-
-  private void removeDefault(CssValueNode node) {
-    if (canRemoveDefaultValue && node.getIsDefault()) {
-      visitController.removeCurrentNode();
+    public RemoveDefaultDeclarations(MutatingVisitController visitController) {
+        this.visitController = visitController;
     }
-  }
 
-  @Override
-  public boolean enterDeclaration(CssDeclarationNode node) {
-    boolean removeDeclaration = true;
-    canRemoveDefaultValue =
-        !node.getPropertyName().getProperty().hasPositionalParameters();
-    // If any of the DeclarationNode's values is a priority node (marked with 
-    // "!important" in the css) then none of the values should be 
-    // removed. Otherwise remove the default values.
-    for (CssValueNode value : node.getPropertyValue().childIterable()) {
-      if (value instanceof CssPriorityNode) {
-        removeDeclaration = false;
+    @Override
+    public boolean enterCompositeValueNode(CssCompositeValueNode node) {
+        removeDefault(node);
+        return true;
+    }
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+        removeDefault(node);
+        return true;
+    }
+
+    private void removeDefault(CssValueNode node) {
+        if (canRemoveDefaultValue && node.getIsDefault()) {
+            visitController.removeCurrentNode();
+        }
+    }
+
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode node) {
+        boolean removeDeclaration = true;
+        canRemoveDefaultValue =
+                !node.getPropertyName().getProperty().hasPositionalParameters();
+        // If any of the DeclarationNode's values is a priority node (marked with
+        // "!important" in the css) then none of the values should be
+        // removed. Otherwise remove the default values.
+        for (CssValueNode value : node.getPropertyValue().childIterable()) {
+            if (value instanceof CssPriorityNode) {
+                removeDeclaration = false;
+                canRemoveDefaultValue = false;
+                break;
+            }
+            if (!value.getIsDefault()) {
+                removeDeclaration = false;
+            }
+        }
+        if (removeDeclaration) {
+            visitController.removeCurrentNode();
+        }
+        return true;
+    }
+
+    @Override
+    public void leaveDeclaration(CssDeclarationNode node) {
         canRemoveDefaultValue = false;
-        break;
-      }
-      if (!value.getIsDefault()) {
-        removeDeclaration = false;
-      }
     }
-    if (removeDeclaration) {
-      visitController.removeCurrentNode();
+
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
     }
-    return true;
-  }
-
-  @Override
-  public void leaveDeclaration(CssDeclarationNode node) {
-    canRemoveDefaultValue = false;
-  }
-
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-  }
 }

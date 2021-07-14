@@ -23,40 +23,39 @@ import java.util.List;
 
 /**
  * A wrapper around the JavaCC generated GSS parser.
- *
  */
 public class GssParser extends AbstractGssParser {
 
-  private final List<SourceCode> sources;
-  private ImmutableList<GssParserException> handledErrors = ImmutableList.of();
+    private final List<SourceCode> sources;
+    private ImmutableList<GssParserException> handledErrors = ImmutableList.of();
 
-  public GssParser(List<SourceCode> sources) {
-    this.sources = sources;
-  }
+    public GssParser(List<SourceCode> sources) {
+        this.sources = sources;
+    }
 
-  public GssParser(SourceCode source) {
-    this(ImmutableList.of(source));
-  }
+    public GssParser(SourceCode source) {
+        this(ImmutableList.of(source));
+    }
 
-  public CssTree parse() throws GssParserException {
-    return parse(false);
-  }
+    public CssTree parse() throws GssParserException {
+        return parse(false);
+    }
 
-  public CssTree parse(boolean errorHandling) throws GssParserException {
-    ParseResult result = parseInternal(sources, errorHandling);
-    this.handledErrors = result.getHandledErrors();
-    return result.getCssTree();
-  }
+    public CssTree parse(boolean errorHandling) throws GssParserException {
+        ParseResult result = parseInternal(sources, errorHandling);
+        this.handledErrors = result.getHandledErrors();
+        return result.getCssTree();
+    }
 
-  /**
-   * Returns errors from previous call to parse().
-   */
-  public List<GssParserException> getHandledErrors() {
-    return handledErrors;
-  }
+    /**
+     * Returns errors from previous call to parse().
+     */
+    public List<GssParserException> getHandledErrors() {
+        return handledErrors;
+    }
 
-  @Override
-  protected GssParserCC getParser() {
-    return new GssParserCC(EMPTY_CHAR_STREAM);
-  }
+    @Override
+    protected GssParserCC getParser() {
+        return new GssParserCC(EMPTY_CHAR_STREAM);
+    }
 }

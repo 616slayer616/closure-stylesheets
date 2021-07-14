@@ -16,48 +16,44 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import com.google.common.css.compiler.ast.BackDoorNodeMutation;
+import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.CssAtRuleNode.Type;
-import com.google.common.css.compiler.ast.CssConditionalBlockNode;
-import com.google.common.css.compiler.ast.CssConditionalRuleNode;
-import com.google.common.css.compiler.ast.CssLiteralNode;
-import com.google.common.css.compiler.ast.MutatingVisitController;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.google.common.truth.Truth.assertThat;
+
 /**
  * Unit tests for {@link HasConditionalNodes}.
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HasConditionalNodesTest {
-  @Mock MutatingVisitController visitController;
+    @Mock
+    MutatingVisitController visitController;
 
-  @Test
-  public void testEnterConditionalBlock() {
-    HasConditionalNodes pass
-        = new HasConditionalNodes(visitController);
+    @Test
+    public void testEnterConditionalBlock() {
+        HasConditionalNodes pass
+                = new HasConditionalNodes(visitController);
 
-    CssConditionalBlockNode node = new CssConditionalBlockNode();
-    CssConditionalRuleNode rule = new CssConditionalRuleNode(Type.IF,
-        new CssLiteralNode("condition"));
-    BackDoorNodeMutation.addRuleToConditionalBlock(node, rule);
+        CssConditionalBlockNode node = new CssConditionalBlockNode();
+        CssConditionalRuleNode rule = new CssConditionalRuleNode(Type.IF,
+                new CssLiteralNode("condition"));
+        BackDoorNodeMutation.addRuleToConditionalBlock(node, rule);
 
-    pass.enterConditionalBlock(node);
-  }
+        pass.enterConditionalBlock(node);
+    }
 
-  @Test
-  public void testRunPassAndHasConditionalNodes() {
-    HasConditionalNodes pass
-        = new HasConditionalNodes(visitController);
+    @Test
+    public void testRunPassAndHasConditionalNodes() {
+        HasConditionalNodes pass
+                = new HasConditionalNodes(visitController);
 
-    visitController.startVisit(pass);
+        visitController.startVisit(pass);
 
-    pass.runPass();
-    assertThat(pass.hasConditionalNodes()).isFalse();
-  }
+        pass.runPass();
+        assertThat(pass.hasConditionalNodes()).isFalse();
+    }
 }

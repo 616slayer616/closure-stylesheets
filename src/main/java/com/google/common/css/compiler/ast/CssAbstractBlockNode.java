@@ -19,9 +19,8 @@ package com.google.common.css.compiler.ast;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * An abstract representation of a list of nodes that are enclosed inside
@@ -35,79 +34,79 @@ import javax.annotation.Nullable;
  * @author fbenz@google.com (Florian Benz)
  */
 public abstract class CssAbstractBlockNode
-    extends CssNodesListNode<CssNode> {
-  private final ImmutableList<Class<? extends CssNode>> validNodeClasses;
+        extends CssNodesListNode<CssNode> {
+    private final ImmutableList<Class<? extends CssNode>> validNodeClasses;
 
-  public CssAbstractBlockNode(boolean isEnclosedWithBraces,
-      List<Class<? extends CssNode>> validNodeClasses) {
-    super(isEnclosedWithBraces, null /* comments */);
-    this.validNodeClasses = ImmutableList.copyOf(validNodeClasses);
-  }
-
-  public CssAbstractBlockNode(boolean isEnclosedWithBraces,
-      List<CssNode> childrenList, @Nullable List<CssCommentNode> comments,
-      ImmutableList<Class<? extends CssNode>> validSuperclasses) {
-    super(isEnclosedWithBraces, comments);
-    // The valid superclasses have to be set before children are added.
-    this.validNodeClasses = validSuperclasses;
-    setChildren(childrenList);
-  }
-
-  /**
-   * Copy constructor.
-   */
-  public CssAbstractBlockNode(CssAbstractBlockNode node) {
-    super(node.isEnclosedWithBraces(), node.getComments());
-    this.setParent(node.getParent());
-    this.setSourceCodeLocation(node.getSourceCodeLocation());
-    // The valid superclasses have to be set before children are added.
-    this.validNodeClasses = node.validNodeClasses;
-    for (CssNode child : node.childIterable()) {
-      CssNode childCopy = child.deepCopy();
-      addChildToBack(childCopy);
+    public CssAbstractBlockNode(boolean isEnclosedWithBraces,
+                                List<Class<? extends CssNode>> validNodeClasses) {
+        super(isEnclosedWithBraces, null /* comments */);
+        this.validNodeClasses = ImmutableList.copyOf(validNodeClasses);
     }
-  }
 
-  @Override
-  public abstract CssAbstractBlockNode deepCopy();
-
-  @Override
-  public void addChildToBack(CssNode child) {
-    checkChild(child);
-    super.addChildToBack(child);
-  }
-
-  @Override
-  void setChildren(List<CssNode> children) {
-    checkChildren(children);
-    super.setChildren(children);
-  }
-
-  @Override
-  public void replaceChildAt(int index, List<? extends CssNode> newChildren) {
-    checkChildren(newChildren);
-    super.replaceChildAt(index, newChildren);
-  }
-
-  private void checkChildren(List<? extends CssNode> children) {
-    for (CssNode child : children) {
-      checkChild(child);
+    public CssAbstractBlockNode(boolean isEnclosedWithBraces,
+                                List<CssNode> childrenList, @Nullable List<CssCommentNode> comments,
+                                ImmutableList<Class<? extends CssNode>> validSuperclasses) {
+        super(isEnclosedWithBraces, comments);
+        // The valid superclasses have to be set before children are added.
+        this.validNodeClasses = validSuperclasses;
+        setChildren(childrenList);
     }
-  }
 
-  /**
-   * Ensures that only valid children are added. This method is called for
-   * every child that is added.
-   */
-  private void checkChild(CssNode node) {
-    for (Class<? extends CssNode> allowedClass : validNodeClasses) {
-      if (allowedClass.isInstance(node)) {
-        return;
-      }
+    /**
+     * Copy constructor.
+     */
+    public CssAbstractBlockNode(CssAbstractBlockNode node) {
+        super(node.isEnclosedWithBraces(), node.getComments());
+        this.setParent(node.getParent());
+        this.setSourceCodeLocation(node.getSourceCodeLocation());
+        // The valid superclasses have to be set before children are added.
+        this.validNodeClasses = node.validNodeClasses;
+        for (CssNode child : node.childIterable()) {
+            CssNode childCopy = child.deepCopy();
+            addChildToBack(childCopy);
+        }
     }
-    Preconditions.checkState(false,
-        "Trying to add an instance of the class %s (\"%s\"), which is not a "
-        + "valid child for a block of class %s.",
-        node.getClass().getName(), node.toString(), this.getClass().getName());
-  }
+
+    @Override
+    public abstract CssAbstractBlockNode deepCopy();
+
+    @Override
+    public void addChildToBack(CssNode child) {
+        checkChild(child);
+        super.addChildToBack(child);
+    }
+
+    @Override
+    void setChildren(List<CssNode> children) {
+        checkChildren(children);
+        super.setChildren(children);
+    }
+
+    @Override
+    public void replaceChildAt(int index, List<? extends CssNode> newChildren) {
+        checkChildren(newChildren);
+        super.replaceChildAt(index, newChildren);
+    }
+
+    private void checkChildren(List<? extends CssNode> children) {
+        for (CssNode child : children) {
+            checkChild(child);
+        }
+    }
+
+    /**
+     * Ensures that only valid children are added. This method is called for
+     * every child that is added.
+     */
+    private void checkChild(CssNode node) {
+        for (Class<? extends CssNode> allowedClass : validNodeClasses) {
+            if (allowedClass.isInstance(node)) {
+                return;
+            }
+        }
+        Preconditions.checkState(false,
+                "Trying to add an instance of the class %s (\"%s\"), which is not a "
+                        + "valid child for a block of class %s.",
+                node.getClass().getName(), node.toString(), this.getClass().getName());
+    }
 }

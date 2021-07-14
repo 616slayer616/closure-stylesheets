@@ -16,56 +16,58 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Unit tests for {@link CreateVendorPrefixedKeyframes}. */
+import static com.google.common.truth.Truth.assertThat;
+
+/**
+ * Unit tests for {@link CreateVendorPrefixedKeyframes}.
+ */
 @RunWith(JUnit4.class)
 public class CreateVendorPrefixedKeyframesTest extends NewFunctionalTestBase {
-  private String compactPrintedResult;
+    private String compactPrintedResult;
 
-  @Override
-  protected void runPass() {
-    CreateVendorPrefixedKeyframes pass = new CreateVendorPrefixedKeyframes(
-        tree.getMutatingVisitController(), errorManager);
-    pass.runPass();
-    CompactPrinter compactPrinterPass = new CompactPrinter(tree);
-    compactPrinterPass.runPass();
-    compactPrintedResult = compactPrinterPass.getCompactPrintedString();
-  }
+    @Override
+    protected void runPass() {
+        CreateVendorPrefixedKeyframes pass = new CreateVendorPrefixedKeyframes(
+                tree.getMutatingVisitController(), errorManager);
+        pass.runPass();
+        CompactPrinter compactPrinterPass = new CompactPrinter(tree);
+        compactPrinterPass.runPass();
+        compactPrintedResult = compactPrinterPass.getCompactPrintedString();
+    }
 
-  @Test
-  public void testCreateWebkitKeyframes() throws Exception {
-    parseAndRun(
-        "/* @gen-webkit-keyframes */"
-        + "@keyframes A{"
-        + "0%{top:0}"
-        + "100%{top:1%}"
-        + "}");
-    assertThat(compactPrintedResult)
-        .isEqualTo(
-            "@keyframes A{"
-                + "0%{top:0}"
-                + "100%{top:1%}"
-                + "}"
-                + "@-webkit-keyframes A{"
-                + "0%{top:0}"
-                + "100%{top:1%}"
-                + "}");
-  }
+    @Test
+    public void testCreateWebkitKeyframes() throws Exception {
+        parseAndRun(
+                "/* @gen-webkit-keyframes */"
+                        + "@keyframes A{"
+                        + "0%{top:0}"
+                        + "100%{top:1%}"
+                        + "}");
+        assertThat(compactPrintedResult)
+                .isEqualTo(
+                        "@keyframes A{"
+                                + "0%{top:0}"
+                                + "100%{top:1%}"
+                                + "}"
+                                + "@-webkit-keyframes A{"
+                                + "0%{top:0}"
+                                + "100%{top:1%}"
+                                + "}");
+    }
 
-  @Test
-  public void testWithoutComment() throws Exception {
-    parseAndRun(
-        "@keyframes A{"
-        + "0%{top:0}"
-        + "100%{top:1%}"
-        + "}");
-    assertThat(compactPrintedResult)
-        .isEqualTo("@keyframes A{" + "0%{top:0}" + "100%{top:1%}" + "}");
-  }
+    @Test
+    public void testWithoutComment() throws Exception {
+        parseAndRun(
+                "@keyframes A{"
+                        + "0%{top:0}"
+                        + "100%{top:1%}"
+                        + "}");
+        assertThat(compactPrintedResult)
+                .isEqualTo("@keyframes A{" + "0%{top:0}" + "100%{top:1%}" + "}");
+    }
 }

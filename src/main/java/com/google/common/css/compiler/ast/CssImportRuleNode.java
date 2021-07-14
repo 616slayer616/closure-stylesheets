@@ -22,36 +22,35 @@ import java.util.List;
  * A node representing an @import rule.
  *
  * @author oana@google.com (Oana Florescu)
- *
  */
 public class CssImportRuleNode extends CssAtRuleNode {
-  /**
-   * Constructor of an import rule.
-   */
-  public CssImportRuleNode() {
-    super(CssAtRuleNode.Type.IMPORT, new CssLiteralNode("import"));
-  }
+    /**
+     * Constructor of an import rule.
+     */
+    public CssImportRuleNode() {
+        super(CssAtRuleNode.Type.IMPORT, new CssLiteralNode("import"));
+    }
 
-  /**
-   * Constructor of an import rule.
-   *
-   * @param comments
-   */
-  public CssImportRuleNode(List<CssCommentNode> comments) {
-    super(CssAtRuleNode.Type.IMPORT, new CssLiteralNode("import"), comments);
-  }
-  
-  /**
-   * Copy constructor.
-   * 
-   * @param node
-   */
-  public CssImportRuleNode(CssImportRuleNode node) {
-    super(node);
-  }
-  
-  @Override
-  public CssImportRuleNode deepCopy() {
-    return new CssImportRuleNode(this);
-  }
+    /**
+     * Constructor of an import rule.
+     *
+     * @param comments
+     */
+    public CssImportRuleNode(List<CssCommentNode> comments) {
+        super(CssAtRuleNode.Type.IMPORT, new CssLiteralNode("import"), comments);
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssImportRuleNode(CssImportRuleNode node) {
+        super(node);
+    }
+
+    @Override
+    public CssImportRuleNode deepCopy() {
+        return new CssImportRuleNode(this);
+    }
 }

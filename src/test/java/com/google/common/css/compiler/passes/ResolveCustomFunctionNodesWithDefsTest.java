@@ -16,8 +16,6 @@
 
 package com.google.common.css.compiler.passes;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -27,93 +25,95 @@ import com.google.common.css.compiler.ast.CssValueNode;
 import com.google.common.css.compiler.ast.ErrorManager;
 import com.google.common.css.compiler.ast.GssFunction;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.truth.Truth.assertThat;
+
 /**
  * Unit tests for {@link ResolveCustomFunctionNodes}.
- *
  */
 @RunWith(JUnit4.class)
 public class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
 
-  protected boolean allowUnknownFunctions = false;
+    protected boolean allowUnknownFunctions = false;
 
-  protected Map<String, GssFunction> createTestFunctionMap() {
-    /*
-     * The explicit type parameters required here due to a bug in the JDK used
-     * to compile the open-source test.
+    protected Map<String, GssFunction> createTestFunctionMap() {
+        /*
+         * The explicit type parameters required here due to a bug in the JDK used
+         * to compile the open-source test.
+         */
+        return ImmutableMap.<String, GssFunction>of(
+                "testMultipleArg", new SampleMultipleArgsFunc());
+    }
+
+    @Override
+    protected void runPass() {
+        new CreateDefinitionNodes(
+                tree.getMutatingVisitController(), errorManager).runPass();
+
+        new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
+
+        // Collect constant definitions.
+        CollectConstantDefinitions collectConstantDefinitionsPass =
+                new CollectConstantDefinitions(tree);
+        collectConstantDefinitionsPass.runPass();
+        // Replace constant references.
+        new ReplaceConstantReferences(tree,
+                collectConstantDefinitionsPass.getConstantDefinitions(),
+                true /* removeDefs */, errorManager,
+                true /* allowUndefinedConstants */).runPass();
+
+        new ResolveCustomFunctionNodes(
+                tree.getMutatingVisitController(), errorManager,
+                createTestFunctionMap(), allowUnknownFunctions,
+                ImmutableSet.<String>of() /* allowedNonStandardFunctions */)
+                .runPass();
+    }
+
+    @Test
+    public void testMultipleArgs() throws Exception {
+        parseAndRun("@def BAR 3px left top;" +
+                "A { foo: testMultipleArg(first, 30px, BAR) }");
+        assertThat(getFirstPropertyValue().toString()).isEqualTo("[(first) (30px) (3px left top)]");
+    }
+
+    /**
+     * Sample GssFunction implementation that accept 3 args.
      */
-    return ImmutableMap.<String, GssFunction>of(
-        "testMultipleArg", new SampleMultipleArgsFunc());
-  }
+    private static class SampleMultipleArgsFunc implements GssFunction {
+        @Override
+        public Integer getNumExpectedArguments() {
+            return 3;
+        }
 
-  @Override
-  protected void runPass() {
-    new CreateDefinitionNodes(
-        tree.getMutatingVisitController(), errorManager).runPass();
+        @Override
+        public List<CssValueNode> getCallResultNodes(
+                List<CssValueNode> args, ErrorManager errorManager) {
 
-    new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
+            Preconditions.checkState(args.size() == 3,
+                    "Exactly 3 args expected: firstString, secondNumeric, thirdString");
 
-    // Collect constant definitions.
-    CollectConstantDefinitions collectConstantDefinitionsPass =
-        new CollectConstantDefinitions(tree);
-    collectConstantDefinitionsPass.runPass();
-    // Replace constant references.
-    new ReplaceConstantReferences(tree,
-        collectConstantDefinitionsPass.getConstantDefinitions(),
-        true /* removeDefs */, errorManager,
-        true /* allowUndefinedConstants */).runPass();
+            List<String> argsStr = ImmutableList.of(
+                    args.get(0).toString(),
+                    args.get(1).toString(),
+                    args.get(2).toString());
 
-    new ResolveCustomFunctionNodes(
-        tree.getMutatingVisitController(), errorManager,
-        createTestFunctionMap(), allowUnknownFunctions,
-        ImmutableSet.<String>of() /* allowedNonStandardFunctions */)
-        .runPass();
-  }
+            CssLiteralNode result = new CssLiteralNode(getCallResultString(argsStr),
+                    args.get(0).getSourceCodeLocation());
+            return ImmutableList.of((CssValueNode) result);
+        }
 
-  @Test
-  public void testMultipleArgs() throws Exception {
-    parseAndRun("@def BAR 3px left top;" +
-        "A { foo: testMultipleArg(first, 30px, BAR) }");
-    assertThat(getFirstPropertyValue().toString()).isEqualTo("[(first) (30px) (3px left top)]");
-  }
-
-  /**
-   * Sample GssFunction implementation that accept 3 args.
-   */
-  private static class SampleMultipleArgsFunc implements GssFunction {
-    @Override
-    public Integer getNumExpectedArguments() {
-      return 3;
+        @Override
+        public String getCallResultString(List<String> args) {
+            Preconditions.checkState(args.size() == 3,
+                    "Exactly 3 args expected: startColor, endColor, defaultBg");
+            return "(" + args.get(0) + ") (" + args.get(1) +
+                    ") (" + args.get(2) + ")";
+        }
     }
-
-    @Override
-    public List<CssValueNode> getCallResultNodes(
-        List<CssValueNode> args, ErrorManager errorManager) {
-
-      Preconditions.checkState(args.size() == 3,
-          "Exactly 3 args expected: firstString, secondNumeric, thirdString");
-
-      List<String> argsStr = ImmutableList.of(
-          args.get(0).toString(),
-          args.get(1).toString(),
-          args.get(2).toString());
-
-      CssLiteralNode result = new CssLiteralNode(getCallResultString(argsStr),
-          args.get(0).getSourceCodeLocation());
-      return ImmutableList.of((CssValueNode) result);
-    }
-
-    @Override
-    public String getCallResultString(List<String> args) {
-      Preconditions.checkState(args.size() == 3,
-          "Exactly 3 args expected: startColor, endColor, defaultBg");
-      return "(" + args.get(0) + ") (" + args.get(1) +
-          ") (" + args.get(2) + ")";
-    }
-  }
 }

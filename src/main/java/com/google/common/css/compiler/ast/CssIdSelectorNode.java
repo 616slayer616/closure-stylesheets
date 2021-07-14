@@ -26,23 +26,23 @@ import com.google.common.css.compiler.ast.CssSelectorNode.Specificity;
  * @author fbenz@google.com (Florian Benz)
  */
 public class CssIdSelectorNode extends CssRefinerNode {
-  public CssIdSelectorNode(String refinerName,
-      SourceCodeLocation sourceCodeLocation) {
-    super(Refiner.ID, refinerName, sourceCodeLocation);
-  }
+    public CssIdSelectorNode(String refinerName,
+                             SourceCodeLocation sourceCodeLocation) {
+        super(Refiner.ID, refinerName, sourceCodeLocation);
+    }
 
-  protected CssIdSelectorNode(CssIdSelectorNode node) {
-    this(node.refinerName, node.getSourceCodeLocation());
-  }
+    protected CssIdSelectorNode(CssIdSelectorNode node) {
+        this(node.refinerName, node.getSourceCodeLocation());
+    }
 
-  @Override
-  public CssIdSelectorNode deepCopy() {
-    return new CssIdSelectorNode(this);
-  }
+    @Override
+    public CssIdSelectorNode deepCopy() {
+        return new CssIdSelectorNode(this);
+    }
 
-  @Override
-  public Specificity getSpecificity() {
-    // b++ (b = the number of ID selectors in the selector)
-    return new Specificity(1, 0, 0);
-  }
+    @Override
+    public Specificity getSpecificity() {
+        // b++ (b = the number of ID selectors in the selector)
+        return new Specificity(1, 0, 0);
+    }
 }

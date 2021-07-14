@@ -34,57 +34,57 @@ import java.util.Map;
  * @author oana@google.com (Oana Florescu)
  */
 public class ConstantDefinitions {
-  private final Map<String, CssDefinitionNode> constants = Maps.newHashMap();
+    private final Map<String, CssDefinitionNode> constants = Maps.newHashMap();
 
-  private final ListMultimap<String, CssDefinitionNode> constantsMultimap =
-      LinkedListMultimap.create();
+    private final ListMultimap<String, CssDefinitionNode> constantsMultimap =
+            LinkedListMultimap.create();
 
-  Map<String, CssDefinitionNode> getConstants() {
-    return constants;
-  }
+    Map<String, CssDefinitionNode> getConstants() {
+        return constants;
+    }
 
-  public Multimap<String, CssDefinitionNode> getConstantMultimap() {
-    return constantsMultimap;
-  }
+    public Multimap<String, CssDefinitionNode> getConstantMultimap() {
+        return constantsMultimap;
+    }
 
-  /**
-   * Returns the last definition of a constant. Callers should not attempt to
-   * modify the returned value.
-   * 
-   * @return definition node or {@code null} if the constant is not defined
-   */
-  public CssDefinitionNode getConstantDefinition(String constant) {
-    return constants.get(constant);
-  }
+    /**
+     * Returns the last definition of a constant. Callers should not attempt to
+     * modify the returned value.
+     *
+     * @return definition node or {@code null} if the constant is not defined
+     */
+    public CssDefinitionNode getConstantDefinition(String constant) {
+        return constants.get(constant);
+    }
 
-  /**
-   * Returns all definitions of a constant.
-   *
-   * @return collection of definition node or empty collection if the
-   * constant is not defined
-   */
-  public List<CssDefinitionNode> getConstantDefinitions(String constant) {
-    return constantsMultimap.get(constant);
-  }
+    /**
+     * Returns all definitions of a constant.
+     *
+     * @return collection of definition node or empty collection if the
+     * constant is not defined
+     */
+    public List<CssDefinitionNode> getConstantDefinitions(String constant) {
+        return constantsMultimap.get(constant);
+    }
 
-  /**
-   * Adds a constant definition to this css tree.
-   *
-   * Note that a constant may be defined multiple times in the tree. For the
-   * compact representation of the tree, all references to a constant will be
-   * replaced with the same value: the last one specified in the stylesheet
-   * (to ignore the definitions in inactive condition blocks the
-   * {@code EliminateConditionalNodes} compiler pass needs to be run first).
-   */
-  public void addConstantDefinition(CssDefinitionNode definition) {
-    constants.put(definition.getName().getValue(), definition);
-    constantsMultimap.put(definition.getName().getValue(), definition);
-  }
+    /**
+     * Adds a constant definition to this css tree.
+     * <p>
+     * Note that a constant may be defined multiple times in the tree. For the
+     * compact representation of the tree, all references to a constant will be
+     * replaced with the same value: the last one specified in the stylesheet
+     * (to ignore the definitions in inactive condition blocks the
+     * {@code EliminateConditionalNodes} compiler pass needs to be run first).
+     */
+    public void addConstantDefinition(CssDefinitionNode definition) {
+        constants.put(definition.getName().getValue(), definition);
+        constantsMultimap.put(definition.getName().getValue(), definition);
+    }
 
-  /**
-   * @return the iterable of names of all defined constants
-   */
-  public Iterable<String> getConstantsNames() {
-    return constants.keySet();
-  }
+    /**
+     * @return the iterable of names of all defined constants
+     */
+    public Iterable<String> getConstantsNames() {
+        return constants.keySet();
+    }
 }

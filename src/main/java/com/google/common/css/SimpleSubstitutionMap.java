@@ -36,15 +36,16 @@ package com.google.common.css;
  */
 public class SimpleSubstitutionMap implements SubstitutionMap {
 
-  /**
-   * {@inheritDoc}
-   * @throws IllegalArgumentException if key is null
-   */
-  @Override
-  public String get(String key) {
-    if (key == null) {
-      throw new IllegalArgumentException("key cannot be null");
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalArgumentException if key is null
+     */
+    @Override
+    public String get(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("key cannot be null");
+        }
+        return key + "_";
     }
-    return key + "_";
-  }
 }

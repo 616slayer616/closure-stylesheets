@@ -20,10 +20,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.css.SourceCodeLocation;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 /**
  * A node representing a function.
@@ -32,298 +31,304 @@ import javax.annotation.Nullable;
  */
 public class CssFunctionNode extends CssValueNode implements ChunkAware {
 
-  /**
-   * Contains the list of recognized CSS functions.
-   */
-  public abstract static class Function {
+    /**
+     * Contains the list of recognized CSS functions.
+     */
+    public abstract static class Function {
 
-    /** A map of function names to function objects. */
-    private static final Map<String, Function> NAME_TO_FUNCTION_MAP;
+        /**
+         * A map of function names to function objects.
+         */
+        private static final Map<String, Function> NAME_TO_FUNCTION_MAP;
 
-    static {
-      List<String> recognizedCssFunctions = ImmutableList.of(
-          // CSS 2.1
-          "attr",
-          "counter",
-          "rect",
-          "rgb",
-          "url",
+        static {
+            List<String> recognizedCssFunctions = ImmutableList.of(
+                    // CSS 2.1
+                    "attr",
+                    "counter",
+                    "rect",
+                    "rgb",
+                    "url",
 
-          // Per-site user stylesheet rules
-          // http://lists.w3.org/Archives/Public/www-style/2004Aug/0135
-          "domain",
-          "url-prefix",
+                    // Per-site user stylesheet rules
+                    // http://lists.w3.org/Archives/Public/www-style/2004Aug/0135
+                    "domain",
+                    "url-prefix",
 
-          // IE8 and earlier:
-          // .fiftyPercentOpacity { filter: alpha(opacity=50); }
-          "alpha",
+                    // IE8 and earlier:
+                    // .fiftyPercentOpacity { filter: alpha(opacity=50); }
+                    "alpha",
 
-          // CSS 3
-          "cubic-bezier",
-          "format", // used with @font-face
-          "from",
-          "hsl",
-          "hsla",
-          "local", // used with @font-face
-          "matrix",
-          "matrix3d",
-          "perspective",
-          "rgba",
-          "rotate",
-          "rotateX",
-          "rotateY",
-          "rotateZ",
-          "rotate3d",
-          "scale",
-          "scaleX",
-          "scaleY",
-          "scaleZ",
-          "scale3d",
-          "skew",
-          "skewX",
-          "skewY",
-          "steps",
-          "to",
-          "translate",
-          "translateX",
-          "translateY",
-          "translateZ",
-          "translate3d",
+                    // CSS 3
+                    "cubic-bezier",
+                    "format", // used with @font-face
+                    "from",
+                    "hsl",
+                    "hsla",
+                    "local", // used with @font-face
+                    "matrix",
+                    "matrix3d",
+                    "perspective",
+                    "rgba",
+                    "rotate",
+                    "rotateX",
+                    "rotateY",
+                    "rotateZ",
+                    "rotate3d",
+                    "scale",
+                    "scaleX",
+                    "scaleY",
+                    "scaleZ",
+                    "scale3d",
+                    "skew",
+                    "skewX",
+                    "skewY",
+                    "steps",
+                    "to",
+                    "translate",
+                    "translateX",
+                    "translateY",
+                    "translateZ",
+                    "translate3d",
 
-          // CSS 3+ mathematical expressions
-          // https://drafts.csswg.org/css-values/#calc-notation
-          "min",
-          "max",
+                    // CSS 3+ mathematical expressions
+                    // https://drafts.csswg.org/css-values/#calc-notation
+                    "min",
+                    "max",
 
-          // Filter
-          // w3.org/TR/filter-effects-1/#FilterProperty
-          // "url" already in list
-          "blur",
-          "brightness",
-          "contrast",
-          "drop-shadow",
-          "grayscale",
-          "hue-rotate",
-          "invert",
-          "opacity",
-          "saturate",
-          "sepia",
+                    // Filter
+                    // w3.org/TR/filter-effects-1/#FilterProperty
+                    // "url" already in list
+                    "blur",
+                    "brightness",
+                    "contrast",
+                    "drop-shadow",
+                    "grayscale",
+                    "hue-rotate",
+                    "invert",
+                    "opacity",
+                    "saturate",
+                    "sepia",
 
-          // Image-Set
-          "image-set",
-          "-moz-image-set",
-          "-ms-image-set",
-          "-o-image-set",
-          "-webkit-image-set",
+                    // Image-Set
+                    "image-set",
+                    "-moz-image-set",
+                    "-ms-image-set",
+                    "-o-image-set",
+                    "-webkit-image-set",
 
-          // These take the type of gradient (linear or radial) as a parameter.
-          "-khtml-gradient",
-          "-webkit-gradient", // Prefer -webkit-(linear|radial)-gradient
+                    // These take the type of gradient (linear or radial) as a parameter.
+                    "-khtml-gradient",
+                    "-webkit-gradient", // Prefer -webkit-(linear|radial)-gradient
 
-          // Linear gradients
-          "linear-gradient",
-          "-moz-linear-gradient",
-          "-ms-linear-gradient",
-          "-o-linear-gradient",
-          "-webkit-linear-gradient",
-          "repeating-linear-gradient",
-          "-moz-repeating-linear-gradient",
-          "-ms-repeating-linear-gradient",
-          "-o-repeating-linear-gradient",
-          "-webkit-repeating-linear-gradient",
+                    // Linear gradients
+                    "linear-gradient",
+                    "-moz-linear-gradient",
+                    "-ms-linear-gradient",
+                    "-o-linear-gradient",
+                    "-webkit-linear-gradient",
+                    "repeating-linear-gradient",
+                    "-moz-repeating-linear-gradient",
+                    "-ms-repeating-linear-gradient",
+                    "-o-repeating-linear-gradient",
+                    "-webkit-repeating-linear-gradient",
 
-          // Radial gradients
-          "radial-gradient",
-          "-moz-radial-gradient",
-          "-ms-radial-gradient",
-          "-o-radial-gradient",
-          "-webkit-radial-gradient",
-          "repeating-radial-gradient",
-          "-moz-repeating-radial-gradient",
-          "-ms-repeating-radial-gradient",
-          "-o-repeating-radial-gradient",
-          "-webkit-repeating-radial-gradient",
+                    // Radial gradients
+                    "radial-gradient",
+                    "-moz-radial-gradient",
+                    "-ms-radial-gradient",
+                    "-o-radial-gradient",
+                    "-webkit-radial-gradient",
+                    "repeating-radial-gradient",
+                    "-moz-repeating-radial-gradient",
+                    "-ms-repeating-radial-gradient",
+                    "-o-repeating-radial-gradient",
+                    "-webkit-repeating-radial-gradient",
 
-          // Calc
-          "calc",
-          "-webkit-calc",
-          "-moz-calc",
+                    // Calc
+                    "calc",
+                    "-webkit-calc",
+                    "-moz-calc",
 
-          // CSS Shapes
-          "inset",
-          "circle",
-          "ellipse",
-          "polygon",
+                    // CSS Shapes
+                    "inset",
+                    "circle",
+                    "ellipse",
+                    "polygon",
 
-          // Custom properties
-          "var"
-      );
-      ImmutableMap.Builder<String, Function> builder = ImmutableMap.builder();
-      for (String functionName : recognizedCssFunctions) {
-        builder.put(
-            functionName,
-            new Function(functionName) {
-              @Override public boolean isRecognized() {
-                return true;
-              }
-            });
-      }
-      NAME_TO_FUNCTION_MAP = builder.build();
+                    // Custom properties
+                    "var"
+            );
+            ImmutableMap.Builder<String, Function> builder = ImmutableMap.builder();
+            for (String functionName : recognizedCssFunctions) {
+                builder.put(
+                        functionName,
+                        new Function(functionName) {
+                            @Override
+                            public boolean isRecognized() {
+                                return true;
+                            }
+                        });
+            }
+            NAME_TO_FUNCTION_MAP = builder.build();
+        }
+
+        /**
+         * Serves as a placeholder for custom functions.
+         */
+        public static final Function CUSTOM =
+                new Function(null /* functionName */) {
+                    @Override
+                    public boolean isRecognized() {
+                        return false;
+                    }
+                };
+
+        /**
+         * The name of the function, as it appears in a CSS stylesheet.
+         */
+        private final String functionName;
+
+        private Function(String functionName) {
+            this.functionName = functionName;
+        }
+
+        /**
+         * Returns the CSS {@link Function} with the specified name, or {@code null}
+         * if the name is not in the list of recognized names. Multiple invocations
+         * of this method with the same parameter will return the same object. For a
+         * function that is not in the list of recognized names but should be
+         * considered valid, use {@link Function#CUSTOM}.
+         */
+        public static Function byName(String name) {
+            return NAME_TO_FUNCTION_MAP.get(name);
+        }
+
+        /**
+         * Returns {@code true} when this function is in the list of
+         * recognized names.
+         */
+        public abstract boolean isRecognized();
+
+        /**
+         * @return the name of the CSS function, such as "rgb" or "url"
+         */
+        public String getFunctionName() {
+            return functionName;
+        }
+
+        /**
+         * For debugging only.
+         */
+        @Override
+        public String toString() {
+            return getFunctionName();
+        }
+    }
+
+    private final Function function;
+    private CssFunctionArgumentsNode arguments;
+    private Object chunk;
+
+    /**
+     * Constructor of the class.
+     * <p>
+     * TODO(oana): Deal with the situation that we have an unrecognized
+     * function.
+     *
+     * @param function
+     * @param sourceCodeLocation
+     */
+    public CssFunctionNode(@Nullable Function function,
+                           @Nullable SourceCodeLocation sourceCodeLocation) {
+        super(null, sourceCodeLocation);
+        this.function = function;
+        this.arguments = new CssFunctionArgumentsNode();
+        becomeParentForNode(this.arguments);
     }
 
     /**
-     * Serves as a placeholder for custom functions.
+     * Copy constructor.
+     *
+     * @param function
      */
-    public static final Function CUSTOM =
-        new Function(null /* functionName */) {
-          @Override public boolean isRecognized() {
-            return false;
-          }
-        };
-
-    /** The name of the function, as it appears in a CSS stylesheet. */
-    private final String functionName;
-
-    private Function(String functionName) {
-      this.functionName = functionName;
+    public CssFunctionNode(CssFunctionNode function) {
+        super(function);
+        this.function = function.getFunction();
+        this.arguments = new CssFunctionArgumentsNode(function.getArguments());
+        becomeParentForNode(this.arguments);
+        this.chunk = function.getChunk();
     }
 
     /**
-     * Returns the CSS {@link Function} with the specified name, or {@code null}
-     * if the name is not in the list of recognized names. Multiple invocations
-     * of this method with the same parameter will return the same object. For a
-     * function that is not in the list of recognized names but should be
-     * considered valid, use {@link Function#CUSTOM}.
+     * Constructor used by the proxy mechanism, avoids unnecessary arguments node
+     * initialization.
+     *
+     * <p>NOTE(dgajda): The signature of this constructor only differs in argument
+     * order from the main constructor of this class.
+     *
+     * @param function           implementation of the function which is "called" by this
+     *                           node
+     * @param sourceCodeLocation location of this node
      */
-    public static Function byName(String name) {
-      return NAME_TO_FUNCTION_MAP.get(name);
+    protected CssFunctionNode(@Nullable SourceCodeLocation sourceCodeLocation,
+                              @Nullable Function function) {
+        super(null, sourceCodeLocation);
+        this.function = function;
     }
 
-    /**
-     * Returns {@code true} when this function is in the list of
-     * recognized names.
-     */
-    public abstract boolean isRecognized();
+    @Override
+    public CssFunctionNode deepCopy() {
+        return new CssFunctionNode(this);
+    }
 
-    /**
-     * @return the name of the CSS function, such as "rgb" or "url"
-     */
+    public Function getFunction() {
+        return function;
+    }
+
     public String getFunctionName() {
-      return functionName;
+        return function.toString();
     }
 
-    /**
-     * For debugging only.
-     */
+    public CssFunctionArgumentsNode getArguments() {
+        return arguments;
+    }
+
+    public void setArguments(CssFunctionArgumentsNode arguments) {
+        removeAsParentOfNode(this.arguments);
+        this.arguments = arguments;
+        becomeParentForNode(this.arguments);
+    }
+
     @Override
     public String toString() {
-      return getFunctionName();
+        StringBuffer output = new StringBuffer();
+        if (function.getFunctionName() != null) {
+            output.append(function.getFunctionName());
+        }
+        output.append("(");
+        for (CssNode node : getArguments().childIterable()) {
+            output.append(node.toString());
+        }
+        output.append(")");
+        return output.toString();
     }
-  }
 
-  private final Function function;
-  private CssFunctionArgumentsNode arguments;
-  private Object chunk;
-
-  /**
-   * Constructor of the class.
-   *
-   * TODO(oana): Deal with the situation that we have an unrecognized
-   * function.
-   *
-   * @param function
-   * @param sourceCodeLocation
-   */
-  public CssFunctionNode(@Nullable Function function,
-                         @Nullable SourceCodeLocation sourceCodeLocation) {
-    super(null, sourceCodeLocation);
-    this.function = function;
-    this.arguments = new CssFunctionArgumentsNode();
-    becomeParentForNode(this.arguments);
-  }
-
-  /**
-   * Copy constructor.
-   *
-   * @param function
-   */
-  public CssFunctionNode(CssFunctionNode function) {
-    super(function);
-    this.function = function.getFunction();
-    this.arguments = new CssFunctionArgumentsNode(function.getArguments());
-    becomeParentForNode(this.arguments);
-    this.chunk = function.getChunk();
-  }
-
-  /**
-   * Constructor used by the proxy mechanism, avoids unnecessary arguments node
-   * initialization.
-   * 
-   * <p>NOTE(dgajda): The signature of this constructor only differs in argument
-   * order from the main constructor of this class.
-   *
-   * @param function implementation of the function which is "called" by this
-   *     node
-   * @param sourceCodeLocation location of this node
-   */
-  protected CssFunctionNode(@Nullable SourceCodeLocation sourceCodeLocation,
-                         @Nullable Function function) {
-    super(null, sourceCodeLocation);
-    this.function = function;
-  }
-
-  @Override
-  public CssFunctionNode deepCopy() {
-    return new CssFunctionNode(this);
-  }
-
-  public Function getFunction() {
-    return function;
-  }
-
-  public String getFunctionName() {
-    return function.toString();
-  }
-
-  public CssFunctionArgumentsNode getArguments() {
-    return arguments;
-  }
-
-  public void setArguments(CssFunctionArgumentsNode arguments) {
-    removeAsParentOfNode(this.arguments);
-    this.arguments = arguments;
-    becomeParentForNode(this.arguments);
-  }
-
-  @Override
-  public String toString() {
-    StringBuffer output = new StringBuffer();
-    if (function.getFunctionName() != null) {
-      output.append(function.getFunctionName());
+    @Override
+    public Object getChunk() {
+        return chunk;
     }
-    output.append("(");
-    for (CssNode node : getArguments().childIterable()) {
-      output.append(node.toString());
+
+    @Override
+    public void setChunk(Object chunk) {
+        this.chunk = chunk;
     }
-    output.append(")");
-    return output.toString();
-  }
 
-  @Override
-  public Object getChunk() {
-    return chunk;
-  }
-
-  @Override
-  public void setChunk(Object chunk) {
-    this.chunk = chunk;
-  }
-
-  /**
-   * Print the node instead of null when this node is a parameter.
-   */
-  @Override
-  public String getValue() {
-    return toString();
-  }
+    /**
+     * Print the node instead of null when this node is a parameter.
+     */
+    @Override
+    public String getValue() {
+        return toString();
+    }
 }

@@ -20,17 +20,16 @@ import java.io.PrintStream;
 
 /**
  * An error manager that prints errors to the print stream provided.
- *
  */
 public class PrintStreamErrorManager extends BasicErrorManager {
-  private final PrintStream stream;
+    private final PrintStream stream;
 
-  public PrintStreamErrorManager(PrintStream stream) {
-    this.stream = stream;
-  }
+    public PrintStreamErrorManager(PrintStream stream) {
+        this.stream = stream;
+    }
 
-  @Override
-  public void print(String msg) {
-    stream.print(msg);
-  }
+    @Override
+    public void print(String msg) {
+        stream.print(msg);
+    }
 }

@@ -19,13 +19,12 @@ package com.google.common.css.compiler.ast;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
 import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 /**
  * Represents a list of nodes. This is meant to represent a succession of
@@ -42,161 +41,161 @@ import javax.annotation.Nullable;
  * @param <T> the list is restricted to nodes of this type
  */
 public abstract class CssNodesListNode<T extends CssNode> extends CssNode {
-  protected List<T> children = Lists.newArrayList();
-  private final boolean isEnclosedWithBraces;
+    protected List<T> children = Lists.newArrayList();
+    private final boolean isEnclosedWithBraces;
 
-  /**
-   * Constructor of a list of nodes alike.
-   *
-   * @param isEnclosedWithBraces
-   */
-  public CssNodesListNode(boolean isEnclosedWithBraces) {
-    this(isEnclosedWithBraces, null);
-  }
-
-  /**
-   * Constructor of a list of nodes alike.
-   *
-   * @param isEnclosedWithBraces
-   * @param comments
-   */
-  public CssNodesListNode(boolean isEnclosedWithBraces,
-                   @Nullable List<CssCommentNode> comments) {
-    super(null, comments, null);
-    this.isEnclosedWithBraces = isEnclosedWithBraces;
-  }
-
-  /**
-   * Constructor of a list of nodes alike.
-   *
-   * @param isEnclosedWithBraces
-   * @param comments
-   * @param childrenList list of children
-   */
-  public CssNodesListNode(boolean isEnclosedWithBraces,
-                          List<T> childrenList,
-                          @Nullable List<CssCommentNode> comments) {
-    super(null, comments, null);
-    for (T child : childrenList) {
-      @SuppressWarnings("unchecked")
-      T childCopy = (T) child.deepCopy();
-      addChildToBack(childCopy);
+    /**
+     * Constructor of a list of nodes alike.
+     *
+     * @param isEnclosedWithBraces
+     */
+    public CssNodesListNode(boolean isEnclosedWithBraces) {
+        this(isEnclosedWithBraces, null);
     }
 
-    this.isEnclosedWithBraces = isEnclosedWithBraces;
-  }
-
-  /**
-   * Copy constructor.
-   *
-   * @param node
-   */
-  public CssNodesListNode(CssNodesListNode<? extends CssNode> node) {
-    super(
-        node.getParent(),
-        node.getComments(),
-        node.getSourceCodeLocation());
-    this.isEnclosedWithBraces = node.isEnclosedWithBraces;
-
-    for (CssNode child : node.childIterable()) {
-      @SuppressWarnings("unchecked")
-      T childCopy = (T) child.deepCopy();
-      addChildToBack(childCopy);
-    }
-  }
-
-  public List<T> getChildren() {
-    return Collections.unmodifiableList(children);
-  }
-
-  public Iterator<T> getChildIterator() {
-    return children.iterator();
-  }
-
-  public Iterable<T> childIterable() {
-    return Iterables.unmodifiableIterable(children);
-  }
-
-  void setChildren(List<T> children) {
-    Preconditions.checkArgument(!children.contains(null));
-    removeAsParentOfNodes(this.children);
-    this.children = copyToList(children);
-    becomeParentForNodes(this.children);
-  }
-
-  T removeChildAt(int index) {
-    Preconditions.checkState(index >= 0 && index < children.size());
-    T child = children.get(index);
-    removeAsParentOfNode(child);
-    children.remove(index);
-    return child;
-  }
-
-  // TODO(dgajda): Make it package private once we can walk the tree backwards
-  //     and ReplaceConstantReferences won't need to use this method directly.
-  public void replaceChildAt(int index, List<? extends T> newChildren) {
-    Preconditions.checkState(index >= 0 && index < children.size());
-    Preconditions.checkArgument(!newChildren.contains(null));
-    removeChildAt(index);
-    children.addAll(index, newChildren);
-    becomeParentForNodes(newChildren);
-  }
-
-  public T getChildAt(int index) {
-    Preconditions.checkState(index >= 0 && index < children.size());
-    return children.get(index);
-  }
-
-  public int numChildren() {
-    return children.size();
-  }
-
-  T removeLastChild() {
-    return removeChildAt(children.size() - 1);
-  }
-
-  public T getLastChild() {
-    return children.get(children.size() - 1);
-  }
-
-  public void addChildToBack(T child) {
-    Preconditions.checkNotNull(child);
-    this.children.add(child);
-    becomeParentForNode(child);
-  }
-
-  public boolean isEmpty() {
-    return children.isEmpty();
-  }
-
-  public boolean isEnclosedWithBraces() {
-    return isEnclosedWithBraces;
-  }
-
-  /**
-   * For debugging only.
-   */
-  @Override
-  public String toString() {
-    StringBuffer output = new StringBuffer();
-    if (!getComments().isEmpty()) {
-      output.append("[");
-      output.append(getComments().toString());
-      output.append(children.toString());
-      output.append("]");
-    } else {
-      output.append(children.toString());
+    /**
+     * Constructor of a list of nodes alike.
+     *
+     * @param isEnclosedWithBraces
+     * @param comments
+     */
+    public CssNodesListNode(boolean isEnclosedWithBraces,
+                            @Nullable List<CssCommentNode> comments) {
+        super(null, comments, null);
+        this.isEnclosedWithBraces = isEnclosedWithBraces;
     }
 
-    return output.toString();
-  }
+    /**
+     * Constructor of a list of nodes alike.
+     *
+     * @param isEnclosedWithBraces
+     * @param comments
+     * @param childrenList         list of children
+     */
+    public CssNodesListNode(boolean isEnclosedWithBraces,
+                            List<T> childrenList,
+                            @Nullable List<CssCommentNode> comments) {
+        super(null, comments, null);
+        for (T child : childrenList) {
+            @SuppressWarnings("unchecked")
+            T childCopy = (T) child.deepCopy();
+            addChildToBack(childCopy);
+        }
 
-  @Override
-  public SourceCodeLocation getSourceCodeLocation() {
-    SourceCodeLocation location = super.getSourceCodeLocation();
-    if (location == null) {
-      location = SourceCodeLocation.merge(children);
+        this.isEnclosedWithBraces = isEnclosedWithBraces;
     }
-    return location;
-  }
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssNodesListNode(CssNodesListNode<? extends CssNode> node) {
+        super(
+                node.getParent(),
+                node.getComments(),
+                node.getSourceCodeLocation());
+        this.isEnclosedWithBraces = node.isEnclosedWithBraces;
+
+        for (CssNode child : node.childIterable()) {
+            @SuppressWarnings("unchecked")
+            T childCopy = (T) child.deepCopy();
+            addChildToBack(childCopy);
+        }
+    }
+
+    public List<T> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
+    public Iterator<T> getChildIterator() {
+        return children.iterator();
+    }
+
+    public Iterable<T> childIterable() {
+        return Iterables.unmodifiableIterable(children);
+    }
+
+    void setChildren(List<T> children) {
+        Preconditions.checkArgument(!children.contains(null));
+        removeAsParentOfNodes(this.children);
+        this.children = copyToList(children);
+        becomeParentForNodes(this.children);
+    }
+
+    T removeChildAt(int index) {
+        Preconditions.checkState(index >= 0 && index < children.size());
+        T child = children.get(index);
+        removeAsParentOfNode(child);
+        children.remove(index);
+        return child;
+    }
+
+    // TODO(dgajda): Make it package private once we can walk the tree backwards
+    //     and ReplaceConstantReferences won't need to use this method directly.
+    public void replaceChildAt(int index, List<? extends T> newChildren) {
+        Preconditions.checkState(index >= 0 && index < children.size());
+        Preconditions.checkArgument(!newChildren.contains(null));
+        removeChildAt(index);
+        children.addAll(index, newChildren);
+        becomeParentForNodes(newChildren);
+    }
+
+    public T getChildAt(int index) {
+        Preconditions.checkState(index >= 0 && index < children.size());
+        return children.get(index);
+    }
+
+    public int numChildren() {
+        return children.size();
+    }
+
+    T removeLastChild() {
+        return removeChildAt(children.size() - 1);
+    }
+
+    public T getLastChild() {
+        return children.get(children.size() - 1);
+    }
+
+    public void addChildToBack(T child) {
+        Preconditions.checkNotNull(child);
+        this.children.add(child);
+        becomeParentForNode(child);
+    }
+
+    public boolean isEmpty() {
+        return children.isEmpty();
+    }
+
+    public boolean isEnclosedWithBraces() {
+        return isEnclosedWithBraces;
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+        StringBuffer output = new StringBuffer();
+        if (!getComments().isEmpty()) {
+            output.append("[");
+            output.append(getComments().toString());
+            output.append(children.toString());
+            output.append("]");
+        } else {
+            output.append(children.toString());
+        }
+
+        return output.toString();
+    }
+
+    @Override
+    public SourceCodeLocation getSourceCodeLocation() {
+        SourceCodeLocation location = super.getSourceCodeLocation();
+        if (location == null) {
+            location = SourceCodeLocation.merge(children);
+        }
+        return location;
+    }
 }

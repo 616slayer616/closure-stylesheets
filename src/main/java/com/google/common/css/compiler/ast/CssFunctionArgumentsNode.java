@@ -25,34 +25,34 @@ import java.util.List;
  */
 public class CssFunctionArgumentsNode extends CssNodesListNode<CssValueNode> {
 
-  /**
-   * Constructor of a node that contains the arguments of a function.
-   */
-  public CssFunctionArgumentsNode() {
-    super(false);
-  }
-
-  /**
-   * Constructor of a node with list of arguments to initialize with.
-   */
-  public CssFunctionArgumentsNode(List<CssValueNode> valueNodesList) {
-    super(false, valueNodesList, null);
-  }
-
-  /**
-   * Copy constructor.
-   *
-   * @param node
-   */
-  public CssFunctionArgumentsNode(CssFunctionArgumentsNode node) {
-    super(false);
-    for (CssValueNode arg : node.childIterable()) {
-      this.addChildToBack(arg.deepCopy());
+    /**
+     * Constructor of a node that contains the arguments of a function.
+     */
+    public CssFunctionArgumentsNode() {
+        super(false);
     }
-  }
 
-  @Override
-  public CssFunctionArgumentsNode deepCopy() {
-    return new CssFunctionArgumentsNode(this);
-  }
+    /**
+     * Constructor of a node with list of arguments to initialize with.
+     */
+    public CssFunctionArgumentsNode(List<CssValueNode> valueNodesList) {
+        super(false, valueNodesList, null);
+    }
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssFunctionArgumentsNode(CssFunctionArgumentsNode node) {
+        super(false);
+        for (CssValueNode arg : node.childIterable()) {
+            this.addChildToBack(arg.deepCopy());
+        }
+    }
+
+    @Override
+    public CssFunctionArgumentsNode deepCopy() {
+        return new CssFunctionArgumentsNode(this);
+    }
 }

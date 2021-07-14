@@ -17,51 +17,48 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Preconditions;
-import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.CssConditionalBlockNode;
-import com.google.common.css.compiler.ast.CssConditionalRuleNode;
-import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import com.google.common.css.compiler.ast.VisitController;
+import com.google.common.css.compiler.ast.*;
 
 /**
+ *
  */
 public class HasConditionalNodes extends DefaultTreeVisitor
-    implements CssCompilerPass {
+        implements CssCompilerPass {
 
-  private final VisitController visitController;
+    private final VisitController visitController;
 
-  private boolean hasConditionalNodes = false;
+    private boolean hasConditionalNodes = false;
 
-  private boolean passWasRun = false;
+    private boolean passWasRun = false;
 
-  HasConditionalNodes(VisitController visitController) {
-    this.visitController = visitController;
-  }
+    HasConditionalNodes(VisitController visitController) {
+        this.visitController = visitController;
+    }
 
-  @Override
-  public boolean enterConditionalBlock(CssConditionalBlockNode block) {
-    // assert !block.isEmpty();
-    hasConditionalNodes = true;
-    visitController.stopVisit();
-    return true;
-  }
+    @Override
+    public boolean enterConditionalBlock(CssConditionalBlockNode block) {
+        // assert !block.isEmpty();
+        hasConditionalNodes = true;
+        visitController.stopVisit();
+        return true;
+    }
 
-  @Override
-  public boolean enterConditionalRule(CssConditionalRuleNode node) {
-    // This should never get called as the visit should stop at the enclosing
-    // conditional block of the first conditional rule.
-    // assert false;
-    return false;
-  }
+    @Override
+    public boolean enterConditionalRule(CssConditionalRuleNode node) {
+        // This should never get called as the visit should stop at the enclosing
+        // conditional block of the first conditional rule.
+        // assert false;
+        return false;
+    }
 
-  @Override
-  public void runPass() {
-    visitController.startVisit(this);
-    passWasRun = true;
-  }
+    @Override
+    public void runPass() {
+        visitController.startVisit(this);
+        passWasRun = true;
+    }
 
-  public boolean hasConditionalNodes() {
-    Preconditions.checkState(passWasRun);
-    return hasConditionalNodes;
-  }
+    public boolean hasConditionalNodes() {
+        Preconditions.checkState(passWasRun);
+        return hasConditionalNodes;
+    }
 }

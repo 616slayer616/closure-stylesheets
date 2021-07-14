@@ -25,30 +25,30 @@ import java.util.List;
  */
 public class CssPageRuleNode extends CssAtRuleNode {
 
-  /**
-   * Constructor of a page rule.
-   */
-  public CssPageRuleNode(List<CssCommentNode> comments,
-      CssDeclarationBlockNode block) {
-    super(CssAtRuleNode.Type.PAGE, new CssLiteralNode("page"), block,
-        comments);
-  }
+    /**
+     * Constructor of a page rule.
+     */
+    public CssPageRuleNode(List<CssCommentNode> comments,
+                           CssDeclarationBlockNode block) {
+        super(CssAtRuleNode.Type.PAGE, new CssLiteralNode("page"), block,
+                comments);
+    }
 
-  /**
-   * Copy constructor.
-   */
-  public CssPageRuleNode(CssPageRuleNode node) {
-    super(node);
-  }
+    /**
+     * Copy constructor.
+     */
+    public CssPageRuleNode(CssPageRuleNode node) {
+        super(node);
+    }
 
-  @Override
-  public CssNode deepCopy() {
-    return new CssPageRuleNode(this);
-  }
+    @Override
+    public CssNode deepCopy() {
+        return new CssPageRuleNode(this);
+    }
 
-  @Override
-  public CssDeclarationBlockNode getBlock() {
-    // The type is ensured by the constructor.
-    return (CssDeclarationBlockNode) super.getBlock();
-  }
+    @Override
+    public CssDeclarationBlockNode getBlock() {
+        // The type is ensured by the constructor.
+        return (CssDeclarationBlockNode) super.getBlock();
+    }
 }

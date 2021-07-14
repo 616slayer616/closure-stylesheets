@@ -16,11 +16,11 @@
 
 package com.google.common.css;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import static com.google.common.truth.Truth.assertThat;
 
 /**
  * Test for the delegating CSS class substitution map which handles compound class names.
@@ -30,31 +30,31 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class SplittingSubstitutionMapTest {
 
-  @Test
-  public void testGet() throws Exception {
-    SubstitutionMap map = new SplittingSubstitutionMap(
-        new SimpleSubstitutionMap());
-    assertThat(map.get("a")).isEqualTo("a_");
-    assertThat(map.get("a-b")).isEqualTo("a_-b_");
-    assertThat(map.get("a-b-c")).isEqualTo("a_-b_-c_");
-    assertThat(map.get("a-b-c-d")).isEqualTo("a_-b_-c_-d_");
-  }
-
-  @Test
-  public void testSameObjectReturnedIfNoDash() {
-    // Manually force a non-interned string so that we can prove we got back
-    // the same one we meant. If we just used a String literal, it would be
-    // less convincing.
-    String input = new String("abc");
-    SubstitutionMap map = new SplittingSubstitutionMap(
-        new PassThroughSubstitutionMap());
-    assertThat(map.get(input)).isSameAs(input);
-  }
-
-  private static class PassThroughSubstitutionMap implements SubstitutionMap {
-    @Override
-    public String get(String key) {
-      return key;
+    @Test
+    public void testGet() throws Exception {
+        SubstitutionMap map = new SplittingSubstitutionMap(
+                new SimpleSubstitutionMap());
+        assertThat(map.get("a")).isEqualTo("a_");
+        assertThat(map.get("a-b")).isEqualTo("a_-b_");
+        assertThat(map.get("a-b-c")).isEqualTo("a_-b_-c_");
+        assertThat(map.get("a-b-c-d")).isEqualTo("a_-b_-c_-d_");
     }
-  }
+
+    @Test
+    public void testSameObjectReturnedIfNoDash() {
+        // Manually force a non-interned string so that we can prove we got back
+        // the same one we meant. If we just used a String literal, it would be
+        // less convincing.
+        String input = new String("abc");
+        SubstitutionMap map = new SplittingSubstitutionMap(
+                new PassThroughSubstitutionMap());
+        assertThat(map.get(input)).isSameAs(input);
+    }
+
+    private static class PassThroughSubstitutionMap implements SubstitutionMap {
+        @Override
+        public String get(String key) {
+            return key;
+        }
+    }
 }
