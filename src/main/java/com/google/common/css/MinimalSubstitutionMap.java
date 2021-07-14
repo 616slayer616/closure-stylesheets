@@ -68,7 +68,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
      * Characters that can be used in a CSS class name (though not necessarily as
      * the first character).
      */
-    private final char[] chars;
+    private final char[] usableChars;
 
     /**
      * Number of startChars.
@@ -115,12 +115,12 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
      *
      * @param startChars Possible values for the first character of a CSS class
      *                   name.
-     * @param chars      Possible values for the characters other than the first
+     * @param usableChars      Possible values for the characters other than the first
      *                   character in a CSS class name.
      */
     @VisibleForTesting
-    MinimalSubstitutionMap(char[] startChars, char[] chars) {
-        this(startChars, chars, ImmutableSet.<String>of());
+    MinimalSubstitutionMap(char[] startChars, char[] usableChars) {
+        this(startChars, usableChars, ImmutableSet.<String>of());
     }
 
     /**
@@ -129,19 +129,19 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
      *
      * @param startChars           Possible values for the first character of a CSS class
      *                             name.
-     * @param chars                Possible values for the characters other than the first
+     * @param usableChars                Possible values for the characters other than the first
      *                             character in a CSS class name.
      * @param outputValueBlacklist A set of CSS class names that may not be
      *                             returned as the output from a substitution lookup.
      */
     @VisibleForTesting
     MinimalSubstitutionMap(
-            char[] startChars, char[] chars, Set<String> outputValueBlacklist) {
+            char[] startChars, char[] usableChars, Set<String> outputValueBlacklist) {
         this.lastIndex = 0;
         this.startChars = Arrays.copyOf(startChars, startChars.length);
         this.startCharsRadix = this.startChars.length;
-        this.chars = Arrays.copyOf(chars, chars.length);
-        this.charsRadix = this.chars.length;
+        this.usableChars = Arrays.copyOf(usableChars, usableChars.length);
+        this.charsRadix = this.usableChars.length;
         this.logCharsRadix = Math.log(charsRadix);
         this.renamedCssClasses = Maps.newHashMap();
         this.outputValueBlacklist =
@@ -224,7 +224,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
         cssNameChars[0] = startChars[index % startCharsRadix];
 
         for (int k = 1; k <= n; ++k) {
-            cssNameChars[k] = chars[i % charsRadix];
+            cssNameChars[k] = usableChars[i % charsRadix];
             i /= charsRadix;
         }
 
