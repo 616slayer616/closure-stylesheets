@@ -16,25 +16,8 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.css.compiler.ast.CssAttributeSelectorNode;
-import com.google.common.css.compiler.ast.CssClassSelectorNode;
-import com.google.common.css.compiler.ast.CssCombinatorNode;
-import com.google.common.css.compiler.ast.CssConstantReferenceNode;
-import com.google.common.css.compiler.ast.CssDeclarationNode;
-import com.google.common.css.compiler.ast.CssFontFaceNode;
-import com.google.common.css.compiler.ast.CssIdSelectorNode;
-import com.google.common.css.compiler.ast.CssImportRuleNode;
-import com.google.common.css.compiler.ast.CssKeyframeRulesetNode;
-import com.google.common.css.compiler.ast.CssKeyframesNode;
-import com.google.common.css.compiler.ast.CssMediaRuleNode;
-import com.google.common.css.compiler.ast.CssPageRuleNode;
-import com.google.common.css.compiler.ast.CssPseudoClassNode;
-import com.google.common.css.compiler.ast.CssPseudoElementNode;
-import com.google.common.css.compiler.ast.CssRulesetNode;
-import com.google.common.css.compiler.ast.CssSelectorNode;
-import com.google.common.css.compiler.ast.CssUnknownAtRuleNode;
-import com.google.common.css.compiler.ast.CssValueNode;
-import com.google.common.css.compiler.ast.VisitController;
+import com.google.common.css.compiler.ast.*;
+
 import javax.annotation.Nullable;
 
 /**
@@ -164,6 +147,25 @@ public class TemplateCompactPrintingVisitor<T> extends CompactPrintingVisitor {
     // only called if enterFontFace returns true
     if (printSelector) {
       super.leaveFontFace(cssFontFaceNode);
+    }
+    buffer.append(TemplateCompactPrinter.RULE_END);
+  }
+
+  @Override
+  public boolean enterCharSet(CssCharSetNode cssCharSetNode) {
+    buffer.append(TemplateCompactPrinter.RULE_START);
+    boolean printFontFace = super.enterCharSet(cssCharSetNode);
+    if (! super.enterCharSet(cssCharSetNode)) {
+      buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);
+    }
+    return printFontFace;
+  }
+
+  @Override
+  public void leaveCharSet(CssCharSetNode cssCharSetNode) {
+    // only called if enterCharSet returns true
+    if (printSelector) {
+      super.leaveCharSet(cssCharSetNode);
     }
     buffer.append(TemplateCompactPrinter.RULE_END);
   }

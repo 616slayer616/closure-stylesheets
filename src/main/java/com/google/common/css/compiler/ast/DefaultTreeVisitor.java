@@ -21,6 +21,7 @@ package com.google.common.css.compiler.ast;
  *
  * @author fbenz@google.com (Florian Benz)
  */
+@SuppressWarnings("java:S1186")
 public class DefaultTreeVisitor implements CssTreeVisitor {
 
   @Override
@@ -280,6 +281,14 @@ public class DefaultTreeVisitor implements CssTreeVisitor {
 
   @Override
   public void leaveFontFace(CssFontFaceNode node) {}
+
+  @Override
+  public boolean enterCharSet(CssCharSetNode node) {
+    return true;
+  }
+
+  @Override
+  public void leaveCharSet(CssCharSetNode node) {}
 
   @Override
   public boolean enterAttributeSelector(

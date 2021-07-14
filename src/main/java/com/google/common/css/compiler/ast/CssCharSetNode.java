@@ -4,9 +4,8 @@ import java.util.List;
 
 public class CssCharSetNode extends CssAtRuleNode {
 
-    public CssCharSetNode(List<CssCommentNode> comments, CssDeclarationBlockNode block) {
-        super(CssAtRuleNode.Type.CHARSET, new CssLiteralNode("charset"), block,
-                comments);
+    public CssCharSetNode(List<CssCommentNode> comments) {
+        super(CssAtRuleNode.Type.CHARSET, new CssLiteralNode("charset"), comments);
     }
 
     public CssCharSetNode(CssCharSetNode node) {
@@ -16,11 +15,5 @@ public class CssCharSetNode extends CssAtRuleNode {
     @Override
     public CssNode deepCopy() {
         return new CssCharSetNode(this);
-    }
-
-    @Override
-    public CssDeclarationBlockNode getBlock() {
-        // The type is ensured by the constructor.
-        return (CssDeclarationBlockNode) super.getBlock();
     }
 }

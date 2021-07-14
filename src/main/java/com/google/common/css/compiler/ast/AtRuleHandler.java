@@ -61,6 +61,12 @@ public interface AtRuleHandler {
   /** Called after visiting a {@code CssFontFaceNode}'s sub trees */
   void leaveFontFace(CssFontFaceNode node);
 
+  /** Called before visiting a {@code CssCharSetNode}'s sub trees */
+  boolean enterCharSet(CssCharSetNode node);
+
+  /** Called after visiting a {@code CssCharSetNode}'s sub trees */
+  void leaveCharSet(CssCharSetNode node);
+
   /**
    * @return {@code true} if the contents of the rule should be visited,
    *     false otherwise. {@link #leaveDefinition(CssDefinitionNode)}
