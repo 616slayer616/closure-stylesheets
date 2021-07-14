@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 /**
  * A parser that recognizes GSS files and builds the new AST.
  */
+@SuppressWarnings({"java:S3776", "java:S1199"})
 public class GssParserCC implements GssParserCCConstants {
 
     /**
@@ -401,7 +402,7 @@ public class GssParserCC implements GssParserCCConstants {
                 attachComments(tokens, node);
                 return node;
             } catch (NullPointerException e) {
-                StringBuffer valueValue = new StringBuffer();
+                StringBuilder valueValue = new StringBuilder();
                 for (CssValueNode n : value.getChildren()) {
                     valueValue.append(n.getValue());
                     valueValue.append("<");
@@ -535,7 +536,7 @@ public class GssParserCC implements GssParserCCConstants {
     // string
 //   : DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING
 //   ;
-    final public CssStringNode string() throws ParseException {
+    public final CssStringNode string() throws ParseException {
         Token t;
         CssStringNode.Type type;
         SourceCodeLocation beginLocation;
@@ -558,16 +559,15 @@ public class GssParserCC implements GssParserCCConstants {
         }
         SourceCodeLocation endLocation = this.getLocation();
         {
-            if ("" != null) return nodeBuilder.buildStringNode(
+            return nodeBuilder.buildStringNode(
                     type, t.image, this.mergeLocations(beginLocation, endLocation), t);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // ruleset
 //   : selector_list '{' style_declarations '}'
 //   ;
-    final public CssRulesetNode ruleSet() throws ParseException {
+    public final CssRulesetNode ruleSet() throws ParseException {
         CssSelectorListNode selectors;
         CssDeclarationBlockNode declarations;
         Token t;
@@ -579,11 +579,11 @@ public class GssParserCC implements GssParserCCConstants {
                 tokens.add(t);
             } catch (ParseException e) {
                 if (!enableErrorRecovery || e.currentToken == null) {
-                    if (true) throw e;
+                    throw e;
                 }
                 skipComponentValuesToAfter(LEFTBRACE);
                 {
-                    if (true) throw e;
+                    throw e;
                 }
             }
             declarations = styleDeclaration();
@@ -592,24 +592,23 @@ public class GssParserCC implements GssParserCCConstants {
             CssRulesetNode ruleSet = nodeBuilder.buildRulesetNode(declarations,
                     selectors, mergeLocations(selectors.getSourceCodeLocation(), getLocation()), tokens);
             {
-                if ("" != null) return ruleSet;
+                return ruleSet;
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             skipComponentValuesToAfter(RIGHTBRACE);
             {
-                if (true) throw e;
+                throw e;
             }
         }
-        throw new Error("Missing return statement in function");
     }
 
     // selector_list
 //   : selector [ ',' S* selector ]*
 //   ;
-    final public CssSelectorListNode selectorList() throws ParseException {
+    public final CssSelectorListNode selectorList() throws ParseException {
         CssSelectorListNode list = new CssSelectorListNode();
         CssSelectorNode selector;
         Token t;
@@ -645,15 +644,14 @@ public class GssParserCC implements GssParserCCConstants {
             list.addChildToBack(selector);
         }
         {
-            if ("" != null) return list;
+            return list;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // selector
 //   : simple_selector [ combinator simple_selector ]* S*
 //   ;
-    final public CssSelectorNode selector() throws ParseException {
+    public final CssSelectorNode selector() throws ParseException {
         CssSelectorNode first;
         CssCombinatorNode c;
         CssSelectorNode next;
@@ -691,15 +689,14 @@ public class GssParserCC implements GssParserCCConstants {
         }
         nodeBuilder.attachComments(tokens, first);
         {
-            if ("" != null) return first;
+            return first;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // class
 //   : '.' IDENTIFIER
 //   ;
-    final public CssClassSelectorNode className() throws ParseException {
+    public final CssClassSelectorNode className() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         CssClassSelectorNode.ComponentScoping scoping = CssClassSelectorNode.ComponentScoping.DEFAULT;
@@ -733,31 +730,29 @@ public class GssParserCC implements GssParserCCConstants {
         t = jj_consume_token(IDENTIFIER);
         tokens.add(t);
         {
-            if ("" != null) return nodeBuilder.buildClassSelectorNode(t.image, this.getLocation(), scoping, tokens);
+            return nodeBuilder.buildClassSelectorNode(t.image, this.getLocation(), scoping, tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // id
 //   : HASH_NAME
 //   ;
-    final public CssRefinerNode id() throws ParseException {
+    public final CssRefinerNode id() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         t = jj_consume_token(HASH_NAME);
         tokens.add(t);
         String name = t.image.substring(1);
         {
-            if ("" != null) return nodeBuilder.buildIdSelectorNode(name, this.getLocation(), tokens);
+            return nodeBuilder.buildIdSelectorNode(name, this.getLocation(), tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // pseudo
 //   : ':' [ IDENT | [ ':' IDENT ] | [ 'not(' S* simple_selector S* ')' ]
 //         | [ 'lang(' S* IDENT S* ')' ] | [ FUNCTION S* nth S* ')' ] ]?
 //   ;
-    final public CssRefinerNode pseudo() throws ParseException {
+    public final CssRefinerNode pseudo() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation = null;
         SourceCodeLocation endLocation = null;
@@ -790,10 +785,9 @@ public class GssParserCC implements GssParserCCConstants {
                         tokens.add(t);
                         endLocation = this.getLocation();
                         {
-                            if ("" != null) return nodeBuilder.buildPseudoElementNode(pseudo,
+                            return nodeBuilder.buildPseudoElementNode(pseudo,
                                     this.mergeLocations(beginLocation, endLocation), tokens);
                         }
-                        break;
                     }
                     case NOTFUNCTION: {
                         // :not( simple_selector )
@@ -832,10 +826,9 @@ public class GssParserCC implements GssParserCCConstants {
                         tokens.add(t);
                         endLocation = this.getLocation();
                         {
-                            if ("" != null) return nodeBuilder.buildPseudoClassNode(pseudo, notSelector,
+                            return nodeBuilder.buildPseudoClassNode(pseudo, notSelector,
                                     this.mergeLocations(beginLocation, endLocation), tokens);
                         }
-                        break;
                     }
                     case LANGFUNCTION: {
                         // :lang( <IDENTIFIER> )
@@ -876,11 +869,10 @@ public class GssParserCC implements GssParserCCConstants {
                         tokens.add(t);
                         endLocation = this.getLocation();
                         {
-                            if ("" != null) return nodeBuilder.buildPseudoClassNode(
+                            return nodeBuilder.buildPseudoClassNode(
                                     CssPseudoClassNode.FunctionType.LANG, pseudo, argument,
                                     this.mergeLocations(beginLocation, endLocation), tokens);
                         }
-                        break;
                     }
                     case FUNCTION: {
                         // :nth-function( nth )
@@ -919,11 +911,10 @@ public class GssParserCC implements GssParserCCConstants {
                         tokens.add(t);
                         endLocation = this.getLocation();
                         {
-                            if ("" != null) return nodeBuilder.buildPseudoClassNode(
+                            return nodeBuilder.buildPseudoClassNode(
                                     CssPseudoClassNode.FunctionType.NTH, pseudo, argument,
                                     this.mergeLocations(beginLocation, endLocation), tokens);
                         }
-                        break;
                     }
                     default:
                         jj_la1[12] = jj_gen;
@@ -939,16 +930,15 @@ public class GssParserCC implements GssParserCCConstants {
 // non-function pseudo-class
         endLocation = this.getLocation();
         {
-            if ("" != null) return nodeBuilder.buildPseudoClassNode(pseudo,
+            return nodeBuilder.buildPseudoClassNode(pseudo,
                     this.mergeLocations(beginLocation, endLocation), tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // nth
 //   : [ [ [ S* '+' ] | '-' | NUMBER | IDENTIFIER | FOR_VARIABLE ] S* ]+
 //   ;
-    final public String nth() throws ParseException {
+    public final String nth() throws ParseException {
         Token t;
         StringBuilder argument = new StringBuilder();
         label_11:
@@ -1018,9 +1008,8 @@ public class GssParserCC implements GssParserCCConstants {
             }
         }
         {
-            if ("" != null) return argument.toString();
+            return argument.toString();
         }
-        throw new Error("Missing return statement in function");
     }
 
     // attribute
@@ -1029,7 +1018,7 @@ public class GssParserCC implements GssParserCCConstants {
 //        S*
 //      ]? ']'
 //   ;
-    final public CssAttributeSelectorNode attribute() throws ParseException {
+    public final CssAttributeSelectorNode attribute() throws ParseException {
         Token t;
         CssStringNode stringNode = null;
         CssLiteralNode idNode = null;
@@ -1173,11 +1162,11 @@ public class GssParserCC implements GssParserCCConstants {
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             skipComponentValuesToAfter(RIGHTSQUARE);
             {
-                if (true) throw e;
+                throw e;
             }
         }
         SourceCodeLocation endLocation = this.getLocation();
@@ -1190,18 +1179,17 @@ public class GssParserCC implements GssParserCCConstants {
             v = new CssLiteralNode("");
         }
         {
-            if ("" != null) return nodeBuilder.buildAttributeSelectorNode(
+            return nodeBuilder.buildAttributeSelectorNode(
                     matchType, attribute, v,
                     this.mergeLocations(beginLocation, endLocation), tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // simple_selector
 //   : [ element_name [ id | class | attribute | pseudo ]* ]
 //     | [ id | class | attribute | pseudo ]+
 //   ;
-    final public CssSelectorNode simpleSelector() throws ParseException {
+    public final CssSelectorNode simpleSelector() throws ParseException {
         Token t;
         CssRefinerNode n = null;
         Token selectorName = null;
@@ -1305,15 +1293,14 @@ public class GssParserCC implements GssParserCCConstants {
         CssSelectorNode selectorNode = nodeBuilder.buildSelectorNode(selectorName,
                 this.mergeLocations(beginLocation, endLocation), refiners);
         {
-            if ("" != null) return selectorNode;
+            return selectorNode;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // element_name
 //   : IDENTIFIER | '*'
 //   ;
-    final public Token elementName() throws ParseException {
+    public final Token elementName() throws ParseException {
         Token t;
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
             case IDENTIFIER: {
@@ -1330,15 +1317,14 @@ public class GssParserCC implements GssParserCCConstants {
                 throw new ParseException();
         }
         {
-            if ("" != null) return t;
+            return t;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // combinator
 //   : [ '+' S* ] | [ '>' S* ] | [ '~' S* ] | [ WDEEP S*] | S+
 //   ;
-    final public CssCombinatorNode combinator() throws ParseException {
+    public final CssCombinatorNode combinator() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -1359,11 +1345,10 @@ public class GssParserCC implements GssParserCCConstants {
                 }
                 tokens.add(t);
                 {
-                    if ("" != null) return nodeBuilder.buildCombinatorNode(
+                    return nodeBuilder.buildCombinatorNode(
                             CssCombinatorNode.Combinator.ADJACENT_SIBLING, this.getLocation(),
                             tokens);
                 }
-                break;
             }
             case WGREATER: {
                 t = jj_consume_token(WGREATER);
@@ -1382,10 +1367,9 @@ public class GssParserCC implements GssParserCCConstants {
                 }
                 tokens.add(t);
                 {
-                    if ("" != null) return nodeBuilder.buildCombinatorNode(
+                    return nodeBuilder.buildCombinatorNode(
                             CssCombinatorNode.Combinator.CHILD, this.getLocation(), tokens);
                 }
-                break;
             }
             case WTILDE: {
                 t = jj_consume_token(WTILDE);
@@ -1404,11 +1388,10 @@ public class GssParserCC implements GssParserCCConstants {
                 }
                 tokens.add(t);
                 {
-                    if ("" != null) return nodeBuilder.buildCombinatorNode(
+                    return nodeBuilder.buildCombinatorNode(
                             CssCombinatorNode.Combinator.GENERAL_SIBLING, this.getLocation(),
                             tokens);
                 }
-                break;
             }
             case WDEEP: {
                 t = jj_consume_token(WDEEP);
@@ -1427,10 +1410,9 @@ public class GssParserCC implements GssParserCCConstants {
                 }
                 tokens.add(t);
                 {
-                    if ("" != null) return nodeBuilder.buildCombinatorNode(
+                    return nodeBuilder.buildCombinatorNode(
                             CssCombinatorNode.Combinator.DEEP, this.getLocation(), tokens);
                 }
-                break;
             }
             case S: {
                 label_23:
@@ -1448,17 +1430,15 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                 }
                 {
-                    if ("" != null) return nodeBuilder.buildCombinatorNode(
+                    return nodeBuilder.buildCombinatorNode(
                             CssCombinatorNode.Combinator.DESCENDANT, this.getLocation(), tokens);
                 }
-                break;
             }
             default:
                 jj_la1[35] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        throw new Error("Missing return statement in function");
     }
 
     // style_declaration
@@ -1473,7 +1453,7 @@ public class GssParserCC implements GssParserCCConstants {
 // last thing in the block is a declaration, the trailing semicolon is optional.
 // Note that the trailing semicolon is NOT optional if the last thing is an
 // @-rule. This is a limitation of the current grammar.
-    final public CssDeclarationBlockNode styleDeclaration() throws ParseException {
+    public final CssDeclarationBlockNode styleDeclaration() throws ParseException {
         CssDeclarationBlockNode block = new CssDeclarationBlockNode();
         CssNode decl;
         try {
@@ -1517,7 +1497,7 @@ public class GssParserCC implements GssParserCCConstants {
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             handledErrors.add(new GssParserException(getLocation(e.currentToken.next), e));
         }
@@ -1541,7 +1521,7 @@ public class GssParserCC implements GssParserCCConstants {
                             block.addChildToBack(decl);
                         } catch (ParseException e) {
                             if (!enableErrorRecovery || e.currentToken == null) {
-                                if (true) throw e;
+                                throw e;
                             }
                             handledErrors.add(new GssParserException(getLocation(e.currentToken.next), e));
                         }
@@ -1608,18 +1588,17 @@ public class GssParserCC implements GssParserCCConstants {
                 }
             } catch (ParseException e) {
                 if (!enableErrorRecovery || e.currentToken == null) {
-                    if (true) throw e;
+                    throw e;
                 }
                 handledErrors.add(new GssParserException(getLocation(e.currentToken.next), e));
             }
         }
         {
-            if ("" != null) return block;
+            return block;
         }
-        throw new Error("Missing return statement in function");
     }
 
-    final public CssNode declaration() throws ParseException {
+    public final CssNode declaration() throws ParseException {
         CssNode decl;
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
             case ASTERISK:
@@ -1637,15 +1616,14 @@ public class GssParserCC implements GssParserCCConstants {
                 throw new ParseException();
         }
         {
-            if ("" != null) return decl;
+            return decl;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // custom_declaration
 //   : CUSTOM_PROPERTY_NAME S* ':' custom_declaration_value
 //   ;
-    final public CssDeclarationNode customDeclaration() throws ParseException {
+    public final CssDeclarationNode customDeclaration() throws ParseException {
         Token t;
         CssPropertyNode property;
         String value;
@@ -1685,18 +1663,17 @@ public class GssParserCC implements GssParserCCConstants {
             }
             valueNode = customDeclarationValue();
             {
-                if ("" != null) return nodeBuilder.buildDeclarationNode(property, valueNode, tokens);
+                return nodeBuilder.buildDeclarationNode(property, valueNode, tokens);
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             skipComponentValuesToBefore(RIGHTBRACE, SEMICOLON);
             {
-                if (true) throw e;
+                throw e;
             }
         }
-        throw new Error("Missing return statement in function");
     }
 
     // For the time being, we have decided to be more restrictive in what we accept here. Instead of
@@ -1706,19 +1683,18 @@ public class GssParserCC implements GssParserCCConstants {
 // custom_declaration_value
 //   : expr()
 //   ;
-    final public CssPropertyValueNode customDeclarationValue() throws ParseException {
+    public final CssPropertyValueNode customDeclarationValue() throws ParseException {
         CssPropertyValueNode value;
         value = expr();
         {
-            if ("" != null) return value;
+            return value;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // standard_declaration
 //   : '*'? IDENTIFIER S* ':' S* expr S* important?
 //   ;
-    final public CssDeclarationNode standardDeclaration() throws ParseException {
+    public final CssDeclarationNode standardDeclaration() throws ParseException {
         Token t;
         CssPropertyNode property;
         CssPropertyValueNode valueNode;
@@ -1798,24 +1774,23 @@ public class GssParserCC implements GssParserCCConstants {
             }
             CssDeclarationNode node = nodeBuilder.buildDeclarationNode(property, valueNode, tokens);
             {
-                if ("" != null) return node;
+                return node;
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             skipComponentValuesToBefore(RIGHTBRACE, SEMICOLON);
             {
-                if (true) throw e;
+                throw e;
             }
         }
-        throw new Error("Missing return statement in function");
     }
 
     // expr
 //   : composite_term [ composite_term ]*
 //   ;
-    final public CssPropertyValueNode expr() throws ParseException {
+    public final CssPropertyValueNode expr() throws ParseException {
         List<CssValueNode> lst = Lists.newArrayList();
         CssValueNode value;
         value = composite_term();
@@ -1833,16 +1808,15 @@ public class GssParserCC implements GssParserCCConstants {
         CssPropertyValueNode result = new CssPropertyValueNode(lst);
         result.setSourceCodeLocation(mergeLocations(lst));
         {
-            if ("" != null) return result;
+            return result;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // composite_term
 //   : assign_term [ ',' assign_term ]*
 //   ;
-    final public CssValueNode composite_term() throws ParseException {
+    public final CssValueNode composite_term() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
         SourceCodeLocation beginLocation;
@@ -1882,22 +1856,21 @@ public class GssParserCC implements GssParserCCConstants {
         }
         if (lst.size() == 1) {
             {
-                if ("" != null) return lst.get(0);
+                return lst.get(0);
             }
         } else {
             {
-                if ("" != null) return nodeBuilder.buildCompositeValueNode(lst, CssCompositeValueNode.Operator.COMMA,
+                return nodeBuilder.buildCompositeValueNode(lst, CssCompositeValueNode.Operator.COMMA,
                         this.mergeLocations(beginLocation, this.getLocation()), tokens);
             }
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // assign_term
 //   : slash_term [ '=' slash_term ]*
 //   ;
-    final public CssValueNode assign_term() throws ParseException {
+    public final CssValueNode assign_term() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
         SourceCodeLocation beginLocation;
@@ -1937,21 +1910,20 @@ public class GssParserCC implements GssParserCCConstants {
         }
         if (lst.size() == 1) {
             {
-                if ("" != null) return lst.get(0);
+                return lst.get(0);
             }
         }
         {
-            if ("" != null) return nodeBuilder.buildCompositeValueNode(lst, CssCompositeValueNode.Operator.EQUALS,
+            return nodeBuilder.buildCompositeValueNode(lst, CssCompositeValueNode.Operator.EQUALS,
                     this.mergeLocations(beginLocation, this.getLocation()), tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // slash_term
 //   : term [ '/' term ]*
 //   ;
-    final public CssValueNode slash_term() throws ParseException {
+    public final CssValueNode slash_term() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
         SourceCodeLocation beginLocation;
@@ -1991,15 +1963,14 @@ public class GssParserCC implements GssParserCCConstants {
         }
         if (lst.size() == 1) {
             {
-                if ("" != null) return lst.get(0);
+                return lst.get(0);
             }
         } else {
             {
-                if ("" != null) return nodeBuilder.buildCompositeValueNode(lst, CssCompositeValueNode.Operator.SLASH,
+                return nodeBuilder.buildCompositeValueNode(lst, CssCompositeValueNode.Operator.SLASH,
                         this.mergeLocations(beginLocation, this.getLocation()), tokens);
             }
         }
-        throw new Error("Missing return statement in function");
     }
 
     // term
@@ -2009,7 +1980,7 @@ public class GssParserCC implements GssParserCCConstants {
 //       | URI | hexcolor | function | math
 //     ] S*
 //   ;
-    final public CssValueNode term() throws ParseException {
+    public final CssValueNode term() throws ParseException {
         Token t = null;
         Token dim = null;
         String unit = null;
@@ -2219,11 +2190,11 @@ public class GssParserCC implements GssParserCCConstants {
                                     tokens.add(t);
                                 } catch (ParseException e) {
                                     if (!enableErrorRecovery || e.currentToken == null) {
-                                        if (true) throw e;
+                                        throw e;
                                     }
                                     skipComponentValuesToAfter(RIGHTROUND);
                                     {
-                                        if (true) throw e;
+                                        throw e;
                                     }
                                 }
                             } else if (getToken(1).kind == URI) {
@@ -2279,19 +2250,19 @@ public class GssParserCC implements GssParserCCConstants {
                 location = this.getLocation(t);
             }
             {
-                if ("" != null) return nodeBuilder.buildNumericNode(unop + t.image, unit, location, tokens);
+                return nodeBuilder.buildNumericNode(unop + t.image, unit, location, tokens);
             }
         } else if (function != null) {
             {
-                if ("" != null) return function;
+                return function;
             }
         } else if (hexcolor) {
             {
-                if ("" != null) return nodeBuilder.buildHexColorNode(t.image, this.getLocation(t), tokens);
+                return nodeBuilder.buildHexColorNode(t.image, this.getLocation(t), tokens);
             }
         } else if (stringNode != null) {
             {
-                if ("" != null) return stringNode;
+                return stringNode;
             }
         } else {
             StringBuilder sb = new StringBuilder();
@@ -2300,28 +2271,27 @@ public class GssParserCC implements GssParserCCConstants {
             }
             if (loopVariable) {
                 {
-                    if ("" != null)
-                        return nodeBuilder.buildLoopVariableNode(sb.toString(), this.getLocation(t), tokens);
+
+                    return nodeBuilder.buildLoopVariableNode(sb.toString(), this.getLocation(t), tokens);
                 }
             } else if (unicodeRange) {
                 {
-                    if ("" != null)
-                        return nodeBuilder.buildUnicodeRangeNode(sb.toString(), this.getLocation(t), tokens);
+
+                    return nodeBuilder.buildUnicodeRangeNode(sb.toString(), this.getLocation(t), tokens);
                 }
             } else {
                 {
-                    if ("" != null) return nodeBuilder.buildLiteralNode(sb.toString(), this.getLocation(t), tokens);
+                    return nodeBuilder.buildLiteralNode(sb.toString(), this.getLocation(t), tokens);
                 }
             }
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // extended_term
 //   : boolean_and_term [ '||' S* boolean_and_term ]*
 //   ;
-    final public CssBooleanExpressionNode extended_term() throws ParseException {
+    public final CssBooleanExpressionNode extended_term() throws ParseException {
         SourceCodeLocation beginLocation;
         SourceCodeLocation endLocation;
         CssBooleanExpressionNode newNode = null;
@@ -2368,9 +2338,8 @@ public class GssParserCC implements GssParserCCConstants {
             left = newNode;
         }
         {
-            if ("" != null) return left;
+            return left;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
@@ -2378,7 +2347,7 @@ public class GssParserCC implements GssParserCCConstants {
 //   :  [ boolean_negated_term | basic_term]
 //      [ '&&' S* [ boolean_negated_term | basic_term ] ]*
 //   ;
-    final public CssBooleanExpressionNode boolean_and_term() throws ParseException {
+    public final CssBooleanExpressionNode boolean_and_term() throws ParseException {
         SourceCodeLocation beginLocation = null;
         SourceCodeLocation endLocation;
         CssBooleanExpressionNode newNode = null;
@@ -2451,16 +2420,15 @@ public class GssParserCC implements GssParserCCConstants {
             left = newNode;
         }
         {
-            if ("" != null) return left;
+            return left;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // boolean_negated_term
 //   : '!' S* basic_term
 //   ;
-    final public CssBooleanExpressionNode boolean_negated_term() throws ParseException {
+    public final CssBooleanExpressionNode boolean_negated_term() throws ParseException {
         SourceCodeLocation beginLocation;
         String value = "";
         CssBooleanExpressionNode boolNode = null;
@@ -2486,17 +2454,16 @@ public class GssParserCC implements GssParserCCConstants {
         boolNode = basic_term();
         SourceCodeLocation endLocation = this.getLocation();
         {
-            if ("" != null) return nodeBuilder.buildBoolExpressionNode(CssBooleanExpressionNode.Type.NOT,
+            return nodeBuilder.buildBoolExpressionNode(CssBooleanExpressionNode.Type.NOT,
                     value, boolNode, null, this.mergeLocations(beginLocation, endLocation), tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // basic_term
 //   :  term | parenthesized_term
 //   ;
-    final public CssBooleanExpressionNode basic_term() throws ParseException {
+    public final CssBooleanExpressionNode basic_term() throws ParseException {
         SourceCodeLocation beginLocation;
         String value = "";
         CssBooleanExpressionNode node = null;
@@ -2522,22 +2489,21 @@ public class GssParserCC implements GssParserCCConstants {
         SourceCodeLocation endLocation = this.getLocation();
         if (node == null) {
             {
-                if ("" != null) return nodeBuilder.buildBoolExpressionNode(CssBooleanExpressionNode.Type.CONSTANT,
+                return nodeBuilder.buildBoolExpressionNode(CssBooleanExpressionNode.Type.CONSTANT,
                         value, null, null, this.mergeLocations(beginLocation, endLocation), tokens);
             }
         } else {
             {
-                if ("" != null) return node;
+                return node;
             }
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // parenthesized_term
 //   : '(' S* extended_term ')' S*
 //   ;
-    final public CssBooleanExpressionNode parenthesized_term() throws ParseException {
+    public final CssBooleanExpressionNode parenthesized_term() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         CssBooleanExpressionNode node;
@@ -2575,24 +2541,23 @@ public class GssParserCC implements GssParserCCConstants {
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             skipComponentValuesToAfter(RIGHTROUND);
             {
-                if (true) throw e;
+                throw e;
             }
         }
         nodeBuilder.attachComments(tokens, node);
         {
-            if ("" != null) return node;
+            return node;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // unary_operator
 //   : '-' | '+'
 //   ;
-    final public Token unary_operator() throws ParseException {
+    public final Token unary_operator() throws ParseException {
         Token t;
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
             case MINUS: {
@@ -2609,9 +2574,8 @@ public class GssParserCC implements GssParserCCConstants {
                 throw new ParseException();
         }
         {
-            if ("" != null) return t;
+            return t;
         }
-        throw new Error("Missing return statement in function");
     }
 
     /*
@@ -2622,16 +2586,15 @@ public class GssParserCC implements GssParserCCConstants {
 // hexcolor
 //   : HASH_NAME S*
 //   ;
-    final public Token hexcolor() throws ParseException {
+    public final Token hexcolor() throws ParseException {
         Token t;
         t = jj_consume_token(HASH_NAME);
         {
-            if ("" != null) return t;
+            return t;
         }
-        throw new Error("Missing return statement in function");
     }
 
-    final public CssFunctionNode var() throws ParseException {
+    public final CssFunctionNode var() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation;
         StringBuilder functionName = new StringBuilder();
@@ -2703,14 +2666,13 @@ public class GssParserCC implements GssParserCCConstants {
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
         addArgumentsWithSeparator(args, arguments, arguments.size(), ",");
         {
-            if ("" != null) return nodeBuilder.buildFunctionNode(
+            return nodeBuilder.buildFunctionNode(
                     functionName.toString(),
                     this.mergeLocations(beginLocation, endLocation), args, tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
-    final public CssFunctionNode uri() throws ParseException {
+    public final CssFunctionNode uri() throws ParseException {
         Token t;
         String funName;
         CssValueNode arg = null;
@@ -2719,9 +2681,8 @@ public class GssParserCC implements GssParserCCConstants {
         beginLocation = this.getLocation(token.next);
         t = jj_consume_token(URI);
         {
-            if ("" != null) return createUrlFunction(t);
+            return createUrlFunction(t);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // function
@@ -2731,7 +2692,7 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
 // Note: We allow the function name to have : and . to support non-standard IE
 // functions.
-    final public CssFunctionNode function() throws ParseException {
+    public final CssFunctionNode function() throws ParseException {
         Token t;
         CssPropertyValueNode expr;
         SourceCodeLocation beginLocation;
@@ -2835,16 +2796,15 @@ public class GssParserCC implements GssParserCCConstants {
             addArgumentsWithSeparator(args, expr.childIterable(), expr.numChildren(), " ");
         } else {
             {
-                if (true) throw generateParseException();
+                throw generateParseException();
             }
         }
         CssFunctionNode functionNode = nodeBuilder.buildFunctionNode(
                 functionName.toString(),
                 this.mergeLocations(beginLocation, endLocation), args, tokens);
         {
-            if ("" != null) return functionNode;
+            return functionNode;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // calc
@@ -2852,7 +2812,7 @@ public class GssParserCC implements GssParserCCConstants {
 //  ;
 // TODO(user): this production disallows nested calc() expressions like calc(1 + calc(2*3)).
 // (This is equivalent to calc(1 + (2*3)), which is allowed by this production.)
-    final public CssFunctionNode calc() throws ParseException {
+    public final CssFunctionNode calc() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation;
         StringBuilder functionName = new StringBuilder();
@@ -2896,21 +2856,20 @@ public class GssParserCC implements GssParserCCConstants {
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
         addArgumentsWithSeparator(args, ImmutableList.<CssValueNode>of(math), 1, "");
         {
-            if ("" != null) return nodeBuilder.buildFunctionNode(
+            return nodeBuilder.buildFunctionNode(
                     functionName.toString(),
                     this.mergeLocations(beginLocation, endLocation), args, tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // sum
 //  : product [ S+ [ "+" | "-" ] S+ product ]*
 //  ;
-    final public CssValueNode sum(boolean hasParenthesis) throws ParseException {
+    public final CssValueNode sum(boolean hasParenthesis) throws ParseException {
         Token t;
         CssValueNode operand;
-        List<CssValueNode> operands = new ArrayList<CssValueNode>();
-        List<CssCompositeValueNode.Operator> operators = new ArrayList<CssCompositeValueNode.Operator>();
+        List<CssValueNode> operands = new ArrayList<>();
+        List<CssCompositeValueNode.Operator> operators = new ArrayList<>();
         operand = product(hasParenthesis);
         operands.add(operand);
         label_60:
@@ -2958,20 +2917,19 @@ public class GssParserCC implements GssParserCCConstants {
             operands.add(operand);
         }
         {
-            if ("" != null) return CssMathNode.createFromOperandsAndOperators(operands, operators, hasParenthesis);
+            return CssMathNode.createFromOperandsAndOperators(operands, operators, hasParenthesis);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // product
 //  : unit [ S* [ "*" S* unit | "/" S* NUMBER ] ]*
 //  ;
-    final public CssValueNode product(boolean hasParenthesis) throws ParseException {
+    public final CssValueNode product(boolean hasParenthesis) throws ParseException {
         Token t;
         String u = "";
         CssValueNode operand;
-        List<CssValueNode> operands = new ArrayList<CssValueNode>();
-        List<CssCompositeValueNode.Operator> operators = new ArrayList<CssCompositeValueNode.Operator>();
+        List<CssValueNode> operands = new ArrayList<>();
+        List<CssCompositeValueNode.Operator> operators = new ArrayList<>();
         operand = unit();
         operands.add(operand);
         label_62:
@@ -3048,15 +3006,14 @@ public class GssParserCC implements GssParserCCConstants {
             }
         }
         {
-            if ("" != null) return CssMathNode.createFromOperandsAndOperators(operands, operators, hasParenthesis);
+            return CssMathNode.createFromOperandsAndOperators(operands, operators, hasParenthesis);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // unit
 //  : [ var | IDENTIFIER | NUMBER | DIMENSION | PERCENTAGE | "(" S* sum S* ")" ];
 //  ;
-    final public CssValueNode unit() throws ParseException {
+    public final CssValueNode unit() throws ParseException {
         Token t = null;
         String sign = "";
         Token dim = null;
@@ -3071,16 +3028,14 @@ public class GssParserCC implements GssParserCCConstants {
                     case VARFUNCTION: {
                         node = var();
                         {
-                            if ("" != null) return node;
+                            return node;
                         }
-                        break;
                     }
                     case IDENTIFIER: {
                         t = jj_consume_token(IDENTIFIER);
                         {
-                            if ("" != null) return new CssLiteralNode(t.image, this.getLocation(t));
+                            return new CssLiteralNode(t.image, this.getLocation(t));
                         }
-                        break;
                     }
                     case MINUS:
                     case WPLUS:
@@ -3123,17 +3078,14 @@ public class GssParserCC implements GssParserCCConstants {
                                 ;
                         }
                         {
-                            if ("" != null)
-                                return new CssNumericNode(sign + t.image, dim != null ? dim.image.toLowerCase() : "", this.getLocation(t));
+                            return new CssNumericNode(sign + t.image, dim != null ? dim.image.toLowerCase() : "", this.getLocation(t));
                         }
-                        break;
                     }
                     default:
                         jj_la1[107] = jj_gen;
                         jj_consume_token(-1);
                         throw new ParseException();
                 }
-                break;
             }
             case LEFTROUND: {
                 jj_consume_token(LEFTROUND);
@@ -3169,32 +3121,30 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                     jj_consume_token(RIGHTROUND);
                     {
-                        if ("" != null) return node;
+                        return node;
                     }
                 } catch (ParseException e) {
                     if (!enableErrorRecovery || e.currentToken == null) {
-                        if (true) throw e;
+                        throw e;
                     }
                     skipComponentValuesToAfter(RIGHTROUND);
                     {
-                        if (true) throw e;
+                        throw e;
                     }
                 }
-                break;
             }
             default:
                 jj_la1[110] = jj_gen;
                 jj_consume_token(-1);
                 throw new ParseException();
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
 // at_function
 //   : FUNCTION S* expr? ')' S*
 //   ;
-    final public CssFunctionNode atFunction() throws ParseException {
+    public final CssFunctionNode atFunction() throws ParseException {
         Token t;
         CssPropertyValueNode expr = null;
         SourceCodeLocation beginLocation;
@@ -3251,15 +3201,14 @@ public class GssParserCC implements GssParserCCConstants {
                 functionName.toString(),
                 this.mergeLocations(beginLocation, endLocation), args, tokens);
         {
-            if ("" != null) return functionNode;
+            return functionNode;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // important
 //   : IMPORTANT_SYM S*
 //   ;
-    final public CssPriorityNode important() throws ParseException {
+    public final CssPriorityNode important() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
         SourceCodeLocation beginLocation, endLocation;
@@ -3281,10 +3230,9 @@ public class GssParserCC implements GssParserCCConstants {
             jj_consume_token(S);
         }
         {
-            if ("" != null)
-                return nodeBuilder.buildPriorityNode(this.mergeLocations(beginLocation, endLocation), tokens);
+
+            return nodeBuilder.buildPriorityNode(this.mergeLocations(beginLocation, endLocation), tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
@@ -3292,7 +3240,7 @@ public class GssParserCC implements GssParserCCConstants {
 //   : ATKEYWORD S* [ [ composite_term | extended_term ] S* ]*
 //     [ [ '{' S* block  '}'  ] | ';' ] S*
 //   ;
-    final public CssAtRuleNode at_rule() throws ParseException {
+    public final CssAtRuleNode at_rule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation = null;
         CssLiteralNode name;
@@ -3350,13 +3298,13 @@ public class GssParserCC implements GssParserCCConstants {
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
                 skipComponentValuesToAfter(RIGHTBRACE);
             }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -3382,11 +3330,11 @@ public class GssParserCC implements GssParserCCConstants {
                     tokens.add(t);
                 } catch (ParseException e) {
                     if (!enableErrorRecovery || e.currentToken == null) {
-                        if (true) throw e;
+                        throw e;
                     }
                     skipComponentValuesToAfter(RIGHTBRACE);
                     {
-                        if (true) throw e;
+                        throw e;
                     }
                 }
                 break;
@@ -3405,16 +3353,15 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                 }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         SourceCodeLocation endLocation = getLocation(t);
         CssAtRuleNode at = nodeBuilder.buildUnknownAtRuleNode(name, block,
                 this.mergeLocations(beginLocation, endLocation), parameters, tokens);
         {
-            if ("" != null) return at;
+            return at;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
@@ -3429,7 +3376,7 @@ public class GssParserCC implements GssParserCCConstants {
 // TODO(fbenz): Try to reuse selctor parsing instead of [ IDENT? ':' IDENT S* ].
 // The problem is that @-rules take a list of value nodes and selectors are not
 // value nodes.
-    final public CssAtRuleNode atRuleWithDeclBlock() throws ParseException {
+    public final CssAtRuleNode atRuleWithDeclBlock() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation = null;
         CssLiteralNode name;
@@ -3538,13 +3485,13 @@ public class GssParserCC implements GssParserCCConstants {
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
                 skipComponentValuesToAfter(RIGHTBRACE);
             }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -3570,11 +3517,11 @@ public class GssParserCC implements GssParserCCConstants {
                     tokens.add(t);
                 } catch (ParseException e) {
                     if (!enableErrorRecovery || e.currentToken == null) {
-                        if (true) throw e;
+                        throw e;
                     }
                     skipComponentValuesToAfter(RIGHTBRACE);
                     {
-                        if (true) throw e;
+                        throw e;
                     }
                 }
                 break;
@@ -3593,16 +3540,15 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                 }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         SourceCodeLocation endLocation = getLocation(t);
         CssAtRuleNode at = nodeBuilder.buildUnknownAtRuleNode(name, block,
                 this.mergeLocations(beginLocation, endLocation), parameters, tokens);
         {
-            if ("" != null) return at;
+            return at;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
@@ -3614,7 +3560,7 @@ public class GssParserCC implements GssParserCCConstants {
 //    ]
 //    [ [ '{' S* style_declaration '} ] | ';' ] S*
 //   ;
-    final public CssAtRuleNode innerAtRule() throws ParseException {
+    public final CssAtRuleNode innerAtRule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation = null;
         CssLiteralNode name;
@@ -3723,13 +3669,13 @@ public class GssParserCC implements GssParserCCConstants {
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
                 skipComponentValuesToAfter(RIGHTBRACE);
             }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -3755,11 +3701,11 @@ public class GssParserCC implements GssParserCCConstants {
                     tokens.add(t);
                 } catch (ParseException e) {
                     if (!enableErrorRecovery || e.currentToken == null) {
-                        if (true) throw e;
+                        throw e;
                     }
                     skipComponentValuesToAfter(RIGHTBRACE);
                     {
-                        if (true) throw e;
+                        throw e;
                     }
                 }
                 break;
@@ -3778,16 +3724,15 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                 }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         SourceCodeLocation endLocation = getLocation(t);
         CssAtRuleNode at = nodeBuilder.buildUnknownAtRuleNode(name, block,
                 this.mergeLocations(beginLocation, endLocation), parameters, tokens);
         {
-            if ("" != null) return at;
+            return at;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (WebKit specific extension. We need a separate rule for the
@@ -3796,7 +3741,7 @@ public class GssParserCC implements GssParserCCConstants {
 //   : '@-webkit-keyframes' S* IDENTIFIER S*
 //     '{' S* webkit_keyframes_block  '}'*
 //   ;
-    final public CssAtRuleNode webkit_keyframes_rule() throws ParseException {
+    public final CssAtRuleNode webkit_keyframes_rule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation = null;
         CssLiteralNode name;
@@ -3842,13 +3787,13 @@ public class GssParserCC implements GssParserCCConstants {
             }
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
                 skipComponentValuesToAfter(RIGHTBRACE);
             }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         t = jj_consume_token(LEFTBRACE);
@@ -3872,27 +3817,26 @@ public class GssParserCC implements GssParserCCConstants {
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             skipComponentValuesToAfter(RIGHTBRACE);
             {
-                if (true) throw e;
+                throw e;
             }
         }
         SourceCodeLocation endLocation = getLocation(t);
         CssAtRuleNode at = nodeBuilder.buildWebkitKeyframesNode(name, block,
                 this.mergeLocations(beginLocation, endLocation), parameters, tokens);
         {
-            if ("" != null) return at;
+            return at;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (WebKit specific extension)
 // webkit_keyframes_block
 //   : [ webkit_keyframe_ruleset S* ]*
 //   ;
-    final public CssBlockNode webkit_keyframes_block() throws ParseException {
+    public final CssBlockNode webkit_keyframes_block() throws ParseException {
         CssBlockNode block;
         CssNode n;
         block = new CssBlockNode(true);
@@ -3925,16 +3869,15 @@ public class GssParserCC implements GssParserCCConstants {
             }
         }
         {
-            if ("" != null) return block;
+            return block;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (WebKit specific extension)
 // webkit_keyframe_ruleset
 //   : key_list '{' style_declarations '}'
 //   ;
-    final public CssKeyframeRulesetNode webkit_keyframe_ruleSet() throws ParseException {
+    public final CssKeyframeRulesetNode webkit_keyframe_ruleSet() throws ParseException {
         CssKeyListNode keys;
         CssDeclarationBlockNode declarations;
         Token t;
@@ -3945,13 +3888,13 @@ public class GssParserCC implements GssParserCCConstants {
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE) == LEFTBRACE) {
                 skipComponentValuesToAfter(RIGHTBRACE);
             }
             {
-                if (true) throw e;
+                throw e;
             }
         }
         try {
@@ -3960,26 +3903,25 @@ public class GssParserCC implements GssParserCCConstants {
             tokens.add(t);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken == null) {
-                if (true) throw e;
+                throw e;
             }
             skipComponentValuesToAfter(RIGHTBRACE);
             {
-                if (true) throw e;
+                throw e;
             }
         }
         CssKeyframeRulesetNode ruleSet =
                 nodeBuilder.buildKeyframeRulesetNode(declarations, keys, tokens);
         {
-            if ("" != null) return ruleSet;
+            return ruleSet;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (WebKit specific extension)
 // key_list
 //   : key [ ',' S* key ]*
 //   ;
-    final public CssKeyListNode keyList() throws ParseException {
+    public final CssKeyListNode keyList() throws ParseException {
         CssKeyListNode list = new CssKeyListNode();
         CssKeyNode key;
         Token t;
@@ -4015,16 +3957,15 @@ public class GssParserCC implements GssParserCCConstants {
             list.addChildToBack(key);
         }
         {
-            if ("" != null) return list;
+            return list;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (WebKit specific extension)
 // key
 //   : PERCENTAGE | IDENTIFIER
 //   ;
-    final public CssKeyNode key() throws ParseException {
+    public final CssKeyNode key() throws ParseException {
         CssKeyNode n;
         Token key, t, dim;
         String value;
@@ -4070,9 +4011,8 @@ public class GssParserCC implements GssParserCCConstants {
                 this.mergeLocations(beginLocation, endLocation));
         nodeBuilder.attachComments(tokens, keyNode);
         {
-            if ("" != null) return keyNode;
+            return keyNode;
         }
-        throw new Error("Missing return statement in function");
     }
 
     // (non-standard GSS extension)
@@ -4082,7 +4022,7 @@ public class GssParserCC implements GssParserCCConstants {
 //       ] S*
 //     ]*
 //   ;
-    final public CssBlockNode block(boolean isEnclosedWithBraces) throws ParseException {
+    public final CssBlockNode block(boolean isEnclosedWithBraces) throws ParseException {
         CssBlockNode block;
         CssNode n;
         if (isEnclosedWithBraces) {
@@ -4149,7 +4089,7 @@ public class GssParserCC implements GssParserCCConstants {
                 block.addChildToBack(n);
             } catch (ParseException e) {
                 if (!enableErrorRecovery || e.currentToken == null) {
-                    if (true) throw e;
+                    throw e;
                 }
                 handledErrors.add(new GssParserException(getLocation(e.currentToken.next), e));
             }
@@ -4187,12 +4127,11 @@ public class GssParserCC implements GssParserCCConstants {
             }
         }
         {
-            if ("" != null) return block;
+            return block;
         }
-        throw new Error("Missing return statement in function");
     }
 
-    final public void start() throws ParseException {
+    public final void start() throws ParseException {
         label_95:
         while (true) {
             switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
@@ -4231,7 +4170,7 @@ public class GssParserCC implements GssParserCCConstants {
             validateFinalBlockCommentIfPresent();
         } catch (ParseException e) {
             if (!enableErrorRecovery) {
-                if (true) throw e;
+                throw e;
             }
             handledErrors.add(new GssParserException(getLocation(), e));
         }
@@ -4242,7 +4181,7 @@ public class GssParserCC implements GssParserCCConstants {
 // prevent us from parsing the rest of the stylesheet.
 // at_rule_with_crazy_syntax
 //   : ATKEYWORD S* [^;{] LOOKAHEAD( ( ';' | <?LEFTBRACE> ) ) ';'?
-    final public CssAtRuleNode atRuleWithCrazySyntax() throws ParseException {
+    public final CssAtRuleNode atRuleWithCrazySyntax() throws ParseException {
         Token t;
         String s;
         SourceCodeLocation beginLocation = null;
@@ -4303,7 +4242,7 @@ public class GssParserCC implements GssParserCCConstants {
         List<CssValueNode> parameters = Lists.newArrayList();
         if (nonBlockContent == null) {
             {
-                if (true) throw new AssertionError("nonBlockContent should not be null");
+                throw new AssertionError("nonBlockContent should not be null");
             }
         }
         parameters.add(nonBlockContent);
@@ -4311,16 +4250,15 @@ public class GssParserCC implements GssParserCCConstants {
             parameters.add(blockishContent);
         }
         {
-            if ("" != null) return nodeBuilder.buildUnknownAtRuleNode(
+            return nodeBuilder.buildUnknownAtRuleNode(
                     name, null, this.mergeLocations(beginLocation, endLocation),
                     parameters,
                     tokens);
         }
-        throw new Error("Missing return statement in function");
     }
 
     // A last-resort, minimally-restrictive brace-delimited production.
-    final public CssLiteralNode crazyBlockBrace() throws ParseException {
+    public final CssLiteralNode crazyBlockBrace() throws ParseException {
         Token t;
         String s;
         SourceCodeLocation beginLocation;
@@ -4380,13 +4318,12 @@ public class GssParserCC implements GssParserCCConstants {
         if (childCrazy != null) result.append(childCrazy.getValue());
         result.append("}");
         {
-            if ("" != null) return new CssLiteralNode(result.toString());
+            return new CssLiteralNode(result.toString());
         }
-        throw new Error("Missing return statement in function");
     }
 
     // Inside blocks, brackets, parens, and braces must be balanced.
-    final public CssLiteralNode crazyBlockBracket() throws ParseException {
+    public final CssLiteralNode crazyBlockBracket() throws ParseException {
         Token t;
         String s;
         SourceCodeLocation beginLocation;
@@ -4446,13 +4383,12 @@ public class GssParserCC implements GssParserCCConstants {
         if (childCrazy != null) result.append(childCrazy.getValue());
         result.append("]");
         {
-            if ("" != null) return new CssLiteralNode(result.toString());
+            return new CssLiteralNode(result.toString());
         }
-        throw new Error("Missing return statement in function");
     }
 
     // Inside blocks, brackets, parens, and braces must be balanced.
-    final public CssLiteralNode crazyBlockParen() throws ParseException {
+    public final CssLiteralNode crazyBlockParen() throws ParseException {
         Token t;
         String s;
         SourceCodeLocation beginLocation;
@@ -4512,9 +4448,8 @@ public class GssParserCC implements GssParserCCConstants {
         if (childCrazy != null) result.append(childCrazy.getValue());
         result.append(")");
         {
-            if ("" != null) return new CssLiteralNode(result.toString());
+            return new CssLiteralNode(result.toString());
         }
-        throw new Error("Missing return statement in function");
     }
 
     String scanCrazyContent(String endChars) throws ParseException {
@@ -4526,7 +4461,7 @@ public class GssParserCC implements GssParserCCConstants {
                 break;
             }
             if (t.image.length() == 1
-                    && endChars.indexOf(t.image) != -1) {
+                    && endChars.contains(t.image)) {
                 break;
             }
             sb.append(t.image);
@@ -4811,38 +4746,31 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_130() {
-        if (jj_3R_143()) return true;
-        return false;
+        return jj_3R_143();
     }
 
     private boolean jj_3R_129() {
-        if (jj_3R_142()) return true;
-        return false;
+        return jj_3R_142();
     }
 
     private boolean jj_3R_128() {
-        if (jj_3R_141()) return true;
-        return false;
+        return jj_3R_141();
     }
 
     private boolean jj_3R_127() {
-        if (jj_3R_140()) return true;
-        return false;
+        return jj_3R_140();
     }
 
     private boolean jj_3_11() {
-        if (jj_3R_108()) return true;
-        return false;
+        return jj_3R_108();
     }
 
     private boolean jj_3R_126() {
-        if (jj_3R_139()) return true;
-        return false;
+        return jj_3R_139();
     }
 
     private boolean jj_3_18() {
-        if (jj_3R_108()) return true;
-        return false;
+        return jj_3R_108();
     }
 
     private boolean jj_3R_113() {
@@ -4869,7 +4797,7 @@ public class GssParserCC implements GssParserCCConstants {
                     jj_scanpos = xsp;
                     if (jj_3R_116()) {
                         jj_scanpos = xsp;
-                        if (jj_3R_117()) return true;
+                        return jj_3R_117();
                     }
                 }
             }
@@ -4878,8 +4806,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_136() {
-        if (jj_scan_token(LEFTROUND)) return true;
-        return false;
+        return jj_scan_token(LEFTROUND);
     }
 
     private boolean jj_3R_104() {
@@ -4891,14 +4818,13 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_scan_token(66)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(5)) return true;
+            return jj_scan_token(5);
         }
         return false;
     }
 
     private boolean jj_3_10() {
-        if (jj_3R_102()) return true;
-        return false;
+        return jj_3R_102();
     }
 
     private boolean jj_3_9() {
@@ -4906,19 +4832,17 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3_10()) {
             jj_scanpos = xsp;
-            if (jj_3_11()) return true;
+            return jj_3_11();
         }
         return false;
     }
 
     private boolean jj_3_17() {
-        if (jj_3R_102()) return true;
-        return false;
+        return jj_3R_102();
     }
 
     private boolean jj_3R_158() {
-        if (jj_scan_token(COLON)) return true;
-        return false;
+        return jj_scan_token(COLON);
     }
 
     private boolean jj_3R_103() {
@@ -4930,7 +4854,7 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3_17()) {
             jj_scanpos = xsp;
-            if (jj_3_18()) return true;
+            return jj_3_18();
         }
         return false;
     }
@@ -4941,33 +4865,27 @@ public class GssParserCC implements GssParserCCConstants {
                 && (getToken(3).kind == COLON || getToken(4).kind == COLON);
         jj_lookingAhead = false;
         if (!jj_semLA || jj_3R_104()) return true;
-        if (jj_scan_token(LEFTROUND)) return true;
-        return false;
+        return jj_scan_token(LEFTROUND);
     }
 
     private boolean jj_3R_148() {
-        if (jj_3R_158()) return true;
-        return false;
+        return jj_3R_158();
     }
 
     private boolean jj_3R_147() {
-        if (jj_3R_157()) return true;
-        return false;
+        return jj_3R_157();
     }
 
     private boolean jj_3R_121() {
-        if (jj_3R_136()) return true;
-        return false;
+        return jj_3R_136();
     }
 
     private boolean jj_3R_146() {
-        if (jj_3R_156()) return true;
-        return false;
+        return jj_3R_156();
     }
 
     private boolean jj_3_7() {
-        if (jj_3R_106()) return true;
-        return false;
+        return jj_3R_106();
     }
 
     private boolean jj_3R_111() {
@@ -4975,13 +4893,11 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_145() {
-        if (jj_3R_155()) return true;
-        return false;
+        return jj_3R_155();
     }
 
     private boolean jj_3R_125() {
-        if (jj_scan_token(FOR_VARIABLE)) return true;
-        return false;
+        return jj_scan_token(FOR_VARIABLE);
     }
 
     private boolean jj_3R_134() {
@@ -4993,7 +4909,7 @@ public class GssParserCC implements GssParserCCConstants {
                 jj_scanpos = xsp;
                 if (jj_3R_147()) {
                     jj_scanpos = xsp;
-                    if (jj_3R_148()) return true;
+                    return jj_3R_148();
                 }
             }
         }
@@ -5001,8 +4917,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_141() {
-        if (jj_scan_token(CALC)) return true;
-        return false;
+        return jj_scan_token(CALC);
     }
 
     private boolean jj_3R_119() {
@@ -5023,8 +4938,7 @@ public class GssParserCC implements GssParserCCConstants {
         jj_semLA = getToken(2).kind != DOT && getToken(2).kind != COLON;
         jj_lookingAhead = false;
         if (!jj_semLA || jj_3R_103()) return true;
-        if (jj_scan_token(IDENTIFIER)) return true;
-        return false;
+        return jj_scan_token(IDENTIFIER);
     }
 
     private boolean jj_3R_105() {
@@ -5032,34 +4946,29 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3_7()) {
             jj_scanpos = xsp;
-            if (jj_3R_121()) return true;
+            return jj_3R_121();
         }
         return false;
     }
 
     private boolean jj_3R_124() {
-        if (jj_3R_138()) return true;
-        return false;
+        return jj_3R_138();
     }
 
     private boolean jj_3R_112() {
-        if (jj_scan_token(IDENTIFIER)) return true;
-        return false;
+        return jj_scan_token(IDENTIFIER);
     }
 
     private boolean jj_3R_123() {
-        if (jj_scan_token(UNICODE_RANGE)) return true;
-        return false;
+        return jj_scan_token(UNICODE_RANGE);
     }
 
     private boolean jj_3R_118() {
-        if (jj_3R_133()) return true;
-        return false;
+        return jj_3R_133();
     }
 
     private boolean jj_3R_137() {
-        if (jj_3R_149()) return true;
-        return false;
+        return jj_3R_149();
     }
 
     private boolean jj_3_19() {
@@ -5070,21 +4979,18 @@ public class GssParserCC implements GssParserCCConstants {
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3R_112()) jj_scanpos = xsp;
-        if (jj_scan_token(COLON)) return true;
-        return false;
+        return jj_scan_token(COLON);
     }
 
     private boolean jj_3R_155() {
-        if (jj_scan_token(HASH_NAME)) return true;
-        return false;
+        return jj_scan_token(HASH_NAME);
     }
 
     private boolean jj_3R_122() {
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3R_137()) jj_scanpos = xsp;
-        if (jj_scan_token(NUMBER)) return true;
-        return false;
+        return jj_scan_token(NUMBER);
     }
 
     private boolean jj_3R_101() {
@@ -5092,7 +4998,7 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3R_118()) {
             jj_scanpos = xsp;
-            if (jj_3R_119()) return true;
+            return jj_3R_119();
         }
         return false;
     }
@@ -5123,7 +5029,7 @@ public class GssParserCC implements GssParserCCConstants {
                                             jj_scanpos = xsp;
                                             if (jj_3R_129()) {
                                                 jj_scanpos = xsp;
-                                                if (jj_3R_130()) return true;
+                                                return jj_3R_130();
                                             }
                                         }
                                     }
@@ -5138,23 +5044,19 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_154() {
-        if (jj_scan_token(EXCL_MARK)) return true;
-        return false;
+        return jj_scan_token(EXCL_MARK);
     }
 
     private boolean jj_3R_156() {
-        if (jj_scan_token(DOT)) return true;
-        return false;
+        return jj_scan_token(DOT);
     }
 
     private boolean jj_3R_153() {
-        if (jj_scan_token(IDENTIFIER)) return true;
-        return false;
+        return jj_scan_token(IDENTIFIER);
     }
 
     private boolean jj_3R_152() {
-        if (jj_scan_token(FUNCTION)) return true;
-        return false;
+        return jj_scan_token(FUNCTION);
     }
 
     private boolean jj_3R_143() {
@@ -5162,50 +5064,42 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3R_152()) {
             jj_scanpos = xsp;
-            if (jj_3R_153()) return true;
+            return jj_3R_153();
         }
         return false;
     }
 
     private boolean jj_3R_135() {
-        if (jj_3R_106()) return true;
-        return false;
+        return jj_3R_106();
     }
 
     private boolean jj_3_6() {
-        if (jj_3R_105()) return true;
-        return false;
+        return jj_3R_105();
     }
 
     private boolean jj_3_8() {
-        if (jj_3R_107()) return true;
-        return false;
+        return jj_3R_107();
     }
 
     private boolean jj_3_14() {
-        if (jj_3R_108()) return true;
-        return false;
+        return jj_3R_108();
     }
 
     private boolean jj_3_1() {
         if (jj_3R_100()) return true;
-        if (jj_3R_101()) return true;
-        return false;
+        return jj_3R_101();
     }
 
     private boolean jj_3_5() {
-        if (jj_3R_105()) return true;
-        return false;
+        return jj_3R_105();
     }
 
     private boolean jj_3R_144() {
-        if (jj_3R_154()) return true;
-        return false;
+        return jj_3R_154();
     }
 
     private boolean jj_3R_139() {
-        if (jj_scan_token(URI)) return true;
-        return false;
+        return jj_scan_token(URI);
     }
 
     private boolean jj_3R_131() {
@@ -5213,24 +5107,21 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3R_144()) {
             jj_scanpos = xsp;
-            if (jj_3_5()) return true;
+            return jj_3_5();
         }
         return false;
     }
 
     private boolean jj_3R_120() {
-        if (jj_3R_135()) return true;
-        return false;
+        return jj_3R_135();
     }
 
     private boolean jj_3R_157() {
-        if (jj_scan_token(LEFTSQUARE)) return true;
-        return false;
+        return jj_scan_token(LEFTSQUARE);
     }
 
     private boolean jj_3_13() {
-        if (jj_3R_102()) return true;
-        return false;
+        return jj_3R_102();
     }
 
     private boolean jj_3_12() {
@@ -5238,7 +5129,7 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3_13()) {
             jj_scanpos = xsp;
-            if (jj_3_14()) return true;
+            return jj_3_14();
         }
         return false;
     }
@@ -5248,13 +5139,11 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_110() {
-        if (jj_scan_token(IDENTIFIER)) return true;
-        return false;
+        return jj_scan_token(IDENTIFIER);
     }
 
     private boolean jj_3R_102() {
-        if (jj_3R_120()) return true;
-        return false;
+        return jj_3R_120();
     }
 
     private boolean jj_3_15() {
@@ -5265,33 +5154,27 @@ public class GssParserCC implements GssParserCCConstants {
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3R_110()) jj_scanpos = xsp;
-        if (jj_scan_token(COLON)) return true;
-        return false;
+        return jj_scan_token(COLON);
     }
 
     private boolean jj_3R_108() {
-        if (jj_3R_131()) return true;
-        return false;
+        return jj_3R_131();
     }
 
     private boolean jj_3R_142() {
-        if (jj_scan_token(VARFUNCTION)) return true;
-        return false;
+        return jj_scan_token(VARFUNCTION);
     }
 
     private boolean jj_3R_132() {
-        if (jj_scan_token(S)) return true;
-        return false;
+        return jj_scan_token(S);
     }
 
     private boolean jj_3_2() {
-        if (jj_3R_102()) return true;
-        return false;
+        return jj_3R_102();
     }
 
     private boolean jj_3R_107() {
-        if (jj_3R_102()) return true;
-        return false;
+        return jj_3R_102();
     }
 
     private boolean jj_3R_117() {
@@ -5308,8 +5191,7 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_140() {
-        if (jj_scan_token(HASH_NAME)) return true;
-        return false;
+        return jj_scan_token(HASH_NAME);
     }
 
     private boolean jj_3R_116() {
@@ -5326,18 +5208,15 @@ public class GssParserCC implements GssParserCCConstants {
     }
 
     private boolean jj_3R_151() {
-        if (jj_scan_token(SINGLE_QUOTED_STRING)) return true;
-        return false;
+        return jj_scan_token(SINGLE_QUOTED_STRING);
     }
 
     private boolean jj_3R_150() {
-        if (jj_scan_token(DOUBLE_QUOTED_STRING)) return true;
-        return false;
+        return jj_scan_token(DOUBLE_QUOTED_STRING);
     }
 
     private boolean jj_3_20() {
-        if (jj_scan_token(ATLIST)) return true;
-        return false;
+        return jj_scan_token(ATLIST);
     }
 
     private boolean jj_3R_138() {
@@ -5345,7 +5224,7 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_3R_150()) {
             jj_scanpos = xsp;
-            if (jj_3R_151()) return true;
+            return jj_3R_151();
         }
         return false;
     }
@@ -5368,7 +5247,7 @@ public class GssParserCC implements GssParserCCConstants {
         xsp = jj_scanpos;
         if (jj_scan_token(7)) {
             jj_scanpos = xsp;
-            if (jj_scan_token(49)) return true;
+            return jj_scan_token(49);
         }
         return false;
     }
@@ -5492,8 +5371,8 @@ public class GssParserCC implements GssParserCCConstants {
             jj_gen++;
             if (++jj_gc > 100) {
                 jj_gc = 0;
-                for (int i = 0; i < jj_2_rtns.length; i++) {
-                    JJCalls c = jj_2_rtns[i];
+                for (JJCalls jj_2_rtn : jj_2_rtns) {
+                    JJCalls c = jj_2_rtn;
                     while (c != null) {
                         if (c.gen < jj_gen) c.first = null;
                         c = c.next;
@@ -5542,7 +5421,7 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Get the next Token.
      */
-    final public Token getNextToken() {
+    public final Token getNextToken() {
         if (token.next != null) token = token.next;
         else token = token.next = token_source.getNextToken();
         jj_ntk = -1;
@@ -5553,7 +5432,7 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Get the specific Token.
      */
-    final public Token getToken(int index) {
+    public final Token getToken(int index) {
         Token t = jj_lookingAhead ? jj_scanpos : token;
         for (int i = 0; i < index; i++) {
             if (t.next != null) t = t.next;
@@ -5569,7 +5448,7 @@ public class GssParserCC implements GssParserCCConstants {
             return (jj_ntk = jj_nt.kind);
     }
 
-    private List<int[]> jj_expentries = new ArrayList<int[]>();
+    private List<int[]> jj_expentries = new ArrayList<>();
     private int[] jj_expentry;
     private int jj_kind = -1;
     private int[] jj_lasttokens = new int[100];
@@ -5585,9 +5464,7 @@ public class GssParserCC implements GssParserCCConstants {
         } else if (jj_endpos != 0) {
             jj_expentry = new int[jj_endpos];
 
-            for (int i = 0; i < jj_endpos; i++) {
-                jj_expentry[i] = jj_lasttokens[i];
-            }
+            System.arraycopy(jj_lasttokens, 0, jj_expentry, 0, jj_endpos);
 
             for (int[] oldentry : jj_expentries) {
                 if (oldentry.length == jj_expentry.length) {
@@ -5658,13 +5535,13 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Enable tracing.
      */
-    final public void enable_tracing() {
+    public final void enable_tracing() {
     }
 
     /**
      * Disable tracing.
      */
-    final public void disable_tracing() {
+    public final void disable_tracing() {
     }
 
     private void jj_rescan_token() {
