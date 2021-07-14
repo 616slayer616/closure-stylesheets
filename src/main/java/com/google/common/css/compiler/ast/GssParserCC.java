@@ -75,37 +75,6 @@ public class GssParserCC implements GssParserCCConstants {
      */
     private final List<GssParserException> handledErrors = Lists.newArrayList();
 
-    public ImmutableList<GssParserException> getHandledErrors() {
-        return ImmutableList.copyOf(handledErrors);
-    }
-
-    public GssParserCC(CssBlockNode globalBlock, SourceCode sourceCode) {
-        this(new StringCharStream(sourceCode.getFileContents()), globalBlock, sourceCode, false);
-    }
-
-    public GssParserCC(StringCharStream charStream, CssBlockNode globalBlock, SourceCode sourceCode) {
-        this(charStream, globalBlock, sourceCode, false);
-    }
-
-    /**
-     * @enableErrorRecovery If true, it recovers as many errors as possible and continue parsing
-     * instead of throwing ParseException and handled errors are available as
-     * getHandledErrors().
-     */
-    public GssParserCC(CssBlockNode globalBlock, SourceCode sourceCode, boolean enableErrorRecovery) {
-        this(new StringCharStream(sourceCode.getFileContents()), globalBlock, sourceCode,
-                enableErrorRecovery);
-    }
-
-    public GssParserCC(StringCharStream charStream, CssBlockNode globalBlock, SourceCode sourceCode,
-                       boolean enableErrorRecovery) {
-        this((CharStream) charStream);
-        this.charStream = charStream;
-        this.sourceCode = sourceCode;
-        this.globalBlock = globalBlock;
-        this.enableErrorRecovery = enableErrorRecovery;
-    }
-
     private SourceCodeLocation getLocation() {
         return getLocation(token);
     }
@@ -409,7 +378,7 @@ public class GssParserCC implements GssParserCCConstants {
                     valueValue.append(n.getSourceCodeLocation());
                     valueValue.append("> ");
                 }
-                throw new RuntimeException("property: " + property.toString() + ", " + valueValue.toString(), e);
+                throw new RuntimeException("property: " + property.toString() + ", " + valueValue, e);
             }
         }
 
@@ -701,7 +670,6 @@ public class GssParserCC implements GssParserCCConstants {
             }
             default:
                 jjLa1[5] = jjGen;
-                ;
         }
         t = jjConsumeToken(IDENTIFIER);
         tokens.add(t);
@@ -730,12 +698,12 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
     public final CssRefinerNode pseudo() throws ParseException {
         Token t;
-        SourceCodeLocation beginLocation = null;
-        SourceCodeLocation endLocation = null;
+        SourceCodeLocation beginLocation;
+        SourceCodeLocation endLocation;
         String pseudo = null;
-        String argument = null;
+        String argument;
         List<Token> tokens = Lists.newArrayList();
-        CssSelectorNode notSelector = null;
+        CssSelectorNode notSelector;
         t = jjConsumeToken(COLON);
         beginLocation = this.getLocation();
         tokens.add(t);
@@ -865,7 +833,6 @@ public class GssParserCC implements GssParserCCConstants {
             }
             default:
                 jjLa1[13] = jjGen;
-                ;
         }
 // non-function pseudo-class
         endLocation = this.getLocation();
@@ -1056,7 +1023,6 @@ public class GssParserCC implements GssParserCCConstants {
                 }
                 default:
                     jjLa1[23] = jjGen;
-                    ;
             }
             t = jjConsumeToken(RIGHTSQUARE);
             tokens.add(t);
@@ -1327,7 +1293,6 @@ public class GssParserCC implements GssParserCCConstants {
                 }
                 default:
                     jjLa1[37] = jjGen;
-                    ;
             }
             while (true) {
                 if (((jjNtk == -1) ? jjNtkF() : jjNtk) != S) {
@@ -1377,7 +1342,6 @@ public class GssParserCC implements GssParserCCConstants {
                             }
                             default:
                                 jjLa1[41] = jjGen;
-                                ;
                         }
                         break;
                     }
@@ -1400,7 +1364,6 @@ public class GssParserCC implements GssParserCCConstants {
                             }
                             default:
                                 jjLa1[43] = jjGen;
-                                ;
                         }
                         break;
                     }
@@ -1449,7 +1412,6 @@ public class GssParserCC implements GssParserCCConstants {
     public final CssDeclarationNode customDeclaration() throws ParseException {
         Token t;
         CssPropertyNode property;
-        String value;
         CssPropertyValueNode valueNode;
         List<Token> tokens = Lists.newArrayList();
         try {
@@ -1519,7 +1481,6 @@ public class GssParserCC implements GssParserCCConstants {
                 propertyName = "*";
             } else {
                 jjLa1[48] = jjGen;
-                ;
             }
             // allows "star hack"
             t = jjConsumeToken(IDENTIFIER);
@@ -1648,9 +1609,7 @@ public class GssParserCC implements GssParserCCConstants {
         value = slashTerm();
         lst.add(value);
         while (true) {
-            if (((jjNtk == -1) ? jjNtkF() : jjNtk) == EQUALS) {
-                ;
-            } else {
+            if (((jjNtk == -1) ? jjNtkF() : jjNtk) != EQUALS) {
                 jjLa1[55] = jjGen;
                 break;
             }
@@ -1751,7 +1710,6 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                     default:
                         jjLa1[59] = jjGen;
-                        ;
                 }
                 // Number with optional arbitrary dimension or percent.
                 t = jjConsumeToken(NUMBER);
@@ -1780,7 +1738,6 @@ public class GssParserCC implements GssParserCCConstants {
                     }
                     default:
                         jjLa1[61] = jjGen;
-                        ;
                 }
                 break;
             }
@@ -1822,14 +1779,10 @@ public class GssParserCC implements GssParserCCConstants {
                             t = jjConsumeToken(LEFTROUND);
                             tokens.add(t);
                             try {
-                                switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
-                                    case S: {
-                                        jjConsumeToken(S);
-                                        break;
-                                    }
-                                    default:
-                                        jjLa1[62] = jjGen;
-                                        ;
+                                if (((jjNtk == -1) ? jjNtkF() : jjNtk) == S) {
+                                    jjConsumeToken(S);
+                                } else {
+                                    jjLa1[62] = jjGen;
                                 }
                                 t = jjConsumeToken(IDENTIFIER);
                                 tokens.add(t);
@@ -1871,7 +1824,6 @@ public class GssParserCC implements GssParserCCConstants {
                                             }
                                             default:
                                                 jjLa1[66] = jjGen;
-                                                ;
                                         }
                                         if (((jjNtk == -1) ? jjNtkF() : jjNtk) == IDENTIFIER) {
                                             dim = jjConsumeToken(IDENTIFIER);
@@ -2000,9 +1952,9 @@ public class GssParserCC implements GssParserCCConstants {
     public final CssBooleanExpressionNode extendedTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         SourceCodeLocation endLocation;
-        CssBooleanExpressionNode newNode = null;
-        CssBooleanExpressionNode left = null;
-        CssBooleanExpressionNode right = null;
+        CssBooleanExpressionNode newNode;
+        CssBooleanExpressionNode left;
+        CssBooleanExpressionNode right;
         String value = "";
         Token t;
         List<Token> tokens = Lists.newArrayList();
@@ -2042,11 +1994,11 @@ public class GssParserCC implements GssParserCCConstants {
 //      [ '&&' S* [ booleanNegatedTerm | basicTerm ] ]*
 //   ;
     public final CssBooleanExpressionNode booleanAndTerm() throws ParseException {
-        SourceCodeLocation beginLocation = null;
+        SourceCodeLocation beginLocation;
         SourceCodeLocation endLocation;
-        CssBooleanExpressionNode newNode = null;
-        CssBooleanExpressionNode left = null;
-        CssBooleanExpressionNode right = null;
+        CssBooleanExpressionNode newNode;
+        CssBooleanExpressionNode left;
+        CssBooleanExpressionNode right;
         String value = "";
         Token t;
         List<Token> tokens = Lists.newArrayList();
@@ -2106,8 +2058,8 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
     public final CssBooleanExpressionNode booleanNegatedTerm() throws ParseException {
         SourceCodeLocation beginLocation;
-        String value = "";
-        CssBooleanExpressionNode boolNode = null;
+        String value;
+        CssBooleanExpressionNode boolNode;
         Token t;
         List<Token> tokens = Lists.newArrayList();
         t = jjConsumeToken(EXCL_MARK);
@@ -2135,9 +2087,9 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
     public final CssBooleanExpressionNode basicTerm() throws ParseException {
         SourceCodeLocation beginLocation;
-        String value = "";
+        String value;
         CssBooleanExpressionNode node = null;
-        CssValueNode termNode = null;
+        CssValueNode termNode;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
         if (jj27(1)) {
@@ -2253,7 +2205,7 @@ public class GssParserCC implements GssParserCCConstants {
         Token t;
         SourceCodeLocation beginLocation;
         StringBuilder functionName = new StringBuilder();
-        CssPropertyValueNode defaultValueNode = null;
+        CssPropertyValueNode defaultValueNode;
         List<Token> tokens = Lists.newArrayList();
         List<CssValueNode> arguments = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
@@ -2307,11 +2259,7 @@ public class GssParserCC implements GssParserCCConstants {
 
     public final CssFunctionNode uri() throws ParseException {
         Token t;
-        String funName;
-        CssValueNode arg = null;
-        CssPropertyValueNode expr = null;
-        SourceCodeLocation beginLocation;
-        beginLocation = this.getLocation(token.next);
+        this.getLocation(token.next);
         t = jjConsumeToken(URI);
         {
             return createUrlFunction(t);
@@ -2408,10 +2356,6 @@ public class GssParserCC implements GssParserCCConstants {
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
         if (expr.numChildren() == 1) {
             CssValueNode child = expr.getChildAt(0);
-            CssCompositeValueNode composite = null;
-            if (child instanceof CssCompositeValueNode) {
-                composite = (CssCompositeValueNode) child;
-            }
             addArgumentsWithSeparator(args, ImmutableList.of(child), 1, " ");
         } else if (FUNCTIONSWITHSPACESEPOK.matcher(functionName).matches()) {
             addArgumentsWithSeparator(args, expr.childIterable(), expr.numChildren(), " ");
@@ -2463,7 +2407,7 @@ public class GssParserCC implements GssParserCCConstants {
         tokens.add(t);
         SourceCodeLocation endLocation = this.getLocation(t);
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
-        addArgumentsWithSeparator(args, ImmutableList.<CssValueNode>of(math), 1, "");
+        addArgumentsWithSeparator(args, ImmutableList.of(math), 1, "");
         {
             return nodeBuilder.buildFunctionNode(
                     functionName.toString(),
@@ -2475,7 +2419,6 @@ public class GssParserCC implements GssParserCCConstants {
 //  : product [ S+ [ "+" | "-" ] S+ product ]*
 //  ;
     public final CssValueNode sum(boolean hasParenthesis) throws ParseException {
-        Token t;
         CssValueNode operand;
         List<CssValueNode> operands = new ArrayList<>();
         List<CssCompositeValueNode.Operator> operators = new ArrayList<>();
@@ -2523,7 +2466,6 @@ public class GssParserCC implements GssParserCCConstants {
 //  ;
     public final CssValueNode product(boolean hasParenthesis) throws ParseException {
         Token t;
-        String u = "";
         CssValueNode operand;
         List<CssValueNode> operands = new ArrayList<>();
         List<CssCompositeValueNode.Operator> operators = new ArrayList<>();
@@ -2586,10 +2528,10 @@ public class GssParserCC implements GssParserCCConstants {
 //  : [ var | IDENTIFIER | NUMBER | DIMENSION | PERCENTAGE | "(" S* sum S* ")" ];
 //  ;
     public final CssValueNode unit() throws ParseException {
-        Token t = null;
+        Token t;
         String sign = "";
         Token dim = null;
-        CssValueNode node = null;
+        CssValueNode node;
         switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case MINUS:
             case WPLUS:
@@ -2621,7 +2563,6 @@ public class GssParserCC implements GssParserCCConstants {
                             }
                             default:
                                 jjLa1[104] = jjGen;
-                                ;
                         }
                         t = jjConsumeToken(NUMBER);
 
@@ -2647,7 +2588,6 @@ public class GssParserCC implements GssParserCCConstants {
                             }
                             default:
                                 jjLa1[106] = jjGen;
-                                ;
                         }
                         {
                             return new CssNumericNode(sign + t.image, dim != null ? dim.image.toLowerCase() : "", this.getLocation(t));
@@ -2782,7 +2722,7 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
     public final CssAtRuleNode atRule() throws ParseException {
         Token t;
-        SourceCodeLocation beginLocation = null;
+        SourceCodeLocation beginLocation;
         CssLiteralNode name;
         CssValueNode v;
         CssBlockNode block = null;
@@ -2894,7 +2834,7 @@ public class GssParserCC implements GssParserCCConstants {
 // value nodes.
     public final CssAtRuleNode atRuleWithDeclBlock() throws ParseException {
         Token t;
-        SourceCodeLocation beginLocation = null;
+        SourceCodeLocation beginLocation;
         CssLiteralNode name;
         CssValueNode v;
         CssAbstractBlockNode block = null;
@@ -2931,7 +2871,6 @@ public class GssParserCC implements GssParserCCConstants {
                         pseudoPageTokens.clear();
                     } else {
                         jjLa1[119] = jjGen;
-                        ;
                     }
                     t = jjConsumeToken(COLON);
                     pseudoPageTokens.add(t);
@@ -3040,7 +2979,7 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
     public final CssAtRuleNode innerAtRule() throws ParseException {
         Token t;
-        SourceCodeLocation beginLocation = null;
+        SourceCodeLocation beginLocation;
         CssLiteralNode name;
         CssValueNode v;
         CssAbstractBlockNode block = null;
@@ -3077,7 +3016,6 @@ public class GssParserCC implements GssParserCCConstants {
                         pseudoPageTokens.clear();
                     } else {
                         jjLa1[126] = jjGen;
-                        ;
                     }
                     t = jjConsumeToken(COLON);
                     pseudoPageTokens.add(t);
@@ -3093,10 +3031,7 @@ public class GssParserCC implements GssParserCCConstants {
                         jjConsumeToken(S);
                     }
                 } else {
-                    while (true) {
-                        if (!jj216(1)) {
-                            break;
-                        }
+                    while (jj216(1)) {
                         if (jj217(1)) {
                             v = compositeTerm();
                         } else if (jj218(1)) {
@@ -3186,9 +3121,9 @@ public class GssParserCC implements GssParserCCConstants {
 //   ;
     public final CssAtRuleNode webkitKeyframesRule() throws ParseException {
         Token t;
-        SourceCodeLocation beginLocation = null;
+        SourceCodeLocation beginLocation;
         CssLiteralNode name;
-        CssBlockNode block = null;
+        CssBlockNode block;
         List<CssValueNode> parameters = Lists.newArrayList();
         List<Token> tokens = Lists.newArrayList();
         try {
@@ -3367,7 +3302,6 @@ public class GssParserCC implements GssParserCCConstants {
 //   : PERCENTAGE | IDENTIFIER
 //   ;
     public final CssKeyNode key() throws ParseException {
-        CssKeyNode n;
         Token key, t, dim;
         String value;
         List<Token> tokens = Lists.newArrayList();
@@ -3551,12 +3485,12 @@ public class GssParserCC implements GssParserCCConstants {
     public final CssAtRuleNode atRuleWithCrazySyntax() throws ParseException {
         Token t;
         String s;
-        SourceCodeLocation beginLocation = null;
+        SourceCodeLocation beginLocation;
         CssLiteralNode name;
         CssLiteralNode nonBlockContent;
         CssLiteralNode blockishContent = null;
         List<Token> tokens = Lists.newArrayList();
-        SourceCodeLocation endLocation = null;
+        SourceCodeLocation endLocation;
         // Don't add more special cases like this one and the webkit keyframes
         // one. If you want to support a new block type that follows the CSS 2.1
         // and 3 grammars and doesn't quite fit into the traditional GssParser
@@ -3593,11 +3527,6 @@ public class GssParserCC implements GssParserCCConstants {
         }
         endLocation = this.getLocation(tokens.get(tokens.size() - 1));
         List<CssValueNode> parameters = Lists.newArrayList();
-        if (nonBlockContent == null) {
-            {
-                throw new AssertionError("nonBlockContent should not be null");
-            }
-        }
         parameters.add(nonBlockContent);
         if (blockishContent != null) {
             parameters.add(blockishContent);
@@ -3614,12 +3543,10 @@ public class GssParserCC implements GssParserCCConstants {
     public final CssLiteralNode crazyBlockBrace() throws ParseException {
         Token t;
         String s;
-        SourceCodeLocation beginLocation;
-        SourceCodeLocation endLocation;
-        CssLiteralNode childContent = null;
+        CssLiteralNode childContent;
         CssLiteralNode childCrazy = null;
         StringBuilder result = new StringBuilder();
-        t = jjConsumeToken(LEFTBRACE);
+        jjConsumeToken(LEFTBRACE);
         while (true) {
             if (((jjNtk == -1) ? jjNtkF() : jjNtk) != S) {
                 jjLa1[151] = jjGen;
@@ -3655,13 +3582,12 @@ public class GssParserCC implements GssParserCCConstants {
             }
             default:
                 jjLa1[153] = jjGen;
-                ;
         }
         t = jjConsumeToken(RIGHTBRACE);
-        endLocation = this.getLocation(t);
+        this.getLocation(t);
         result.append("{");
-        if (childContent != null) result.append(childContent.getValue());
-        if (childContent != null && childCrazy != null) result.append(" ");
+        result.append(childContent.getValue());
+        if (childCrazy != null) result.append(" ");
         if (childCrazy != null) result.append(childCrazy.getValue());
         result.append("}");
         {
@@ -3673,12 +3599,10 @@ public class GssParserCC implements GssParserCCConstants {
     public final CssLiteralNode crazyBlockBracket() throws ParseException {
         Token t;
         String s;
-        SourceCodeLocation beginLocation;
-        SourceCodeLocation endLocation;
-        CssLiteralNode childContent = null;
+        CssLiteralNode childContent;
         CssLiteralNode childCrazy = null;
         StringBuilder result = new StringBuilder();
-        t = jjConsumeToken(LEFTSQUARE);
+        jjConsumeToken(LEFTSQUARE);
         while (true) {
             if (((jjNtk == -1) ? jjNtkF() : jjNtk) != S) {
                 jjLa1[154] = jjGen;
@@ -3714,13 +3638,12 @@ public class GssParserCC implements GssParserCCConstants {
             }
             default:
                 jjLa1[156] = jjGen;
-                ;
         }
         t = jjConsumeToken(RIGHTSQUARE);
-        endLocation = this.getLocation(t);
+        this.getLocation(t);
         result.append("[");
-        if (childContent != null) result.append(childContent.getValue());
-        if (childContent != null && childCrazy != null) result.append(" ");
+        result.append(childContent.getValue());
+        if (childCrazy != null) result.append(" ");
         if (childCrazy != null) result.append(childCrazy.getValue());
         result.append("]");
         {
@@ -3732,12 +3655,10 @@ public class GssParserCC implements GssParserCCConstants {
     public final CssLiteralNode crazyBlockParen() throws ParseException {
         Token t;
         String s;
-        SourceCodeLocation beginLocation;
-        SourceCodeLocation endLocation;
-        CssLiteralNode childContent = null;
+        CssLiteralNode childContent;
         CssLiteralNode childCrazy = null;
         StringBuilder result = new StringBuilder();
-        t = jjConsumeToken(LEFTROUND);
+        jjConsumeToken(LEFTROUND);
         while (true) {
             if (((jjNtk == -1) ? jjNtkF() : jjNtk) != S) {
                 jjLa1[157] = jjGen;
@@ -3773,13 +3694,12 @@ public class GssParserCC implements GssParserCCConstants {
             }
             default:
                 jjLa1[159] = jjGen;
-                ;
         }
         t = jjConsumeToken(RIGHTROUND);
-        endLocation = this.getLocation(t);
+        this.getLocation(t);
         result.append("(");
-        if (childContent != null) result.append(childContent.getValue());
-        if (childContent != null && childCrazy != null) result.append(" ");
+        result.append(childContent.getValue());
+        if (childCrazy != null) result.append(" ");
         if (childCrazy != null) result.append(childCrazy.getValue());
         result.append(")");
         {
@@ -3800,7 +3720,7 @@ public class GssParserCC implements GssParserCCConstants {
                 break;
             }
             sb.append(t.image);
-            t = getNextToken();
+            getNextToken();
         }
         if (sb.length() < 1) {
             throw generateParseException();
@@ -3831,7 +3751,7 @@ public class GssParserCC implements GssParserCCConstants {
         return kind;
     }
 
-    void validateFinalBlockCommentIfPresent() throws ParseException, ParseException {
+    void validateFinalBlockCommentIfPresent() throws ParseException {
         if (token.specialToken != null
                 && !VALIDBLOCKCOMMENTPATTERN.matcher(token.specialToken.image).matches()) {
             // Manually construct a ParseException since this syntax error occurs after the last token,
@@ -4144,10 +4064,6 @@ public class GssParserCC implements GssParserCCConstants {
         return jjScanToken(LEFTROUND);
     }
 
-    private boolean jj3R104() {
-        return false;
-    }
-
     private boolean jj3R133() {
         Token xsp;
         xsp = jjScanpos;
@@ -4180,9 +4096,6 @@ public class GssParserCC implements GssParserCCConstants {
         return jjScanToken(COLON);
     }
 
-    private boolean jj3R103() {
-        return false;
-    }
 
     private boolean jj316() {
         Token xsp;
@@ -4199,7 +4112,7 @@ public class GssParserCC implements GssParserCCConstants {
         jjSemLA = getToken(1).kind == LEFTROUND
                 && (getToken(3).kind == COLON || getToken(4).kind == COLON);
         jjLookingAhead = false;
-        if (!jjSemLA || jj3R104()) return true;
+        if (!jjSemLA) return true;
         return jjScanToken(LEFTROUND);
     }
 
@@ -4223,9 +4136,6 @@ public class GssParserCC implements GssParserCCConstants {
         return jj3R106();
     }
 
-    private boolean jj3R111() {
-        return false;
-    }
 
     private boolean jj3R145() {
         return jj3R155();
@@ -4272,7 +4182,7 @@ public class GssParserCC implements GssParserCCConstants {
         jjLookingAhead = true;
         jjSemLA = getToken(2).kind != DOT && getToken(2).kind != COLON;
         jjLookingAhead = false;
-        if (!jjSemLA || jj3R103()) return true;
+        if (!jjSemLA) return true;
         return jjScanToken(IDENTIFIER);
     }
 
@@ -4310,7 +4220,7 @@ public class GssParserCC implements GssParserCCConstants {
         jjLookingAhead = true;
         jjSemLA = getToken(1).kind == COLON || getToken(2).kind == COLON;
         jjLookingAhead = false;
-        if (!jjSemLA || jj3R111()) return true;
+        if (!jjSemLA) return true;
         Token xsp;
         xsp = jjScanpos;
         if (jj3R112()) jjScanpos = xsp;
@@ -4469,10 +4379,6 @@ public class GssParserCC implements GssParserCCConstants {
         return false;
     }
 
-    private boolean jj3R109() {
-        return false;
-    }
-
     private boolean jj3R110() {
         return jjScanToken(IDENTIFIER);
     }
@@ -4485,7 +4391,7 @@ public class GssParserCC implements GssParserCCConstants {
         jjLookingAhead = true;
         jjSemLA = getToken(1).kind == COLON || getToken(2).kind == COLON;
         jjLookingAhead = false;
-        if (!jjSemLA || jj3R109()) return true;
+        if (!jjSemLA) return true;
         Token xsp;
         xsp = jjScanpos;
         if (jj3R110()) jjScanpos = xsp;
@@ -4603,7 +4509,7 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Generated Token Manager.
      */
-    public GssParserCCTokenManager tokenSource;
+    private GssParserCCTokenManager tokenSource;
     /**
      * Current token.
      */
@@ -4611,9 +4517,10 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Next token.
      */
-    public Token jjNt;
+    private Token jjNt;
     private int jjNtk;
-    private Token jjScanpos, jjLastpos;
+    private Token jjScanpos;
+    private Token jjLastpos;
     private int jjLa;
     /**
      * Whether we are looking ahead.
@@ -4668,30 +4575,6 @@ public class GssParserCC implements GssParserCCConstants {
         token = new Token();
         jjNtk = -1;
         jjLookingAhead = false;
-        jjGen = 0;
-        for (int i = 0; i < 160; i++) jjLa1[i] = -1;
-        for (int i = 0; i < jj2Rtns.length; i++) jj2Rtns[i] = new JJCalls();
-    }
-
-    /**
-     * Constructor with generated Token Manager.
-     */
-    public GssParserCC(GssParserCCTokenManager tm) {
-        tokenSource = tm;
-        token = new Token();
-        jjNtk = -1;
-        jjGen = 0;
-        for (int i = 0; i < 160; i++) jjLa1[i] = -1;
-        for (int i = 0; i < jj2Rtns.length; i++) jj2Rtns[i] = new JJCalls();
-    }
-
-    /**
-     * Reinitialise.
-     */
-    public void ReInit(GssParserCCTokenManager tm) {
-        tokenSource = tm;
-        token = new Token();
-        jjNtk = -1;
         jjGen = 0;
         for (int i = 0; i < 160; i++) jjLa1[i] = -1;
         for (int i = 0; i < jj2Rtns.length; i++) jj2Rtns[i] = new JJCalls();
@@ -4783,10 +4666,10 @@ public class GssParserCC implements GssParserCCConstants {
             return (jjNtk = jjNt.kind);
     }
 
-    private List<int[]> jjExpentries = new ArrayList<>();
+    private final List<int[]> jjExpentries = new ArrayList<>();
     private int[] jjExpentry;
     private int jjKind = -1;
-    private int[] jjLasttokens = new int[100];
+    private final int[] jjLasttokens = new int[100];
     private int jjEndpos;
 
     private void jjAddErrorToken(int kind, int pos) {
@@ -4865,18 +4748,6 @@ public class GssParserCC implements GssParserCCConstants {
             exptokseq[i] = jjExpentries.get(i);
         }
         return new ParseException(token, exptokseq, tokenImage);
-    }
-
-    /**
-     * Enable tracing.
-     */
-    public final void enableTracing() {
-    }
-
-    /**
-     * Disable tracing.
-     */
-    public final void disableTracing() {
     }
 
     private void jjRescanToken() {
