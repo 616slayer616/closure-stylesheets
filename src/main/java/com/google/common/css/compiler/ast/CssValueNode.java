@@ -23,7 +23,10 @@ import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.css.SourceCodeLocation;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * A CSS node that holds a value of some sort. This is the base class for all
@@ -47,8 +50,8 @@ public abstract class CssValueNode extends CssNode {
     /**
      * Constructor of a node that contains a value.
      *
-     * @param value
-     * @param sourceCodeLocation
+     * @param value              value
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssValueNode(@Nullable String value,
                         @Nullable SourceCodeLocation sourceCodeLocation) {
@@ -106,53 +109,49 @@ public abstract class CssValueNode extends CssNode {
      */
     public static Iterable<CssValueNode> leaves(
             final Collection<CssValueNode> roots) {
-        return new Iterable<CssValueNode>() {
-            public Iterator<CssValueNode> iterator() {
-                return new UnmodifiableIterator<CssValueNode>() {
-                    LinkedList<CssValueNode> q;
+        return () -> new UnmodifiableIterator<CssValueNode>() {
+            final LinkedList<CssValueNode> q;
 
-                    {
-                        q = Lists.newLinkedList();
-                        q.addAll(roots);
-                    }
+            {
+                q = Lists.newLinkedList();
+                q.addAll(roots);
+            }
 
-                    List<CssValueNode> expand(CssValueNode n) {
-                        if (n instanceof CssBooleanExpressionNode) {
-                            CssBooleanExpressionNode b = (CssBooleanExpressionNode) n;
-                            return ImmutableList.<CssValueNode>of(b.getLeft(), b.getRight());
-                        } else if (n instanceof CssCompositeValueNode) {
-                            CssCompositeValueNode c = (CssCompositeValueNode) n;
-                            return c.getValues();
-                        } else {
-                            return ImmutableList.<CssValueNode>of(n);
-                        }
-                    }
+            List<CssValueNode> expand(CssValueNode n) {
+                if (n instanceof CssBooleanExpressionNode) {
+                    CssBooleanExpressionNode b = (CssBooleanExpressionNode) n;
+                    return ImmutableList.of(b.getLeft(), b.getRight());
+                } else if (n instanceof CssCompositeValueNode) {
+                    CssCompositeValueNode c = (CssCompositeValueNode) n;
+                    return c.getValues();
+                } else {
+                    return ImmutableList.of(n);
+                }
+            }
 
-                    void advance() {
-                        CssValueNode unexpanded;
-                        List<CssValueNode> expanded;
-                        do {
-                            unexpanded = q.remove();
-                            expanded = expand(unexpanded);
-                            q.addAll(0, expanded);
-                        } while (expanded.size() != 1
-                                || !expanded.get(0).equals(unexpanded));
-                    }
+            void advance() {
+                CssValueNode unexpanded;
+                List<CssValueNode> expanded;
+                do {
+                    unexpanded = q.remove();
+                    expanded = expand(unexpanded);
+                    q.addAll(0, expanded);
+                } while (expanded.size() != 1
+                        || !expanded.get(0).equals(unexpanded));
+            }
 
-                    @Override
-                    public boolean hasNext() {
-                        return !q.isEmpty();
-                    }
+            @Override
+            public boolean hasNext() {
+                return !q.isEmpty();
+            }
 
-                    @Override
-                    public CssValueNode next() {
-                        if(!hasNext()){
-                            throw new NoSuchElementException();
-                        }
-                        advance();
-                        return q.remove();
-                    }
-                };
+            @Override
+            public CssValueNode next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                advance();
+                return q.remove();
             }
         };
     }
