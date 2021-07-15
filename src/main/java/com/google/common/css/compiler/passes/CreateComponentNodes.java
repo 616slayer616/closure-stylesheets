@@ -35,8 +35,8 @@ import java.util.List;
 public class CreateComponentNodes extends DefaultTreeVisitor
         implements CssCompilerPass {
 
-    private static final String componentName = CssAtRuleNode.Type.COMPONENT.getCanonicalName();
-    private static final String abstractComponentName =
+    private static final String COMPONENT_NAME = CssAtRuleNode.Type.COMPONENT.getCanonicalName();
+    private static final String ABSTRACT_COMPONENT_NAME =
             CssAtRuleNode.Type.ABSTRACT_COMPONENT.getCanonicalName();
 
     private final MutatingVisitController visitController;
@@ -50,7 +50,7 @@ public class CreateComponentNodes extends DefaultTreeVisitor
     @Override
     public void leaveUnknownAtRule(CssUnknownAtRuleNode node) {
         String name = node.getName().getValue();
-        if (name.equals(componentName) || name.equals(abstractComponentName)) {
+        if (name.equals(COMPONENT_NAME) || name.equals(ABSTRACT_COMPONENT_NAME)) {
             if (!node.getType().hasBlock()) {
                 reportError("@" + name + " without block", node);
                 return;
@@ -102,7 +102,7 @@ public class CreateComponentNodes extends DefaultTreeVisitor
             CssComponentNode comp = new CssComponentNode(
                     (CssLiteralNode) nameNode,
                     parentNode,
-                    name.equals(abstractComponentName),
+                    name.equals(ABSTRACT_COMPONENT_NAME),
                     prefixStyle,
                     (CssBlockNode) node.getBlock());
             comp.setComments(node.getComments());

@@ -20,14 +20,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.css.SourceCodeLocation;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 
 /**
  * GSS parser error description.
  */
-public class GssError implements Comparable<GssError> {
-    private String message;
-    private SourceCodeLocation location;
+public class GssError implements Comparable<GssError>, Serializable {
+    private final String message;
+    private final SourceCodeLocation location;
     private String line = null;
     private String format = null;
 
@@ -120,9 +121,7 @@ public class GssError implements Comparable<GssError> {
         GssError gssError = (GssError) o;
 
         if (!location.equals(gssError.location)) return false;
-        if (!message.equals(gssError.message)) return false;
-
-        return true;
+        return message.equals(gssError.message);
     }
 
     @Override

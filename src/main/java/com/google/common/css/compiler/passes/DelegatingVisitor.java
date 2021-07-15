@@ -21,9 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.css.compiler.ast.CssTreeVisitor;
 import com.google.common.reflect.Reflection;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -43,7 +41,7 @@ public class DelegatingVisitor {
      * least one element.
      */
     public static CssTreeVisitor from(List<CssTreeVisitor> originalVisitors) {
-        Preconditions.checkArgument(originalVisitors.size() >= 1);
+        Preconditions.checkArgument(!originalVisitors.isEmpty());
         if (originalVisitors.size() == 1) {
             return originalVisitors.get(0);
         }
@@ -52,24 +50,21 @@ public class DelegatingVisitor {
         final ImmutableList<CssTreeVisitor> reverseVisitors = visitors.reverse();
         return Reflection.newProxy(
                 CssTreeVisitor.class,
-                new InvocationHandler() {
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        try {
-                            Object returnValue = null;
-                            Iterable<CssTreeVisitor> visitorsInOrderForMethod;
-                            if (method.getName().startsWith("enter")) {
-                                visitorsInOrderForMethod = visitors;
-                            } else { // assume it's a leave* method
-                                visitorsInOrderForMethod = reverseVisitors;
-                            }
-                            for (CssTreeVisitor visitor : visitorsInOrderForMethod) {
-                                returnValue = method.invoke(visitor, args);
-                            }
-                            return returnValue;
-                        } catch (InvocationTargetException e) {
-                            throw e.getTargetException();
+                (proxy, method, args) -> {
+                    try {
+                        Object returnValue = null;
+                        Iterable<CssTreeVisitor> visitorsInOrderForMethod;
+                        if (method.getName().startsWith("enter")) {
+                            visitorsInOrderForMethod = visitors;
+                        } else { // assume it's a leave* method
+                            visitorsInOrderForMethod = reverseVisitors;
                         }
+                        for (CssTreeVisitor visitor : visitorsInOrderForMethod) {
+                            returnValue = method.invoke(visitor, args);
+                        }
+                        return returnValue;
+                    } catch (InvocationTargetException e) {
+                        throw e.getTargetException();
                     }
                 });
     }

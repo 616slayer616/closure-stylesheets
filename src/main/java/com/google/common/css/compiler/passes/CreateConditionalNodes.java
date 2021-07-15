@@ -33,13 +33,13 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
 
     private final MutatingVisitController visitController;
     private final ErrorManager errorManager;
-    private Stack<CssConditionalBlockNode> stack =
-            new Stack<CssConditionalBlockNode>();
+    private final Stack<CssConditionalBlockNode> stack =
+            new Stack<>();
     private CssConditionalBlockNode activeBlockNode = null;
 
-    private static final String ifName = CssAtRuleNode.Type.IF.getCanonicalName();
-    private static final String elseifName = CssAtRuleNode.Type.ELSEIF.getCanonicalName();
-    private static final String elseName = CssAtRuleNode.Type.ELSE.getCanonicalName();
+    private static final String IF_NAME = CssAtRuleNode.Type.IF.getCanonicalName();
+    private static final String ELSEIF_NAME = CssAtRuleNode.Type.ELSEIF.getCanonicalName();
+    private static final String ELSE_NAME = CssAtRuleNode.Type.ELSE.getCanonicalName();
 
     public CreateConditionalNodes(MutatingVisitController visitController,
                                   ErrorManager errorManager) {
@@ -50,13 +50,13 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
     @Override
     public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
         String name = node.getName().getValue();
-        if (name.equals(ifName)) {
+        if (name.equals(IF_NAME)) {
             CssConditionalBlockNode condBlock = new CssConditionalBlockNode(node.getComments());
             condBlock.setSourceCodeLocation(node.getSourceCodeLocation());
             stack.push(condBlock);
-        } else if (name.equals(elseifName) || name.equals(elseName)) {
+        } else if (name.equals(ELSEIF_NAME) || name.equals(ELSE_NAME)) {
             if (activeBlockNode == null) {
-                errorManager.report(new GssError("@" + name + " without previous @" + ifName,
+                errorManager.report(new GssError("@" + name + " without previous @" + IF_NAME,
                         node.getSourceCodeLocation()));
                 visitController.removeCurrentNode();
                 return false;
@@ -70,19 +70,19 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
     @Override
     public void leaveUnknownAtRule(CssUnknownAtRuleNode node) {
         String name = node.getName().getValue();
-        if (name.equals(ifName)
-                || name.equals(elseifName)
-                || name.equals(elseName)) {
+        if (name.equals(IF_NAME)
+                || name.equals(ELSEIF_NAME)
+                || name.equals(ELSE_NAME)) {
             activeBlockNode = stack.pop();
             CssConditionalRuleNode conditionalNode = createConditionalRuleNode(node, name);
             activeBlockNode.addChildToBack(conditionalNode);
             updateLocation(activeBlockNode);
-            if (name.equals(ifName)) {
+            if (name.equals(IF_NAME)) {
                 visitController.replaceCurrentBlockChildWith(
                         Lists.newArrayList((CssNode) activeBlockNode), false);
             } else {
                 visitController.removeCurrentNode();
-                if (name.equals(elseName)) {
+                if (name.equals(ELSE_NAME)) {
                     activeBlockNode = null;
                 }
             }
@@ -111,7 +111,7 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
 
         List<CssValueNode> params = node.getParameters();
         CssBooleanExpressionNode condition = null;
-        if (!name.equals(elseName)) {
+        if (!name.equals(ELSE_NAME)) {
             if (!params.isEmpty()) {
                 if (params.size() > 1) {
                     errorManager.report(new GssError("@" + name + " with too many parameters",
@@ -130,7 +130,7 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
             }
         } else {
             if (!params.isEmpty()) {
-                errorManager.report(new GssError("@" + elseName + " with too many parameters",
+                errorManager.report(new GssError("@" + ELSE_NAME + " with too many parameters",
                         node.getSourceCodeLocation()));
             }
         }

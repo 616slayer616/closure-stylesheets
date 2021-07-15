@@ -37,15 +37,15 @@ public abstract class CssAbstractBlockNode
         extends CssNodesListNode<CssNode> {
     private final ImmutableList<Class<? extends CssNode>> validNodeClasses;
 
-    public CssAbstractBlockNode(boolean isEnclosedWithBraces,
-                                List<Class<? extends CssNode>> validNodeClasses) {
+    protected CssAbstractBlockNode(boolean isEnclosedWithBraces,
+                                   List<Class<? extends CssNode>> validNodeClasses) {
         super(isEnclosedWithBraces, null /* comments */);
         this.validNodeClasses = ImmutableList.copyOf(validNodeClasses);
     }
 
-    public CssAbstractBlockNode(boolean isEnclosedWithBraces,
-                                List<CssNode> childrenList, @Nullable List<CssCommentNode> comments,
-                                ImmutableList<Class<? extends CssNode>> validSuperclasses) {
+    protected CssAbstractBlockNode(boolean isEnclosedWithBraces,
+                                   List<CssNode> childrenList, @Nullable List<CssCommentNode> comments,
+                                   ImmutableList<Class<? extends CssNode>> validSuperclasses) {
         super(isEnclosedWithBraces, comments);
         // The valid superclasses have to be set before children are added.
         this.validNodeClasses = validSuperclasses;
@@ -57,7 +57,7 @@ public abstract class CssAbstractBlockNode
      *
      * @param node node
      */
-    public CssAbstractBlockNode(CssAbstractBlockNode node) {
+    protected CssAbstractBlockNode(CssAbstractBlockNode node) {
         super(node.isEnclosedWithBraces(), node.getComments());
         this.setParent(node.getParent());
         this.setSourceCodeLocation(node.getSourceCodeLocation());

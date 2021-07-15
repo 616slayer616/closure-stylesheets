@@ -76,7 +76,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     @Override
     public boolean enterMediaRule(CssMediaRuleNode node) {
         buffer.append(node.getType().toString());
-        if (node.getParameters().size() > 0) {
+        if (!node.getParameters().isEmpty()) {
             buffer.append(' ');
         }
         return true;
@@ -173,15 +173,12 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     public boolean enterPseudoClass(CssPseudoClassNode node) {
         buffer.append(node.getPrefix());
         buffer.append(node.getRefinerName());
-        switch (node.getFunctionType()) {
-            case NTH:
-                buffer.append(node.getArgument().replace(" ", ""));
-                buffer.append(')');
-                break;
-            case LANG:
-                buffer.append(node.getArgument());
-                buffer.append(')');
-                break;
+        if (node.getFunctionType() == FunctionType.NTH) {
+            buffer.append(node.getArgument().replace(" ", ""));
+            buffer.append(')');
+        } else if (node.getFunctionType() == FunctionType.LANG) {
+            buffer.append(node.getArgument());
+            buffer.append(')');
         }
         return true;
     }
@@ -363,7 +360,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     @Override
     public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
         buffer.append('@').append(node.getName().toString());
-        if (node.getParameters().size() > 0) {
+        if (!node.getParameters().isEmpty()) {
             buffer.append(' ');
         }
         return true;

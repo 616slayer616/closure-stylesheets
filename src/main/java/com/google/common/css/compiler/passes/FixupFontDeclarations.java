@@ -27,6 +27,7 @@ import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
 
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 /**
  * Compiler pass that replaces font and font-family declaration subtrees
@@ -47,7 +48,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         /**
          * Perform a best-effort parse that allows unsubstituted definition uses.
          */
-        GSS;
+        GSS
     }
 
     /**
@@ -70,10 +71,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
         @Override
         public boolean apply(CssCompositeValueNode n) {
-            if (n.getOperator() != op) {
-                return false;
-            }
-            return true;
+            return n.getOperator() == op;
         }
     }
 
@@ -187,7 +185,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
     private final MutatingVisitController visitController;
 
-    private CssTree tree;
+    private final CssTree tree;
 
     public FixupFontDeclarations(
             InputMode mode, ErrorManager errorManager, CssTree tree) {
@@ -272,7 +270,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
                 Iterables.transform(
                         sizeLineHeights,
                         EXTRACT_SIZE);
-        final HashMap<CssNode, Integer> lexicalOrder =
+        final Map<CssNode, Integer> lexicalOrder =
                 EnumeratingVisitor.enumerate(tree);
         Iterable<CssValueNode> sizes = Iterables.concat(plainSizes, lhSizes);
         if (!validateSplitPoint(
@@ -295,13 +293,8 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         Iterable<CssValueNode> families =
                 dropWhile(
                         takeUntil(n.childIterable(), priority),
-                        new Predicate<CssValueNode>() {
-                            @Override
-                            public boolean apply(CssValueNode n) {
-                                return lexicalOrder.get(splitPoint).compareTo(
-                                        lexicalOrder.get(n)) < 0;
-                            }
-                        });
+                        n1 -> lexicalOrder.get(splitPoint).compareTo(
+                                lexicalOrder.get(n1)) < 0);
         final Map<CssValueNode, FontProperty> properties =
                 classifyNodes(prefix, sizes, sizeLineHeights);
 
@@ -385,7 +378,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
     private boolean validateSplitPoint(
             SourceCodeLocation loc,
-            HashMap<CssNode, Integer> lexicalOrder,
+            Map<CssNode, Integer> lexicalOrder,
             Iterable<CssCompositeValueNode> sizeLineHeights,
             Iterable<CssValueNode> sizes) {
         CssCompositeValueNode secondSLH = Iterables.get(sizeLineHeights, 1, null);
@@ -394,19 +387,11 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
                     getSourceCodeLocation(secondSLH));
             return false;
         }
-        CssCompositeValueNode slashy = Iterables.find(
-                sizeLineHeights,
-                new Predicate<CssCompositeValueNode>() {
-                    @Override
-                    public boolean apply(CssCompositeValueNode n) {
-                        return n.getValues().size() != 2;
-                    }
-                },
-                null);
-        if (slashy != null) {
-            reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),
-                    getSourceCodeLocation(slashy));
-        }
+        StreamSupport.stream(sizeLineHeights.spliterator(), false)
+                .filter(n -> n.getValues().size() != 2)
+                .findFirst()
+                .ifPresent(slashy -> reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),
+                        getSourceCodeLocation(slashy)));
         if (Iterables.isEmpty(sizes)) {
             if (mode == InputMode.CSS) {
                 reportError(SIZE_AND_FAMILY_REQUIRED, loc);
@@ -494,8 +479,8 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         }
         List<CssValueNode> tail =
                 Iterables.isEmpty(families)
-                        ? ImmutableList.<CssValueNode>of()
-                        : ImmutableList.<CssValueNode>of(reparseFamilies(
+                        ? ImmutableList.of()
+                        : ImmutableList.of(reparseFamilies(
                         families,
                         SourceCodeLocation.merge(families)));
         ImmutableList.Builder<CssValueNode> resultNodes = ImmutableList.builder();
@@ -523,9 +508,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
                 Iterable<CssValueNode> rest = Iterables.skip(segment.getValues(), 1);
                 Iterables.addAll(alternatives, rest);
                 for (CssNode j : rest) {
-                    for (CssCommentNode c : j.getComments()) {
-                        commentsOnAlternatives.add(c);
-                    }
+                    commentsOnAlternatives.addAll(j.getComments());
                 }
             } else {
                 collect(alternatives, i);
@@ -616,7 +599,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
             @Override
             public Iterator<T> iterator() {
                 return new UnmodifiableIterator<T>() {
-                    Iterator<T> xsi = xs.iterator();
+                    final Iterator<T> xsi = xs.iterator();
                     boolean validT = false;
                     T t;
 
@@ -653,18 +636,15 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
      */
     private <T> Iterable<T> dropWhile(
             final Iterable<T> xs, final Predicate<? super T> p) {
-        return new Iterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                PeekingIterator<T> xsi = Iterators.peekingIterator(xs.iterator());
-                while (xsi.hasNext()) {
-                    if (p.apply(xsi.peek())) {
-                        break;
-                    }
-                    xsi.next();
+        return () -> {
+            PeekingIterator<T> xsi = Iterators.peekingIterator(xs.iterator());
+            while (xsi.hasNext()) {
+                if (p.apply(xsi.peek())) {
+                    break;
                 }
-                return xsi;
+                xsi.next();
             }
+            return xsi;
         };
     }
 

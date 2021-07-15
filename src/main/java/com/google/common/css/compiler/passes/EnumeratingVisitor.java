@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.common.css.compiler.ast.CssNode;
 import com.google.common.css.compiler.ast.CssTree;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A visitor that maps nodes to their visit ordering.
@@ -28,7 +28,7 @@ import java.util.HashMap;
 public class EnumeratingVisitor implements UniformVisitor {
 
     private int counter;
-    private HashMap<CssNode, Integer> enumeration = Maps.newHashMap();
+    private final Map<CssNode, Integer> enumeration = Maps.newHashMap();
 
     @Override
     public void enter(CssNode node) {
@@ -40,7 +40,7 @@ public class EnumeratingVisitor implements UniformVisitor {
     public void leave(CssNode node) {
     }
 
-    public static HashMap<CssNode, Integer> enumerate(CssTree t) {
+    public static Map<CssNode, Integer> enumerate(CssTree t) {
         EnumeratingVisitor v = new EnumeratingVisitor();
         t.getVisitController().startVisit(UniformVisitor.Adapters.asVisitor(v));
         return v.enumeration;

@@ -72,14 +72,11 @@ public class CssTreeBuilder implements
     private CssMediaRuleNode mediaRule = null;
     private StateStack stateStack = new StateStack(State.BEFORE_DOCUMENT_START);
 
-    public CssTreeBuilder() {
-    }
-
     //TODO(oana): Maybe add a generic utility class for Stack than can be used in
     // DefaultVisitController too.
     @VisibleForTesting
     static class StateStack {
-        private List<State> stack;
+        private final List<State> stack;
 
         StateStack(State initialState) {
             stack = Lists.newArrayList(initialState);
@@ -220,7 +217,7 @@ public class CssTreeBuilder implements
         Preconditions.checkState(openBlocks.size() == 1);
         Preconditions.checkState(openBlocks.get(0) == tree.getRoot().getBody());
         openBlocks = null;
-        Preconditions.checkState(openConditionalBlocks.size() == 0);
+        Preconditions.checkState(openConditionalBlocks.isEmpty());
         openConditionalBlocks = null;
 
         treeIsConstructed = true;

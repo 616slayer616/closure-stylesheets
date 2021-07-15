@@ -183,7 +183,7 @@ public abstract class CssNode implements Locatable {
      */
     final void becomeParentForNodes(List<? extends CssNode> children) {
         Preconditions.checkNotNull(children);
-        if (children.size() == 0) {
+        if (children.isEmpty()) {
             // otherwise we'll spend a lot of CPU collecting garbage due to
             // the empty iterators we use below (as of June 2012, javac
             // does not optimize the Collection case of enh-for).
@@ -305,7 +305,7 @@ public abstract class CssNode implements Locatable {
 
                     @Override
                     public CssNode next() {
-                        if(!hasNext()){
+                        if (!hasNext()) {
                             throw new NoSuchElementException();
                         }
                         CssNode result = current;

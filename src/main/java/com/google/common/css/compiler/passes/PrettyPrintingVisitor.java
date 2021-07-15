@@ -76,14 +76,10 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
     public boolean enterMediaRule(CssMediaRuleNode node) {
         maybeAppendComments(node);
         buffer.append(node.getType().toString());
-        if (node.getParameters().size() > 0 || (node.getType().hasBlock() && node.getBlock() != null)) {
+        if (!node.getParameters().isEmpty() || (node.getType().hasBlock() && node.getBlock() != null)) {
             buffer.append(' ');
         }
         return true;
-    }
-
-    @Override
-    public void leaveMediaRule(CssMediaRuleNode node) {
     }
 
     @Override

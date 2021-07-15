@@ -29,7 +29,7 @@ public class CssClassSelectorNode extends CssRefinerNode {
     /**
      * Specifies the kind or absence of a component scoping prefix.
      */
-    public static enum ComponentScoping {
+    public enum ComponentScoping {
         /**
          * The classname has no prefix.
          */

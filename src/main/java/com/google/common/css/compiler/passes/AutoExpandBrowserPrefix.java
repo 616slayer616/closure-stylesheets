@@ -42,6 +42,7 @@ import java.util.List;
  */
 public class AutoExpandBrowserPrefix extends DefaultTreeVisitor implements CssCompilerPass {
 
+    public static final String ALTERNATE = "/* @alternate */";
     private final MutatingVisitController visitController;
     private final ImmutableList<BrowserPrefixRule> expansionRules;
     private boolean inDefMixinBlock;
@@ -84,7 +85,7 @@ public class AutoExpandBrowserPrefix extends DefaultTreeVisitor implements CssCo
                     expansionNode.setPropertyValue(declaration.getPropertyValue().deepCopy());
                     expansionNode.setSourceCodeLocation(declaration.getSourceCodeLocation());
                     expansionNode.setComments(declaration.getComments());
-                    expansionNode.appendComment(new CssCommentNode("/* @alternate */", null));
+                    expansionNode.appendComment(new CssCommentNode(ALTERNATE, null));
                     expansionNodes.add(expansionNode);
                 }
             } else if (!rule.isFunction()) {
@@ -127,7 +128,7 @@ public class AutoExpandBrowserPrefix extends DefaultTreeVisitor implements CssCo
                             declaration.getPropertyName(),
                             ruleValueNode.deepCopy(),
                             declaration.getSourceCodeLocation());
-            expansionNode.appendComment(new CssCommentNode("/* @alternate */", null));
+            expansionNode.appendComment(new CssCommentNode(ALTERNATE, null));
             replacements.add(expansionNode);
         }
         for (CssDeclarationNode ruleExpansionNode : rule.getExpansionNodes()) {
@@ -216,7 +217,7 @@ public class AutoExpandBrowserPrefix extends DefaultTreeVisitor implements CssCo
                             declaration.getPropertyName(), expansionValues, declaration.getComments(),
                             declaration.getSourceCodeLocation());
 
-            expansionNode.appendComment(new CssCommentNode("/* @alternate */", null));
+            expansionNode.appendComment(new CssCommentNode(ALTERNATE, null));
             expansionNodes.add(expansionNode);
         }
         return expansionNodes.build();

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * A parser that recognizes GSS files and builds the new AST.
  */
 @SuppressWarnings({"java:S3776", "java:S1199"})
-public class GssParserCC implements GssParserCCConstants {
+public class GssParserCC extends GssParserCCConstants {
 
     /**
      * Pattern for functions that are allowed to be separated by spaces.
@@ -57,6 +57,7 @@ public class GssParserCC implements GssParserCCConstants {
 
     private static final Pattern VALIDBLOCKCOMMENTPATTERN =
             Pattern.compile(".*/\\*.*\\*/.*", Pattern.DOTALL);
+    public static final String CRAZY_CONTENT = "{[()]}";
 
     private CssBlockNode globalBlock;
     private SourceCode sourceCode;
@@ -481,7 +482,7 @@ public class GssParserCC implements GssParserCCConstants {
         StringCharStream charStream =
                 new StringCharStream(sourceCode.getFileContents());
         this.charStream = charStream;
-        this.ReInit(charStream);
+        this.reInit(charStream);
     }
 
     private void clearState() {
@@ -3302,7 +3303,9 @@ public class GssParserCC implements GssParserCCConstants {
 //   : PERCENTAGE | IDENTIFIER
 //   ;
     public final CssKeyNode key() throws ParseException {
-        Token key, t, dim;
+        Token key;
+        Token t;
+        Token dim;
         String value;
         List<Token> tokens = Lists.newArrayList();
         SourceCodeLocation beginLocation;
@@ -3554,7 +3557,7 @@ public class GssParserCC implements GssParserCCConstants {
             }
             jjConsumeToken(S);
         }
-        s = scanCrazyContent("{[()]}");
+        s = scanCrazyContent(CRAZY_CONTENT);
         childContent = new CssLiteralNode(s);
         switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTSQUARE:
@@ -3610,7 +3613,7 @@ public class GssParserCC implements GssParserCCConstants {
             }
             jjConsumeToken(S);
         }
-        s = scanCrazyContent("{[()]}");
+        s = scanCrazyContent(CRAZY_CONTENT);
         childContent = new CssLiteralNode(s);
         switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTSQUARE:
@@ -3666,7 +3669,7 @@ public class GssParserCC implements GssParserCCConstants {
             }
             jjConsumeToken(S);
         }
-        s = scanCrazyContent("{[()]}");
+        s = scanCrazyContent(CRAZY_CONTENT);
         childContent = new CssLiteralNode(s);
         switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
             case LEFTSQUARE:
@@ -3712,11 +3715,7 @@ public class GssParserCC implements GssParserCCConstants {
         Token t;
         while (true) {
             t = getToken(1);
-            if (t.kind == EOF) {
-                break;
-            }
-            if (t.image.length() == 1
-                    && endChars.contains(t.image)) {
+            if (t.kind == EOF || (t.image.length() == 1 && endChars.contains(t.image))) {
                 break;
             }
             sb.append(t.image);
@@ -4513,7 +4512,7 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Current token.
      */
-    public Token token;
+    private Token token;
     private int jjNtk;
     private Token jjScanpos;
     private Token jjLastpos;
@@ -4566,7 +4565,7 @@ public class GssParserCC implements GssParserCCConstants {
     /**
      * Reinitialise.
      */
-    public void ReInit(CharStream stream) {
+    public void reInit(CharStream stream) {
         tokenSource.reInit(stream);
         token = new Token();
         jjNtk = -1;

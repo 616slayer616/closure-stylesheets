@@ -43,7 +43,7 @@ public final class CssMathNode extends CssCompositeValueNode {
         Preconditions.checkArgument(
                 operands.size() == operators.size() + 1,
                 "There should be one more operands than operators");
-        if (operators.size() == 0) {
+        if (operators.isEmpty()) {
             return operands.get(0);
         }
         if (operators.size() == 1) {

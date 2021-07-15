@@ -150,7 +150,6 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
 
         if (node.getName().getValue().equals(charsetName)) {
             createCharsetRule(node);
-            return;
         } else if (node.getName().getValue().equals(importName)) {
             if (params.isEmpty()) {
                 reportError("@" + importName + " without a following string or uri", node);
@@ -188,7 +187,6 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
                 visitController.removeCurrentNode();
                 nonIgnoredImportRules.add(importRule);
             }
-            return;
         } else if (node.getName().getValue().equals(mediaName)) {
             createMediaRule(node);
         } else if (node.getName().getValue().equals(pageName)) {
@@ -369,12 +367,9 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
             // like @page or @if, but not @def
             return true;
         }
-        if (node instanceof CssConditionalBlockNode) {
-            // @if, @elseif, @else after processing because then they are not @-rules
-            // anymore
-            return true;
-        }
-        return false;
+        // @if, @elseif, @else after processing because then they are not @-rules
+        // anymore
+        return node instanceof CssConditionalBlockNode;
     }
 
     /**
@@ -479,10 +474,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
             return false;
         }
         CssFunctionNode function = (CssFunctionNode) node;
-        if (function.getFunctionName().toLowerCase().equals("url")) {
-            return true;
-        }
-        return false;
+        return function.getFunctionName().equalsIgnoreCase("url");
     }
 
     private void reportError(String message, CssNode node) {

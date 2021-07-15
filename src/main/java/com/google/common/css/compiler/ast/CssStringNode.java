@@ -17,9 +17,10 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Function;
 import com.google.common.css.SourceCodeLocation;
 
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -318,14 +319,8 @@ public class CssStringNode extends CssValueNode {
      * good choice when you want defense in depth against client code that
      * fails to escape things properly.
      */
-    public static final Function<String, String> HTML_ESCAPER =
-            new Function<String, String>() {
-                public String apply(String input) {
-                    return paranoidEscapeChars(WIDE_NONASCII_PATTERN,
-                            paranoidEscapeChars(
-                                    HTML_PATTERN, input));
-                }
-            };
+    public static final UnaryOperator<String> HTML_ESCAPER =
+            input -> paranoidEscapeChars(WIDE_NONASCII_PATTERN, paranoidEscapeChars(HTML_PATTERN, input));
 
     /**
      * Replaces characters of questionable safety in {@code context} by

@@ -39,13 +39,13 @@ public class CssNumericNode extends CssValueNode {
     /**
      * Constant value for the units field for a node without units.
      */
-    public static String NO_UNITS = "";
+    public static final String NO_UNITS = "";
 
     /**
      * Constructor of a numeric node.
      *
-     * @param value
-     * @param unit
+     * @param value value
+     * @param unit  unit
      */
     public CssNumericNode(String value,
                           String unit) {
@@ -55,9 +55,9 @@ public class CssNumericNode extends CssValueNode {
     /**
      * Constructor of a numeric node.
      *
-     * @param value
-     * @param unit
-     * @param sourceCodeLocation
+     * @param value              value
+     * @param unit               unit
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssNumericNode(String value,
                           String unit,
@@ -70,7 +70,7 @@ public class CssNumericNode extends CssValueNode {
     /**
      * Copy constructor.
      *
-     * @param node
+     * @param node node
      */
     public CssNumericNode(CssNumericNode node) {
         super(node);

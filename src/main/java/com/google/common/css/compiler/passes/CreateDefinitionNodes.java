@@ -28,7 +28,7 @@ import java.util.List;
 public class CreateDefinitionNodes extends DefaultTreeVisitor
         implements CssCompilerPass {
 
-    private static final String defName =
+    private static final String DEF_NAME =
             CssAtRuleNode.Type.DEF.getCanonicalName();
     private final MutatingVisitController visitController;
     private final ErrorManager errorManager;
@@ -41,19 +41,19 @@ public class CreateDefinitionNodes extends DefaultTreeVisitor
 
     @Override
     public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
-        if (node.getName().getValue().equals(defName)) {
+        if (node.getName().getValue().equals(DEF_NAME)) {
             if (node.getType().hasBlock()) {
-                reportError("@" + defName + " with block", node);
+                reportError("@" + DEF_NAME + " with block", node);
                 return false;
             }
             List<CssValueNode> params = node.getParameters();
             if (params.isEmpty()) {
-                reportError("@" + defName + " without name", node);
+                reportError("@" + DEF_NAME + " without name", node);
                 return false;
             }
             CssNode nameNode = params.get(0);
             if (!(nameNode instanceof CssLiteralNode)) {
-                reportError("@" + defName + " without a valid literal as name", node);
+                reportError("@" + DEF_NAME + " without a valid literal as name", node);
                 return false;
             }
 

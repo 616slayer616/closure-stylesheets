@@ -6,21 +6,18 @@ package com.google.common.css.compiler.ast;
  * Token Manager.
  */
 @SuppressWarnings({"unused", "java:S3776", "java:S1199", "java:S1479"})
-public class GssParserCCTokenManager implements GssParserCCConstants {
-
-    /**
-     * Debug output.
-     */
-    public java.io.PrintStream debugStream = System.out;
+public class GssParserCCTokenManager extends GssParserCCConstants {
 
     /**
      * Set debug output.
      */
     public void setDebugStream(java.io.PrintStream ds) {
-        debugStream = ds;
+        /**
+         * Debug output.
+         */
     }
 
-    private final int jjStopStringLiteralDfa0(int pos, long active0) {
+    private int jjStopStringLiteralDfa0(int pos, long active0) {
         switch (pos) {
             case 0:
                 if ((active0 & 0x40L) != 0L)
@@ -45,7 +42,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         }
     }
 
-    private final int jjStartNfa_0(int pos, long active0) {
+    private int jjStartNfa0(int pos, long active0) {
         return jjMoveNfa0(jjStopStringLiteralDfa0(pos, active0), pos + 1);
     }
 
@@ -55,7 +52,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         return pos + 1;
     }
 
-    private int jjMoveStringLiteralDfa0_0() {
+    private int jjMoveStringLiteralDfa00() {
         switch (curChar) {
             case 33:
                 return jjStartNfaWithStates0(0, 16, 288);
@@ -71,7 +68,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                 return jjStopAtPos(0, 15);
             case 45:
                 jjmatchedKind = 7;
-                return jjMoveStringLiteralDfa1_0(0x4000000000L);
+                return jjMoveStringLiteralDfa10(0x4000000000L);
             case 46:
                 return jjStartNfaWithStates0(0, 4, 9);
             case 47:
@@ -81,7 +78,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             case 59:
                 return jjStopAtPos(0, 2);
             case 60:
-                return jjMoveStringLiteralDfa1_0(0x2000000000L);
+                return jjMoveStringLiteralDfa10(0x2000000000L);
             case 61:
                 return jjStopAtPos(0, 8);
             case 91:
@@ -99,33 +96,33 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         }
     }
 
-    private int jjMoveStringLiteralDfa1_0(long active0) {
+    private int jjMoveStringLiteralDfa10(long active0) {
         try {
-            curChar = input_stream.readChar();
+            curChar = inputStream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa0(0, active0);
             return 1;
         }
         if (curChar == 33) {
-            return jjMoveStringLiteralDfa2_0(active0, 0x2000000000L);
+            return jjMoveStringLiteralDfa20(active0, 0x2000000000L);
         } else if (curChar == 45) {
-            return jjMoveStringLiteralDfa2_0(active0, 0x4000000000L);
+            return jjMoveStringLiteralDfa20(active0, 0x4000000000L);
         }
-        return jjStartNfa_0(0, active0);
+        return jjStartNfa0(0, active0);
     }
 
-    private int jjMoveStringLiteralDfa2_0(long old0, long active0) {
+    private int jjMoveStringLiteralDfa20(long old0, long active0) {
         if (((active0 &= old0)) == 0L)
-            return jjStartNfa_0(0, old0);
+            return jjStartNfa0(0, old0);
         try {
-            curChar = input_stream.readChar();
+            curChar = inputStream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa0(1, active0);
             return 2;
         }
         switch (curChar) {
             case 45:
-                return jjMoveStringLiteralDfa3_0(active0, 0x2000000000L);
+                return jjMoveStringLiteralDfa30(active0, 0x2000000000L);
             case 62:
                 if ((active0 & 0x4000000000L) != 0L)
                     return jjStopAtPos(2, 38);
@@ -133,27 +130,27 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             default:
                 break;
         }
-        return jjStartNfa_0(1, active0);
+        return jjStartNfa0(1, active0);
     }
 
-    private int jjMoveStringLiteralDfa3_0(long old0, long active0) {
+    private int jjMoveStringLiteralDfa30(long old0, long active0) {
         if ((active0 &= old0) == 0L)
-            return jjStartNfa_0(1, old0);
+            return jjStartNfa0(1, old0);
         try {
-            curChar = input_stream.readChar();
+            curChar = inputStream.readChar();
         } catch (java.io.IOException e) {
             jjStopStringLiteralDfa0(2, active0);
             return 3;
         }
         if (curChar == 45 && (active0 & 0x2000000000L) != 0L) return jjStopAtPos(3, 37);
-        return jjStartNfa_0(2, active0);
+        return jjStartNfa0(2, active0);
     }
 
     private int jjStartNfaWithStates0(int pos, int kind, int state) {
         jjmatchedKind = kind;
         jjmatchedPos = pos;
         try {
-            curChar = input_stream.readChar();
+            curChar = inputStream.readChar();
         } catch (java.io.IOException e) {
             return pos + 1;
         }
@@ -2126,7 +2123,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             if ((i = jjnewStateCnt) == (startsAt = 288 - (jjnewStateCnt = startsAt)))
                 return curPos;
             try {
-                curChar = input_stream.readChar();
+                curChar = inputStream.readChar();
             } catch (java.io.IOException e) {
                 return curPos;
             }
@@ -2160,7 +2157,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     /**
      * Token literal values.
      */
-    public static final String[] jjstrLiteralImages = {
+    private static final String[] jjstrLiteralImages = {
             "", null, "\73", "\72", "\56", "\52", "\57", "\55", "\75", "\133", "\135",
             "\50", "\51", "\173", "\175", "\54", "\41", "\45", null, null, null, null, null, null,
             null, null, null, "\136", null, null, null, null, null, null, null, null, null,
@@ -2177,11 +2174,11 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         final int beginColumn;
         final int endColumn;
         String im = jjstrLiteralImages[jjmatchedKind];
-        curTokenImage = (im == null) ? input_stream.GetImage() : im;
-        beginLine = input_stream.getBeginLine();
-        beginColumn = input_stream.getBeginColumn();
-        endLine = input_stream.getEndLine();
-        endColumn = input_stream.getEndColumn();
+        curTokenImage = (im == null) ? inputStream.getImage() : im;
+        beginLine = inputStream.getBeginLine();
+        beginColumn = inputStream.getBeginColumn();
+        endLine = inputStream.getEndLine();
+        endColumn = inputStream.getEndColumn();
         t = Token.newToken(jjmatchedKind, curTokenImage);
 
         t.beginLine = beginLine;
@@ -2209,7 +2206,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
 
         for (; ; ) {
             try {
-                curChar = input_stream.BeginToken();
+                curChar = inputStream.beginToken();
             } catch (Exception e) {
                 jjmatchedKind = 0;
                 jjmatchedPos = -1;
@@ -2220,13 +2217,13 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
 
             jjmatchedKind = 0x7fffffff;
             jjmatchedPos = 0;
-            curPos = jjMoveStringLiteralDfa0_0();
+            curPos = jjMoveStringLiteralDfa00();
             if (jjmatchedPos == 0 && jjmatchedKind > 79) {
                 jjmatchedKind = 79;
             }
             if (jjmatchedKind != 0x7fffffff) {
                 if (jjmatchedPos + 1 < curPos)
-                    input_stream.backup(curPos - jjmatchedPos - 1);
+                    inputStream.backup(curPos - jjmatchedPos - 1);
                 if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
                     matchedToken = jjFillToken();
                     matchedToken.specialToken = specialToken;
@@ -2244,16 +2241,16 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                     continue;
                 }
             }
-            int errorLine = input_stream.getEndLine();
-            int errorColumn = input_stream.getEndColumn();
+            int errorLine = inputStream.getEndLine();
+            int errorColumn = inputStream.getEndColumn();
             String errorAfter = null;
             boolean eofseen = false;
             try {
-                input_stream.readChar();
-                input_stream.backup(1);
+                inputStream.readChar();
+                inputStream.backup(1);
             } catch (java.io.IOException e1) {
                 eofseen = true;
-                errorAfter = curPos <= 1 ? "" : input_stream.GetImage();
+                errorAfter = curPos <= 1 ? "" : inputStream.getImage();
                 if (curChar == '\n' || curChar == '\r') {
                     errorLine++;
                     errorColumn = 0;
@@ -2261,8 +2258,8 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                     errorColumn++;
             }
             if (!eofseen) {
-                input_stream.backup(1);
-                errorAfter = curPos <= 1 ? "" : input_stream.GetImage();
+                inputStream.backup(1);
+                errorAfter = curPos <= 1 ? "" : inputStream.getImage();
             }
             throw new TokenMgrError(eofseen, curLexState, errorLine, errorColumn, errorAfter, curChar, TokenMgrError.LEXICAL_ERROR);
         }
@@ -2298,7 +2295,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     public GssParserCCTokenManager(CharStream stream) {
 
 
-        input_stream = stream;
+        inputStream = stream;
     }
 
     /**
@@ -2316,7 +2313,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
 
         jjmatchedPos = jjnewStateCnt = 0;
         curLexState = defaultLexState;
-        input_stream = stream;
+        inputStream = stream;
         reInitRounds();
     }
 
@@ -2349,7 +2346,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     /**
      * Lexer state names.
      */
-    public static final String[] lexStateNames = {
+    protected static final String[] lexStateNames = {
             "DEFAULT",
     };
     static final long[] jjtoToken = {
@@ -2361,7 +2358,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
     static final long[] jjtoSpecial = {
             0x2L, 0x0L,
     };
-    protected CharStream input_stream;
+    protected CharStream inputStream;
 
     private final int[] jjrounds = new int[288];
     private final int[] jjstateSet = new int[2 * 288];

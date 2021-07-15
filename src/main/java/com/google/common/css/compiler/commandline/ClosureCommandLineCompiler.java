@@ -303,39 +303,39 @@ public class ClosureCommandLineCompiler extends DefaultCommandLineCompiler {
             }
             return parsedConstants;
         }
-    }
 
-    /**
-     * @param gssFunctionMapProviderClassName such as
-     *                                        "com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProvider"
-     * @return a new instance of the {@link GssFunctionMapProvider} that
-     * corresponds to the specified class name, or a new instance of
-     * {@link com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProvider}
-     * if the class name is {@code null}.
-     */
-    private static GssFunctionMapProvider getGssFunctionMapProviderForName(
-            String gssFunctionMapProviderClassName) {
-        // Verify that a class with the given name exists.
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(gssFunctionMapProviderClassName);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(String.format(
-                    "Class does not exist: %s", gssFunctionMapProviderClassName), e);
-        }
+        /**
+         * @param gssFunctionMapProviderClassName such as
+         *                                        "com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProvider"
+         * @return a new instance of the {@link GssFunctionMapProvider} that
+         * corresponds to the specified class name, or a new instance of
+         * {@link com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProvider}
+         * if the class name is {@code null}.
+         */
+        private static GssFunctionMapProvider getGssFunctionMapProviderForName(
+                String gssFunctionMapProviderClassName) {
+            // Verify that a class with the given name exists.
+            Class<?> clazz;
+            try {
+                clazz = Class.forName(gssFunctionMapProviderClassName);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(String.format(
+                        "Class does not exist: %s", gssFunctionMapProviderClassName), e);
+            }
 
-        // The class must implement GssFunctionMapProvider.
-        if (!GssFunctionMapProvider.class.isAssignableFrom(clazz)) {
-            throw new RuntimeException(String.format(
-                    "%s does not implement GssFunctionMapProvider",
-                    gssFunctionMapProviderClassName));
-        }
+            // The class must implement GssFunctionMapProvider.
+            if (!GssFunctionMapProvider.class.isAssignableFrom(clazz)) {
+                throw new RuntimeException(String.format(
+                        "%s does not implement GssFunctionMapProvider",
+                        gssFunctionMapProviderClassName));
+            }
 
-        // Create the GssFunctionMapProvider using reflection.
-        try {
-            return (GssFunctionMapProvider) clazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            // Create the GssFunctionMapProvider using reflection.
+            try {
+                return (GssFunctionMapProvider) clazz.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
  * creating a single {@link SourceCodeLocation}.
  */
 public class SourceCodeLocationBuilder {
+    public static final String PASSED_LOCATION_IS_NOT_VALID = "The passed location is not valid.";
     private SourceCode sourceCode;
     private int beginCharacterIndex;
     private int beginLineNumber;
@@ -69,11 +70,11 @@ public class SourceCodeLocationBuilder {
                                                       int lineNumber, int indexInLine) {
         checkLocationIsNotAlreadyCreated();
         Preconditions.checkArgument(characterIndex >= 0,
-                "The passed location is not valid.");
+                PASSED_LOCATION_IS_NOT_VALID);
         Preconditions.checkArgument(lineNumber >= 1,
-                "The passed location is not valid.");
+                PASSED_LOCATION_IS_NOT_VALID);
         Preconditions.checkArgument(indexInLine >= 1,
-                "The passed location is not valid.");
+                PASSED_LOCATION_IS_NOT_VALID);
         this.beginCharacterIndex = characterIndex;
         this.beginLineNumber = lineNumber;
         this.beginIndexInLine = indexInLine;

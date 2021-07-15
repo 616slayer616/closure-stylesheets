@@ -304,7 +304,7 @@ final class ColorParser {
     /**
      * Optional formats that each parser instance can accept.
      */
-    public static enum Format {
+    public enum Format {
         /**
          * #RRGGBB format
          */

@@ -158,7 +158,7 @@ public abstract class CodePrinter implements CssCompilerPass {
             if (lastLicenseData.source != null
                     && newSourceLocation != null
                     && !lastLicenseData.source.equals(newSourceLocation)) {
-                buffer.append("/* END OF LICENSED CSS FILE */\n");
+                buffer.append(END_OF_LICENSED_CSS_FILE);
                 lastLicenseData.source = null;
             }
             if (!node.getComments().isEmpty()) {

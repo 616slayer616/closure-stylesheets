@@ -84,7 +84,7 @@ public class BooleanExpressionEvaluator {
         Object result = evaluateTree(expression);
         if (result instanceof Boolean) {
             return new CssBooleanExpressionNode(Type.CONSTANT,
-                    (Boolean) result ? Type.TRUE_CONSTANT : Type.FALSE_CONSTANT);
+                    (boolean) result ? Type.TRUE_CONSTANT : Type.FALSE_CONSTANT);
         }
         return (CssBooleanExpressionNode) result;
     }
@@ -148,30 +148,29 @@ public class BooleanExpressionEvaluator {
         // For a binary operator we need to evaluate both left and right operands.
         Object leftOperand = evaluateTree(node.getLeft());
         if (leftOperand instanceof Boolean) {
-            Boolean leftBoolResult = (Boolean) leftOperand;
-            if (leftBoolResult == true && node.getType() == Type.OR) {
+            boolean leftBoolResult = (Boolean) leftOperand;
+            if (leftBoolResult && node.getType() == Type.OR) {
                 return Boolean.TRUE;
             }
-            if (leftBoolResult == false && node.getType() == Type.AND) {
+            if (!leftBoolResult && node.getType() == Type.AND) {
                 return Boolean.FALSE;
             }
         }
 
         Object rightOperand = evaluateTree(node.getRight());
         if (rightOperand instanceof Boolean) {
-            Boolean rightBoolResult = (Boolean) rightOperand;
+            boolean rightBoolResult = (Boolean) rightOperand;
             if (leftOperand instanceof Boolean) {
                 if (node.getType() == Type.AND) {
                     return (Boolean) leftOperand && (Boolean) rightOperand;
                 } else {
-                    // assert node.getType() == Type.OR;
                     return (Boolean) leftOperand || (Boolean) rightOperand;
                 }
             } else {
-                if (rightBoolResult == true && node.getType() == Type.OR) {
+                if (rightBoolResult && node.getType() == Type.OR) {
                     return Boolean.TRUE;
                 }
-                if (rightBoolResult == false && node.getType() == Type.AND) {
+                if (!rightBoolResult && node.getType() == Type.AND) {
                     return Boolean.FALSE;
                 }
                 // We either have (left && true) or (left || false).

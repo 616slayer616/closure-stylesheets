@@ -34,9 +34,9 @@ import java.util.Set;
 public class CheckDependencyNodes extends DefaultTreeVisitor
         implements CssCompilerPass {
 
-    private static final String provideName = CssAtRuleNode.Type.PROVIDE
+    private static final String PROVIDE_NAME = CssAtRuleNode.Type.PROVIDE
             .getCanonicalName();
-    private static final String requireName = CssAtRuleNode.Type.REQUIRE
+    private static final String REQUIRE_NAME = CssAtRuleNode.Type.REQUIRE
             .getCanonicalName();
     private final MutatingVisitController visitController;
     private final ErrorManager errorManager;
@@ -46,7 +46,7 @@ public class CheckDependencyNodes extends DefaultTreeVisitor
      * A linked collection is used so the dependencies can be iterated in the
      * order in which they were provided.
      */
-    private Set<String> provides = Sets.newLinkedHashSet();
+    private final Set<String> provides = Sets.newLinkedHashSet();
 
     public CheckDependencyNodes(MutatingVisitController visitController,
                                 ErrorManager errorManager) {
@@ -64,14 +64,14 @@ public class CheckDependencyNodes extends DefaultTreeVisitor
     public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
         String atRuleName = node.getName().getValue();
         CssNode dependencyNode;
-        if (provideName.equals(atRuleName)) {
+        if (PROVIDE_NAME.equals(atRuleName)) {
             CssLiteralNode arg = extractArgument(node);
             if (arg != null) {
                 dependencyNode = createProvideNode(node, arg);
             } else {
                 return false;
             }
-        } else if (requireName.equals(atRuleName)) {
+        } else if (REQUIRE_NAME.equals(atRuleName)) {
             CssLiteralNode arg = extractArgument(node);
             if (arg != null) {
                 dependencyNode = createRequireNode(node, arg);

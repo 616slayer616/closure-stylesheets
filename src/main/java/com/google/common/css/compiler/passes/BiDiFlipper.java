@@ -64,6 +64,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
                 false /* Don't flip constant reference by default. */);
     }
 
+    public static final String RIGHT = "right";
     /**
      * Map with exact strings to match and their corresponding flipped value. For example, in "float:
      * left" we need an exact match to flip "left" because we don't want to touch things like
@@ -73,8 +74,8 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
             new ImmutableMap.Builder<String, String>()
                     .put("ltr", "rtl")
                     .put("rtl", "ltr")
-                    .put("left", "right")
-                    .put("right", "left")
+                    .put("left", RIGHT)
+                    .put(RIGHT, "left")
                     .put("e-resize", "w-resize")
                     .put("w-resize", "e-resize")
                     .put("ne-resize", "nw-resize")
@@ -205,7 +206,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
     private static boolean isLeftOrCenterOrRight(String value) {
         return "left".equals(value)
                 || "center".equals(value)
-                || "right".equals(value);
+                || RIGHT.equals(value);
     }
 
     /**
@@ -231,12 +232,9 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
             return false;
         }
         String ref = valueNode.getValue();
-        if (ref.startsWith(ResolveCustomFunctionNodesForChunks.DEF_PREFIX)) {
-            // Since gss function could generate multiple values, we can't do flip if
-            // there's gss function call in place, simply skip this case.
-            return false;
-        }
-        return true;
+        // Since gss function could generate multiple values, we can't do flip if
+        // there's gss function call in place, simply skip this case.
+        return !ref.startsWith(ResolveCustomFunctionNodesForChunks.DEF_PREFIX);
     }
 
     /**
@@ -271,10 +269,8 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
                 // previous value is not numeric or "left", "center", or "right".
                 CssValueNode previousValueNode =
                         propertyValueNode.getChildAt(valueIndex - 1);
-                if (!(previousValueNode instanceof CssNumericNode)
-                        && !isLeftOrCenterOrRight(previousValueNode.getValue())) {
-                    return true;
-                }
+                return !(previousValueNode instanceof CssNumericNode)
+                        && !isLeftOrCenterOrRight(previousValueNode.getValue());
             }
         }
 
@@ -592,7 +588,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
         // Make a new FunctionNode out of flipped url argument.
         CssValueNode newArgument = oldArgument.deepCopy();
         newArgument.setValue(newUrlValue);
-        List<CssValueNode> newArgumentsList = new ArrayList<CssValueNode>();
+        List<CssValueNode> newArgumentsList = new ArrayList<>();
         newArgumentsList.add(newArgument);
 
         CssFunctionNode newFunctionNode = oldFunctionNode.deepCopy();
@@ -631,10 +627,10 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
             valueNodes.add(temp.deepCopy());
             valueIndex++;
         }
-        if (valueNodes.size() != 0) {
+        if (!valueNodes.isEmpty()) {
             CssValueNode priority = null;
             // Remove possible !important priority node.
-            if (!valueNodes.isEmpty() && Iterables.getLast(valueNodes) instanceof CssPriorityNode) {
+            if (Iterables.getLast(valueNodes) instanceof CssPriorityNode) {
                 priority = Iterables.getLast(valueNodes);
                 valueNodes = valueNodes.subList(0, valueNodes.size() - 1);
             }

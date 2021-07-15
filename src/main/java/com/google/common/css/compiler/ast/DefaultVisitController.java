@@ -165,7 +165,6 @@ class DefaultVisitController implements MutatingVisitController {
         public void replaceCurrentBlockChildWith(
                 List<N> replacementNodes, boolean visitTheReplacementNodes) {
             // Assume that by default this cannot happen.
-            // assert false;
         }
 
         public VisitState<? extends CssNode> createFallbackState(N child) {
@@ -200,7 +199,6 @@ class DefaultVisitController implements MutatingVisitController {
             // Remain in this state to finish visiting all the children
             currentIndex++;
             stateStack.push(getVisitState(block.getChildAt(currentIndex)));
-            return;
         }
 
         /**
@@ -287,12 +285,8 @@ class DefaultVisitController implements MutatingVisitController {
     /**
      * Unfinished base class for VisitStates which share the same code to
      * optionally visit child nodes.
-     *
-     * @param <T> type of the children CSS nodes that can be used as a replacement
-     *            for currently visited block node
      */
-    abstract class VisitChildrenOptionalState<T extends CssNode>
-            extends BaseVisitState<CssNode> {
+    abstract class VisitChildrenOptionalState extends BaseVisitState<CssNode> {
         // TODO(user): move the common code here or delete this
         // useless complexity.
     }
@@ -337,7 +331,6 @@ class DefaultVisitController implements MutatingVisitController {
         @Override
         public void transitionToNextState() {
             stateStack.pop();
-            // assert stateStack.isEmpty();
         }
     }
 
@@ -357,7 +350,6 @@ class DefaultVisitController implements MutatingVisitController {
         public void doVisit() {
             if (charsetRule == null) {
                 // Nothing left to do.
-                return;
             }
         }
 
@@ -491,7 +483,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class RootVisitBodyState extends VisitChildrenOptionalState<CssNode> {
+    class RootVisitBodyState extends VisitChildrenOptionalState {
 
         private final CssRootNode root;
 
@@ -535,7 +527,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitDefinitionState extends VisitChildrenOptionalState<CssNode> {
+    class VisitDefinitionState extends VisitChildrenOptionalState {
 
         private final CssDefinitionNode node;
 
@@ -683,7 +675,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitPageRuleState extends VisitChildrenOptionalState<CssNode> {
+    class VisitPageRuleState extends VisitChildrenOptionalState {
 
         private final CssPageRuleNode node;
 
@@ -716,7 +708,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitPageSelectorState extends VisitChildrenOptionalState<CssNode> {
+    class VisitPageSelectorState extends VisitChildrenOptionalState {
 
         private final CssPageSelectorNode node;
 
@@ -749,7 +741,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitFontFaceState extends VisitChildrenOptionalState<CssNode> {
+    class VisitFontFaceState extends VisitChildrenOptionalState {
 
         private final CssFontFaceNode node;
 
@@ -782,7 +774,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitCharSetState extends VisitChildrenOptionalState<CssNode> {
+    class VisitCharSetState extends VisitChildrenOptionalState {
 
         private final CssCharSetNode node;
 
@@ -850,7 +842,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitConditionalRuleState extends VisitChildrenOptionalState<CssNode> {
+    class VisitConditionalRuleState extends VisitChildrenOptionalState {
 
         private final CssConditionalRuleNode node;
 
@@ -892,7 +884,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitRulesetState extends VisitChildrenOptionalState<CssNode> {
+    class VisitRulesetState extends VisitChildrenOptionalState {
 
         private final CssRulesetNode node;
 
@@ -925,7 +917,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitKeyframeRulesetState extends VisitChildrenOptionalState<CssNode> {
+    class VisitKeyframeRulesetState extends VisitChildrenOptionalState {
 
         private final CssKeyframeRulesetNode node;
 
@@ -1499,7 +1491,7 @@ class DefaultVisitController implements MutatingVisitController {
                 return;
             }
 
-            if (visitChildren == false) {
+            if (!visitChildren) {
                 currentIndex = children.size() - 1;
                 return;
             }
@@ -1517,7 +1509,6 @@ class DefaultVisitController implements MutatingVisitController {
             }
             stateStack.push(createVisitState(children.get(currentIndex), this));
             intervalueStateIsNext = true;
-            return;
         }
 
         @Override
@@ -1749,7 +1740,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitComponentState extends VisitChildrenOptionalState<CssNode> {
+    class VisitComponentState extends VisitChildrenOptionalState {
 
         private final CssComponentNode node;
 
@@ -1823,7 +1814,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitUnknownAtRuleState extends VisitChildrenOptionalState<CssNode> {
+    class VisitUnknownAtRuleState extends VisitChildrenOptionalState {
 
         private final CssUnknownAtRuleNode node;
         private boolean visitedChildren = false;
@@ -1880,7 +1871,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitUnknownAtRuleBlockState extends VisitChildrenOptionalState<CssNode> {
+    class VisitUnknownAtRuleBlockState extends VisitChildrenOptionalState {
 
         private final CssAbstractBlockNode body;
 
@@ -1922,7 +1913,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     @VisibleForTesting
-    class VisitWebkitKeyframesState extends VisitChildrenOptionalState<CssNode> {
+    class VisitWebkitKeyframesState extends VisitChildrenOptionalState {
 
         private final CssKeyframesNode node;
 

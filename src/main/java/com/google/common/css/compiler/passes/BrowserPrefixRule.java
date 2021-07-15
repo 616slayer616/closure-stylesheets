@@ -72,7 +72,7 @@ public final class BrowserPrefixRule {
                     CssFunctionNode functionNode = new CssFunctionNode(
                             CssFunctionNode.Function.byName(propertyValue), null);
                     // Function args will be set, when matched.
-                    valueNode.addChildToBack((CssValueNode) functionNode);
+                    valueNode.addChildToBack(functionNode);
                 } else {
                     // Case #2: Property value is not a function
                     checkState(matchPropertyValue != null);  // Has both name and value

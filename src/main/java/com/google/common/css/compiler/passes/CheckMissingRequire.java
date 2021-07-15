@@ -122,10 +122,7 @@ public final class CheckMissingRequire extends DefaultTreeVisitor implements Css
         Set<String> defNamespaceSet = Sets.newHashSet(provides);
         Set<String> requireNamespaceSet = Sets.newHashSet(requires);
         requireNamespaceSet.retainAll(defNamespaceSet);
-        if (requireNamespaceSet.size() > 0 || defNamespaceSet.contains(currentNamespace)) {
-            return false;
-        }
-        return true;
+        return requireNamespaceSet.isEmpty() && !defNamespaceSet.contains(currentNamespace);
     }
 
     /*

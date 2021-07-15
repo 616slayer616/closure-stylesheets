@@ -16,10 +16,11 @@
 
 package com.google.common.css.compiler.ast;
 
-import com.google.common.base.Functions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
+import java.util.function.Function;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -185,13 +186,13 @@ public class CssStringNodeTest {
                 {"say 'goodbye'", "say 'goodbye'"}}) {
             assertThat(
                     CssStringNode.escape(
-                            CssStringNode.Type.DOUBLE_QUOTED_STRING, Functions.<String>identity(), io[0]))
+                            CssStringNode.Type.DOUBLE_QUOTED_STRING, Function.identity(), io[0]))
                     .isEqualTo(io[1]);
         }
         assertThat(
                 CssStringNode.escape(
                         CssStringNode.Type.SINGLE_QUOTED_STRING,
-                        Functions.<String>identity(),
+                        Function.identity(),
                         "say 'goodbye'"))
                 .isEqualTo("say \\'goodbye\\'");
     }

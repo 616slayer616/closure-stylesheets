@@ -21,7 +21,7 @@ import com.google.common.css.SourceCodeLocation;
 public class GssParserException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    private GssError gssError;
+    private final GssError gssError;
 
     public GssParserException(SourceCodeLocation location, Throwable cause) {
         super("Parse error", cause);

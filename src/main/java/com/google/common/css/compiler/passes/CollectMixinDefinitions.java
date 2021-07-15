@@ -59,7 +59,7 @@ public class CollectMixinDefinitions extends DefaultTreeVisitor
                                    ErrorManager errorManager) {
         this.visitController = visitController;
         this.errorManager = errorManager;
-        this.definitions = new HashMap<String, CssMixinDefinitionNode>();
+        this.definitions = new HashMap<>();
     }
 
     @Override

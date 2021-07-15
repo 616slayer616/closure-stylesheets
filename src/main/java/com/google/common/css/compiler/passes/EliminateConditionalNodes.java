@@ -41,11 +41,9 @@ public class EliminateConditionalNodes extends DefaultTreeVisitor
     @Override
     public boolean enterConditionalBlock(CssConditionalBlockNode block) {
 
-        int i = 0;
         for (CssConditionalRuleNode currentCondtional : block.childIterable()) {
 
             if (currentCondtional.getType() == Type.ELSE) {
-                // assert i == block.numChildren() - 1;
                 // TODO(dgajda): Optimize by using immutable children list or an
                 //     iterable.
                 visitController.replaceCurrentBlockChildWith(
@@ -62,8 +60,6 @@ public class EliminateConditionalNodes extends DefaultTreeVisitor
                         currentCondtional.getBlock().getChildren(), true);
                 return true;
             }
-
-            i++;
         }
 
         // No ELSE was encountered and nothing was true.

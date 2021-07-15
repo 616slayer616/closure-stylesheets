@@ -45,7 +45,6 @@ public class DefaultCommandLineCompiler extends AbstractCommandLineCompiler<JobD
      */
     protected static final int MAXIMUM_ERRORS_TO_OUTPUT = 100;
 
-    private CssTree cssTree;
     private final ErrorManager errorManager;
     private final PassRunner passRunner;
     private final GssSourceMapGenerator gssSourceMapGenerator;
@@ -110,7 +109,7 @@ public class DefaultCommandLineCompiler extends AbstractCommandLineCompiler<JobD
      */
     private void parseAndPrint(StringBuilder result, GssParser parser)
             throws GssParserException {
-        cssTree = parser.parse();
+        CssTree cssTree = parser.parse();
         if (job.outputFormat != OutputFormat.DEBUG) {
             passRunner.runPasses(cssTree);
         }

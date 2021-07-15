@@ -43,6 +43,12 @@ public final class Property {
      */
     private static final java.lang.String CUSTOM_PROPERTY_PREFIX = "--";
 
+    private final static String BORDER = "border";
+    private final static String BORDER_RADIUS = "border-radius";
+    private final static String MOZ_BORDER_RADIUS = "-moz-border-radius";
+    private final static String WEBKIT_BORDER_RADIUS = "-webkit-border-radius";
+    private final static String FLEX_BOX_NO_SUPPORT = "The flexbox spec has changed and this property is no longer supported.";
+
     /**
      * The CSS properties recognized by default by the CSS Compiler, indexed by name. Note that this
      * includes non-standard properties, such as "-webkit-border-radius".
@@ -51,6 +57,7 @@ public final class Property {
 
 
     static {
+
         List<Builder> recognizedProperties = ImmutableList.of(
                 builder("align-content"),
                 builder("align-items"),
@@ -111,21 +118,21 @@ public final class Property {
                 // TODO(bolinfest): This is going to require special handling when it
                 // comes to RTL flipping, which the current
                 // "setHasPositionalParameters()" does not take into account.
-                builder("border-radius"),
+                builder(BORDER_RADIUS),
                 builder("border-top-left-radius"),
                 builder("border-top-right-radius"),
                 builder("border-bottom-right-radius"),
                 builder("border-bottom-left-radius"),
-                builder("border"),
+                builder(BORDER),
                 builder("bottom"),
                 builder("box-align").warn(
-                        "The flexbox spec has changed and this property is no longer supported."),
+                        FLEX_BOX_NO_SUPPORT),
                 builder("box-flex").warn(
-                        "The flexbox spec has changed and this property is no longer supported."),
+                        FLEX_BOX_NO_SUPPORT),
                 builder("box-orient").warn(
-                        "The flexbox spec has changed and this property is no longer supported."),
+                        FLEX_BOX_NO_SUPPORT),
                 builder("box-pack").warn(
-                        "The flexbox spec has changed and this property is no longer supported."),
+                        FLEX_BOX_NO_SUPPORT),
                 builder("box-shadow"),
                 builder("box-sizing"),
                 builder("break-after"),
@@ -284,7 +291,7 @@ public final class Property {
                 builder("-moz-border-end-width"),
                 builder("-moz-border-image"),
                 builder("-moz-border-left-colors"),
-                builder("-moz-border-radius"),
+                builder(MOZ_BORDER_RADIUS),
                 builder("-moz-border-radius-topleft"),
                 builder("-moz-border-radius-topright"),
                 builder("-moz-border-radius-bottomright"),
@@ -610,7 +617,7 @@ public final class Property {
                 builder("-webkit-border-fit"),
                 builder("-webkit-border-horizontal-spacing"),
                 builder("-webkit-border-image"),
-                builder("-webkit-border-radius"),
+                builder(WEBKIT_BORDER_RADIUS),
                 builder("-webkit-border-start"),
                 builder("-webkit-border-start-color"),
                 builder("-webkit-border-start-style"),
@@ -1058,7 +1065,7 @@ public final class Property {
         private static final ImmutableSet<String> SHORTHAND_PROPERTIES =
                 ImmutableSet.of(
                         "background",
-                        "border",
+                        BORDER,
                         "border-bottom",
                         "border-color",
                         "border-left",
@@ -1082,21 +1089,21 @@ public final class Property {
 
         private static final ImmutableMap<String, String> BORDER_RADIUS_PROPERTIES =
                 ImmutableMap.<String, String>builder()
-                        .put("border-radius", "border-radius")
-                        .put("border-top-left-radius", "border-radius")
-                        .put("border-top-right-radius", "border-radius")
-                        .put("border-bottom-right-radius", "border-radius")
-                        .put("border-bottom-left-radius", "border-radius")
-                        .put("-webkit-border-radius", "-webkit-border-radius")
-                        .put("-webkit-border-top-left-radius", "-webkit-border-radius")
-                        .put("-webkit-border-top-right-radius", "-webkit-border-radius")
-                        .put("-webkit-border-bottom-right-radius", "-webkit-border-radius")
-                        .put("-webkit-border-bottom-left-radius", "-webkit-border-radius")
-                        .put("-moz-border-radius", "-moz-border-radius")
-                        .put("-moz-border-radius-topleft", "-moz-border-radius")
-                        .put("-moz-border-radius-topright", "-moz-border-radius")
-                        .put("-moz-border-radius-bottomright", "-moz-border-radius")
-                        .put("-moz-border-radius-bottomleft", "-moz-border-radius")
+                        .put(BORDER_RADIUS, BORDER_RADIUS)
+                        .put("border-top-left-radius", BORDER_RADIUS)
+                        .put("border-top-right-radius", BORDER_RADIUS)
+                        .put("border-bottom-right-radius", BORDER_RADIUS)
+                        .put("border-bottom-left-radius", BORDER_RADIUS)
+                        .put(WEBKIT_BORDER_RADIUS, WEBKIT_BORDER_RADIUS)
+                        .put("-webkit-border-top-left-radius", WEBKIT_BORDER_RADIUS)
+                        .put("-webkit-border-top-right-radius", WEBKIT_BORDER_RADIUS)
+                        .put("-webkit-border-bottom-right-radius", WEBKIT_BORDER_RADIUS)
+                        .put("-webkit-border-bottom-left-radius", WEBKIT_BORDER_RADIUS)
+                        .put(MOZ_BORDER_RADIUS, MOZ_BORDER_RADIUS)
+                        .put("-moz-border-radius-topleft", MOZ_BORDER_RADIUS)
+                        .put("-moz-border-radius-topright", MOZ_BORDER_RADIUS)
+                        .put("-moz-border-radius-bottomright", MOZ_BORDER_RADIUS)
+                        .put("-moz-border-radius-bottomleft", MOZ_BORDER_RADIUS)
                         .build();
 
         /**
@@ -1150,7 +1157,7 @@ public final class Property {
 
             // Only border-related properties may have more than one shorthand,
             // in which case they will have three shorthands.
-            Preconditions.checkArgument(smallestShorthand.equals("border"));
+            Preconditions.checkArgument(smallestShorthand.equals(BORDER));
 
             String otherShorthand =
                     smallestShorthand + property.substring(lastHyphenIndex);

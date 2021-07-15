@@ -29,25 +29,25 @@ interface CharStream {
 
     /**
      * Returns the column number of the last character for current token (being
-     * matched after the last call to BeginTOken).
+     * matched after the last call to beginToken).
      */
     int getEndColumn();
 
     /**
      * Returns the line number of the last character for current token (being
-     * matched after the last call to BeginTOken).
+     * matched after the last call to beginToken).
      */
     int getEndLine();
 
     /**
      * Returns the column number of the first character for current token (being
-     * matched after the last call to BeginTOken).
+     * matched after the last call to beginToken).
      */
     int getBeginColumn();
 
     /**
      * Returns the line number of the first character for current token (being
-     * matched after the last call to BeginTOken).
+     * matched after the last call to beginToken).
      */
     int getBeginLine();
 
@@ -69,7 +69,7 @@ interface CharStream {
      * @return next character
      * @throws java.io.IOException
      */
-    char BeginToken() throws java.io.IOException;
+    char beginToken() throws java.io.IOException;
 
     /**
      * Returns a string made up of characters from the marked token beginning
@@ -77,7 +77,7 @@ interface CharStream {
      * anything that they want to. For example, for efficiency, one might decide
      * to just return null, which is a valid implementation.
      */
-    String GetImage();
+    String getImage();
 
     /**
      * Returns an array of characters that make up the suffix of length 'len' for
@@ -86,11 +86,11 @@ interface CharStream {
      * implementation of this is as follows :
      * <p>
      * {
-     * String t = GetImage();
+     * String t = getImage();
      * return t.substring(t.length() - len, t.length()).toCharArray();
      * }
      */
-    char[] GetSuffix(int len);
+    char[] getSuffix(int len);
 
     /**
      * The lexer calls this function to indicate that it is done with the stream
@@ -98,7 +98,7 @@ interface CharStream {
      * Again, the body of this function can be just empty and it will not
      * affect the lexer's operation.
      */
-    void Done();
+    void done();
 
 
     void setTabSize(int i);

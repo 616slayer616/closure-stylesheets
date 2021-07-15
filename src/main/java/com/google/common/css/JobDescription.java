@@ -124,6 +124,8 @@ public class JobDescription {
      */
     public enum SourceMapDetailLevel {ALL, DEFAULT}
 
+    @SuppressWarnings("java:S107")
+        // Constructor has n parameters, which is greater than 7 authorized.
     JobDescription(List<SourceCode> inputs,
                    String copyrightNotice, OutputFormat outputFormat,
                    InputOrientation inputOrientation, OutputOrientation outputOrientation,

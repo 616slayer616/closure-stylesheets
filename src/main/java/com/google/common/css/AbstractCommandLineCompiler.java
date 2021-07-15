@@ -16,14 +16,17 @@
 
 package com.google.common.css;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+
+import java.util.logging.Logger;
 
 /**
  * An abstract class that is designed to be extended by classes that provide a
  * command line interface to the CSS parser.
  */
 public class AbstractCommandLineCompiler<T extends JobDescription> {
+
+    private static final Logger logger = Logger.getLogger(AbstractCommandLineCompiler.class.getName());
 
     /**
      * Exit code for success (normal operation of the compiler, possibly with
@@ -75,7 +78,6 @@ public class AbstractCommandLineCompiler<T extends JobDescription> {
      *
      * @param job the inputs the compiler should process and the options to use
      */
-    @VisibleForTesting
     public AbstractCommandLineCompiler(T job,
                                        ExitCodeHandler exitCodeHandler) {
         Preconditions.checkNotNull(job);
@@ -89,8 +91,7 @@ public class AbstractCommandLineCompiler<T extends JobDescription> {
      */
     protected static void exitOnUnhandledException(Exception e,
                                                    ExitCodeHandler exitCodeHandler) {
-        System.err.println(
-                "The compiler encountered an unhandled error condition. " + e);
+        logger.severe(() -> "The compiler encountered an unhandled error condition. " + e);
         e.printStackTrace();
         exitCodeHandler.processExitCode(UNHANDLED_EXCEPTION_EXIT_CODE);
     }

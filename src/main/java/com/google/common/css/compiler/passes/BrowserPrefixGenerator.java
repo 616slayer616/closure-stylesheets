@@ -31,6 +31,8 @@ import com.google.common.collect.ImmutableList;
 public final class BrowserPrefixGenerator {
 
     private static final ImmutableList<BrowserPrefixRule> EXPANSION_RULES = buildExpansionRules();
+    public static final String DISPLAY = "display";
+    public static final String BACKGROUND_IMAGE = "background-image";
 
     /**
      * Returns the rules for automatic expansion of mixins.
@@ -42,7 +44,7 @@ public final class BrowserPrefixGenerator {
     private static ImmutableList<BrowserPrefixRule> buildExpansionRules() {
         ImmutableList.Builder<BrowserPrefixRule> builder = ImmutableList.builder();
         builder.add(new BrowserPrefixRule.Builder()
-                .matchPropertyName("display")
+                .matchPropertyName(DISPLAY)
                 .matchPropertyValue("flex")
                 .isFunction(false)
                 .addExpandPropertyValue("-webkit-box")
@@ -53,7 +55,7 @@ public final class BrowserPrefixGenerator {
                 .build());
 
         builder.add(new BrowserPrefixRule.Builder()
-                .matchPropertyName("display")
+                .matchPropertyName(DISPLAY)
                 .matchPropertyValue("inline-flex")
                 .isFunction(false)
                 .addExpandPropertyValue("-webkit-inline-box")
@@ -277,7 +279,7 @@ public final class BrowserPrefixGenerator {
                 .build());
 
         builder.add(new BrowserPrefixRule.Builder()
-                .matchPropertyName("background-image")
+                .matchPropertyName(BACKGROUND_IMAGE)
                 .matchPropertyValue("linear-gradient")
                 .isFunction(true)
                 .addExpandPropertyValue("-webkit-linear-gradient")
@@ -288,7 +290,7 @@ public final class BrowserPrefixGenerator {
                 .build());
 
         builder.add(new BrowserPrefixRule.Builder()
-                .matchPropertyName("background-image")
+                .matchPropertyName(BACKGROUND_IMAGE)
                 .matchPropertyValue("repeating-linear-gradient")
                 .isFunction(true)
                 .addExpandPropertyValue("-webkit-repeating-linear-gradient")
@@ -371,7 +373,7 @@ public final class BrowserPrefixGenerator {
                 .build());
 
         builder.add(new BrowserPrefixRule.Builder()
-                .matchPropertyName("background-image")
+                .matchPropertyName(BACKGROUND_IMAGE)
                 .matchPropertyValue("radial-gradient")
                 .isFunction(true)
                 .addExpandPropertyValue("-webkit-radial-gradient")
@@ -465,7 +467,7 @@ public final class BrowserPrefixGenerator {
         // Grid support for IE:
         // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/CSS_Grid_and_Progressive_Enhancement
         builder.add(new BrowserPrefixRule.Builder()
-                .matchPropertyName("display")
+                .matchPropertyName(DISPLAY)
                 .matchPropertyValue("grid")
                 .isFunction(false)
                 .addExpandPropertyValue("-ms-grid")

@@ -42,6 +42,9 @@ import static com.google.common.css.compiler.gssfunctions.ColorUtil.*;
  */
 public class GssFunctions {
 
+    public static final String TRANSPARENT = "transparent";
+    public static final String MUST_BE_NUMERIC = "The second argument must be a CssNumericNode";
+
     /**
      * @return a map from each GSS function name to the function
      */
@@ -182,7 +185,7 @@ public class GssFunctions {
 
             CssHexColorNode result = new CssHexColorNode(resultString,
                     arg1.getSourceCodeLocation());
-            return ImmutableList.of((CssValueNode) result);
+            return ImmutableList.of(result);
         }
 
         @Override
@@ -213,26 +216,26 @@ public class GssFunctions {
                     ColorParser.parseAny(endColorStr));
             return formatColor(midColor);
         }
-    }
 
-    private static Color blendHsb(Color startColor, Color endColor) {
+        private static Color blendHsb(Color startColor, Color endColor) {
 
-        float[] startColorHsb = toHsb(startColor);
-        float[] endColorHsb = toHsb(endColor);
+            float[] startColorHsb = toHsb(startColor);
+            float[] endColorHsb = toHsb(endColor);
 
-        float diffHue = Math.abs(startColorHsb[0] - endColorHsb[0]);
-        float sumHue = startColorHsb[0] + endColorHsb[0];
-        float midHue = (diffHue <= 0.5)
-                ? sumHue / 2
-                : (sumHue + 1) / 2;  // Hue values range 0 to 1 and wrap (i.e. 0 == 1)
-        if (midHue > 1) {
-            midHue -= 1;
+            float diffHue = Math.abs(startColorHsb[0] - endColorHsb[0]);
+            float sumHue = startColorHsb[0] + endColorHsb[0];
+            float midHue = (diffHue <= 0.5)
+                    ? sumHue / 2
+                    : (sumHue + 1) / 2;  // Hue values range 0 to 1 and wrap (i.e. 0 == 1)
+            if (midHue > 1) {
+                midHue -= 1;
+            }
+
+            return Color.getHSBColor(
+                    midHue,
+                    (startColorHsb[1] + endColorHsb[1]) / 2,
+                    (startColorHsb[2] + endColorHsb[2]) / 2);
         }
-
-        return Color.getHSBColor(
-                midHue,
-                (startColorHsb[1] + endColorHsb[1]) / 2,
-                (startColorHsb[2] + endColorHsb[2]) / 2);
     }
 
     /**
@@ -289,7 +292,7 @@ public class GssFunctions {
 
         if (!imageUrl.equals("")) {
             CssLiteralNode argument = new CssLiteralNode(imageUrl, location);
-            List<CssValueNode> argList = ImmutableList.of((CssValueNode) argument);
+            List<CssValueNode> argList = ImmutableList.of(argument);
             CssFunctionArgumentsNode arguments =
                     new CssFunctionArgumentsNode(argList);
             url.setArguments(arguments);
@@ -316,7 +319,9 @@ public class GssFunctions {
             CssValueNode arg4 = args.get(3);
 
             assertArgumentLooksLikeAColor(1, arg1, errorManager);
-            CssNumericNode numeric2, numeric3, numeric4;
+            CssNumericNode numeric2;
+            CssNumericNode numeric3;
+            CssNumericNode numeric4;
             if (arg2 instanceof CssNumericNode && arg3 instanceof CssNumericNode
                     && arg4 instanceof CssNumericNode) {
                 numeric2 = (CssNumericNode) arg2;
@@ -338,7 +343,7 @@ public class GssFunctions {
 
                 CssHexColorNode result = new CssHexColorNode(resultString,
                         arg1.getSourceCodeLocation());
-                return ImmutableList.of((CssValueNode) result);
+                return ImmutableList.of(result);
             } catch (GssFunctionException e) {
                 errorManager.report(
                         new GssError(e.getMessage(), arg2.getSourceCodeLocation()));
@@ -389,7 +394,7 @@ public class GssFunctions {
                                        int brightnessToAdd) {
 
             // Skip transformation for the transparent color.
-            if ("transparent".equals(baseColorString)) {
+            if (TRANSPARENT.equals(baseColorString)) {
                 return baseColorString;
             }
 
@@ -509,7 +514,7 @@ public class GssFunctions {
                                           int lightnessToAdd) {
 
             // Skip transformation for the transparent color.
-            if ("transparent".equals(baseColorString)) {
+            if (TRANSPARENT.equals(baseColorString)) {
                 return baseColorString;
             }
 
@@ -579,7 +584,7 @@ public class GssFunctions {
             if (arg2 instanceof CssNumericNode) {
                 numeric2 = (CssNumericNode) arg2;
             } else {
-                String message = "The second argument must be a CssNumericNode";
+                String message = MUST_BE_NUMERIC;
                 errorManager.report(
                         new GssError(message, arg2.getSourceCodeLocation()));
                 throw new GssFunctionException(message);
@@ -594,7 +599,7 @@ public class GssFunctions {
 
                 CssHexColorNode result = new CssHexColorNode(resultString,
                         arg1.getSourceCodeLocation());
-                return ImmutableList.of((CssValueNode) result);
+                return ImmutableList.of(result);
             } catch (GssFunctionException e) {
                 errorManager.report(
                         new GssError(e.getMessage(), arg2.getSourceCodeLocation()));
@@ -634,7 +639,7 @@ public class GssFunctions {
             if (arg2 instanceof CssNumericNode) {
                 numeric2 = (CssNumericNode) arg2;
             } else {
-                String message = "The second argument must be a CssNumericNode";
+                String message = MUST_BE_NUMERIC;
                 errorManager.report(new GssError(message, arg2
                         .getSourceCodeLocation()));
                 throw new GssFunctionException(message);
@@ -646,7 +651,7 @@ public class GssFunctions {
 
                 CssHexColorNode result = new CssHexColorNode(resultString,
                         arg1.getSourceCodeLocation());
-                return ImmutableList.of((CssValueNode) result);
+                return ImmutableList.of(result);
             } catch (GssFunctionException e) {
                 errorManager.report(new GssError(e.getMessage(), arg2
                         .getSourceCodeLocation()));
@@ -695,7 +700,7 @@ public class GssFunctions {
 
                 CssHexColorNode result = new CssHexColorNode(resultString,
                         arg1.getSourceCodeLocation());
-                return ImmutableList.of((CssValueNode) result);
+                return ImmutableList.of(result);
             } catch (GssFunctionException e) {
                 errorManager.report(
                         new GssError(e.getMessage(), arg1.getSourceCodeLocation()));
@@ -734,7 +739,7 @@ public class GssFunctions {
             if (arg2 instanceof CssNumericNode) {
                 numeric2 = (CssNumericNode) arg2;
             } else {
-                String message = "The second argument must be a CssNumericNode";
+                String message = MUST_BE_NUMERIC;
                 errorManager.report(
                         new GssError(message, arg2.getSourceCodeLocation()));
                 throw new GssFunctionException(message);
@@ -749,7 +754,7 @@ public class GssFunctions {
 
                 CssHexColorNode result = new CssHexColorNode(resultString,
                         arg1.getSourceCodeLocation());
-                return ImmutableList.of((CssValueNode) result);
+                return ImmutableList.of(result);
             } catch (GssFunctionException e) {
                 errorManager.report(
                         new GssError(e.getMessage(), arg2.getSourceCodeLocation()));
@@ -787,7 +792,7 @@ public class GssFunctions {
             if (arg2 instanceof CssNumericNode) {
                 numeric2 = (CssNumericNode) arg2;
             } else {
-                String message = "The second argument must be a CssNumericNode";
+                String message = MUST_BE_NUMERIC;
                 errorManager.report(
                         new GssError(message, arg2.getSourceCodeLocation()));
                 throw new GssFunctionException(message);
@@ -802,7 +807,7 @@ public class GssFunctions {
 
                 CssHexColorNode result = new CssHexColorNode(resultString,
                         arg1.getSourceCodeLocation());
-                return ImmutableList.of((CssValueNode) result);
+                return ImmutableList.of(result);
             } catch (GssFunctionException e) {
                 errorManager.report(
                         new GssError(e.getMessage(), arg2.getSourceCodeLocation()));
@@ -841,7 +846,7 @@ public class GssFunctions {
             if (arg2 instanceof CssNumericNode) {
                 numeric2 = (CssNumericNode) arg2;
             } else {
-                String message = "The second argument must be a CssNumericNode";
+                String message = MUST_BE_NUMERIC;
                 errorManager.report(
                         new GssError(message, arg2.getSourceCodeLocation()));
                 throw new GssFunctionException(message);
@@ -856,7 +861,7 @@ public class GssFunctions {
 
                 CssHexColorNode result = new CssHexColorNode(resultString,
                         arg1.getSourceCodeLocation());
-                return ImmutableList.of((CssValueNode) result);
+                return ImmutableList.of(result);
             } catch (GssFunctionException e) {
                 errorManager.report(
                         new GssError(e.getMessage(), arg2.getSourceCodeLocation()));
@@ -882,8 +887,8 @@ public class GssFunctions {
      */
     public static class MakeMutedColor implements GssFunction {
 
-        private final float LOSS_OF_SATURATION_FOR_MUTED_TONE = 0.2f;
-        private final String ARGUMENT_COUNT_ERROR_MESSAGE = "makeMutedColor " +
+        private static final float LOSS_OF_SATURATION_FOR_MUTED_TONE = 0.2f;
+        private static final String ARGUMENT_COUNT_ERROR_MESSAGE = "makeMutedColor " +
                 "expected arguments: backgroundColorStr, foregroundColorStr and an " +
                 "optional loss of saturation value (0 <= loss <= 1).";
 
@@ -929,7 +934,7 @@ public class GssFunctions {
 
             CssHexColorNode result = new CssHexColorNode(resultStr,
                     backgroundColorNode.getSourceCodeLocation());
-            return ImmutableList.of((CssValueNode) result);
+            return ImmutableList.of(result);
         }
 
         protected String makeMutedColor(
@@ -938,8 +943,8 @@ public class GssFunctions {
             // If the background is transparent, or if the foreground is transparent,
             // there's really no way we can know how to pick a muted color. We thus
             // return the foreground color unchanged.
-            if ("transparent".equalsIgnoreCase(backgroundColorStr)
-                    || "transparent".equalsIgnoreCase(foregroundColorStr)) {
+            if (TRANSPARENT.equalsIgnoreCase(backgroundColorStr)
+                    || TRANSPARENT.equalsIgnoreCase(foregroundColorStr)) {
                 return foregroundColorStr;
             }
             Color backgroundColor = ColorParser.parseAny(backgroundColorStr);
@@ -947,7 +952,7 @@ public class GssFunctions {
 
             float[] backgroundColorHsb = toHsb(backgroundColor);
             float[] foregroundColorHsb = toHsb(foregroundColor);
-            float lossOfSaturationForMutedTone = Float.valueOf(lossStr);
+            float lossOfSaturationForMutedTone = Float.parseFloat(lossStr);
 
             // Make sure that 0 <= lossOfSaturationForMutedTone <= 1
             if (lossOfSaturationForMutedTone < 0) {
@@ -1010,7 +1015,7 @@ public class GssFunctions {
             for (CssValueNode arg : args) {
                 result.append(arg.getValue());
             }
-            return ImmutableList.of((CssValueNode) new CssStringNode(
+            return ImmutableList.of(new CssStringNode(
                     CssStringNode.Type.SINGLE_QUOTED_STRING, result.toString()));
         }
 
@@ -1034,7 +1039,7 @@ public class GssFunctions {
     /**
      * Abstract class implementing the shared logic for the arithmetic functions.
      */
-    private static abstract class LeftAssociativeOperator implements GssFunction {
+    private abstract static class LeftAssociativeOperator implements GssFunction {
 
         /**
          * Returns the number of expected arguments of this GSS function.
@@ -1061,7 +1066,7 @@ public class GssFunctions {
                 numericList.add(getSizeNode(arg, errorManager,
                         true /* isUnitOptional */));
             }
-            return ImmutableList.<CssValueNode>of(
+            return ImmutableList.of(
                     calculate(numericList, errorManager));
         }
 
@@ -1091,12 +1096,12 @@ public class GssFunctions {
                         errorManager, args.get(0).getSourceCodeLocation());
             }
 
-            double total = Double.valueOf(args.get(0).getNumericPart());
+            double total = Double.parseDouble(args.get(0).getNumericPart());
             String overallUnit =
                     isIdentityValue(total) ? null : args.get(0).getUnit();
 
             for (CssNumericNode node : args.subList(1, args.size())) {
-                double value = Double.valueOf(node.getNumericPart());
+                double value = Double.parseDouble(node.getNumericPart());
                 if (isIdentityValue(value)) {
                     continue;
                 }
@@ -1128,6 +1133,33 @@ public class GssFunctions {
          */
         protected boolean isIdentityValue(double value) {
             return false;
+        }
+
+        private static CssNumericNode getSizeNode(CssValueNode valueNode,
+                                                  ErrorManager errorManager, boolean isUnitOptional)
+                throws GssFunctionException {
+            SourceCodeLocation location = valueNode.getSourceCodeLocation();
+            if (valueNode instanceof CssNumericNode) {
+                CssNumericNode node = (CssNumericNode) valueNode;
+                checkSize(node.getNumericPart(), node.getUnit(), errorManager, location,
+                        isUnitOptional);
+                return node;
+            }
+            String message = "Size must be a CssNumericNode with a unit or 0; "
+                    + "was: " + valueNode;
+            throw error(message, errorManager, location);
+        }
+
+        private static Size parseSize(String sizeWithUnits, boolean isUnitOptional)
+                throws GssFunctionException {
+            int unitIndex = UNIT_MATCHER.indexIn(sizeWithUnits);
+            String size = unitIndex > 0 ?
+                    sizeWithUnits.substring(0, unitIndex) : sizeWithUnits;
+            String units = unitIndex > 0 ?
+                    sizeWithUnits.substring(unitIndex) : CssNumericNode.NO_UNITS;
+            checkSize(size, units, null /* errorManager */, null /* location */,
+                    isUnitOptional);
+            return new Size(size, units);
         }
     }
 
@@ -1190,18 +1222,18 @@ public class GssFunctions {
      * whose arguments are all scalars, with the possible exception of the first
      * argument, which may be a {@link Size} rather than a scalar.
      */
-    private static abstract class ScalarLeftAssociativeOperator extends
+    private abstract static class ScalarLeftAssociativeOperator extends
             LeftAssociativeOperator {
 
         @Override
         protected CssNumericNode calculate(List<CssNumericNode> args,
                                            ErrorManager errorManager) throws GssFunctionException {
-            if (args.size() == 0) {
+            if (args.isEmpty()) {
                 throw error("Not enough arguments",
                         errorManager, args.get(0).getSourceCodeLocation());
             }
 
-            double total = Double.valueOf(args.get(0).getNumericPart());
+            double total = Double.parseDouble(args.get(0).getNumericPart());
             String overallUnit = args.get(0).getUnit();
 
             for (CssNumericNode node : args.subList(1, args.size())) {
@@ -1213,7 +1245,7 @@ public class GssFunctions {
                             errorManager, node.getSourceCodeLocation());
                 }
 
-                double value = Double.valueOf(node.getNumericPart());
+                double value = Double.parseDouble(node.getNumericPart());
                 total = performOperation(total, value);
             }
             String resultString = new DecimalFormat(DECIMAL_FORMAT, US_SYMBOLS).format(total);
@@ -1304,7 +1336,7 @@ public class GssFunctions {
 
             CssHexColorNode result = new CssHexColorNode(resultStr,
                     originalColorNode.getSourceCodeLocation());
-            return ImmutableList.of((CssValueNode) result);
+            return ImmutableList.of(result);
         }
 
         private float normalize(float value) {
@@ -1328,7 +1360,7 @@ public class GssFunctions {
 
             // If the input color is transparent, there's really no way we can know
             // how to pick a good output color. We thus return the color unchanged.
-            if ("transparent".equalsIgnoreCase(originalColorStr)) {
+            if (TRANSPARENT.equalsIgnoreCase(originalColorStr)) {
                 return originalColorStr;
             }
             Color originalColor = ColorParser.parseAny(originalColorStr);
@@ -1436,7 +1468,7 @@ public class GssFunctions {
 
             CssHexColorNode result = new CssHexColorNode(resultStr,
                     arg1.getSourceCodeLocation());
-            return ImmutableList.of((CssValueNode) result);
+            return ImmutableList.of(result);
         }
 
         @Override
@@ -1446,7 +1478,7 @@ public class GssFunctions {
 
         protected String makeContrastingColor(
                 String inputColorStr, String similarityStr) {
-            if ("transparent".equalsIgnoreCase(inputColorStr)) {
+            if (TRANSPARENT.equalsIgnoreCase(inputColorStr)) {
                 return inputColorStr;
             }
             Color inputColor = ColorParser.parseAny(inputColorStr);
@@ -1534,7 +1566,7 @@ public class GssFunctions {
             float[] rgb = inputColor.getRGBColorComponents(null);
             Color outputColor = new Color(rgb[0], rgb[1], rgb[2], (float) alpha);
 
-            List<CssValueNode> argList = ImmutableList.<CssValueNode>of(
+            List<CssValueNode> argList = ImmutableList.of(
                     new CssLiteralNode(
                             Integer.toString(outputColor.getRed()), sourceCodeLocation),
                     new CssLiteralNode(
@@ -1608,26 +1640,11 @@ public class GssFunctions {
         return new GssFunctionException(errorMessage);
     }
 
-    private static CssNumericNode getSizeNode(CssValueNode valueNode,
-                                              ErrorManager errorManager, boolean isUnitOptional)
-            throws GssFunctionException {
-        SourceCodeLocation location = valueNode.getSourceCodeLocation();
-        if (valueNode instanceof CssNumericNode) {
-            CssNumericNode node = (CssNumericNode) valueNode;
-            checkSize(node.getNumericPart(), node.getUnit(), errorManager, location,
-                    isUnitOptional);
-            return node;
-        }
-        String message = "Size must be a CssNumericNode with a unit or 0; "
-                + "was: " + valueNode.toString();
-        throw error(message, errorManager, location);
-    }
-
     private static void checkSize(String valueString, String unit,
                                   ErrorManager errorManager, SourceCodeLocation location,
                                   boolean isUnitOptional) throws GssFunctionException {
         if (unit.equals(CssNumericNode.NO_UNITS)) {
-            Double value = Double.parseDouble(valueString);
+            double value = Double.parseDouble(valueString);
             if (value != 0.0 && !isUnitOptional) {
                 String message = "Size must be 0 or have a unit; was: "
                         + valueString + unit;
@@ -1672,16 +1689,4 @@ public class GssFunctions {
             return "GssFunctions.UNIT_MATCHER";
         }
     };
-
-    private static Size parseSize(String sizeWithUnits, boolean isUnitOptional)
-            throws GssFunctionException {
-        int unitIndex = UNIT_MATCHER.indexIn(sizeWithUnits);
-        String size = unitIndex > 0 ?
-                sizeWithUnits.substring(0, unitIndex) : sizeWithUnits;
-        String units = unitIndex > 0 ?
-                sizeWithUnits.substring(unitIndex) : CssNumericNode.NO_UNITS;
-        checkSize(size, units, null /* errorManager */, null /* location */,
-                isUnitOptional);
-        return new Size(size, units);
-    }
 }

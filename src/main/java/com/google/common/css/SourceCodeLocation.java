@@ -23,6 +23,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Iterator;
 
 /**
@@ -67,8 +68,7 @@ public class SourceCodeLocation implements Comparable<SourceCodeLocation> {
      *
      * <p>Instances of this class are immutable.
      */
-    @VisibleForTesting
-    public static class SourceCodePoint implements Comparable<SourceCodePoint> {
+    public static class SourceCodePoint implements Comparable<SourceCodePoint>, Serializable {
 
         /**
          * The index of the character immediately after the source code point.
@@ -304,7 +304,6 @@ public class SourceCodeLocation implements Comparable<SourceCodeLocation> {
                 "Beginning location must come before the end location.");
     }
 
-    @VisibleForTesting
     public SourceCodeLocation(
             SourceCode sourceCode,
             int beginCharacterIndex,
