@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssNumericNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssNumericNode.java</span></div><h1>CssNumericNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+
+/**
+ * A CSS node containing a numeric value such as height, width, length,
+ * or percentage values.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssNumericNode extends CssValueNode {
+
+    /**
+     * The numeric value of the node.
+     */
+    private String numericPart;
+    /**
+     * The unit for this numeric value.
+     */
+    private String unit;
+    /**
+     * Constant value for the units field for a node without units.
+     */
+<span class="fc" id="L42">    public static String NO_UNITS = &quot;&quot;;</span>
+
+    /**
+     * Constructor of a numeric node.
+     *
+     * @param value
+     * @param unit
+     */
+    public CssNumericNode(String value,
+                          String unit) {
+<span class="fc" id="L52">        this(value, unit, null);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Constructor of a numeric node.
+     *
+     * @param value
+     * @param unit
+     * @param sourceCodeLocation
+     */
+    public CssNumericNode(String value,
+                          String unit,
+                          @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L65">        super(null, sourceCodeLocation);</span>
+<span class="fc" id="L66">        this.numericPart = value;</span>
+<span class="fc" id="L67">        this.unit = unit;</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssNumericNode(CssNumericNode node) {
+<span class="fc" id="L76">        super(node);</span>
+<span class="fc" id="L77">        this.numericPart = node.getNumericPart();</span>
+<span class="fc" id="L78">        this.unit = node.getUnit();</span>
+<span class="fc" id="L79">    }</span>
+
+    @Override
+    public CssNumericNode deepCopy() {
+<span class="fc" id="L83">        return new CssNumericNode(this);</span>
+    }
+
+    public String getUnit() {
+<span class="fc" id="L87">        return unit;</span>
+    }
+
+    public void setUnit(String unit) {
+<span class="fc" id="L91">        this.unit = unit;</span>
+<span class="fc" id="L92">    }</span>
+
+    public String getNumericPart() {
+<span class="fc" id="L95">        return numericPart;</span>
+    }
+
+    public void setNumericPart(String numericPart) {
+<span class="fc" id="L99">        this.numericPart = numericPart;</span>
+<span class="fc" id="L100">    }</span>
+
+    @Override
+    public void setValue(String value) {
+<span class="nc" id="L104">        throw new UnsupportedOperationException(  // COV_NF_LINE</span>
+                &quot;Use setNumericPart and setUnit to update a NumericValue.&quot;);
+    }
+
+    @Override
+    public String getValue() {
+<span class="fc" id="L110">        return getNumericPart() + getUnit();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L115">        return getValue();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

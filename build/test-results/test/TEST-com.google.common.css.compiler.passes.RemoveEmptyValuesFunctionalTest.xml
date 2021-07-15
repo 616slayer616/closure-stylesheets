@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.RemoveEmptyValuesFunctionalTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:50" hostname="Patrick-MBP.fritz.box" time="0.008">
+  <properties/>
+  <testcase name="testRemoveEmptyValues1" classname="com.google.common.css.compiler.passes.RemoveEmptyValuesFunctionalTest" time="0.003"/>
+  <testcase name="testRemoveEmptyValues2" classname="com.google.common.css.compiler.passes.RemoveEmptyValuesFunctionalTest" time="0.001"/>
+  <testcase name="testRemoveEmptyValues3" classname="com.google.common.css.compiler.passes.RemoveEmptyValuesFunctionalTest" time="0.002"/>
+  <testcase name="testRemoveEmptyValues4" classname="com.google.common.css.compiler.passes.RemoveEmptyValuesFunctionalTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

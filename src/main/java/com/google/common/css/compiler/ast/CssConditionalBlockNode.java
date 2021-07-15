@@ -34,7 +34,7 @@ public class CssConditionalBlockNode extends
     /**
      * Constructor of a conditional block.
      *
-     * @param comments
+     * @param comments comments
      */
     public CssConditionalBlockNode(List<CssCommentNode> comments) {
         super(false /* isEnclosedWithBraces */, comments);

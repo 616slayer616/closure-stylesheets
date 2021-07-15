@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CheckMissingRequireTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.033">
+  <properties/>
+  <testcase name="testMissingOverrideDefNamespace" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.012"/>
+  <testcase name="testBaseCase1" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.003"/>
+  <testcase name="testBaseCase2" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.001"/>
+  <testcase name="testMissingOverrideDefNamespace_multilineComment" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.001"/>
+  <testcase name="testMissingRequireInDef" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.001"/>
+  <testcase name="testMissingOverrideSelectorNamespace" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.002"/>
+  <testcase name="testMissingRequireDefMixin" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.003"/>
+  <testcase name="testMissingRequire_overrideSelector" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.001"/>
+  <testcase name="testMissingRequireFromComponent" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.001"/>
+  <testcase name="testMissingOverrideSelectorNamespace_multilineComment" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.002"/>
+  <testcase name="testMissingRequireOfComponent" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.002"/>
+  <testcase name="testMissingRequire" classname="com.google.common.css.compiler.passes.CheckMissingRequireTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

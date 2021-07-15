@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssCompositeValueNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssCompositeValueNode.java</span></div><h1>CssCompositeValueNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Joiner;
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A node that contains a list of value nodes that together represent one logical value. For
+ * example, font-family alternatives like {@code Arial, Helvetica, Sans-serif} are logically one
+ * value in the {@code font} declaration. Likewise the font size specification {@code 12pt/14pt}
+ * contains two values (the font size and line height) that are really logically one value.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssCompositeValueNode extends CssValueNode {
+    private final List&lt;CssValueNode&gt; values;
+    private final Operator operator;
+    private final boolean hasParenthesis;
+
+    /**
+     * Recognized operators.
+     */
+<span class="fc" id="L42">    public enum Operator {</span>
+<span class="fc" id="L43">        SPACE(&quot; &quot;),</span>
+<span class="fc" id="L44">        COMMA(&quot;,&quot;),</span>
+<span class="fc" id="L45">        SLASH(&quot;/&quot;),</span>
+<span class="fc" id="L46">        EQUALS(&quot;=&quot;),</span>
+        /**
+         * Must be space-separated to distinguish from unary plus. See
+         * https://www.w3.org/TR/css3-values/#calc-syntax.
+         */
+<span class="fc" id="L51">        ADD(&quot; + &quot;),</span>
+        /**
+         * Must be space-separated to distinguish from unary minus. See
+         * https://www.w3.org/TR/css3-values/#calc-syntax.
+         */
+<span class="fc" id="L56">        SUB(&quot; - &quot;),</span>
+<span class="fc" id="L57">        MULT(&quot;*&quot;),</span>
+<span class="fc" id="L58">        DIV(&quot;/&quot;),</span>
+<span class="fc" id="L59">        UNKNOWN(null);</span>
+
+        private final String operatorName;
+
+<span class="fc" id="L63">        Operator(String operatorName) {</span>
+<span class="fc" id="L64">            this.operatorName = operatorName;</span>
+<span class="fc" id="L65">        }</span>
+
+        public String getOperatorName() {
+<span class="fc" id="L68">            return operatorName;</span>
+        }
+
+        public static Operator valueOf(char c) {
+<span class="nc bnc" id="L72" title="All 4 branches missed.">            switch (c) {</span>
+                case ',':
+<span class="nc" id="L74">                    return COMMA;</span>
+                case '/':
+<span class="nc" id="L76">                    return SLASH;</span>
+                case '=':
+<span class="nc" id="L78">                    return EQUALS;</span>
+                default:
+<span class="nc" id="L80">                    return UNKNOWN;</span>
+            }
+        }
+
+        /**
+         * For debugging only.
+         * TODO(oana): Get rid of the toString method from all enums.
+         */
+        @Override
+        public String toString() {
+<span class="nc" id="L90">            return getOperatorName();</span>
+        }
+    }
+
+
+    /**
+     * Constructor of a composite value node.
+     *
+     * @param compositeValues    List of composite values
+     * @param operator           Operator that connects the values
+     * @param sourceCodeLocation The location of the code
+     */
+    CssCompositeValueNode(
+            List&lt;CssValueNode&gt; compositeValues,
+            Operator operator,
+            boolean hasParenthesis,
+            @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L107">        super(null, sourceCodeLocation);</span>
+<span class="fc" id="L108">        this.operator = operator;</span>
+<span class="fc" id="L109">        this.values = new ArrayList&lt;&gt;(compositeValues);</span>
+<span class="fc" id="L110">        becomeParentForNodes(values);</span>
+<span class="fc" id="L111">        this.hasParenthesis = hasParenthesis;</span>
+<span class="fc" id="L112">    }</span>
+
+    /**
+     * Constructor of a composite value node.
+     *
+     * @param compositeValues    List of composite values
+     * @param operator           Operator that connects the values
+     * @param sourceCodeLocation The location of the code
+     */
+    public CssCompositeValueNode(
+            List&lt;CssValueNode&gt; compositeValues,
+            Operator operator,
+            @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L125">        this(compositeValues, operator, false, sourceCodeLocation);</span>
+<span class="fc" id="L126">    }</span>
+
+    /**
+     * Copy constructor for a composite value node.
+     *
+     * @param node The composite node to copy
+     */
+    public CssCompositeValueNode(CssCompositeValueNode node) {
+<span class="fc" id="L134">        this(</span>
+<span class="fc" id="L135">                deepCopyCompositeValues(node.getValues()),</span>
+<span class="fc" id="L136">                node.getOperator(),</span>
+<span class="fc" id="L137">                node.hasParenthesis(),</span>
+<span class="fc" id="L138">                node.getSourceCodeLocation());</span>
+<span class="fc" id="L139">    }</span>
+
+    private static List&lt;CssValueNode&gt; deepCopyCompositeValues(
+            List&lt;CssValueNode&gt; compositeValues) {
+<span class="fc" id="L143">        List&lt;CssValueNode&gt; copy = new ArrayList&lt;&gt;(compositeValues.size());</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        for (CssValueNode child : compositeValues) {</span>
+<span class="fc" id="L145">            copy.add(child.deepCopy());</span>
+<span class="fc" id="L146">        }</span>
+<span class="fc" id="L147">        return copy;</span>
+    }
+
+    @Override
+    public CssCompositeValueNode deepCopy() {
+<span class="fc" id="L152">        return new CssCompositeValueNode(this);</span>
+    }
+
+    public List&lt;CssValueNode&gt; getValues() {
+<span class="fc" id="L156">        return values;</span>
+    }
+
+    /**
+     * Adds a value to the list of values.
+     */
+    void addValue(CssValueNode value) {
+<span class="nc" id="L163">        values.add(value);</span>
+<span class="nc" id="L164">        becomeParentForNode(value);</span>
+<span class="nc" id="L165">    }</span>
+
+    public Operator getOperator() {
+<span class="fc" id="L168">        return operator;</span>
+    }
+
+    public boolean hasParenthesis() {
+<span class="fc" id="L172">        return hasParenthesis;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L177">        String value = Joiner.on(operator.getOperatorName()).join(values);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        return hasParenthesis ? &quot;(&quot; + value + &quot;)&quot; : value;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

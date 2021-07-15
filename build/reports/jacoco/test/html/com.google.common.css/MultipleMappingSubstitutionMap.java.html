@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MultipleMappingSubstitutionMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">MultipleMappingSubstitutionMap.java</span></div><h1>MultipleMappingSubstitutionMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
+/**
+ * {@link MultipleMappingSubstitutionMap} is a special type of
+ * {@link SubstitutionMap} that can create multiple mappings for a single
+ * lookup. This is particularly important with respect to CSS renaming.
+ * &lt;p&gt;
+ * For example, a {@link SplittingSubstitutionMap} may rename &quot;goog-component&quot;
+ * as &quot;a-b&quot;, in which case it has created two renaming mappings: &quot;a&quot; -&gt; &quot;goog&quot;
+ * and &quot;b&quot; -&gt; &quot;component&quot;, both of which are necessary to produce the full
+ * renaming map.
+ * &lt;p&gt;
+ * Note that in the case of {@link SplittingSubstitutionMap}, the map that is
+ * returned by {@link #getValueWithMappings(String)} does not contain
+ * &quot;goog-component&quot; as a key because the entries &quot;goog&quot; and &quot;component&quot; are
+ * sufficient to construct the renamed version of &quot;goog-component&quot;. Therefore,
+ * the key passed into {@link #getValueWithMappings(String)} is not guaranteed
+ * to appear in the output.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+public interface MultipleMappingSubstitutionMap extends SubstitutionMap {
+
+    /**
+     * Contains both the value and mappings returned by
+     * {@link MultipleMappingSubstitutionMap#getValueWithMappings(String)}.
+     */
+    public static class ValueWithMappings {
+        public final String value;
+        public final Map&lt;String, String&gt; mappings;
+
+<span class="fc" id="L53">        private ValueWithMappings(String value, Map&lt;String, String&gt; mappings) {</span>
+<span class="fc" id="L54">            Preconditions.checkNotNull(value);</span>
+<span class="fc" id="L55">            Preconditions.checkNotNull(mappings);</span>
+<span class="fc" id="L56">            this.value = value;</span>
+<span class="fc" id="L57">            this.mappings = ImmutableMap.copyOf(mappings);</span>
+<span class="fc" id="L58">        }</span>
+
+        public static ValueWithMappings createWithValueAndMappings(String value,
+                                                                   Map&lt;String, String&gt; mappings) {
+<span class="fc" id="L62">            return new ValueWithMappings(value, mappings);</span>
+        }
+
+        public static ValueWithMappings createForSingleMapping(String key, String value) {
+<span class="fc" id="L66">            return new ValueWithMappings(value, ImmutableMap.of(key, value));</span>
+        }
+    }
+
+    /**
+     * Like an ordinary {@link SubstitutionMap}, this returns a value to
+     * substitute for the specified {@code key}. This value is available as
+     * {@link ValueWithMappings#value}.
+     * &lt;p&gt;
+     * Additionally, it also returns any renaming mappings that should be
+     * associated with this substitution. These mappings are available as
+     * {@link ValueWithMappings#mappings}.
+     */
+    public ValueWithMappings getValueWithMappings(String key);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

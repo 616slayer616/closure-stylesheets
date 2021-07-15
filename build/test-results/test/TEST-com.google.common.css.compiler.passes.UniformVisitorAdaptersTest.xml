@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.UniformVisitorAdaptersTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.147">
+  <properties/>
+  <testcase name="testUniformVisitorObjectMethods" classname="com.google.common.css.compiler.passes.UniformVisitorAdaptersTest" time="0.021"/>
+  <testcase name="asVisitor" classname="com.google.common.css.compiler.passes.UniformVisitorAdaptersTest" time="0.011"/>
+  <testcase name="testCombinedVisitorObjectMethods" classname="com.google.common.css.compiler.passes.UniformVisitorAdaptersTest" time="0.109"/>
+  <testcase name="asCombinedVisitor" classname="com.google.common.css.compiler.passes.UniformVisitorAdaptersTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProcessComponents.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">ProcessComponents.java</span></div><h1>ProcessComponents.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.CaseFormat;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.*;
+import com.google.common.css.SourceCode;
+import com.google.common.css.SourceCodeLocation;
+import com.google.common.css.compiler.ast.*;
+import com.google.common.css.compiler.ast.CssClassSelectorNode.ComponentScoping;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class ProcessComponents&lt;T&gt; extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    private static final String CLASS_SEP = &quot;-&quot;;
+    private static final String DEF_SEP = &quot;__&quot;;
+
+<span class="fc" id="L38">    private final Map&lt;String, CssComponentNode&gt; components = Maps.newHashMap();</span>
+
+    private final MutatingVisitController visitController;
+    private final ErrorManager errorManager;
+    private final Map&lt;String, T&gt; fileToChunk;
+<span class="fc" id="L43">    private final List&lt;CssProvideNode&gt; provideNodes = Lists.newArrayList();</span>
+<span class="fc" id="L44">    private SourceCode lastFile = null;</span>
+
+    /**
+     * Creates a new pass to process components for the given visit
+     * controller, using the given error manager, while ignoring chunks.
+     */
+    public ProcessComponents(MutatingVisitController visitController, ErrorManager errorManager) {
+<span class="fc" id="L51">        this(visitController, errorManager, null);</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Creates a new pass to process components for the given visit
+     * controller, using the given error manager, while maintaining the
+     * chunk ids on the nodes created in the process according to the
+     * given map from files to chunks.
+     */
+    public ProcessComponents(
+            MutatingVisitController visitController, ErrorManager errorManager,
+<span class="fc" id="L62">            @Nullable Map&lt;String, T&gt; fileToChunk) {</span>
+<span class="fc" id="L63">        this.visitController = visitController;</span>
+<span class="fc" id="L64">        this.errorManager = errorManager;</span>
+<span class="fc" id="L65">        this.fileToChunk = fileToChunk;</span>
+<span class="fc" id="L66">    }</span>
+
+    @Override
+    public boolean enterProvideNode(CssProvideNode node) {
+        // Often this pass is called on a bunch of GSS files which have been concatenated
+        // together, meaning that there will be multiple @provide declarations. We are only
+        // interested in @provide nodes which are in the same source file as the @component.
+<span class="fc" id="L73">        SourceCode sourceCode = node.getSourceCodeLocation().getSourceCode();</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (sourceCode != lastFile) {</span>
+<span class="fc" id="L75">            provideNodes.clear();</span>
+<span class="fc" id="L76">            lastFile = sourceCode;</span>
+        }
+<span class="fc" id="L78">        provideNodes.add(node);</span>
+<span class="fc" id="L79">        return false;</span>
+    }
+
+    @Override
+    public boolean enterComponent(CssComponentNode node) {
+<span class="fc" id="L84">        SourceCode sourceCode = node.getSourceCodeLocation().getSourceCode();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (sourceCode != lastFile) {</span>
+<span class="fc" id="L86">            provideNodes.clear();</span>
+<span class="fc" id="L87">            lastFile = sourceCode;</span>
+        }
+<span class="fc" id="L89">        String name = node.getName().getValue();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (node.isImplicitlyNamed()) {</span>
+            // together before compiling, which can result in multiple @component nodes in the same file.
+            // So in the unnamed @component case, having multiple @provide is okay (use the last) but not
+            // having any is still not allowed.
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            if (provideNodes.size() &lt; 1) {</span>
+<span class="fc" id="L95">                reportError(&quot;implicitly-named @components require a prior @provide declaration &quot;, node);</span>
+<span class="fc" id="L96">                return false;</span>
+            }
+<span class="fc" id="L98">            name = Iterables.getLast(provideNodes).getProvide();</span>
+        }
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (components.containsKey(name)) {</span>
+<span class="fc" id="L101">            reportError(&quot;cannot redefine component in chunk &quot;, node);</span>
+<span class="fc" id="L102">            return false;</span>
+        }
+<span class="fc" id="L104">        CssLiteralNode parentName = node.getParentName();</span>
+<span class="fc bfc" id="L105" title="All 4 branches covered.">        if ((parentName != null) &amp;&amp; !components.containsKey(parentName.getValue())) {</span>
+<span class="fc" id="L106">            reportError(&quot;parent component is undefined in chunk &quot;, node);</span>
+<span class="fc" id="L107">            return false;</span>
+        }
+<span class="fc" id="L109">        visitController.replaceCurrentBlockChildWith(transformAllNodes(node), false);</span>
+<span class="fc" id="L110">        components.put(name, node);</span>
+<span class="fc" id="L111">        return false;</span>
+    }
+
+    @Override
+    public boolean enterClassSelector(CssClassSelectorNode node) {
+        // Note that this works because enterComponent, above, returns false -
+        // this visitor never sees class selectors inside components (the other
+        // visitor does).
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        if (node.getScoping() == ComponentScoping.FORCE_SCOPED) {</span>
+<span class="nc" id="L120">            reportError(&quot;'%' prefix for class selectors may only be used in the scope of an @component&quot;,</span>
+                    node);
+<span class="nc" id="L122">            return false;</span>
+        }
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (node.getScoping() == ComponentScoping.FORCE_UNSCOPED) {</span>
+<span class="nc" id="L125">            reportError(&quot;'^' prefix for class selectors may only be used in the scope of an @component&quot;,</span>
+                    node);
+<span class="nc" id="L127">            return false;</span>
+        }
+<span class="fc" id="L129">        return true;</span>
+    }
+
+    private void reportError(String message, CssNode node) {
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (fileToChunk != null) {</span>
+<span class="fc" id="L134">            message += String.valueOf(</span>
+<span class="fc" id="L135">                    MapChunkAwareNodesToChunk.getChunk(node, fileToChunk));</span>
+        }
+<span class="fc" id="L137">        errorManager.report(new GssError(message, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L138">        visitController.removeCurrentNode();</span>
+<span class="fc" id="L139">    }</span>
+
+    private List&lt;CssNode&gt; transformAllNodes(CssComponentNode current) {
+<span class="fc" id="L142">        Set&lt;String&gt; constants = Sets.newHashSet();</span>
+<span class="fc" id="L143">        List&lt;CssNode&gt; nodes = Lists.newLinkedList();</span>
+<span class="fc" id="L144">        transformAllParentNodes(nodes, constants, current, current.getParentName());</span>
+<span class="fc" id="L145">        nodes.addAll(transformNodes(constants, current, current));</span>
+<span class="fc" id="L146">        return nodes;</span>
+    }
+
+    /**
+     * Recursively goes up the component inheritance hierarchy and copies the
+     * ancestor component contents.
+     *
+     * @param nodes             the list of copied child nodes collected from ancestor
+     *                          components
+     * @param constants         the set of names of constants defined in the ancestor
+     *                          components, used to differentiate local constant names from global
+     *                          constant names
+     * @param current           the component for which the nodes are collected
+     * @param parentLiteralNode the node which contains the name of the ancestor
+     *                          node to process, may be {@code null} if we reached the root of the
+     *                          inheritance tree
+     */
+    private void transformAllParentNodes(List&lt;CssNode&gt; nodes, Set&lt;String&gt; constants,
+                                         CssComponentNode current, @Nullable CssLiteralNode parentLiteralNode) {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        if (parentLiteralNode == null) {</span>
+<span class="fc" id="L166">            return;</span>
+        }
+<span class="fc" id="L168">        String parentName = parentLiteralNode.getValue();</span>
+<span class="fc" id="L169">        CssComponentNode parentComponent = components.get(parentName);</span>
+<span class="fc" id="L170">        transformAllParentNodes(nodes, constants, current, parentComponent.getParentName());</span>
+<span class="fc" id="L171">        nodes.addAll(transformNodes(constants, current, parentComponent));</span>
+<span class="fc" id="L172">    }</span>
+
+    /**
+     * Copies and transforms the contents of the source component block for
+     * inclusion in the expanded version of the target component.
+     *
+     * &lt;p&gt;The transformation of the source component block is basically a renaming
+     * of the local constant references to their global equivalent.  Their names
+     * are prefixed with the expanded component name.  Additionally ancestor
+     * component contents are also emitted with appropriate renaming, although the
+     * {@code @def} values are replaced with a reference to the ancestor
+     * component.  For examples look at {@link ProcessComponentsTest}.
+     *
+     * @param constants the set of names of constants defined in the ancestor
+     *                  components, used to differentiate local constant names from global
+     *                  constant names
+     * @param target    the component for which the block contents are copied
+     * @param source    the component from which the block contents are taked
+     * @return the list of transformed nodes
+     */
+    private List&lt;CssNode&gt; transformNodes(
+            Set&lt;String&gt; constants, CssComponentNode target, CssComponentNode source) {
+<span class="fc" id="L194">        CssBlockNode sourceBlock = source.getBlock();</span>
+<span class="fc" id="L195">        CssBlockNode copyBlock = new CssBlockNode(false, sourceBlock.deepCopy().getChildren());</span>
+<span class="fc" id="L196">        copyBlock.setSourceCodeLocation(source.getBlock().getSourceCodeLocation());</span>
+<span class="fc" id="L197">        CssTree tree = new CssTree(</span>
+<span class="fc" id="L198">                target.getSourceCodeLocation().getSourceCode(), new CssRootNode(copyBlock));</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">        new TransformNodes(constants, target, target != source,</span>
+<span class="fc" id="L200">                tree.getMutatingVisitController(), errorManager, provideNodes).runPass();</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        if (fileToChunk != null) {</span>
+<span class="fc" id="L202">            T chunk = MapChunkAwareNodesToChunk.getChunk(target, fileToChunk);</span>
+<span class="fc" id="L203">            new SetChunk(tree, chunk).runPass();</span>
+        }
+<span class="fc" id="L205">        return tree.getRoot().getBody().getChildren();</span>
+    }
+
+    private static class SetChunk extends DefaultTreeVisitor
+            implements CssCompilerPass {
+
+        private final CssTree tree;
+        private final Object chunk;
+
+<span class="fc" id="L214">        public SetChunk(CssTree tree, Object chunk) {</span>
+<span class="fc" id="L215">            this.tree = tree;</span>
+<span class="fc" id="L216">            this.chunk = chunk;</span>
+<span class="fc" id="L217">        }</span>
+
+        @Override
+        public boolean enterDefinition(CssDefinitionNode definition) {
+<span class="fc" id="L221">            definition.setChunk(chunk);</span>
+<span class="fc" id="L222">            return false;</span>
+        }
+
+        @Override
+        public boolean enterSelector(CssSelectorNode selector) {
+<span class="fc" id="L227">            selector.setChunk(chunk);</span>
+<span class="fc" id="L228">            return true;</span>
+        }
+
+        @Override
+        public boolean enterFunctionNode(CssFunctionNode function) {
+<span class="fc" id="L233">            function.setChunk(chunk);</span>
+<span class="fc" id="L234">            return super.enterFunctionNode(function);</span>
+        }
+
+        @Override
+        public void runPass() {
+<span class="fc" id="L239">            tree.getVisitController().startVisit(this);</span>
+<span class="fc" id="L240">        }</span>
+    }
+
+    private static class TransformNodes extends DefaultTreeVisitor
+            implements CssCompilerPass {
+
+        private final boolean inAncestorBlock;
+        private final MutatingVisitController visitController;
+        private final ErrorManager errorManager;
+
+<span class="fc" id="L250">        private final Set&lt;CssDefinitionNode&gt; renamedDefinitions = Sets.newHashSet();</span>
+
+        private final Set&lt;String&gt; componentConstants;
+        private final boolean isAbstract;
+        private final String classPrefix;
+        private final String defPrefix;
+        private final String parentName;
+        private final SourceCodeLocation sourceCodeLocation;
+        private boolean firstClassSelector;
+        /**
+         * If non-zero, we won't process the first classname in the current selector.
+         */
+        private int nestedSelectorDepth;
+
+        public TransformNodes(Set&lt;String&gt; constants, CssComponentNode current, boolean inAncestorBlock,
+                              MutatingVisitController visitController, ErrorManager errorManager,
+<span class="fc" id="L266">                              List&lt;CssProvideNode&gt; provideNodes) {</span>
+<span class="fc" id="L267">            this.componentConstants = constants;</span>
+<span class="fc" id="L268">            this.inAncestorBlock = inAncestorBlock;</span>
+<span class="fc" id="L269">            this.visitController = visitController;</span>
+<span class="fc" id="L270">            this.errorManager = errorManager;</span>
+
+<span class="fc" id="L272">            String currentName = current.getName().getValue();</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">            if (current.isImplicitlyNamed()) {</span>
+<span class="fc" id="L274">                currentName = Iterables.getLast(provideNodes).getProvide();</span>
+            }
+<span class="fc" id="L276">            this.isAbstract = current.isAbstract();</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">            if (current.getPrefixStyle() == CssComponentNode.PrefixStyle.CASE_CONVERT) {</span>
+<span class="fc" id="L278">                this.classPrefix = getClassPrefixFromDottedName(currentName);</span>
+<span class="fc" id="L279">                this.defPrefix = getDefPrefixFromDottedName(currentName);</span>
+            } else {
+<span class="fc" id="L281">                this.classPrefix = currentName + CLASS_SEP;</span>
+<span class="fc" id="L282">                this.defPrefix = currentName + DEF_SEP;</span>
+            }
+<span class="fc bfc" id="L284" title="All 2 branches covered.">            this.parentName = inAncestorBlock ? current.getParentName().getValue() : null;</span>
+<span class="fc" id="L285">            this.sourceCodeLocation = current.getSourceCodeLocation();</span>
+<span class="fc" id="L286">        }</span>
+
+        @Override
+        public boolean enterComponent(CssComponentNode node) {
+<span class="fc bfc" id="L290" title="All 2 branches covered.">            if (!inAncestorBlock) {</span>
+<span class="fc" id="L291">                errorManager.report(</span>
+<span class="fc" id="L292">                        new GssError(&quot;nested components are not allowed&quot;, node.getSourceCodeLocation()));</span>
+            }
+<span class="fc" id="L294">            visitController.removeCurrentNode();</span>
+<span class="fc" id="L295">            return false;</span>
+        }
+
+        @Override
+        public boolean enterRuleset(CssRulesetNode node) {
+<span class="fc bfc" id="L300" title="All 2 branches covered.">            if (isAbstract) {</span>
+<span class="fc" id="L301">                visitController.removeCurrentNode();</span>
+            }
+<span class="fc bfc" id="L303" title="All 2 branches covered.">            return !isAbstract;</span>
+        }
+
+        @Override
+        public boolean enterCombinator(CssCombinatorNode combinator) {
+<span class="fc" id="L308">            nestedSelectorDepth++;</span>
+<span class="fc" id="L309">            return true;</span>
+        }
+
+        @Override
+        public void leaveCombinator(CssCombinatorNode combinator) {
+<span class="fc" id="L314">            nestedSelectorDepth--;</span>
+<span class="fc" id="L315">        }</span>
+
+        @Override
+        public boolean enterSelector(CssSelectorNode selector) {
+            // Only reset the 'first selector' flag if we're not in a combinator.
+            // Otherwise, keep the same flag value (which may or may not have been set
+            // depending on whether we saw a class selector in an earlier refiner list.)
+<span class="fc bfc" id="L322" title="All 2 branches covered.">            if (nestedSelectorDepth == 0) {</span>
+<span class="fc" id="L323">                firstClassSelector = true;</span>
+            }
+<span class="fc" id="L325">            return true;</span>
+        }
+
+        @Override
+        public void leaveSelector(CssSelectorNode selector) {
+<span class="fc" id="L330">            firstClassSelector = false;</span>
+<span class="fc" id="L331">        }</span>
+
+        // Don't reset firstClassSelector for classes in :not().
+        @Override
+        public boolean enterPseudoClass(CssPseudoClassNode pseudoClass) {
+<span class="fc" id="L336">            nestedSelectorDepth++;</span>
+<span class="fc" id="L337">            return true;</span>
+        }
+
+        @Override
+        public void leavePseudoClass(CssPseudoClassNode pseudoClass) {
+<span class="fc" id="L342">            nestedSelectorDepth--;</span>
+<span class="fc" id="L343">        }</span>
+
+        @Override
+        public boolean enterClassSelector(CssClassSelectorNode node) {
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">            Preconditions.checkState(!isAbstract);</span>
+<span class="pc bpc" id="L348" title="1 of 4 branches missed.">            if (!firstClassSelector &amp;&amp; node.getScoping() == ComponentScoping.FORCE_UNSCOPED) {</span>
+<span class="nc" id="L349">                errorManager.report(new GssError(</span>
+                        &quot;'^' prefix may only be used on the first classname in a selector.&quot;,
+<span class="nc" id="L351">                        node.getSourceCodeLocation()));</span>
+            }
+<span class="fc bfc" id="L353" title="All 4 branches covered.">            if (firstClassSelector &amp;&amp; node.getScoping() != ComponentScoping.FORCE_UNSCOPED</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">                    || node.getScoping() == ComponentScoping.FORCE_SCOPED) {</span>
+<span class="fc" id="L355">                CssClassSelectorNode newNode = new CssClassSelectorNode(</span>
+<span class="fc" id="L356">                        classPrefix + node.getRefinerName(),</span>
+<span class="fc bfc" id="L357" title="All 2 branches covered.">                        inAncestorBlock ? sourceCodeLocation : node.getSourceCodeLocation());</span>
+<span class="fc" id="L358">                newNode.setComments(node.getComments());</span>
+<span class="fc" id="L359">                visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), false);</span>
+            }
+<span class="fc" id="L361">            firstClassSelector = false;</span>
+<span class="fc" id="L362">            return true;</span>
+        }
+
+        @Override
+        public boolean enterDefinition(CssDefinitionNode node) {
+            // Do not modify the renamed node created below, but descend and modify
+            // its children.
+<span class="fc bfc" id="L369" title="All 2 branches covered.">            if (renamedDefinitions.contains(node)) {</span>
+<span class="fc" id="L370">                return true;</span>
+            }
+<span class="fc" id="L372">            String defName = node.getName().getValue();</span>
+<span class="fc" id="L373">            CssLiteralNode newDefLit =</span>
+                    new CssLiteralNode(defPrefix + defName,
+<span class="fc bfc" id="L375" title="All 2 branches covered.">                            inAncestorBlock ? sourceCodeLocation : node.getSourceCodeLocation());</span>
+            CssDefinitionNode newNode;
+            // When copying the ancestor block, we want to replace definition values
+            // with a reference to the constant emitted when the parent component was
+            // transformed.  This makes it possible to actually inherit values from
+            // the parent component (parent component definitions changes will
+            // propagate to descendant components).
+<span class="fc bfc" id="L382" title="All 2 branches covered.">            if (inAncestorBlock) {</span>
+<span class="fc" id="L383">                String parentRefPrefix = parentName + DEF_SEP;</span>
+                // Hack to avoid breaking hacked components with http://b/3213779
+                // workarounds.  Can be removed when all workarounds are removed.
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">                String parentRefName = defName.startsWith(parentRefPrefix)</span>
+<span class="pc" id="L387">                        ? defName : parentRefPrefix + defName;</span>
+<span class="fc" id="L388">                CssConstantReferenceNode parentRefNode =</span>
+                        new CssConstantReferenceNode(parentRefName, sourceCodeLocation);
+<span class="fc" id="L390">                newNode = new CssDefinitionNode(ImmutableList.&lt;CssValueNode&gt;of(parentRefNode),</span>
+                        newDefLit, sourceCodeLocation);
+<span class="fc" id="L392">            } else {</span>
+<span class="fc" id="L393">                newNode = new CssDefinitionNode(CssNode.deepCopyNodes(node.getParameters()),</span>
+                        newDefLit, sourceCodeLocation);
+            }
+<span class="fc" id="L396">            componentConstants.add(defName);</span>
+<span class="fc" id="L397">            renamedDefinitions.add(newNode);</span>
+<span class="fc" id="L398">            visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), true);</span>
+<span class="fc" id="L399">            return false;</span>
+        }
+
+        @Override
+        public boolean enterValueNode(CssValueNode node) {
+<span class="fc bfc" id="L404" title="All 2 branches covered.">            if (node instanceof CssConstantReferenceNode</span>
+                    // Avoid renaming constant references for constants not defined in the
+                    // component tree.
+<span class="fc bfc" id="L407" title="All 2 branches covered.">                    &amp;&amp; componentConstants.contains(node.getValue())) {</span>
+<span class="fc" id="L408">                CssConstantReferenceNode newNode =</span>
+<span class="fc" id="L409">                        new CssConstantReferenceNode(defPrefix + node.getValue(),</span>
+<span class="fc bfc" id="L410" title="All 2 branches covered.">                                inAncestorBlock ? sourceCodeLocation : node.getSourceCodeLocation());</span>
+<span class="fc" id="L411">                visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), false);</span>
+            }
+<span class="fc" id="L413">            return true;</span>
+        }
+
+        @Override
+        public boolean enterArgumentNode(CssValueNode node) {
+<span class="fc" id="L418">            return enterValueNode(node);</span>
+        }
+
+        @Override
+        public void runPass() {
+<span class="fc" id="L423">            visitController.startVisit(this);</span>
+<span class="fc" id="L424">        }</span>
+
+        /**
+         * Compute the name of the class prefix from the package name. This converts
+         * the dot-separated package name to camel case, so foo.bar becomes fooBar.
+         *
+         * @param packageName the @provide package name
+         * @return the converted class prefix
+         */
+        private String getClassPrefixFromDottedName(String packageName) {
+            // CaseFormat doesn't have a format for names separated by dots, so we transform
+            // the dots into dashes. Then we can use the regular CaseFormat transformation
+            // to camel case instead of having to write our own.
+<span class="fc" id="L437">            String packageNameWithDashes = packageName.replace('.', '-');</span>
+<span class="fc" id="L438">            return CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, packageNameWithDashes);</span>
+        }
+
+        /**
+         * Compute the name of the def prefix from the package name. This converts the dot-separated
+         * package name to uppercase with underscores, so foo.bar becomes FOO_BAR_.
+         *
+         * @param packageName the @provide package name
+         * @return the converted def prefix
+         */
+        private String getDefPrefixFromDottedName(String packageName) {
+<span class="fc" id="L449">            return packageName.replace('.', '_').toUpperCase() + &quot;_&quot;;</span>
+        }
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L455">        visitController.startVisit(this);</span>
+<span class="fc" id="L456">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

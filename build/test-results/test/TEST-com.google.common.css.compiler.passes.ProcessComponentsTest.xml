@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.ProcessComponentsTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.143">
+  <properties/>
+  <testcase name="testComponentCommentsAreRetained" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.015"/>
+  <testcase name="testImplicitlyNamedMultipleComponentsPackageError" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.011"/>
+  <testcase name="testRedefinedComponentError" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.003"/>
+  <testcase name="testPrefixingRules" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.012"/>
+  <testcase name="testImplicitlyNamedNoPackageError" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.001"/>
+  <testcase name="testMultiplePackageWithNoComponentError" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.001"/>
+  <testcase name="testComponentDefsSourceCodeLocation" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.004"/>
+  <testcase name="testGrandChildComponent" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.016"/>
+  <testcase name="testUndefinedParentComponentError" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.001"/>
+  <testcase name="testImplicitlyNamedMultiplePackage" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.003"/>
+  <testcase name="testImplicitlyNamedMultipleComponents" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.002"/>
+  <testcase name="testImplicitlyNamed" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.003"/>
+  <testcase name="testChildComponentWithReferenceWorkaround" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.011"/>
+  <testcase name="testTopComponent" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.004"/>
+  <testcase name="testNestedComponentsError1" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.001"/>
+  <testcase name="testNestedComponentsError2" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.002"/>
+  <testcase name="testIfComponent" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.02"/>
+  <testcase name="testChildComponent" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.021"/>
+  <testcase name="testChildComponentWithAbstractParent" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.007"/>
+  <testcase name="testStringNamed" classname="com.google.common.css.compiler.passes.ProcessComponentsTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssBooleanExpressionNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssBooleanExpressionNode.java</span></div><h1>CssBooleanExpressionNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+
+/**
+ * A node representing a boolean expression to evaluate.
+ */
+// TODO(user): It might be better for each operator to have a list of
+//     operands, not just the left and right operand. Thus, A || B || C would be
+//     represented as a single operator node and a list of three constant nodes
+//     (similar to what the old tree structure does, but with explicit lists).
+//     This might make the code larger but has the potential of faster
+//     compilation (important for Gmail). This structure might also ease
+//     constructing a canonical form of the expression and simplifying
+//     expressions (such as EXPR || !EXPR).
+public class CssBooleanExpressionNode extends CssValueNode {
+    /**
+     * Boolean expression node types. The types are given in the order of their
+     * precedence, &quot;!&quot; having the highest priority.
+     */
+<span class="fc" id="L40">    public enum Type {</span>
+<span class="fc" id="L41">        CONSTANT(null),</span>
+<span class="fc" id="L42">        NOT(&quot;!&quot;),</span>
+<span class="fc" id="L43">        AND(&quot;&amp;&amp;&quot;),</span>
+<span class="fc" id="L44">        OR(&quot;||&quot;);</span>
+
+        public static final String TRUE_CONSTANT = &quot;TRUE&quot;;
+        public static final String FALSE_CONSTANT = &quot;FALSE&quot;;
+
+        private final String operatorString;
+
+<span class="fc" id="L51">        private Type(@Nullable String operatorString) {</span>
+<span class="fc" id="L52">            this.operatorString = operatorString;</span>
+<span class="fc" id="L53">        }</span>
+
+        public String getOperatorString() {
+<span class="fc" id="L56">            return operatorString;</span>
+        }
+
+        public boolean isConstant() {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            return this == CONSTANT;</span>
+        }
+
+        public boolean isOperator() {
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            return !isConstant();</span>
+        }
+
+        public boolean isBinaryOperator() {
+<span class="fc" id="L68">            Preconditions.checkArgument(this.isOperator());</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            return this != NOT;</span>
+        }
+
+        public boolean isUnaryOperator() {
+<span class="fc" id="L73">            Preconditions.checkArgument(this.isOperator());</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            return this == NOT;</span>
+        }
+
+        /**
+         * Lower numbers are lower priority.
+         */
+        public int getPriority() {
+<span class="fc" id="L81">            return -this.ordinal();</span>
+        }
+
+        /**
+         * For debugging only.
+         */
+        @Override
+        public String toString() {
+<span class="nc" id="L89">            return getOperatorString();</span>
+        }
+    }
+
+    private final Type type;
+    private final CssBooleanExpressionNode left;
+    private final CssBooleanExpressionNode right;
+
+    /**
+     * Constructor for a boolean expression node.
+     *
+     * @param type               Type of node
+     * @param value              Value of node
+     * @param left               Left expression node
+     * @param right              Right expression node
+     * @param sourceCodeLocation The location of the source code
+     */
+    public CssBooleanExpressionNode(Type type, String value,
+                                    @Nullable CssBooleanExpressionNode left,
+                                    @Nullable CssBooleanExpressionNode right,
+                                    @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L110">        super(value, sourceCodeLocation);</span>
+<span class="fc" id="L111">        this.type = type;</span>
+<span class="fc" id="L112">        this.left = left;</span>
+<span class="fc" id="L113">        this.right = right;</span>
+<span class="fc" id="L114">        becomeParentForNode(this.left);</span>
+<span class="fc" id="L115">        becomeParentForNode(this.right);</span>
+<span class="fc" id="L116">        Preconditions.checkArgument(isValidExpressionTree());</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * Constructor for a boolean expression node.
+     *
+     * @param type               Type of node
+     * @param value              Value of node
+     * @param left               Left expression node
+     * @param sourceCodeLocation The location of the source code
+     */
+    // TODO(oana): Maybe we want to change the constructor to build the right
+    // child instead of the left ona for the unary operators.
+    public CssBooleanExpressionNode(Type type, String value,
+                                    @Nullable CssBooleanExpressionNode left,
+                                    @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L132">        this(type, value, left, null, sourceCodeLocation);</span>
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * Constructor for a boolean expression node.
+     *
+     * @param type
+     * @param value
+     * @param sourceCodeLocation
+     */
+    public CssBooleanExpressionNode(Type type, String value,
+                                    @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L144">        this(type, value, null, null, sourceCodeLocation);</span>
+<span class="fc" id="L145">    }</span>
+
+    /**
+     * Constructor for a boolean expression node.
+     *
+     * @param type  Type of node
+     * @param value Value of node
+     */
+    public CssBooleanExpressionNode(Type type, String value) {
+<span class="fc" id="L154">        this(type, value, null, null, null);</span>
+<span class="fc" id="L155">    }</span>
+
+    /**
+     * Copy constructor.
+     */
+    public CssBooleanExpressionNode(CssBooleanExpressionNode node) {
+<span class="fc" id="L161">        super(node);</span>
+<span class="fc" id="L162">        this.type = node.getType();</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (node.getLeft() != null) {</span>
+<span class="nc" id="L164">            this.left = new CssBooleanExpressionNode(node.getLeft());</span>
+<span class="nc" id="L165">            becomeParentForNode(this.left);</span>
+        } else {
+<span class="fc" id="L167">            this.left = null;</span>
+        }
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (node.getRight() != null) {</span>
+<span class="nc" id="L170">            this.right = new CssBooleanExpressionNode(node.getRight());</span>
+<span class="nc" id="L171">            becomeParentForNode(this.right);</span>
+        } else {
+<span class="fc" id="L173">            this.right = null;</span>
+        }
+<span class="fc" id="L175">    }</span>
+
+    @Override
+    public CssBooleanExpressionNode deepCopy() {
+<span class="fc" id="L179">        return new CssBooleanExpressionNode(this);</span>
+    }
+
+    public Type getType() {
+<span class="fc" id="L183">        return type;</span>
+    }
+
+    public CssBooleanExpressionNode getLeft() {
+<span class="fc" id="L187">        return left;</span>
+    }
+
+    public CssBooleanExpressionNode getRight() {
+<span class="fc" id="L191">        return right;</span>
+    }
+
+    /**
+     * Checks if the expression tree is valid.
+     */
+    public boolean isValidExpressionTree() {
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (getType().isConstant()) {</span>
+<span class="fc" id="L199">            return true;</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">        } else if (!getType().isOperator()) {</span>
+<span class="nc bnc" id="L201" title="All 4 branches missed.">            return getLeft() == null &amp;&amp; getRight() == null;</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        } else if (getType().isBinaryOperator()) {</span>
+<span class="pc bpc" id="L203" title="2 of 4 branches missed.">            return getLeft() != null &amp;&amp; getRight() != null;</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">        } else if (getType().isUnaryOperator()) {</span>
+<span class="pc bpc" id="L205" title="2 of 4 branches missed.">            return getLeft() != null &amp;&amp; getRight() == null;</span>
+        } else {
+            // assert false
+<span class="nc" id="L208">            return false;</span>
+        }
+    }
+
+    /**
+     * For debugging only.
+     */
+    private void appendChildExpression(StringBuilder sb,
+                                       CssBooleanExpressionNode child) {
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (child.getType().getPriority() &gt;= getType().getPriority()) {</span>
+<span class="fc" id="L218">            sb.append(child.toString());</span>
+        } else {
+<span class="fc" id="L220">            sb.append(&quot;(&quot; + child.toString() + &quot;)&quot;);</span>
+        }
+<span class="fc" id="L222">    }</span>
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (!getType().isOperator()) {</span>
+<span class="fc" id="L230">            return getValue();</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        } else if (getType().isBinaryOperator()) {</span>
+<span class="fc" id="L232">            StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L233">            appendChildExpression(sb, getLeft());</span>
+<span class="fc" id="L234">            sb.append(&quot; &quot; + this.getType().getOperatorString() + &quot; &quot;);</span>
+<span class="fc" id="L235">            appendChildExpression(sb, getRight());</span>
+<span class="fc" id="L236">            return sb.toString();</span>
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        } else if (getType().isUnaryOperator()) {</span>
+<span class="fc" id="L238">            StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L239">            sb.append(this.getType().getOperatorString());</span>
+<span class="fc" id="L240">            appendChildExpression(sb, getLeft());</span>
+<span class="fc" id="L241">            return sb.toString();</span>
+        } else {
+            // assert false;
+<span class="nc" id="L244">            return &quot;&quot;;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

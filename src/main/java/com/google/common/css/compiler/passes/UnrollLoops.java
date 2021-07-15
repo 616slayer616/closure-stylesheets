@@ -33,7 +33,7 @@ import java.util.Set;
  * loop variable with the current iteration value. So for a loop with N iterations, we'll replace
  * the loop block with N blocks which only differ in the replacement to the loop variable value.
  *
- * <p><strong>NOTE:<strong> There is special treatment for {@code @def}s in this pass. Since
+ * <p><strong>NOTE:</strong> There is special treatment for {@code @def}s in this pass. Since
  * definition references might appear before declaration, it's easier for
  * {@link LoopVariableReplacementPass} to know all definitions declarations beforehand (the latter
  * pass needs to do name replacement for definitions declared inside the loop). That's why this pass

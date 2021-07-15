@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssFunctionArgumentsNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssFunctionArgumentsNode.java</span></div><h1>CssFunctionArgumentsNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import java.util.List;
+
+/**
+ * A list of nodes that are arguments of a function.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssFunctionArgumentsNode extends CssNodesListNode&lt;CssValueNode&gt; {
+
+    /**
+     * Constructor of a node that contains the arguments of a function.
+     */
+    public CssFunctionArgumentsNode() {
+<span class="fc" id="L32">        super(false);</span>
+<span class="fc" id="L33">    }</span>
+
+    /**
+     * Constructor of a node with list of arguments to initialize with.
+     */
+    public CssFunctionArgumentsNode(List&lt;CssValueNode&gt; valueNodesList) {
+<span class="fc" id="L39">        super(false, valueNodesList, null);</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssFunctionArgumentsNode(CssFunctionArgumentsNode node) {
+<span class="fc" id="L48">        super(false);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        for (CssValueNode arg : node.childIterable()) {</span>
+<span class="fc" id="L50">            this.addChildToBack(arg.deepCopy());</span>
+<span class="fc" id="L51">        }</span>
+<span class="fc" id="L52">    }</span>
+
+    @Override
+    public CssFunctionArgumentsNode deepCopy() {
+<span class="fc" id="L56">        return new CssFunctionArgumentsNode(this);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

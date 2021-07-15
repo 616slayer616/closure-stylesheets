@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrefixingSubstitutionMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">PrefixingSubstitutionMap.java</span></div><h1>PrefixingSubstitutionMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+import java.util.Map;
+
+/**
+ * A {@link SubstitutionMap} implementation that prefixes the renamed CSS class names (provided by a
+ * delegate substitution map).
+ */
+public class PrefixingSubstitutionMap
+        implements MultipleMappingSubstitutionMap, SubstitutionMap.Initializable {
+    private final SubstitutionMap delegate;
+    private final String prefix;
+
+<span class="fc" id="L30">    public PrefixingSubstitutionMap(SubstitutionMap delegate, String prefix) {</span>
+<span class="fc" id="L31">        this.delegate = delegate;</span>
+<span class="fc" id="L32">        this.prefix = prefix;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    public void initializeWithMappings(Map&lt;? extends String, ? extends String&gt; newMappings) {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (!newMappings.isEmpty()) {</span>
+            // We don't need to remove prefixes from mapping values because the mappings
+            // returned by getValueWithMappings are not prefixed.
+<span class="fc" id="L40">            ((SubstitutionMap.Initializable) delegate).initializeWithMappings(newMappings);</span>
+        }
+<span class="fc" id="L42">    }</span>
+
+    @Override
+    public String get(String key) {
+<span class="fc" id="L46">        return prefix + delegate.get(key);</span>
+    }
+
+    @Override
+    public ValueWithMappings getValueWithMappings(String key) {
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (delegate instanceof MultipleMappingSubstitutionMap) {</span>
+<span class="fc" id="L52">            ValueWithMappings withoutPrefix =</span>
+<span class="fc" id="L53">                    ((MultipleMappingSubstitutionMap) delegate).getValueWithMappings(key);</span>
+<span class="fc" id="L54">            return ValueWithMappings.createWithValueAndMappings(</span>
+                    prefix + withoutPrefix.value, withoutPrefix.mappings);
+        } else {
+<span class="nc" id="L57">            return ValueWithMappings.createForSingleMapping(key, get(key));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

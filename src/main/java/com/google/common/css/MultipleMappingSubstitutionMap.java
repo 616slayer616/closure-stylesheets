@@ -27,8 +27,8 @@ import java.util.Map;
  * lookup. This is particularly important with respect to CSS renaming.
  * <p>
  * For example, a {@link SplittingSubstitutionMap} may rename "goog-component"
- * as "a-b", in which case it has created two renaming mappings: "a" -> "goog"
- * and "b" -> "component", both of which are necessary to produce the full
+ * as "a-b", in which case it has created two renaming mappings: "a" -&gt; "goog"
+ * and "b" -&gt; "component", both of which are necessary to produce the full
  * renaming map.
  * <p>
  * Note that in the case of {@link SplittingSubstitutionMap}, the map that is

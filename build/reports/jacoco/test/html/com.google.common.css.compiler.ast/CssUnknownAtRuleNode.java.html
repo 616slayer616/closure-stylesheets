@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssUnknownAtRuleNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssUnknownAtRuleNode.java</span></div><h1>CssUnknownAtRuleNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.collect.ImmutableSet;
+
+/**
+ * An unknown or generic at-rule node.
+ *
+ * &lt;p&gt;The {@link GssParser} only creates unknown at-rule nodes. Later passes
+ * then converts them into more specific at-rule nodes, as needed. It's OK to
+ * leave a known at-rule type as unknown if it doesn't require further
+ * processing.
+ */
+public class CssUnknownAtRuleNode extends CssAtRuleNode {
+
+    /**
+     * Names of at-rules that don't need special processing, and so can be left
+     * as unknown for convenience.
+     */
+<span class="fc" id="L35">    private static final ImmutableSet&lt;String&gt; OK_WITHOUT_PROCESSING =</span>
+<span class="fc" id="L36">            ImmutableSet.of(&quot;media&quot;, &quot;page&quot;);</span>
+
+    public CssUnknownAtRuleNode(CssLiteralNode name, boolean hasBlock) {
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        super(hasBlock ? Type.UNKNOWN_BLOCK : Type.UNKNOWN, name,</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">                hasBlock ? new CssBlockNode() : null);</span>
+<span class="fc" id="L41">    }</span>
+
+    public CssUnknownAtRuleNode(CssUnknownAtRuleNode node) {
+<span class="nc" id="L44">        super(node);</span>
+<span class="nc" id="L45">    }</span>
+
+    @Override
+    public CssUnknownAtRuleNode deepCopy() {
+<span class="nc" id="L49">        return new CssUnknownAtRuleNode(this);</span>
+    }
+
+    public boolean isOkWithoutProcessing() {
+<span class="fc" id="L53">        return OK_WITHOUT_PROCESSING.contains(getName().getValue());</span>
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L61">        String output = &quot;&quot;;</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (!getComments().isEmpty()) {</span>
+<span class="nc" id="L63">            output = getComments().toString();</span>
+        }
+<span class="fc" id="L65">        output += &quot;@&quot; + getName().toString() + getParameters().toString();</span>
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (getBlock() != null) {</span>
+<span class="fc" id="L68">            output += &quot;{&quot; + getBlock().toString() + &quot;}&quot;;</span>
+        }
+
+<span class="fc" id="L71">        return output;</span>
+    }
+
+    /**
+     * Returns an implementation of {@code CssAbstractBlockNode} or null.
+     */
+    @Override
+    public CssAbstractBlockNode getBlock() {
+<span class="fc" id="L79">        return super.getBlock();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

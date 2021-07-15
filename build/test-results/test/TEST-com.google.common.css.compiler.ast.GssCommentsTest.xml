@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.ast.GssCommentsTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:51" hostname="Patrick-MBP.fritz.box" time="0.007">
+  <properties/>
+  <testcase name="testMarkNonFlippable" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.001"/>
+  <testcase name="testSelectorList" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.001"/>
+  <testcase name="testCreateFunctionComments" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.0"/>
+  <testcase name="testCreateDefinitionComments" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.001"/>
+  <testcase name="testCreateDefinitionCommentsAfterRelocation" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.002"/>
+  <testcase name="testCreateRulesetComments" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.001"/>
+  <testcase name="testMarkDefaultDefinitions1" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.0"/>
+  <testcase name="testMarkDefaultDefinitions2" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.0"/>
+  <testcase name="testNoflip" classname="com.google.common.css.compiler.ast.GssCommentsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

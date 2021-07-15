@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MarkRemovableRulesetNodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">MarkRemovableRulesetNodes.java</span></div><h1>MarkRemovableRulesetNodes.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Table;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.Set;
+
+/**
+ * Compiler pass that marks the ruleset nodes that should be removed from the
+ * tree.
+ *
+ * &lt;p&gt;This pass assumes that each ruleset node contains exactly one declaration
+ * and one selector. This pass should be preceded by SplitRulesetNodes
+ * pass. This pass skips over nodes in the body that are not ruleset nodes and
+ * ignores all their children including ruleset nodes. So, in particular, all
+ * ruleset nodes contained within {@code @media} rules will be ignored.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+// TODO(oana): Split this pass into two, but only after running some performance
+//     tests to figure out the time it takes for a pass that does not change the
+//     tree to run.
+public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
+        implements CssCompilerPass {
+
+    private final CssTree tree;
+    private final VisitController visitController;
+
+    /**
+     * Property names not be to checked while traversing the tree to find overridden declarations.
+     */
+<span class="fc" id="L55">    static final ImmutableSet&lt;String&gt; PROPERTIES_NOT_TO_BE_CHECKED =</span>
+<span class="fc" id="L56">            ImmutableSet.of(&quot;display&quot;, &quot;cursor&quot;);</span>
+
+    /**
+     * The set of rules known to be referenced.
+     */
+<span class="fc" id="L61">    private Set&lt;String&gt; referencedRules = null;</span>
+
+    /**
+     * The prefix of the class names. TODO(oana): This should be a namespace.
+     */
+<span class="fc" id="L66">    private String prefixOfReferencedRules = &quot;&quot;;</span>
+
+    /**
+     * Creates a new pass over the specified tree.
+     */
+    public MarkRemovableRulesetNodes(CssTree tree) {
+<span class="fc" id="L72">        this(tree, false);</span>
+<span class="fc" id="L73">    }</span>
+
+    /**
+     * Creates a new pass over the specified tree.
+     *
+     * @param skipping whether to skip over rulesets containing properties that
+     *                 might make them unsafe to modify (see {@link SkippingTreeVisitor})
+     */
+    public MarkRemovableRulesetNodes(CssTree tree, boolean skipping) {
+<span class="fc" id="L82">        super(skipping);</span>
+<span class="fc" id="L83">        this.tree = tree;</span>
+<span class="fc" id="L84">        this.visitController = tree.getVisitController();</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Sets the reference rules.
+     *
+     * @param referencedRules         the set of referenced rules, which, since it is
+     *                                aliased, is expected not to change while this pass is in progress
+     * @param prefixOfReferencedRules the prefix to match when looking for
+     *                                unreferenced rules
+     */
+    public void setReferencedRules(
+            Set&lt;String&gt; referencedRules,
+            String prefixOfReferencedRules) {
+<span class="fc" id="L98">        this.referencedRules = referencedRules;</span>
+<span class="fc" id="L99">        this.prefixOfReferencedRules = prefixOfReferencedRules;</span>
+<span class="fc" id="L100">    }</span>
+
+    @Override
+    public boolean enterBlock(CssBlockNode block) {
+        // All the children of the block, which are ruleset nodes, are looked at
+        // in reverse order, from the last one to the first. We mark as removable
+        // those nodes that we are found as overridden already.
+        // Collect the already-seen pairs of selectors and property names in this
+        // table, save the CssRulesetNode also.
+<span class="fc" id="L109">        Table&lt;String, String, CssRulesetNode&gt; rules = HashBasedTable.create();</span>
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (int i = block.numChildren() - 1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">            if (block.getChildAt(i) instanceof CssRulesetNode) {</span>
+<span class="fc" id="L113">                CssRulesetNode ruleset = (CssRulesetNode) block.getChildAt(i);</span>
+
+                // Filter out unreferenced rules. We do this regardless of whether the
+                // rule in question has a &quot;display&quot; property, is in the chunk currently
+                // being processed or any of the other criteria that canModifyRuleset
+                // checks for because there's no reason not to remove unreferenced
+                // rules.
+<span class="fc bfc" id="L120" title="All 4 branches covered.">                if (referencedRules != null &amp;&amp; !referencedRules.isEmpty()</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                        &amp;&amp; isSelectorUnreferenced(ruleset.getSelectors().getChildAt(0))) {</span>
+<span class="fc" id="L122">                    tree.getRulesetNodesToRemove().addRulesetNode(ruleset);</span>
+<span class="fc" id="L123">                    continue;</span>
+                }
+
+                // If skipping is on and the rule contains a property from a
+                // pre-defined set then we skip processing this ruleset
+                // (in that case &quot;canModifyRuleset()&quot; will return false).
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                if (canModifyRuleset(ruleset)) {</span>
+                    // Make sure the node has only one selector.
+<span class="pc bpc" id="L131" title="1 of 4 branches missed.">                    Preconditions.checkArgument(isSkipping() || (ruleset.getSelectors().numChildren() == 1));</span>
+
+<span class="fc" id="L133">                    processRuleset(rules, ruleset);</span>
+                }
+            }
+        }
+
+<span class="fc" id="L138">        return false;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L143">        visitController.startVisit(this);</span>
+<span class="fc" id="L144">    }</span>
+
+    /**
+     * Processes the given ruleset, deciding whether it should be kept
+     * or removed by looking at the given previous rules.
+     */
+    private void processRuleset(
+            Table&lt;String, String, CssRulesetNode&gt; rules, CssRulesetNode ruleset) {
+<span class="fc bfc" id="L152" title="All 4 branches covered.">        if ((referencedRules != null) &amp;&amp; !referencedRules.isEmpty()) {</span>
+            // If this rule is not referenced to in the code we remove it.
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">            if (isSelectorUnreferenced(ruleset.getSelectors().getChildAt(0))) {</span>
+                // TODO(henrywong, dgajda): Storing the set of things to clean up
+                // in the tree is pretty brittle - better would be to have the pass
+                // return the rules it finds and then manually pass them in to the
+                // EliminateUselessRulesets pass.
+<span class="nc" id="L159">                tree.getRulesetNodesToRemove().addRulesetNode(ruleset);</span>
+<span class="nc" id="L160">                return;</span>
+            }
+        }
+
+        // Make sure the node has only one declaration.
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">        Preconditions.checkArgument(ruleset.getDeclarations().numChildren() == 1);</span>
+<span class="fc" id="L166">        Preconditions.checkArgument(</span>
+<span class="fc" id="L167">                ruleset.getDeclarations().getChildAt(0) instanceof CssDeclarationNode);</span>
+<span class="fc" id="L168">        CssDeclarationNode declaration =</span>
+<span class="fc" id="L169">                (CssDeclarationNode) ruleset.getDeclarations().getChildAt(0);</span>
+<span class="fc" id="L170">        CssPropertyNode propertyNode = declaration.getPropertyName();</span>
+<span class="fc" id="L171">        String propertyName = propertyNode.getPropertyName();</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (PROPERTIES_NOT_TO_BE_CHECKED.contains(propertyName)) {</span>
+<span class="fc" id="L173">            return;</span>
+        }
+        // If the declaration is star-hacked then we make the star be part of
+        // the property name to ensure that we do not consider hacked
+        // declarations as overridden by the non-hacked ones.
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (declaration.hasStarHack()) {</span>
+<span class="nc" id="L179">            propertyName = &quot;*&quot; + propertyName;</span>
+        }
+
+<span class="fc" id="L182">        String selector = PassUtil.printSelector(</span>
+<span class="fc" id="L183">                ruleset.getSelectors().getChildAt(0));</span>
+
+<span class="fc" id="L185">        CssRulesetNode previousRuleset = rules.get(selector, propertyName);</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        if (previousRuleset != null) {</span>
+            // If the new rule is important and the saved was not, then remove the saved one.
+<span class="pc bpc" id="L188" title="1 of 4 branches missed.">            if (isImportantRule(ruleset) &amp;&amp; !isImportantRule(previousRuleset)) {</span>
+<span class="fc" id="L189">                tree.getRulesetNodesToRemove().addRulesetNode(previousRuleset);</span>
+                // Replace the non-important ruleset in the map, keep the important one.
+<span class="fc" id="L191">                rules.put(selector, propertyName, ruleset);</span>
+            } else {
+<span class="fc" id="L193">                tree.getRulesetNodesToRemove().addRulesetNode(ruleset);</span>
+            }
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        } else if (hasOverridingShorthand(propertyNode, selector, rules, ruleset)) {</span>
+<span class="fc" id="L196">            tree.getRulesetNodesToRemove().addRulesetNode(ruleset);</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">        } else if (PassUtil.hasAlternateAnnotation(declaration)) {</span>
+            // The declaration has @alternate, so do not let it mask other
+            // declarations that precede it.  However, @alternate rules may be masked
+            // by succeeding non-@alternate rules.
+        } else {
+<span class="fc" id="L202">            rules.put(selector, propertyName, ruleset);</span>
+        }
+<span class="fc" id="L204">    }</span>
+
+    private boolean isSelectorUnreferenced(CssSelectorNode selector) {
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        return okToRemoveSelector(selector)</span>
+<span class="fc bfc" id="L208" title="All 4 branches covered.">                &amp;&amp; (atLeastOneUnreferencedRefiner(selector) || unreferencedSelectorCombinator(selector));</span>
+    }
+
+    /**
+     * Returns whether it's OK to remove the specified selector, i.e. it is not a
+     * tag, like: body, html, etc, as tags should not be removed unless they are
+     * in combination with other CSS classes.
+     */
+    private boolean okToRemoveSelector(CssSelectorNode selector) {
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        return (selector.getSelectorName() == null)</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">                || !selector.getRefiners().isEmpty()</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">                || (selector.getCombinator() != null);</span>
+    }
+
+    /**
+     * Returns whether at least one of the refiners of the specified selector is
+     * not in the list of referenced rules.
+     */
+    private boolean atLeastOneUnreferencedRefiner(CssSelectorNode selector) {
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        for (CssRefinerNode ref : selector.getRefiners().childIterable()) {</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">            if (ref instanceof CssClassSelectorNode) {</span>
+<span class="fc" id="L229">                String refiner = ref.getRefinerName();</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">                if (refiner.startsWith(prefixOfReferencedRules)</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">                        &amp;&amp; isRefinerUnreferenced(refiner)) {</span>
+<span class="fc" id="L232">                    return true;</span>
+                }
+            }
+<span class="fc" id="L235">        }</span>
+<span class="fc" id="L236">        return false;</span>
+    }
+
+    /**
+     * Returns whether the combinator of the specified selector is unreferenced.
+     */
+    private boolean unreferencedSelectorCombinator(CssSelectorNode selector) {
+<span class="fc bfc" id="L243" title="All 2 branches covered.">        return (selector.getCombinator() != null</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">                &amp;&amp; isSelectorUnreferenced(selector.getCombinator().getSelector()));</span>
+    }
+
+    private boolean isRefinerUnreferenced(String refiner) {
+<span class="fc" id="L248">        String[] splits = refiner.split(&quot;-&quot;);</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        for (String s : splits) {</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">            if (!referencedRules.contains(s)) {</span>
+<span class="fc" id="L251">                return true;</span>
+            }
+        }
+<span class="fc" id="L254">        return false;</span>
+    }
+
+    private boolean isImportantRule(CssRulesetNode ruleset) {
+<span class="fc" id="L258">        CssDeclarationNode decl =</span>
+<span class="fc" id="L259">                (CssDeclarationNode) ruleset.getDeclarations().getChildAt(0);</span>
+<span class="fc" id="L260">        Iterable&lt;CssValueNode&gt; propertyValues =</span>
+<span class="fc" id="L261">                decl.getPropertyValue().childIterable();</span>
+<span class="fc" id="L262">        return Iterables.any(propertyValues,</span>
+<span class="fc" id="L263">                Predicates.instanceOf(CssPriorityNode.class));</span>
+    }
+
+    /**
+     * Computes whether the given rule is overridden by another rule with some
+     * related shorthand property of equal or higher importance.
+     *
+     * @param propertyNode the property node of the rule to check
+     * @param selector     the printed representation of the selector of the rule
+     * @param rules        rulesets occurring after the ruleset to check (represented as
+     *                     a map from selector/property pairs to rulesets for easy searching)
+     * @param ruleset      the ruleset to check (assumed to contain one rule)
+     * @return whether the given ruleset has an overriding ruleset which uses a
+     * related shorthand property
+     */
+    private boolean hasOverridingShorthand(
+            CssPropertyNode propertyNode,
+            String selector,
+            Table&lt;String, String, CssRulesetNode&gt; rules,
+            final CssRulesetNode ruleset) {
+
+<span class="fc" id="L284">        Supplier&lt;Boolean&gt; rulesetIsImportant = Suppliers.memoize(</span>
+<span class="fc" id="L285">                new Supplier&lt;Boolean&gt;() {</span>
+                    @Override
+                    public Boolean get() {
+<span class="fc" id="L288">                        return isImportantRule(ruleset);</span>
+                    }
+                });
+
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        for (String shorthand : propertyNode.getProperty().getShorthands()) {</span>
+<span class="fc" id="L293">            CssRulesetNode shorthandRuleset = rules.get(selector, shorthand);</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">            if ((shorthandRuleset != null)</span>
+<span class="fc bfc" id="L295" title="All 4 branches covered.">                    &amp;&amp; (!rulesetIsImportant.get() || isImportantRule(shorthandRuleset))) {</span>
+<span class="fc" id="L296">                return true;</span>
+            }
+<span class="fc" id="L298">        }</span>
+
+<span class="fc" id="L300">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

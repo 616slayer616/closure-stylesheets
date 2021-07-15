@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoopVariableReplacementPass.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">LoopVariableReplacementPass.java</span></div><h1>LoopVariableReplacementPass.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+/**
+ * A pass that updates for loop variables with a given value.
+ *
+ * &lt;p&gt;The pass is expected to run multiple times on the same loop, where each time the loop variable
+ * is replaced with a different value, according to the loop iteration.
+ */
+class LoopVariableReplacementPass extends DefaultTreeVisitor implements CssCompilerPass {
+
+    private final String variable;
+    private final int value;
+    private final Set&lt;String&gt; loopDefinitions;
+    private final MutatingVisitController visitController;
+    private final int loopId;
+    private final Pattern variableInNthArgumentPattern;
+
+    public LoopVariableReplacementPass(
+            String variable,
+            int value,
+            Set&lt;String&gt; loopDefinitions,
+            MutatingVisitController visitController,
+<span class="fc" id="L47">            int loopId) {</span>
+<span class="fc" id="L48">        this.variable = variable;</span>
+<span class="fc" id="L49">        this.value = value;</span>
+<span class="fc" id="L50">        this.loopDefinitions = loopDefinitions;</span>
+<span class="fc" id="L51">        this.visitController = visitController;</span>
+<span class="fc" id="L52">        this.loopId = loopId;</span>
+<span class="fc" id="L53">        variableInNthArgumentPattern =</span>
+<span class="fc" id="L54">                Pattern.compile(&quot;\\s*(?:-|\\+)?&quot; + Pattern.quote(variable) + &quot;n?\\s*&quot;);</span>
+<span class="fc" id="L55">    }</span>
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="fc" id="L59">        CssNumericNode newNode = updateValueNode(node);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (newNode != null) {</span>
+<span class="fc" id="L61">            visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), true);</span>
+        }
+<span class="fc" id="L63">        return true;</span>
+    }
+
+    @Override
+    public boolean enterClassSelector(CssClassSelectorNode classSelector) {
+<span class="fc" id="L68">        String[] parts = classSelector.getRefinerName().split(&quot;-&quot;);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        for (int i = 0; i &lt; parts.length; ++i) {</span>
+<span class="fc" id="L70">            parts[i] = replaceVariable(parts[i]);</span>
+        }
+<span class="fc" id="L72">        String refinerName = Joiner.on(&quot;-&quot;).join(parts);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if (!refinerName.equals(classSelector.getRefinerName())) {</span>
+<span class="fc" id="L74">            visitController.replaceCurrentBlockChildWith(</span>
+<span class="fc" id="L75">                    ImmutableList.of(new CssClassSelectorNode(</span>
+                            refinerName,
+<span class="fc" id="L77">                            classSelector.getScoping(),</span>
+<span class="fc" id="L78">                            classSelector.getSourceCodeLocation())),</span>
+                    true);
+        }
+<span class="fc" id="L81">        return true;</span>
+    }
+
+    @Override
+    public boolean enterArgumentNode(CssValueNode node) {
+<span class="fc" id="L86">        CssNumericNode newNode = updateValueNode(node);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (newNode != null) {</span>
+<span class="fc" id="L88">            visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), true);</span>
+        }
+<span class="fc" id="L90">        return true;</span>
+    }
+
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+<span class="fc" id="L95">        CssValueNode definitionName = node.getName();</span>
+<span class="fc" id="L96">        definitionName.setValue(replaceDefinition(definitionName.getValue()));</span>
+<span class="fc" id="L97">        return true;</span>
+    }
+
+    @Override
+    public boolean enterPseudoClass(CssPseudoClassNode refiner) {
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if (refiner.getFunctionType().equals(CssPseudoClassNode.FunctionType.NTH)) {</span>
+<span class="fc" id="L103">            String[] parts = refiner.getArgument().split(&quot;\\+&quot;);</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            for (int i = 0; i &lt; parts.length; ++i) {</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">                if (variableInNthArgumentPattern.matcher(parts[i]).matches()) {</span>
+<span class="fc" id="L106">                    parts[i] = parts[i].replaceFirst(Pattern.quote(variable), String.valueOf(value));</span>
+                }
+            }
+
+<span class="fc" id="L110">            refiner.setArgument(Joiner.on(&quot;+&quot;).join(parts));</span>
+        }
+<span class="fc" id="L112">        return true;</span>
+    }
+
+    @Override
+    public boolean enterForLoop(CssForLoopRuleNode node) {
+<span class="fc" id="L117">        CssNumericNode from = updateValueNode(node.getFrom());</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (from != null) {</span>
+<span class="nc" id="L119">            node.setFrom(from);</span>
+        }
+<span class="fc" id="L121">        CssNumericNode to = updateValueNode(node.getTo());</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (to != null) {</span>
+<span class="fc" id="L123">            node.setTo(to);</span>
+        }
+<span class="fc" id="L125">        CssNumericNode step = updateValueNode(node.getStep());</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (step != null) {</span>
+<span class="nc" id="L127">            node.setStep(step);</span>
+        }
+<span class="fc" id="L129">        return true;</span>
+    }
+
+    /**
+     * If possible updates the given node with the right value. In the case the node type has to be
+     * replaced, it returns the new node.
+     */
+    @Nullable
+    private CssNumericNode updateValueNode(CssValueNode node) {
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (node instanceof CssConstantReferenceNode) {</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">            if (loopDefinitions.contains(node.getValue())) {</span>
+<span class="fc" id="L140">                node.setValue(replaceDefinition(node.getValue()));</span>
+            }
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        } else if (node instanceof CssLoopVariableNode) {</span>
+<span class="fc" id="L143">            CssLoopVariableNode variableNode = (CssLoopVariableNode) node;</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">            if (needsReplacement(variableNode.getValue())) {</span>
+<span class="fc" id="L145">                return new CssNumericNode(</span>
+<span class="fc" id="L146">                        String.valueOf(value), CssNumericNode.NO_UNITS, node.getSourceCodeLocation());</span>
+            }
+        }
+<span class="fc" id="L149">        return null;</span>
+    }
+
+    private boolean needsReplacement(String identifier) {
+<span class="fc" id="L153">        return identifier.equals(variable);</span>
+    }
+
+    private String replaceVariable(String identifier) {
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        return needsReplacement(identifier) ? String.valueOf(value) : identifier;</span>
+    }
+
+    private String replaceDefinition(String definiton) {
+<span class="fc" id="L161">        return definiton + &quot;__&quot; + &quot;LOOP&quot; + loopId + &quot;__&quot; + value;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L166">        visitController.startVisit(this);</span>
+<span class="fc" id="L167">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

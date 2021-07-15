@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" tests="56" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.054">
+  <properties/>
+  <testcase name="testBorderShorthandNotFlipped" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test10" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test11" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test12" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.002"/>
+  <testcase name="test13" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test14" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test15" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test16" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test17" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test18" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test19" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test20" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test21" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test22" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test23" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test24" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test25" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test26" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test27" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test28" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test29" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test30" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test31" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test32" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test33" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test34" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test35" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test36" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test37" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test38" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test39" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test40" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test41" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test42" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test43" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test44" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test45" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test46" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test47" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test48" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test49" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test50" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test51" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test52" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test53" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test1" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test2" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test3" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test4" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test5" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test6" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test7" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.0"/>
+  <testcase name="test8" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.002"/>
+  <testcase name="test9" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.003"/>
+  <testcase name="test4_withDecimals" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.001"/>
+  <testcase name="test4_withDecimalsInOtherLocale" classname="com.google.common.css.compiler.passes.BiDiFlipperFunctionalTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

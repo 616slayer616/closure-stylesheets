@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.02">
+  <properties/>
+  <testcase name="testUnitInPlusOperandOfCalcExprIsNotRemoved" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.007"/>
+  <testcase name="testUnremovableUnit1" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="testUnremovableUnit2" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="testRemovableUnit1" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="testRemovableUnit2" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.0"/>
+  <testcase name="testRemovableUnit3" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.0"/>
+  <testcase name="testUnitInDivOperandOfCalcExprIsRemoved" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="test1" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="test2" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="test3" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="test4" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="test5" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.001"/>
+  <testcase name="testUnitInMinusOperandOfCalcExprIsNotRemoved" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.0"/>
+  <testcase name="testZeroesInComplexCalcExprs" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.0"/>
+  <testcase name="testUnitInTimesOperandOfCalcExprIsRemoved" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesFunctionalTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

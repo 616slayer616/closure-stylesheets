@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssMixinDefinitionNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssMixinDefinitionNode.java</span></div><h1>CssMixinDefinitionNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.css.SourceCodeLocation;
+
+/**
+ * A node representing a mixin definition.
+ *
+ * &lt;p&gt;A mixin definition defines parameterized declarations that can be
+ * inserted with a mixin. For example:
+ * &lt;pre&gt;
+ * {@code @defmixin} gradient(POS, HSL1, HSL2, HSL3, COLOR) {
+ *   background-color: COLOR;
+ *   background-image:
+ *       -webkit-linear-gradient(POS, hsl(HSL1, HSL2, HSL3), COLOR);
+ * }
+ * &lt;/pre&gt;
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class CssMixinDefinitionNode extends CssAtRuleNode {
+    private final String name;
+    private final CssDeclarationBlockNode declarations;
+    private final CssFunctionArgumentsNode arguments;
+
+    public CssMixinDefinitionNode(String name, CssFunctionArgumentsNode arguments,
+                                  CssDeclarationBlockNode declarations, SourceCodeLocation location) {
+<span class="fc" id="L43">        super(Type.DEFMIXIN, new CssLiteralNode(&quot;defmixin&quot;), declarations);</span>
+<span class="fc" id="L44">        this.setSourceCodeLocation(location);</span>
+<span class="fc" id="L45">        this.name = name;</span>
+<span class="fc" id="L46">        this.declarations = declarations;</span>
+<span class="fc" id="L47">        becomeParentForNode(declarations);</span>
+<span class="fc" id="L48">        this.arguments = arguments;</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * Creates a new mixin definition node that is a deep copy of the given node.
+     */
+    public CssMixinDefinitionNode(CssMixinDefinitionNode node) {
+<span class="nc" id="L55">        super(node);</span>
+<span class="nc" id="L56">        this.name = node.name;</span>
+<span class="nc" id="L57">        this.declarations = node.declarations.deepCopy();</span>
+<span class="nc" id="L58">        this.arguments = node.arguments.deepCopy();</span>
+<span class="nc" id="L59">    }</span>
+
+    @Override
+    public CssNode deepCopy() {
+<span class="nc" id="L63">        return new CssMixinDefinitionNode(this);</span>
+    }
+
+    public String getDefinitionName() {
+<span class="fc" id="L67">        return name;</span>
+    }
+
+    public CssFunctionArgumentsNode getArguments() {
+<span class="fc" id="L71">        return arguments;</span>
+    }
+
+    @Override
+    public CssDeclarationBlockNode getBlock() {
+        // The type is ensured by the constructor.
+<span class="fc" id="L77">        return (CssDeclarationBlockNode) super.getBlock();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

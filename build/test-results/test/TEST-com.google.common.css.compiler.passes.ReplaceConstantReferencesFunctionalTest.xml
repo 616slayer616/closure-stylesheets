@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.037">
+  <properties/>
+  <testcase name="testVariableInFunctionInComposite" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.003"/>
+  <testcase name="testCalcReplacement_Complex1" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.001"/>
+  <testcase name="testCalcReplacement_Complex2" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.002"/>
+  <testcase name="testMediaQueryReplacement1" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.001"/>
+  <testcase name="testMediaQueryReplacement2" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.001"/>
+  <testcase name="testFontReplacement" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.001"/>
+  <testcase name="testCompositeValueNodeWithFunctions" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.003"/>
+  <testcase name="testCompositeValueNodeReplacement" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.002"/>
+  <testcase name="testCalcReplacement" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.001"/>
+  <testcase name="testWebkitGradient" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.003"/>
+  <testcase name="testReplaceConstants1" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.002"/>
+  <testcase name="testReplaceConstants2" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.001"/>
+  <testcase name="testReplaceConstants3" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.003"/>
+  <testcase name="testReplaceConstants4" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.003"/>
+  <testcase name="testReplaceConstants5" classname="com.google.common.css.compiler.passes.ReplaceConstantReferencesFunctionalTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

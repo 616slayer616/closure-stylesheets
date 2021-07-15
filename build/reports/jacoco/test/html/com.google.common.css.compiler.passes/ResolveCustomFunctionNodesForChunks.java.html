@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResolveCustomFunctionNodesForChunks.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">ResolveCustomFunctionNodesForChunks.java</span></div><h1>ResolveCustomFunctionNodesForChunks.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * This compiler pass evaluates {@link CssCustomFunctionNode} instances only when they
+ * have no references as arguments. Otherwise, it creates a new definition for
+ * the function call even if it's already a definition. At the end, the main
+ * tree is free of function calls; all the new definitions are collected in a
+ * map of {@link ConstantDefinitions} per chunk; there are no nested calls.
+ *
+ * @author dgajda@google.com (Damian Gajda)
+ */
+public class ResolveCustomFunctionNodesForChunks&lt;T&gt; extends ResolveCustomFunctionNodes {
+
+    /**
+     * The prefix for definitions of calls with references
+     */
+    public static final String DEF_PREFIX = &quot;__F&quot;;
+
+    private final Function&lt;T, String&gt; nextUniqueSuffix;
+<span class="fc" id="L48">    private final Map&lt;T, ConstantDefinitions&gt; constantDefinitions =</span>
+<span class="fc" id="L49">            Maps.newHashMap();</span>
+
+    /**
+     * Constructs the pass.
+     *
+     * @param visitController       the visit controller
+     * @param errorManager          the error manager
+     * @param functionMap           the map from function names to resolve to GSS functions
+     * @param allowUnknownFunctions whether to allow unknown function calls,
+     *                              leaving them as is, instead of reporting an error
+     * @param nextUniqueSuffix      a function from a chunk to a globally unique suffix
+     */
+    public ResolveCustomFunctionNodesForChunks(
+            MutatingVisitController visitController,
+            ErrorManager errorManager,
+            Map&lt;String, GssFunction&gt; functionMap,
+            boolean allowUnknownFunctions,
+            Set&lt;String&gt; allowedNonStandardFunctions,
+            Function&lt;T, String&gt; nextUniqueSuffix) {
+<span class="fc" id="L68">        super(visitController, errorManager, functionMap, allowUnknownFunctions,</span>
+                allowedNonStandardFunctions);
+<span class="fc" id="L70">        this.nextUniqueSuffix = nextUniqueSuffix;</span>
+<span class="fc" id="L71">    }</span>
+
+    @Override
+    protected List&lt;CssValueNode&gt; evaluateFunction(
+            CssCustomFunctionNode node,
+            GssFunction function,
+            List&lt;CssValueNode&gt; arguments,
+            ErrorManager errorManager) throws GssFunctionException {
+
+        List&lt;CssValueNode&gt; functionResult;
+
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (Iterables.any(arguments, Predicates.instanceOf(CssConstantReferenceNode.class))) {</span>
+<span class="fc" id="L83">            functionResult = replaceCallWithReference(node);</span>
+        } else {
+<span class="fc" id="L85">            functionResult = super.evaluateFunction(</span>
+                    node, function, arguments, errorManager);
+        }
+<span class="fc" id="L88">        return functionResult;</span>
+    }
+
+    /**
+     * Gets the constant definitions for the replaced calls with references.
+     * Chunks which have no such calls are not in the map.
+     *
+     * @return A map of constant definitions per chunk
+     */
+    public Map&lt;T, ConstantDefinitions&gt; getConstantDefinitions() {
+<span class="fc" id="L98">        return constantDefinitions;</span>
+    }
+
+    private List&lt;CssValueNode&gt; replaceCallWithReference(CssCustomFunctionNode node) {
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L103">        T chunk = (T) node.getChunk();</span>
+
+<span class="fc" id="L105">        String defName = DEF_PREFIX + nextUniqueSuffix.apply(chunk);</span>
+
+<span class="fc" id="L107">        CssLiteralNode defLiteral =</span>
+<span class="fc" id="L108">                new CssLiteralNode(defName, node.getSourceCodeLocation());</span>
+<span class="fc" id="L109">        CssDefinitionNode def =</span>
+<span class="fc" id="L110">                new CssDefinitionNode(ImmutableList.&lt;CssValueNode&gt;of(node.deepCopy()), defLiteral);</span>
+<span class="fc" id="L111">        CssConstantReferenceNode defRef =</span>
+<span class="fc" id="L112">                new CssConstantReferenceNode(defName, node.getSourceCodeLocation());</span>
+
+<span class="fc" id="L114">        addNewDefinition(chunk, def);</span>
+
+<span class="fc" id="L116">        return ImmutableList.&lt;CssValueNode&gt;of(defRef);</span>
+    }
+
+    private void addNewDefinition(T chunk, CssDefinitionNode def) {
+<span class="fc" id="L120">        Preconditions.checkNotNull(chunk);</span>
+<span class="fc" id="L121">        def.setChunk(chunk);</span>
+
+<span class="fc" id="L123">        ConstantDefinitions chunkDefinitions = constantDefinitions.get(chunk);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (chunkDefinitions == null) {</span>
+<span class="fc" id="L125">            chunkDefinitions = new ConstantDefinitions();</span>
+<span class="fc" id="L126">            constantDefinitions.put(chunk, chunkDefinitions);</span>
+        }
+<span class="fc" id="L128">        chunkDefinitions.addConstantDefinition(def);</span>
+<span class="fc" id="L129">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

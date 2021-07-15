@@ -1,0 +1,1688 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GssFunctions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.gssfunctions</a> &gt; <span class="el_source">GssFunctions.java</span></div><h1>GssFunctions.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.gssfunctions;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.css.SourceCodeLocation;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import static com.google.common.css.compiler.gssfunctions.ColorUtil.*;
+
+/**
+ * Container for common GSS functions.
+ *
+ * @author oana@google.com (Oana Florescu)
+ * @author dgajda@google.com (Damian Gajda)
+ */
+<span class="nc" id="L43">public class GssFunctions {</span>
+
+    /**
+     * @return a map from each GSS function name to the function
+     */
+    public static Map&lt;String, GssFunction&gt; getFunctionMap() {
+        // TODO(dgajda): Add getName() to the function interface.
+<span class="fc" id="L50">        return ImmutableMap.&lt;String, GssFunction&gt;builder()</span>
+
+                // Arithmetic functions.
+<span class="fc" id="L53">                .put(&quot;add&quot;, new GssFunctions.AddToNumericValue())</span>
+<span class="fc" id="L54">                .put(&quot;sub&quot;, new GssFunctions.SubtractFromNumericValue())</span>
+<span class="fc" id="L55">                .put(&quot;mult&quot;, new GssFunctions.Mult())</span>
+                // Not named &quot;div&quot; so it will not be confused with the HTML element.
+<span class="fc" id="L57">                .put(&quot;divide&quot;, new GssFunctions.Div())</span>
+<span class="fc" id="L58">                .put(&quot;minimum&quot;, new GssFunctions.MinValue())</span>
+<span class="fc" id="L59">                .put(&quot;maximum&quot;, new GssFunctions.MaxValue())</span>
+
+                // Color functions.
+<span class="fc" id="L62">                .put(&quot;blendColorsHsb&quot;, new BlendColorsHsb())</span>
+<span class="fc" id="L63">                .put(&quot;blendColorsRgb&quot;, new BlendColorsRgb())</span>
+<span class="fc" id="L64">                .put(&quot;makeMutedColor&quot;, new MakeMutedColor())</span>
+<span class="fc" id="L65">                .put(&quot;addHsbToCssColor&quot;, new AddHsbToCssColor())</span>
+<span class="fc" id="L66">                .put(&quot;makeContrastingColor&quot;, new MakeContrastingColor())</span>
+<span class="fc" id="L67">                .put(&quot;adjustBrightness&quot;, new AdjustBrightness())</span>
+<span class="fc" id="L68">                .put(&quot;makeTranslucent&quot;, new MakeTranslucent())</span>
+<span class="fc" id="L69">                .put(&quot;saturateColor&quot;, new SaturateColor())</span>
+<span class="fc" id="L70">                .put(&quot;desaturateColor&quot;, new DesaturateColor())</span>
+<span class="fc" id="L71">                .put(&quot;greyscale&quot;, new Greyscale())</span>
+<span class="fc" id="L72">                .put(&quot;lighten&quot;, new Lighten())</span>
+<span class="fc" id="L73">                .put(&quot;darken&quot;, new Darken())</span>
+<span class="fc" id="L74">                .put(&quot;spin&quot;, new Spin())</span>
+
+                // Logic functions.
+<span class="fc" id="L77">                .put(&quot;selectFrom&quot;, new SelectFrom())</span>
+
+                // String functions.
+<span class="fc" id="L80">                .put(&quot;concat&quot;, new Concat())</span>
+
+<span class="fc" id="L82">                .build();</span>
+    }
+
+    /**
+     * Round decimals to the eight places, which appears to be the smallest
+     * precision that works well across all browsers. (Yes, this is crazy.)
+     */
+    private static final String DECIMAL_FORMAT = &quot;#.########&quot;;
+
+    /**
+     * US decimal format symbols.
+     */
+<span class="fc" id="L94">    private static final DecimalFormatSymbols US_SYMBOLS =</span>
+<span class="fc" id="L95">            DecimalFormatSymbols.getInstance(Locale.US);</span>
+
+    /**
+     * This class encapsulates results of background definition calculation and
+     * is used to build either a list of {@link CssValueNode} instances or a string that
+     * represents the background CSS property.
+     */
+    static class ImageBackground {
+
+        private static final String NO_REPEAT = &quot;no-repeat&quot;;
+
+        private final String url;
+        private final String positionH;
+        private final String positionHUnit;
+        private final String positionV;
+        private final String positionVUnit;
+
+        /**
+         * @param url      The URL to be used as the background image URL
+         * @param cornerId The corner id which tells how the image is positioned
+         * @param imgSize  The size of the image
+         * @param units    The units of the image size
+         */
+        public ImageBackground(
+<span class="nc" id="L119">                String url, String cornerId, String imgSize, String units) {</span>
+<span class="nc" id="L120">            this.url = url;</span>
+
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            boolean isZero = Float.parseFloat(imgSize) == 0;</span>
+
+<span class="nc bnc" id="L124" title="All 4 branches missed.">            boolean isLeft = isZero || cornerId.endsWith(&quot;l&quot;);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            positionH = isLeft ? &quot;0&quot; : &quot;-&quot; + imgSize;</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            positionHUnit = isLeft ? CssNumericNode.NO_UNITS : units;</span>
+
+<span class="nc bnc" id="L128" title="All 4 branches missed.">            boolean isTop = isZero || cornerId.startsWith(&quot;t&quot;);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            positionV = isTop ? &quot;0&quot; : &quot;-&quot; + imgSize;</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            positionVUnit = isTop ? CssNumericNode.NO_UNITS : units;</span>
+<span class="nc" id="L131">        }</span>
+
+        @Override
+        public String toString() {
+<span class="nc" id="L135">            return createUrl(url) + &quot; &quot; + NO_REPEAT + &quot; &quot; +</span>
+                    positionH + positionHUnit + &quot; &quot; + positionV + positionVUnit;
+        }
+
+        public List&lt;CssValueNode&gt; toNodes(SourceCodeLocation location) {
+<span class="nc" id="L140">            return ImmutableList.of(</span>
+<span class="nc" id="L141">                    createUrlNode(url, location),</span>
+                    new CssLiteralNode(NO_REPEAT, location),
+                    new CssNumericNode(positionH, positionHUnit, location),
+                    new CssNumericNode(positionV, positionVUnit, location));
+        }
+    }
+
+    /**
+     * Base implementation of the color blending GSS function. Returns a color
+     * half way between the two colors supplied as arguments.
+     */
+<span class="fc" id="L152">    public abstract static class BaseBlendColors implements GssFunction {</span>
+
+        /**
+         * Returns the number of expected arguments of this GSS function.
+         *
+         * @return Number of expected arguments
+         */
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L161">            return 2;</span>
+        }
+
+        /**
+         * Returns the string representation in hex format for a color half way in
+         * between the two supplied colors.
+         *
+         * @param args The list of arguments
+         * @return The computed color
+         */
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) {
+
+<span class="nc" id="L175">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L176">            CssValueNode arg2 = args.get(1);</span>
+
+<span class="nc" id="L178">            String startColorStr = arg1.getValue();</span>
+<span class="nc" id="L179">            String endColorStr = arg2.getValue();</span>
+
+<span class="nc" id="L181">            String resultString = blend(startColorStr, endColorStr);</span>
+
+<span class="nc" id="L183">            CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L184">                    arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L185">            return ImmutableList.of((CssValueNode) result);</span>
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+            try {
+<span class="nc" id="L192">                return blend(args.get(0), args.get(1));</span>
+<span class="nc" id="L193">            } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L194">                throw new GssFunctionException(&quot;Colors could not be parsed&quot;, e);</span>
+            }
+        }
+
+        // TODO(dgajda): Hide it, this function is only visible because
+        public abstract String blend(String startColor, String endColor);
+    }
+
+    /**
+     * Implementation of the blendColorsHsb GSS function. Returns a color half way
+     * between the two colors supplied as arguments.
+     */
+<span class="fc" id="L206">    public static class BlendColorsHsb extends BaseBlendColors {</span>
+
+        @Override
+        // TODO(dgajda): Hide it, this function is only visible because
+        public String blend(String startColorStr, String endColorStr) {
+<span class="nc" id="L211">            Color midColor = blendHsb(</span>
+<span class="nc" id="L212">                    ColorParser.parseAny(startColorStr),</span>
+<span class="nc" id="L213">                    ColorParser.parseAny(endColorStr));</span>
+<span class="nc" id="L214">            return formatColor(midColor);</span>
+        }
+    }
+
+    private static Color blendHsb(Color startColor, Color endColor) {
+
+<span class="nc" id="L220">        float[] startColorHsb = toHsb(startColor);</span>
+<span class="nc" id="L221">        float[] endColorHsb = toHsb(endColor);</span>
+
+<span class="nc" id="L223">        float diffHue = Math.abs(startColorHsb[0] - endColorHsb[0]);</span>
+<span class="nc" id="L224">        float sumHue = startColorHsb[0] + endColorHsb[0];</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        float midHue = (diffHue &lt;= 0.5)</span>
+<span class="nc" id="L226">                ? sumHue / 2</span>
+<span class="nc" id="L227">                : (sumHue + 1) / 2;  // Hue values range 0 to 1 and wrap (i.e. 0 == 1)</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">        if (midHue &gt; 1) {</span>
+<span class="nc" id="L229">            midHue -= 1;</span>
+        }
+
+<span class="nc" id="L232">        return Color.getHSBColor(</span>
+                midHue,
+                (startColorHsb[1] + endColorHsb[1]) / 2,
+                (startColorHsb[2] + endColorHsb[2]) / 2);
+    }
+
+    /**
+     * Implementation of the blendColorsRgb GSS function. Returns a color half way
+     * between the two colors by averaging each of red, green &amp; blue.
+     */
+<span class="fc" id="L242">    public static class BlendColorsRgb extends BaseBlendColors {</span>
+
+        /**
+         * Returns the string representation in hex format for a color half way in
+         * between the two supplied colors by averaging each of red, green &amp; blue.
+         *
+         * @param startColorStr The start color in string form
+         * @param endColorStr   The endcolor in string form
+         * @return The computed color
+         */
+        @Override
+        // TODO(dgajda): Hide it, this function is only visible because
+        public String blend(String startColorStr, String endColorStr) {
+<span class="nc" id="L255">            Color startColor = ColorParser.parseAny(startColorStr);</span>
+<span class="nc" id="L256">            Color endColor = ColorParser.parseAny(endColorStr);</span>
+
+<span class="nc" id="L258">            Color midColor = new Color(</span>
+<span class="nc" id="L259">                    (startColor.getRed() + endColor.getRed()) / 2,</span>
+<span class="nc" id="L260">                    (startColor.getGreen() + endColor.getGreen()) / 2,</span>
+<span class="nc" id="L261">                    (startColor.getBlue() + endColor.getBlue()) / 2);</span>
+
+<span class="nc" id="L263">            return formatColor(midColor);</span>
+        }
+    }
+
+    /**
+     * Helper method to convert a numeric value of &quot;0&quot; or &quot;1&quot; into a boolean.
+     *
+     * @param numericPart The string containing the value
+     * @return The corresponding boolean value
+     */
+    public static boolean parseBoolean(String numericPart) {
+<span class="nc bnc" id="L274" title="All 2 branches missed.">        return Integer.parseInt(numericPart) == 1;</span>
+    }
+
+    /**
+     * Helper method for implementors of GssFunction to allow the creation of
+     * a url entry node in a GSS file.
+     *
+     * @param imageUrl The url of the image to add.
+     * @param location The location in the GSS file to place the node.
+     * @return The node containing the url entry.
+     */
+    public static CssFunctionNode createUrlNode(
+            String imageUrl, SourceCodeLocation location) {
+<span class="nc" id="L287">        CssFunctionNode url =</span>
+<span class="nc" id="L288">                new CssFunctionNode(CssFunctionNode.Function.byName(&quot;url&quot;), location);</span>
+
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        if (!imageUrl.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L291">            CssLiteralNode argument = new CssLiteralNode(imageUrl, location);</span>
+<span class="nc" id="L292">            List&lt;CssValueNode&gt; argList = ImmutableList.of((CssValueNode) argument);</span>
+<span class="nc" id="L293">            CssFunctionArgumentsNode arguments =</span>
+                    new CssFunctionArgumentsNode(argList);
+<span class="nc" id="L295">            url.setArguments(arguments);</span>
+        }
+<span class="nc" id="L297">        return url;</span>
+    }
+
+    /**
+     * Implementation of the addHsbToCssColor GSS function.
+     */
+<span class="fc" id="L303">    public static class AddHsbToCssColor implements GssFunction {</span>
+
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L307">            return 4;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="nc" id="L313">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L314">            CssValueNode arg2 = args.get(1);</span>
+<span class="nc" id="L315">            CssValueNode arg3 = args.get(2);</span>
+<span class="nc" id="L316">            CssValueNode arg4 = args.get(3);</span>
+
+<span class="nc" id="L318">            assertArgumentLooksLikeAColor(1, arg1, errorManager);</span>
+            CssNumericNode numeric2, numeric3, numeric4;
+<span class="nc bnc" id="L320" title="All 6 branches missed.">            if (arg2 instanceof CssNumericNode &amp;&amp; arg3 instanceof CssNumericNode</span>
+                    &amp;&amp; arg4 instanceof CssNumericNode) {
+<span class="nc" id="L322">                numeric2 = (CssNumericNode) arg2;</span>
+<span class="nc" id="L323">                numeric3 = (CssNumericNode) arg3;</span>
+<span class="nc" id="L324">                numeric4 = (CssNumericNode) arg4;</span>
+            } else {
+<span class="nc" id="L326">                String message = &quot;Arguments number 2, 3 and 4 must be CssNumericNodes&quot;;</span>
+<span class="nc" id="L327">                errorManager.report(</span>
+<span class="nc" id="L328">                        new GssError(message, arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L329">                throw new GssFunctionException(message);</span>
+            }
+
+            try {
+<span class="nc" id="L333">                String resultString =</span>
+<span class="nc" id="L334">                        addHsbToCssColor(args.get(0).getValue(),</span>
+<span class="nc" id="L335">                                numeric2.getNumericPart(),</span>
+<span class="nc" id="L336">                                numeric3.getNumericPart(),</span>
+<span class="nc" id="L337">                                numeric4.getNumericPart());</span>
+
+<span class="nc" id="L339">                CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L340">                        arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L341">                return ImmutableList.of((CssValueNode) result);</span>
+<span class="nc" id="L342">            } catch (GssFunctionException e) {</span>
+<span class="nc" id="L343">                errorManager.report(</span>
+<span class="nc" id="L344">                        new GssError(e.getMessage(), arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L345">                throw e;</span>
+            }
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="nc" id="L352">            String baseColorString = args.get(0);</span>
+<span class="nc" id="L353">            return addHsbToCssColor(</span>
+<span class="nc" id="L354">                    baseColorString, args.get(1), args.get(2), args.get(3));</span>
+        }
+
+        protected String addHsbToCssColor(
+                String baseColorString, String hueToAdd, String saturationToAdd,
+                String brightnessToAdd) throws GssFunctionException {
+            try {
+<span class="nc" id="L361">                return addHsbToCssColor(</span>
+                        baseColorString,
+<span class="nc" id="L363">                        Integer.parseInt(hueToAdd),</span>
+<span class="nc" id="L364">                        Integer.parseInt(saturationToAdd),</span>
+<span class="nc" id="L365">                        Integer.parseInt(brightnessToAdd));</span>
+<span class="nc" id="L366">            } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L367">                String message = String.format(&quot;Could not parse the &quot;</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">                                + (e instanceof NumberFormatException ? &quot;integer arguments&quot; : &quot;color argument&quot;)</span>
+                                + &quot; for the function 'addHsbToCssColor'. The list of arguments was:&quot;
+                                + &quot; %s, %s, %s, %s. &quot;,
+                        baseColorString, hueToAdd, saturationToAdd, brightnessToAdd);
+<span class="nc" id="L372">                throw new GssFunctionException(message);</span>
+            }
+        }
+
+        /**
+         * Takes a CSS color string, and adds the specified amount of hue,
+         * saturation and brightness to it.
+         *
+         * @param baseColorString The string representing the color to change
+         * @param hueToAdd        The amount of hue to add (can be negative)
+         * @param saturationToAdd The amount of saturation to add (can be negative)
+         * @param brightnessToAdd The amount of brightness to add (can be negative)
+         * @return A CSS String representing the new color
+         */
+        public String addHsbToCssColor(String baseColorString,
+                                       int hueToAdd,
+                                       int saturationToAdd,
+                                       int brightnessToAdd) {
+
+            // Skip transformation for the transparent color.
+<span class="nc bnc" id="L392" title="All 2 branches missed.">            if (&quot;transparent&quot;.equals(baseColorString)) {</span>
+<span class="nc" id="L393">                return baseColorString;</span>
+            }
+
+<span class="nc" id="L396">            Color baseColor = ColorParser.parseAny(baseColorString);</span>
+<span class="nc" id="L397">            Color newColor = addValuesToHsbComponents(baseColor,</span>
+                    hueToAdd,
+                    saturationToAdd,
+                    brightnessToAdd);
+
+<span class="nc" id="L402">            return formatColor(newColor);</span>
+        }
+
+        /**
+         * Adds the specified amount to the specified HSB (Hue, Saturation,
+         * Brightness) parameter of the given color. The amount can be negative.
+         *
+         * @param baseColor       The color to modify
+         * @param hueToAdd        The amount of hue to add
+         * @param saturationToAdd The amount of saturation to add
+         * @param brightnessToAdd The amount of brightness to add
+         * @return The modified color
+         */
+        public Color addValuesToHsbComponents(Color baseColor,
+                                              int hueToAdd,
+                                              int saturationToAdd,
+                                              int brightnessToAdd) {
+
+<span class="nc" id="L420">            float[] hsbValues = toHsb(baseColor);</span>
+
+            // In HSB color space, Hue goes from 0 to 360, Saturation and Brightness
+            // from 0 to 100. However, in Java all three parameters vary from 0.0 to
+            // 1.0, so we need some basic conversion.
+<span class="nc" id="L425">            hsbValues[0] = (float) (hsbValues[0] + hueToAdd / 360.0);</span>
+            // The hue needs to wrap around, so just keep hue - floor(hue).
+<span class="nc" id="L427">            hsbValues[0] -= (float) Math.floor(hsbValues[0]);</span>
+
+            // For saturation and brightness, no wrapping around, we just make sure
+            // we don't go over 1.0 or under 0.0
+<span class="nc" id="L431">            hsbValues[1] = (float) Math.min(1.0, Math.max(0,</span>
+                    hsbValues[1] + saturationToAdd / 100.0));
+<span class="nc" id="L433">            hsbValues[2] = (float) Math.min(1.0, Math.max(0,</span>
+                    hsbValues[2] + brightnessToAdd / 100.0));
+
+<span class="nc" id="L436">            return Color.getHSBColor(hsbValues[0], hsbValues[1], hsbValues[2]);</span>
+        }
+    }
+
+    /**
+     * Verify a function argument looks like a color node.
+     */
+    public static void assertArgumentLooksLikeAColor(
+            int argOrdinal, CssValueNode argValue, ErrorManager errorManager)
+            throws GssFunctionException {
+<span class="nc bnc" id="L446" title="All 6 branches missed.">        if (!(argValue instanceof CssHexColorNode</span>
+                || argValue instanceof CssLiteralNode
+                || argValue instanceof CssFunctionNode)) {
+<span class="nc" id="L449">            String message =</span>
+<span class="nc" id="L450">                    String.format(</span>
+                            &quot;Argument %d must be a CssHexColorNode. a CssLiteralNode, or a &quot;
+                                    + &quot;CssFunctionNode, was %s&quot;,
+<span class="nc" id="L453">                            argOrdinal, argValue.getClass().getSimpleName());</span>
+<span class="nc" id="L454">            errorManager.report(new GssError(message, argValue.getSourceCodeLocation()));</span>
+<span class="nc" id="L455">            throw new GssFunctionException(message);</span>
+        }
+<span class="nc bnc" id="L457" title="All 2 branches missed.">        if (argValue instanceof CssFunctionNode) {</span>
+<span class="nc" id="L458">            CssFunctionNode functionNode = (CssFunctionNode) argValue;</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">            if (!functionNode.getFunctionName().equals(&quot;rgb&quot;)</span>
+<span class="nc bnc" id="L460" title="All 2 branches missed.">                    &amp;&amp; !functionNode.getFunctionName().equals(&quot;rgba&quot;)) {</span>
+<span class="nc" id="L461">                String message =</span>
+<span class="nc" id="L462">                        String.format(</span>
+                                &quot;Could not interpret argument %d as a color. Function must be 'rgb' or&quot;
+                                        + &quot; 'rgba', was %s&quot;,
+<span class="nc" id="L465">                                argOrdinal, functionNode.getFunctionName());</span>
+<span class="nc" id="L466">                errorManager.report(new GssError(message, argValue.getSourceCodeLocation()));</span>
+<span class="nc" id="L467">                throw new GssFunctionException(message);</span>
+            }
+        }
+<span class="nc" id="L470">    }</span>
+
+    /**
+     * Abstract base class providing HSL color space manipulation functions.
+     */
+<span class="fc" id="L475">    public abstract static class BaseHslColorManipulation {</span>
+
+        protected String addHslToCssColor(
+                String baseColorString, String hueToAdd, String saturationToAdd,
+                String lightnessToAdd) throws GssFunctionException {
+            try {
+<span class="fc" id="L481">                return addHslToCssColor(</span>
+                        baseColorString,
+<span class="fc" id="L483">                        Integer.parseInt(hueToAdd),</span>
+<span class="fc" id="L484">                        Integer.parseInt(saturationToAdd),</span>
+<span class="fc" id="L485">                        Integer.parseInt(lightnessToAdd));</span>
+<span class="nc" id="L486">            } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L487">                String message = String.format(&quot;Could not parse the &quot;</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">                                + (e instanceof NumberFormatException ? &quot;integer arguments&quot; : &quot;color argument&quot;)</span>
+                                + &quot; for the function 'addHslToCssColor'. The list of arguments was:&quot;
+                                + &quot; %s, %s, %s, %s. &quot;,
+                        baseColorString, hueToAdd, saturationToAdd, lightnessToAdd);
+<span class="nc" id="L492">                throw new GssFunctionException(message);</span>
+            }
+        }
+
+        /**
+         * Takes a CSS color string, and adds the specified amount of hue,
+         * saturation and lightness to it in HSL color space
+         *
+         * @param baseColorString The string representing the color to change
+         * @param hueToAdd        The amount of hue to add (can be negative)
+         * @param saturationToAdd The amount of saturation to add (can be negative)
+         * @param lightnessToAdd  The amount of lightness to add (can be negative)
+         * @return A CSS String representing the new color
+         */
+        protected String addHslToCssColor(String baseColorString,
+                                          int hueToAdd,
+                                          int saturationToAdd,
+                                          int lightnessToAdd) {
+
+            // Skip transformation for the transparent color.
+<span class="pc bpc" id="L512" title="1 of 2 branches missed.">            if (&quot;transparent&quot;.equals(baseColorString)) {</span>
+<span class="nc" id="L513">                return baseColorString;</span>
+            }
+
+<span class="fc" id="L516">            Color baseColor = ColorParser.parseAny(baseColorString);</span>
+<span class="fc" id="L517">            Color newColor = addValuesToHslComponents(baseColor,</span>
+                    hueToAdd,
+                    saturationToAdd,
+                    lightnessToAdd);
+
+<span class="fc" id="L522">            return formatColor(newColor);</span>
+        }
+
+        /**
+         * Adds the specified amount to the specified HSL (Hue, Saturation,
+         * Lightness) parameter of the given color. The amount can be negative.
+         *
+         * @param baseColor       The color to modify
+         * @param hueToAdd        The amount of hue to add
+         * @param saturationToAdd The amount of saturation to add
+         * @param lightnessToAdd  The amount of lightness to add
+         * @return The modified color
+         */
+        private Color addValuesToHslComponents(Color baseColor,
+                                               int hueToAdd,
+                                               int saturationToAdd,
+                                               int lightnessToAdd) {
+
+<span class="fc" id="L540">            float[] hslValues = toHsl(baseColor);</span>
+
+            // In HSL color space, Hue goes from 0 to 360, Saturation and Lightness
+            // from 0 to 100. However, in Java all three parameters vary from 0.0 to
+            // 1.0, so we need some basic conversion.
+<span class="fc" id="L545">            hslValues[0] = (float) (hslValues[0] + hueToAdd / 360.0);</span>
+            // The hue needs to wrap around, so just keep hue - floor(hue).
+<span class="fc" id="L547">            hslValues[0] -= (float) Math.floor(hslValues[0]);</span>
+
+            // For saturation and lightness, no wrapping around, we just make sure
+            // we don't go over 1.0 or under 0.0
+<span class="fc" id="L551">            hslValues[1] = (float) Math.min(1.0, Math.max(0,</span>
+                    hslValues[1] + saturationToAdd / 100.0));
+<span class="fc" id="L553">            hslValues[2] = (float) Math.min(1.0, Math.max(0,</span>
+                    hslValues[2] + lightnessToAdd / 100.0));
+
+<span class="fc" id="L556">            return hslToColor(hslValues);</span>
+        }
+    }
+
+    /**
+     * Increase the saturation of the specified color. First argument is the
+     * color, second is the absolute amount of saturation in HSL color space
+     * to add (from 0 to 100).
+     */
+<span class="fc" id="L565">    public static class SaturateColor extends BaseHslColorManipulation implements GssFunction {</span>
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L568">            return 2;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="nc" id="L574">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L575">            CssValueNode arg2 = args.get(1);</span>
+
+<span class="nc" id="L577">            assertArgumentLooksLikeAColor(1, arg1, errorManager);</span>
+            CssNumericNode numeric2;
+<span class="nc bnc" id="L579" title="All 2 branches missed.">            if (arg2 instanceof CssNumericNode) {</span>
+<span class="nc" id="L580">                numeric2 = (CssNumericNode) arg2;</span>
+            } else {
+<span class="nc" id="L582">                String message = &quot;The second argument must be a CssNumericNode&quot;;</span>
+<span class="nc" id="L583">                errorManager.report(</span>
+<span class="nc" id="L584">                        new GssError(message, arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L585">                throw new GssFunctionException(message);</span>
+            }
+
+            try {
+<span class="nc" id="L589">                String resultString =</span>
+<span class="nc" id="L590">                        addHslToCssColor(arg1.getValue(),</span>
+                                &quot;0&quot;,
+<span class="nc" id="L592">                                numeric2.getNumericPart(),</span>
+                                &quot;0&quot;);
+
+<span class="nc" id="L595">                CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L596">                        arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L597">                return ImmutableList.of((CssValueNode) result);</span>
+<span class="nc" id="L598">            } catch (GssFunctionException e) {</span>
+<span class="nc" id="L599">                errorManager.report(</span>
+<span class="nc" id="L600">                        new GssError(e.getMessage(), arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L601">                throw e;</span>
+            }
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="fc" id="L608">            String baseColorString = args.get(0);</span>
+<span class="fc" id="L609">            return addHslToCssColor(</span>
+<span class="fc" id="L610">                    baseColorString, &quot;0&quot;, args.get(1), &quot;0&quot;);</span>
+        }
+    }
+
+    /**
+     * Decrease the saturation of the specified color. First argument is the
+     * color, second is the absolute amount of saturation in HSL color space
+     * to substract (from 0 to 100).
+     */
+<span class="fc" id="L619">    public static class DesaturateColor extends BaseHslColorManipulation implements GssFunction {</span>
+
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L623">            return 2;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="nc" id="L629">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L630">            CssValueNode arg2 = args.get(1);</span>
+
+<span class="nc" id="L632">            assertArgumentLooksLikeAColor(1, arg1, errorManager);</span>
+            CssNumericNode numeric2;
+<span class="nc bnc" id="L634" title="All 2 branches missed.">            if (arg2 instanceof CssNumericNode) {</span>
+<span class="nc" id="L635">                numeric2 = (CssNumericNode) arg2;</span>
+            } else {
+<span class="nc" id="L637">                String message = &quot;The second argument must be a CssNumericNode&quot;;</span>
+<span class="nc" id="L638">                errorManager.report(new GssError(message, arg2</span>
+<span class="nc" id="L639">                        .getSourceCodeLocation()));</span>
+<span class="nc" id="L640">                throw new GssFunctionException(message);</span>
+            }
+
+            try {
+<span class="nc" id="L644">                String resultString = addHslToCssColor(arg1.getValue(), &quot;0&quot;,</span>
+<span class="nc" id="L645">                        &quot;-&quot; + numeric2.getNumericPart(), &quot;0&quot;);</span>
+
+<span class="nc" id="L647">                CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L648">                        arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L649">                return ImmutableList.of((CssValueNode) result);</span>
+<span class="nc" id="L650">            } catch (GssFunctionException e) {</span>
+<span class="nc" id="L651">                errorManager.report(new GssError(e.getMessage(), arg2</span>
+<span class="nc" id="L652">                        .getSourceCodeLocation()));</span>
+<span class="nc" id="L653">                throw e;</span>
+            }
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="fc" id="L660">            String baseColorString = args.get(0);</span>
+<span class="fc" id="L661">            return addHslToCssColor(baseColorString, &quot;0&quot;, &quot;-&quot;</span>
+<span class="fc" id="L662">                    + args.get(1), &quot;0&quot;);</span>
+        }
+    }
+
+    /**
+     * Convert the color to a grayscale (desaturation with amount of 100).
+     */
+<span class="fc" id="L669">    public static class Greyscale extends BaseHslColorManipulation implements GssFunction {</span>
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L672">            return 1;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="nc" id="L678">            CssValueNode arg1 = args.get(0);</span>
+
+<span class="nc bnc" id="L680" title="All 4 branches missed.">            if (!(arg1 instanceof CssHexColorNode</span>
+                    || arg1 instanceof CssLiteralNode)) {
+<span class="nc" id="L682">                String message =</span>
+                        &quot;The argument must be a CssHexColorNode or a CssLiteralNode.&quot;;
+<span class="nc" id="L684">                errorManager.report(</span>
+<span class="nc" id="L685">                        new GssError(message, arg1.getSourceCodeLocation()));</span>
+<span class="nc" id="L686">                throw new GssFunctionException(message);</span>
+            }
+
+            try {
+<span class="nc" id="L690">                String resultString =</span>
+<span class="nc" id="L691">                        addHslToCssColor(arg1.getValue(),</span>
+                                &quot;0&quot;,
+                                &quot;-100&quot;,
+                                &quot;0&quot;);
+
+<span class="nc" id="L696">                CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L697">                        arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L698">                return ImmutableList.of((CssValueNode) result);</span>
+<span class="nc" id="L699">            } catch (GssFunctionException e) {</span>
+<span class="nc" id="L700">                errorManager.report(</span>
+<span class="nc" id="L701">                        new GssError(e.getMessage(), arg1.getSourceCodeLocation()));</span>
+<span class="nc" id="L702">                throw e;</span>
+            }
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="fc" id="L709">            String baseColorString = args.get(0);</span>
+<span class="fc" id="L710">            return addHslToCssColor(</span>
+                    baseColorString, &quot;0&quot;, &quot;-100&quot;, &quot;0&quot;);
+        }
+    }
+
+    /**
+     * Increase the lightness of a color. First argument is the color, second
+     * is the lighten to add, between 0 and 100.
+     */
+<span class="fc" id="L719">    public static class Lighten extends BaseHslColorManipulation implements GssFunction {</span>
+
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L723">            return 2;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="nc" id="L729">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L730">            CssValueNode arg2 = args.get(1);</span>
+
+<span class="nc" id="L732">            assertArgumentLooksLikeAColor(1, arg1, errorManager);</span>
+            CssNumericNode numeric2;
+<span class="nc bnc" id="L734" title="All 2 branches missed.">            if (arg2 instanceof CssNumericNode) {</span>
+<span class="nc" id="L735">                numeric2 = (CssNumericNode) arg2;</span>
+            } else {
+<span class="nc" id="L737">                String message = &quot;The second argument must be a CssNumericNode&quot;;</span>
+<span class="nc" id="L738">                errorManager.report(</span>
+<span class="nc" id="L739">                        new GssError(message, arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L740">                throw new GssFunctionException(message);</span>
+            }
+
+            try {
+<span class="nc" id="L744">                String resultString =</span>
+<span class="nc" id="L745">                        addHslToCssColor(arg1.getValue(),</span>
+                                &quot;0&quot;,
+                                &quot;0&quot;,
+<span class="nc" id="L748">                                numeric2.getNumericPart());</span>
+
+<span class="nc" id="L750">                CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L751">                        arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L752">                return ImmutableList.of((CssValueNode) result);</span>
+<span class="nc" id="L753">            } catch (GssFunctionException e) {</span>
+<span class="nc" id="L754">                errorManager.report(</span>
+<span class="nc" id="L755">                        new GssError(e.getMessage(), arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L756">                throw e;</span>
+            }
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="fc" id="L763">            String baseColorString = args.get(0);</span>
+<span class="fc" id="L764">            return addHslToCssColor(</span>
+<span class="fc" id="L765">                    baseColorString, &quot;0&quot;, &quot;0&quot;, args.get(1));</span>
+        }
+    }
+
+    /**
+     * Decrease the lightness of a color. First argument is the color, second
+     * is the lighten to remove, between 0 and 100.
+     */
+<span class="fc" id="L773">    public static class Darken extends BaseHslColorManipulation implements GssFunction {</span>
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L776">            return 2;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="nc" id="L782">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L783">            CssValueNode arg2 = args.get(1);</span>
+
+<span class="nc" id="L785">            assertArgumentLooksLikeAColor(1, arg1, errorManager);</span>
+            CssNumericNode numeric2;
+<span class="nc bnc" id="L787" title="All 2 branches missed.">            if (arg2 instanceof CssNumericNode) {</span>
+<span class="nc" id="L788">                numeric2 = (CssNumericNode) arg2;</span>
+            } else {
+<span class="nc" id="L790">                String message = &quot;The second argument must be a CssNumericNode&quot;;</span>
+<span class="nc" id="L791">                errorManager.report(</span>
+<span class="nc" id="L792">                        new GssError(message, arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L793">                throw new GssFunctionException(message);</span>
+            }
+
+            try {
+<span class="nc" id="L797">                String resultString =</span>
+<span class="nc" id="L798">                        addHslToCssColor(arg1.getValue(),</span>
+                                &quot;0&quot;,
+                                &quot;0&quot;,
+<span class="nc" id="L801">                                &quot;-&quot; + numeric2.getNumericPart());</span>
+
+<span class="nc" id="L803">                CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L804">                        arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L805">                return ImmutableList.of((CssValueNode) result);</span>
+<span class="nc" id="L806">            } catch (GssFunctionException e) {</span>
+<span class="nc" id="L807">                errorManager.report(</span>
+<span class="nc" id="L808">                        new GssError(e.getMessage(), arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L809">                throw e;</span>
+            }
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="fc" id="L816">            String baseColorString = args.get(0);</span>
+<span class="fc" id="L817">            return addHslToCssColor(</span>
+<span class="fc" id="L818">                    baseColorString, &quot;0&quot;, &quot;0&quot;, &quot;-&quot; + args.get(1));</span>
+        }
+    }
+
+    /**
+     * Increase or decrease the hue of a color. First argument is the color, second
+     * is the hue to add or remove, between 0 and 360.
+     * It's like rotating the color on a color wheel and hue is the angle to apply.
+     */
+<span class="fc" id="L827">    public static class Spin extends BaseHslColorManipulation implements GssFunction {</span>
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L830">            return 2;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="nc" id="L836">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L837">            CssValueNode arg2 = args.get(1);</span>
+
+<span class="nc" id="L839">            assertArgumentLooksLikeAColor(1, arg1, errorManager);</span>
+            CssNumericNode numeric2;
+<span class="nc bnc" id="L841" title="All 2 branches missed.">            if (arg2 instanceof CssNumericNode) {</span>
+<span class="nc" id="L842">                numeric2 = (CssNumericNode) arg2;</span>
+            } else {
+<span class="nc" id="L844">                String message = &quot;The second argument must be a CssNumericNode&quot;;</span>
+<span class="nc" id="L845">                errorManager.report(</span>
+<span class="nc" id="L846">                        new GssError(message, arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L847">                throw new GssFunctionException(message);</span>
+            }
+
+            try {
+<span class="nc" id="L851">                String resultString =</span>
+<span class="nc" id="L852">                        addHslToCssColor(arg1.getValue(),</span>
+<span class="nc" id="L853">                                numeric2.getNumericPart(),</span>
+                                &quot;0&quot;,
+                                &quot;0&quot;);
+
+<span class="nc" id="L857">                CssHexColorNode result = new CssHexColorNode(resultString,</span>
+<span class="nc" id="L858">                        arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L859">                return ImmutableList.of((CssValueNode) result);</span>
+<span class="nc" id="L860">            } catch (GssFunctionException e) {</span>
+<span class="nc" id="L861">                errorManager.report(</span>
+<span class="nc" id="L862">                        new GssError(e.getMessage(), arg2.getSourceCodeLocation()));</span>
+<span class="nc" id="L863">                throw e;</span>
+            }
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="fc" id="L870">            String baseColorString = args.get(0);</span>
+<span class="fc" id="L871">            return addHslToCssColor(</span>
+<span class="fc" id="L872">                    baseColorString, args.get(1), &quot;0&quot;, &quot;0&quot;);</span>
+        }
+    }
+
+    /**
+     * Implementation of the makeMutedColor GSS function. This is intended to
+     * generate a muted flavor of a text or link color. Takes three arguments: the
+     * background color over which this text or link will appear, and the text or
+     * link color this should be a muted version of and optionally the loss of
+     * saturation for muted tone (0 &lt;= loss &lt;= 1).
+     */
+<span class="fc" id="L883">    public static class MakeMutedColor implements GssFunction {</span>
+
+<span class="fc" id="L885">        private final float LOSS_OF_SATURATION_FOR_MUTED_TONE = 0.2f;</span>
+<span class="fc" id="L886">        private final String ARGUMENT_COUNT_ERROR_MESSAGE = &quot;makeMutedColor &quot; +</span>
+                &quot;expected arguments: backgroundColorStr, foregroundColorStr and an &quot; +
+                &quot;optional loss of saturation value (0 &lt;= loss &lt;= 1).&quot;;
+
+        /**
+         * Returns the number of expected arguments of this GSS function.
+         *
+         * @return Number of expected arguments
+         */
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L897">            return null;</span>
+        }
+
+        /**
+         * Returns the muted color corresponding to the arguments
+         * documented in {@link MakeMutedColor}.
+         *
+         * @param args The list of arguments.
+         * @return The generated muted color.
+         */
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+
+<span class="nc bnc" id="L911" title="All 4 branches missed.">            if (args.size() != 2 &amp;&amp; args.size() != 3) {</span>
+<span class="nc" id="L912">                throw new GssFunctionException(ARGUMENT_COUNT_ERROR_MESSAGE);</span>
+            }
+
+<span class="nc" id="L915">            CssValueNode backgroundColorNode = args.get(0);</span>
+<span class="nc" id="L916">            CssValueNode foregroundColorNode = args.get(1);</span>
+<span class="nc" id="L917">            String lossOfSaturationForMutedTone =</span>
+<span class="nc" id="L918">                    String.valueOf(LOSS_OF_SATURATION_FOR_MUTED_TONE);</span>
+
+<span class="nc bnc" id="L920" title="All 2 branches missed.">            if (args.size() == 3) {</span>
+<span class="nc" id="L921">                lossOfSaturationForMutedTone = args.get(2).getValue();</span>
+            }
+
+<span class="nc" id="L924">            String backgroundColorStr = backgroundColorNode.getValue();</span>
+<span class="nc" id="L925">            String foregroundColorStr = foregroundColorNode.getValue();</span>
+
+<span class="nc" id="L927">            String resultStr = makeMutedColor(backgroundColorStr, foregroundColorStr,</span>
+                    lossOfSaturationForMutedTone);
+
+<span class="nc" id="L930">            CssHexColorNode result = new CssHexColorNode(resultStr,</span>
+<span class="nc" id="L931">                    backgroundColorNode.getSourceCodeLocation());</span>
+<span class="nc" id="L932">            return ImmutableList.of((CssValueNode) result);</span>
+        }
+
+        protected String makeMutedColor(
+                String backgroundColorStr, String foregroundColorStr, String lossStr) {
+
+            // If the background is transparent, or if the foreground is transparent,
+            // there's really no way we can know how to pick a muted color. We thus
+            // return the foreground color unchanged.
+<span class="nc bnc" id="L941" title="All 2 branches missed.">            if (&quot;transparent&quot;.equalsIgnoreCase(backgroundColorStr)</span>
+<span class="nc bnc" id="L942" title="All 2 branches missed.">                    || &quot;transparent&quot;.equalsIgnoreCase(foregroundColorStr)) {</span>
+<span class="nc" id="L943">                return foregroundColorStr;</span>
+            }
+<span class="nc" id="L945">            Color backgroundColor = ColorParser.parseAny(backgroundColorStr);</span>
+<span class="nc" id="L946">            Color foregroundColor = ColorParser.parseAny(foregroundColorStr);</span>
+
+<span class="nc" id="L948">            float[] backgroundColorHsb = toHsb(backgroundColor);</span>
+<span class="nc" id="L949">            float[] foregroundColorHsb = toHsb(foregroundColor);</span>
+<span class="nc" id="L950">            float lossOfSaturationForMutedTone = Float.valueOf(lossStr);</span>
+
+            // Make sure that 0 &lt;= lossOfSaturationForMutedTone &lt;= 1
+<span class="nc bnc" id="L953" title="All 2 branches missed.">            if (lossOfSaturationForMutedTone &lt; 0) {</span>
+<span class="nc" id="L954">                lossOfSaturationForMutedTone = 0;</span>
+<span class="nc bnc" id="L955" title="All 2 branches missed.">            } else if (lossOfSaturationForMutedTone &gt; 1) {</span>
+<span class="nc" id="L956">                lossOfSaturationForMutedTone = 1;</span>
+            }
+
+            // We take the hue from the foreground color, we desaturate it a little
+            // bit, and choose a brightness halfway between foreground and background.
+            // For example, if the background has a brightness of 50, and 100 for the
+            // foreground, the muted color will have 75. If we have a dark background,
+            // it should be the reverse.
+<span class="nc" id="L964">            float mutedHue = foregroundColorHsb[0];</span>
+<span class="nc" id="L965">            float mutedSaturation = Math.max(</span>
+                    foregroundColorHsb[1] - lossOfSaturationForMutedTone, 0);
+<span class="nc" id="L967">            float mutedBrightness = (foregroundColorHsb[2] + backgroundColorHsb[2]) /</span>
+                    2;
+
+<span class="nc" id="L970">            Color mutedColor</span>
+<span class="nc" id="L971">                    = Color.getHSBColor(mutedHue, mutedSaturation, mutedBrightness);</span>
+
+<span class="nc" id="L973">            return formatColor(mutedColor);</span>
+        }
+
+        protected String makeMutedColor(
+                String backgroundColorStr, String foregroundColorStr) {
+<span class="nc" id="L978">            return makeMutedColor(backgroundColorStr, foregroundColorStr,</span>
+<span class="nc" id="L979">                    String.valueOf(LOSS_OF_SATURATION_FOR_MUTED_TONE));</span>
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args) throws
+                GssFunctionException {
+<span class="nc bnc" id="L985" title="All 2 branches missed.">            if (args.size() == 2) {</span>
+<span class="nc" id="L986">                return makeMutedColor(args.get(0), args.get(1));</span>
+<span class="nc bnc" id="L987" title="All 2 branches missed.">            } else if (args.size() == 3) {</span>
+<span class="nc" id="L988">                return makeMutedColor(args.get(0), args.get(1), args.get(2));</span>
+            } else {
+<span class="nc" id="L990">                throw new GssFunctionException(ARGUMENT_COUNT_ERROR_MESSAGE);</span>
+            }
+        }
+    }
+
+    /**
+     * Implementation of the concat(…) GssFunction. It concatenates a variable number of strings.
+     * e.g. concat('a', 'b') yields 'ab'. Mainly useful for use with constants.
+     */
+<span class="fc" id="L999">    public static class Concat implements GssFunction {</span>
+
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="fc" id="L1003">            return null;  // Variable list of arguments</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args, ErrorManager errorManager)
+                throws GssFunctionException {
+<span class="fc" id="L1009">            StringBuilder result = new StringBuilder();</span>
+<span class="fc bfc" id="L1010" title="All 2 branches covered.">            for (CssValueNode arg : args) {</span>
+<span class="fc" id="L1011">                result.append(arg.getValue());</span>
+<span class="fc" id="L1012">            }</span>
+<span class="fc" id="L1013">            return ImmutableList.of((CssValueNode) new CssStringNode(</span>
+<span class="fc" id="L1014">                    CssStringNode.Type.SINGLE_QUOTED_STRING, result.toString()));</span>
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args) throws GssFunctionException {
+<span class="fc" id="L1019">            StringBuilder result = new StringBuilder();</span>
+<span class="fc bfc" id="L1020" title="All 2 branches covered.">            for (String arg : args) {</span>
+<span class="pc bpc" id="L1021" title="1 of 6 branches missed.">                if (arg.length() &gt; 1 &amp;&amp; ((arg.startsWith(&quot;'&quot;) &amp;&amp; arg.endsWith(&quot;'&quot;))</span>
+<span class="pc bpc" id="L1022" title="2 of 4 branches missed.">                        || (arg.startsWith(&quot;\&quot;&quot;) &amp;&amp; arg.endsWith(&quot;\&quot;&quot;)))) {</span>
+<span class="fc" id="L1023">                    result.append(CssStringNode.unescape(arg.substring(1, arg.length() - 1)));</span>
+                } else {
+<span class="fc" id="L1025">                    result.append(arg);</span>
+                }
+<span class="fc" id="L1027">            }</span>
+<span class="fc" id="L1028">            return new CssStringNode(CssStringNode.Type.SINGLE_QUOTED_STRING, result.toString())</span>
+<span class="fc" id="L1029">                    .toString();</span>
+        }
+    }
+
+
+    /**
+     * Abstract class implementing the shared logic for the arithmetic functions.
+     */
+    private static abstract class LeftAssociativeOperator implements GssFunction {
+
+        /**
+         * Returns the number of expected arguments of this GSS function.
+         *
+         * @return Number of expected arguments
+         */
+        @Override
+        public Integer getNumExpectedArguments() {
+            // Takes a variable number of arguments.
+<span class="fc" id="L1047">            return null;</span>
+        }
+
+        /**
+         * Returns a new value of the same unit as the original.
+         *
+         * @param args The list of arguments
+         * @return The resulting fingerprint as a numeric node in a list
+         */
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) throws GssFunctionException {
+<span class="fc" id="L1059">            List&lt;CssNumericNode&gt; numericList = Lists.newArrayList();</span>
+<span class="fc bfc" id="L1060" title="All 2 branches covered.">            for (CssValueNode arg : args) {</span>
+<span class="fc" id="L1061">                numericList.add(getSizeNode(arg, errorManager,</span>
+                        true /* isUnitOptional */));
+<span class="fc" id="L1063">            }</span>
+<span class="fc" id="L1064">            return ImmutableList.&lt;CssValueNode&gt;of(</span>
+<span class="fc" id="L1065">                    calculate(numericList, errorManager));</span>
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args)
+                throws GssFunctionException {
+<span class="fc" id="L1071">            List&lt;CssNumericNode&gt; numericList = Lists.newArrayList();</span>
+<span class="fc bfc" id="L1072" title="All 2 branches covered.">            for (String arg : args) {</span>
+                // Note, the unit may be 'NO_UNITS'
+<span class="fc" id="L1074">                Size sizeWithUnits = parseSize(arg, true /* isUnitOptional */);</span>
+<span class="fc" id="L1075">                numericList.add(</span>
+                        new CssNumericNode(sizeWithUnits.size, sizeWithUnits.units));
+<span class="fc" id="L1077">            }</span>
+<span class="fc" id="L1078">            CssNumericNode result = calculate(numericList, null);</span>
+<span class="fc" id="L1079">            return result.getNumericPart() + result.getUnit();</span>
+        }
+
+        // Note: Keep an eye on the performance of these functions, as creating
+        // intermediate CssNumericNodes may be wasteful. Instead, the values in the
+        // nodes could be used directly for computation, though that may make
+        // accurate error reporting more difficult.
+
+        protected CssNumericNode calculate(List&lt;CssNumericNode&gt; args,
+                                           ErrorManager errorManager) throws GssFunctionException {
+<span class="fc bfc" id="L1089" title="All 2 branches covered.">            if (args.size() &lt; 2) {</span>
+<span class="fc" id="L1090">                throw error(&quot;Not enough arguments&quot;,</span>
+<span class="fc" id="L1091">                        errorManager, args.get(0).getSourceCodeLocation());</span>
+            }
+
+<span class="fc" id="L1094">            double total = Double.valueOf(args.get(0).getNumericPart());</span>
+            String overallUnit =
+<span class="fc bfc" id="L1096" title="All 2 branches covered.">                    isIdentityValue(total) ? null : args.get(0).getUnit();</span>
+
+<span class="fc bfc" id="L1098" title="All 2 branches covered.">            for (CssNumericNode node : args.subList(1, args.size())) {</span>
+<span class="fc" id="L1099">                double value = Double.valueOf(node.getNumericPart());</span>
+<span class="fc bfc" id="L1100" title="All 2 branches covered.">                if (isIdentityValue(value)) {</span>
+<span class="fc" id="L1101">                    continue;</span>
+                }
+<span class="fc bfc" id="L1103" title="All 2 branches covered.">                if (overallUnit == null) {</span>
+<span class="fc" id="L1104">                    overallUnit = node.getUnit();</span>
+<span class="fc bfc" id="L1105" title="All 2 branches covered.">                } else if (!overallUnit.equals(node.getUnit())) {</span>
+<span class="fc" id="L1106">                    throw error(</span>
+                            &quot;Parameters' units don't match (\&quot;&quot;
+<span class="fc" id="L1108">                                    + overallUnit + &quot;\&quot; vs \&quot;&quot; + node.getUnit() + &quot;\&quot;)&quot;,</span>
+<span class="fc" id="L1109">                            errorManager, node.getSourceCodeLocation());</span>
+                }
+<span class="fc" id="L1111">                total = performOperation(total, value);</span>
+<span class="fc" id="L1112">            }</span>
+<span class="fc" id="L1113">            String resultString = new DecimalFormat(DECIMAL_FORMAT, US_SYMBOLS).format(total);</span>
+
+<span class="fc" id="L1115">            return new CssNumericNode(resultString,</span>
+<span class="pc bpc" id="L1116" title="1 of 2 branches missed.">                    overallUnit != null ? overallUnit : CssNumericNode.NO_UNITS,</span>
+<span class="fc" id="L1117">                    args.get(0).getSourceCodeLocation());</span>
+        }
+
+        // Perform the mathematical operation.
+        protected abstract double performOperation(double left, double right);
+
+        /**
+         * By default, this method returns {@code false}.
+         *
+         * @return whether the identity value has no effect on the output. In this
+         * case, any units (px, pt, etc.) will be ignored.
+         */
+        protected boolean isIdentityValue(double value) {
+<span class="fc" id="L1130">            return false;</span>
+        }
+    }
+
+
+    /**
+     * The &quot;add()&quot; function adds a list of numeric values.
+     */
+<span class="fc" id="L1138">    public static class AddToNumericValue extends LeftAssociativeOperator {</span>
+        @Override
+        protected double performOperation(double left, double right) {
+<span class="fc" id="L1141">            return left + right;</span>
+        }
+
+        @Override
+        protected boolean isIdentityValue(double value) {
+<span class="fc bfc" id="L1146" title="All 2 branches covered.">            return value == 0.0;</span>
+        }
+    }
+
+    /**
+     * The &quot;sub()&quot; function subtracts a list of numeric values.
+     * SubtractFromNumericValue(a, b, c) evaluates to ((a - b) - c).
+     */
+<span class="fc" id="L1154">    public static class SubtractFromNumericValue extends LeftAssociativeOperator {</span>
+        @Override
+        protected double performOperation(double left, double right) {
+<span class="fc" id="L1157">            return left - right;</span>
+        }
+
+        @Override
+        protected boolean isIdentityValue(double value) {
+<span class="fc bfc" id="L1162" title="All 2 branches covered.">            return value == 0.0;</span>
+        }
+    }
+
+    /**
+     * A {@link GssFunction} that returns the max value from its list of
+     * arguments.
+     */
+<span class="fc" id="L1170">    public static class MaxValue extends LeftAssociativeOperator {</span>
+        @Override
+        protected double performOperation(double left, double right) {
+<span class="fc" id="L1173">            return Math.max(left, right);</span>
+        }
+    }
+
+    /**
+     * A {@link GssFunction} that returns the min value from its list of
+     * arguments.
+     */
+<span class="fc" id="L1181">    public static class MinValue extends LeftAssociativeOperator {</span>
+        @Override
+        protected double performOperation(double left, double right) {
+<span class="fc" id="L1184">            return Math.min(left, right);</span>
+        }
+    }
+
+    /**
+     * A {@link ScalarLeftAssociativeOperator} is a left associative operator
+     * whose arguments are all scalars, with the possible exception of the first
+     * argument, which may be a {@link Size} rather than a scalar.
+     */
+<span class="fc" id="L1193">    private static abstract class ScalarLeftAssociativeOperator extends</span>
+            LeftAssociativeOperator {
+
+        @Override
+        protected CssNumericNode calculate(List&lt;CssNumericNode&gt; args,
+                                           ErrorManager errorManager) throws GssFunctionException {
+<span class="pc bpc" id="L1199" title="1 of 2 branches missed.">            if (args.size() == 0) {</span>
+<span class="nc" id="L1200">                throw error(&quot;Not enough arguments&quot;,</span>
+<span class="nc" id="L1201">                        errorManager, args.get(0).getSourceCodeLocation());</span>
+            }
+
+<span class="fc" id="L1204">            double total = Double.valueOf(args.get(0).getNumericPart());</span>
+<span class="fc" id="L1205">            String overallUnit = args.get(0).getUnit();</span>
+
+<span class="fc bfc" id="L1207" title="All 2 branches covered.">            for (CssNumericNode node : args.subList(1, args.size())) {</span>
+<span class="pc bpc" id="L1208" title="1 of 2 branches missed.">                if (node.getUnit() != null</span>
+<span class="fc bfc" id="L1209" title="All 2 branches covered.">                        &amp;&amp; !node.getUnit().equals(CssNumericNode.NO_UNITS)) {</span>
+<span class="fc" id="L1210">                    throw error(</span>
+                            &quot;Only the first argument may have a unit associated with it, &quot;
+<span class="fc" id="L1212">                                    + &quot; but has unit: &quot; + node.getUnit(),</span>
+<span class="fc" id="L1213">                            errorManager, node.getSourceCodeLocation());</span>
+                }
+
+<span class="fc" id="L1216">                double value = Double.valueOf(node.getNumericPart());</span>
+<span class="fc" id="L1217">                total = performOperation(total, value);</span>
+<span class="fc" id="L1218">            }</span>
+<span class="fc" id="L1219">            String resultString = new DecimalFormat(DECIMAL_FORMAT, US_SYMBOLS).format(total);</span>
+
+<span class="fc" id="L1221">            return new CssNumericNode(resultString,</span>
+<span class="pc bpc" id="L1222" title="1 of 2 branches missed.">                    overallUnit != null ? overallUnit : CssNumericNode.NO_UNITS,</span>
+<span class="fc" id="L1223">                    args.get(0).getSourceCodeLocation());</span>
+        }
+    }
+
+    /**
+     * A {@link GssFunction} that returns the product of its arguments. Only the
+     * first argument may have a unit.
+     */
+<span class="fc" id="L1231">    public static class Mult extends ScalarLeftAssociativeOperator {</span>
+        @Override
+        protected double performOperation(double left, double right) {
+<span class="fc" id="L1234">            return left * right;</span>
+        }
+
+        @Override
+        protected boolean isIdentityValue(double value) {
+<span class="nc bnc" id="L1239" title="All 2 branches missed.">            return value == 1.0;</span>
+        }
+    }
+
+    /**
+     * A {@link GssFunction} that returns the quotient of its arguments. Only the
+     * first argument may have a unit.
+     */
+<span class="fc" id="L1247">    public static class Div extends ScalarLeftAssociativeOperator {</span>
+        @Override
+        protected double performOperation(double left, double right) {
+<span class="fc" id="L1250">            return left / right;</span>
+        }
+
+        @Override
+        protected boolean isIdentityValue(double value) {
+<span class="nc bnc" id="L1255" title="All 2 branches missed.">            return value == 1.0;</span>
+        }
+    }
+
+    /**
+     * Implementation of the adjustBrightness GSS function. This generates
+     * a slightly differentiated color suitable for hover styling. Takes the
+     * color to modify as the first argument, and the requested brightness
+     * difference as a second argument (between 0 and 100). This function will
+     * always ensure that the returned color is different from the input, e.g.
+     * attempting to &quot;brighten&quot; white will return a light grey instead of white,
+     * but if it isn't possible to find a color that matches the request
+     * difference (e.g. asking to brighten by 100 from a medium bright color),
+     * the returned value will be a color with a difference from the input color
+     * as close as possible to what is being requested. See the unit test for
+     * some examples.
+     */
+<span class="fc" id="L1272">    public static class AdjustBrightness implements GssFunction {</span>
+
+        /**
+         * Returns the number of expected arguments of this GSS function.
+         *
+         * @return Number of expected arguments
+         */
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L1281">            return 2;</span>
+        }
+
+        /**
+         * Returns the hover color corresponding to the argument
+         * documented in {@link AdjustBrightness}.
+         *
+         * @param args The list of arguments.
+         * @return The generated hover color.
+         */
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(List&lt;CssValueNode&gt; args,
+                                                     ErrorManager errorManager) {
+
+<span class="nc" id="L1295">            CssValueNode originalColorNode = args.get(0);</span>
+<span class="nc" id="L1296">            CssValueNode brightnessAmount = args.get(1);</span>
+
+<span class="nc" id="L1298">            String originalColorStr = originalColorNode.getValue();</span>
+<span class="nc" id="L1299">            String brightnessAmountStr =</span>
+<span class="nc" id="L1300">                    ((CssNumericNode) brightnessAmount).getNumericPart();</span>
+
+<span class="nc" id="L1302">            String resultStr = adjustBrightness(originalColorStr,</span>
+                    brightnessAmountStr);
+
+<span class="nc" id="L1305">            CssHexColorNode result = new CssHexColorNode(resultStr,</span>
+<span class="nc" id="L1306">                    originalColorNode.getSourceCodeLocation());</span>
+<span class="nc" id="L1307">            return ImmutableList.of((CssValueNode) result);</span>
+        }
+
+        private float normalize(float value) {
+<span class="nc bnc" id="L1311" title="All 2 branches missed.">            if (value &gt; 1.0) {</span>
+<span class="nc" id="L1312">                return 1;</span>
+            }
+<span class="nc bnc" id="L1314" title="All 2 branches missed.">            if (value &lt; 0.0) {</span>
+<span class="nc" id="L1315">                return 0;</span>
+            }
+<span class="nc" id="L1317">            return value;</span>
+        }
+
+        private String formatColorWithAdjustedBrightness(float[] originalHsb,
+                                                         float adjustedBrightness) {
+<span class="nc" id="L1322">            return formatColor(Color.getHSBColor(originalHsb[0],</span>
+                    originalHsb[1], adjustedBrightness));
+        }
+
+        protected String adjustBrightness(String originalColorStr,
+                                          String brightnessStr) {
+
+            // If the input color is transparent, there's really no way we can know
+            // how to pick a good output color. We thus return the color unchanged.
+<span class="nc bnc" id="L1331" title="All 2 branches missed.">            if (&quot;transparent&quot;.equalsIgnoreCase(originalColorStr)) {</span>
+<span class="nc" id="L1332">                return originalColorStr;</span>
+            }
+<span class="nc" id="L1334">            Color originalColor = ColorParser.parseAny(originalColorStr);</span>
+<span class="nc" id="L1335">            float brightnessFloat = Float.parseFloat(brightnessStr) / (float) 100.0;</span>
+
+<span class="nc" id="L1337">            float[] originalColorHsb = toHsb(originalColor);</span>
+<span class="nc" id="L1338">            float requestedBrightness = originalColorHsb[2] + brightnessFloat;</span>
+
+            // If we're not &quot;saturating&quot; to white or black, then we can meet
+            // exactly what the caller requests.
+<span class="nc bnc" id="L1342" title="All 4 branches missed.">            if (requestedBrightness &gt;= 0.0 &amp;&amp; requestedBrightness &lt;= 1.0) {</span>
+<span class="nc" id="L1343">                return formatColorWithAdjustedBrightness(originalColorHsb,</span>
+                        requestedBrightness);
+            }
+
+            // If we can't get exactly what's requested, we try both directions to
+            // be as close as possible to the requested brightness difference.
+<span class="nc" id="L1349">            requestedBrightness = normalize(requestedBrightness);</span>
+<span class="nc" id="L1350">            float oppositeDirectionBrightness =</span>
+<span class="nc" id="L1351">                    normalize(originalColorHsb[2] - brightnessFloat);</span>
+
+            // Calculate the distance between what the caller requests and the two
+            // possibilites we have, then return the closest.
+<span class="nc" id="L1355">            float chosenBrightness = Math.abs(brightnessFloat -</span>
+<span class="nc" id="L1356">                    (originalColorHsb[2] - requestedBrightness)) &gt;</span>
+<span class="nc bnc" id="L1357" title="All 2 branches missed.">                    Math.abs(brightnessFloat -</span>
+                            (originalColorHsb[2] - oppositeDirectionBrightness)) ?
+<span class="nc" id="L1359">                    oppositeDirectionBrightness : requestedBrightness;</span>
+<span class="nc" id="L1360">            return formatColorWithAdjustedBrightness(originalColorHsb,</span>
+                    chosenBrightness);
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args) {
+<span class="nc" id="L1366">            return adjustBrightness(args.get(0), args.get(1));</span>
+        }
+    }
+
+
+    /**
+     * The &quot;makeContrastingColor&quot; function generates a contrasting color with the
+     * same hue as the input color.  The generated color passes (or almost
+     * passes) the contrast test described in the W3C accessibility evaluation
+     * working draft {@link &quot;http://www.w3.org/TR/AERT#color-contrast&quot;}.
+     *
+     * &lt;p&gt;The function takes two parameters:
+     * &lt;ul&gt;
+     * &lt;li&gt;The input color to find the contrasting color for,
+     * &lt;li&gt;the similarity value (a float between 0.0 - 1.0) which tells how
+     *   similar the computed color should be to the input color.
+     * &lt;/ul&gt;
+     *
+     * &lt;p&gt;The algorithm for the contrasting color generation is as follows:
+     * &lt;ol&gt;
+     * &lt;li&gt;First a base contrasting color is chosen.  It is either black or
+     *   white, as one of these colors is guaranteed to be in contrast with any
+     *   given color.  Additionally both of these colors are &quot;hue-neutral&quot;, so
+     *   choosing the contrasting color in between the input color and black or
+     *   white should give pleasant results.
+     *
+     * &lt;li&gt;A closest required contrasting color is found.  This is a color in
+     *   between the input color and the base contrasting color.  It has the same
+     *   hue as the input color.  This color is found in HSB color space, by a
+     *   bisection of a line between the input color and the base contrasting
+     *   color.  To improve function performance, a limited number of the
+     *   bisection steps ({@link MakeContrastingColor#NUM_ITERATIONS}) is
+     *   performed.  This gives a constant expected time of function execution.
+     *   At the same time the color that is found may not pass the contrast test,
+     *   but is guaranteed to be close to the &quot;contrast boundary&quot;.
+     *
+     * &lt;li&gt;The output color of the function is an interpolation of the closest
+     *   contrasting color and the base contrasting color.  The interpolation is
+     *   controlled using the &quot;similarity&quot; parameter.  If similarity is set to 1,
+     *   it means that the result is the closest contrasting color.  If
+     *   similarity is set to 0, it means that the result is the base contrasting
+     *   color.
+     * &lt;/ol&gt;
+     */
+<span class="fc" id="L1410">    public static class MakeContrastingColor implements GssFunction {</span>
+
+        /**
+         * Number of iterations to approximate the closest contrasting color.
+         * It is set to a number which should be enough to converge in the 8-bit
+         * color component space we deal with. Since number of iterations is fixed
+         * function computation time is also fixed.
+         */
+        private static final int NUM_ITERATIONS = 8;
+
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L1422">            return 2;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(
+                List&lt;CssValueNode&gt; args, ErrorManager errorManager) {
+<span class="nc" id="L1428">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L1429">            CssValueNode arg2 = args.get(1);</span>
+
+            // TODO(dgajda): We should check the type of the color node.
+<span class="nc" id="L1432">            String color = arg1.getValue();</span>
+<span class="nc" id="L1433">            String similarity = arg2.toString();</span>
+
+<span class="nc" id="L1435">            String resultStr = makeContrastingColor(color, similarity);</span>
+
+<span class="nc" id="L1437">            CssHexColorNode result = new CssHexColorNode(resultStr,</span>
+<span class="nc" id="L1438">                    arg1.getSourceCodeLocation());</span>
+<span class="nc" id="L1439">            return ImmutableList.of((CssValueNode) result);</span>
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args) {
+<span class="nc" id="L1444">            return makeContrastingColor(args.get(0), args.get(1));</span>
+        }
+
+        protected String makeContrastingColor(
+                String inputColorStr, String similarityStr) {
+<span class="nc bnc" id="L1449" title="All 2 branches missed.">            if (&quot;transparent&quot;.equalsIgnoreCase(inputColorStr)) {</span>
+<span class="nc" id="L1450">                return inputColorStr;</span>
+            }
+<span class="nc" id="L1452">            Color inputColor = ColorParser.parseAny(inputColorStr);</span>
+<span class="nc" id="L1453">            float similarity = Float.parseFloat(similarityStr);</span>
+
+<span class="nc" id="L1455">            float[] distantColor = toHsb(</span>
+<span class="nc" id="L1456">                    getDistantColor(inputColor, Color.BLACK, Color.WHITE));</span>
+
+<span class="nc" id="L1458">            float[] startColor = toHsb(inputColor);</span>
+<span class="nc" id="L1459">            float[] endColor = distantColor;</span>
+<span class="nc" id="L1460">            float[] closestContrastColor = null;</span>
+
+<span class="nc bnc" id="L1462" title="All 2 branches missed.">            for (int i = 0; i &lt; NUM_ITERATIONS; i++) {</span>
+<span class="nc" id="L1463">                closestContrastColor = blendSb(startColor, endColor, 0.5f);</span>
+<span class="nc bnc" id="L1464" title="All 2 branches missed.">                if (testContrast(inputColor, hsbToColor(closestContrastColor))) {</span>
+<span class="nc" id="L1465">                    endColor = closestContrastColor;</span>
+                } else {
+<span class="nc" id="L1467">                    startColor = closestContrastColor;</span>
+                }
+            }
+
+<span class="nc" id="L1471">            float[] resultColor = blendSb(</span>
+                    closestContrastColor, distantColor, similarity);
+<span class="nc" id="L1473">            return formatColor(hsbToColor(resultColor));</span>
+        }
+
+        private Color getDistantColor(
+                Color color, Color first, Color second) {
+<span class="nc" id="L1478">            int firstLuminanceDiff = ColorUtil.luminanceDiff(color, first);</span>
+<span class="nc" id="L1479">            int secondLuminanceDiff = ColorUtil.luminanceDiff(color, second);</span>
+<span class="nc bnc" id="L1480" title="All 2 branches missed.">            return firstLuminanceDiff &gt;= secondLuminanceDiff ? first : second;</span>
+        }
+
+        private float[] blendSb(float[] keepHue, float[] other, float similarity) {
+<span class="nc" id="L1484">            float[] result = Arrays.copyOf(keepHue, keepHue.length);</span>
+<span class="nc" id="L1485">            mix(ColorUtil.S, keepHue, other, similarity, result);</span>
+<span class="nc" id="L1486">            mix(ColorUtil.B, keepHue, other, similarity, result);</span>
+<span class="nc" id="L1487">            return result;</span>
+        }
+
+        private void mix(
+                int componentIdx, float[] sourceHsb, float[] otherColorHsb,
+                float sourceSimilarity, float[] resultHsb) {
+<span class="nc" id="L1493">            resultHsb[componentIdx] =</span>
+                    sourceHsb[componentIdx] * sourceSimilarity
+                            + otherColorHsb[componentIdx] * (1f - sourceSimilarity);
+<span class="nc" id="L1496">        }</span>
+    }
+
+    /**
+     * Takes an input color and sets its alpha component without affecting
+     * the RGB components.
+     * Usage: makeTranslucent(existingColor, alphaValue);
+     */
+<span class="fc" id="L1504">    public static class MakeTranslucent implements GssFunction {</span>
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L1507">            return 2;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(
+                List&lt;CssValueNode&gt; args, ErrorManager errorManager) {
+<span class="nc" id="L1513">            CssValueNode arg1 = args.get(0);</span>
+<span class="nc" id="L1514">            CssValueNode arg2 = args.get(1);</span>
+
+<span class="nc" id="L1516">            String color = arg1.getValue();</span>
+<span class="nc" id="L1517">            String alpha = arg2.toString();</span>
+
+<span class="nc" id="L1519">            return ImmutableList.of(makeTranslucent(</span>
+<span class="nc" id="L1520">                    color, alpha, arg1.getSourceCodeLocation()));</span>
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args) {
+<span class="fc" id="L1525">            return makeTranslucent(args.get(0), args.get(1), null).getValue();</span>
+        }
+
+        protected CssValueNode makeTranslucent(
+                String inputColorStr, String alphaStr,
+                @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L1531">            Color inputColor = ColorParser.parseAny(inputColorStr);</span>
+<span class="fc" id="L1532">            double alpha = Math.min(1.0, Math.max(0, Float.parseFloat(alphaStr)));</span>
+
+<span class="fc" id="L1534">            float[] rgb = inputColor.getRGBColorComponents(null);</span>
+<span class="fc" id="L1535">            Color outputColor = new Color(rgb[0], rgb[1], rgb[2], (float) alpha);</span>
+
+<span class="fc" id="L1537">            List&lt;CssValueNode&gt; argList = ImmutableList.&lt;CssValueNode&gt;of(</span>
+                    new CssLiteralNode(
+<span class="fc" id="L1539">                            Integer.toString(outputColor.getRed()), sourceCodeLocation),</span>
+                    new CssLiteralNode(
+<span class="fc" id="L1541">                            Integer.toString(outputColor.getGreen()), sourceCodeLocation),</span>
+                    new CssLiteralNode(
+<span class="fc" id="L1543">                            Integer.toString(outputColor.getBlue()), sourceCodeLocation),</span>
+                    new CssLiteralNode(
+<span class="fc" id="L1545">                            new DecimalFormat(&quot;#.###&quot;, US_SYMBOLS).format(outputColor.getAlpha() / 255f),</span>
+                            sourceCodeLocation));
+<span class="fc" id="L1547">            CssValueNode argsValue = new CssCompositeValueNode(</span>
+                    argList, CssCompositeValueNode.Operator.COMMA,
+                    sourceCodeLocation);
+<span class="fc" id="L1550">            CssFunctionNode result = new CssFunctionNode(</span>
+<span class="fc" id="L1551">                    CssFunctionNode.Function.byName(&quot;rgba&quot;),</span>
+                    sourceCodeLocation);
+<span class="fc" id="L1553">            result.setArguments(new CssFunctionArgumentsNode(</span>
+<span class="fc" id="L1554">                    ImmutableList.of(argsValue)));</span>
+<span class="fc" id="L1555">            return result;</span>
+        }
+    }
+
+
+    /**
+     * Allows the equivalent of the ternary operator in GSS, using three
+     * {@code @def} statements as inputs. This GSS:
+     * &lt;p&gt;
+     * {@code @def MYDEF selectFrom(FOO, BAR, BAZ);}
+     * &lt;p&gt;
+     * implies:
+     * &lt;p&gt;
+     * {@code MYDEF = FOO ? BAR : BAZ;}
+     * &lt;p&gt;
+     * So this gss:
+     * &lt;p&gt;
+     * {@code @def FOO true;}
+     * &lt;p&gt;
+     * then implies:
+     * &lt;p&gt;
+     * {@code MYDEF = BAR;}
+     */
+<span class="fc" id="L1578">    public static class SelectFrom implements GssFunction {</span>
+        @Override
+        public Integer getNumExpectedArguments() {
+<span class="nc" id="L1581">            return 3;</span>
+        }
+
+        @Override
+        public List&lt;CssValueNode&gt; getCallResultNodes(
+                List&lt;CssValueNode&gt; args, ErrorManager errorManager) {
+<span class="nc bnc" id="L1587" title="All 2 branches missed.">            return ImmutableList.of(&quot;true&quot;.equals(args.get(0).getValue()) ?</span>
+<span class="nc" id="L1588">                    args.get(1) : args.get(2));</span>
+        }
+
+        @Override
+        public String getCallResultString(List&lt;String&gt; args) {
+<span class="nc bnc" id="L1593" title="All 2 branches missed.">            return &quot;true&quot;.equals(args.get(0)) ? args.get(1) : args.get(2);</span>
+        }
+    }
+
+    public static GssFunctionException error(
+            CssValueNode node, String errorMessage, ErrorManager errorManager) {
+<span class="nc" id="L1599">        return error(errorMessage, errorManager, node.getSourceCodeLocation());</span>
+    }
+
+    private static GssFunctionException error(
+            String errorMessage, ErrorManager errorManager,
+            SourceCodeLocation location) {
+<span class="fc bfc" id="L1605" title="All 2 branches covered.">        if (errorManager != null) {</span>
+<span class="fc" id="L1606">            errorManager.report(new GssError(errorMessage, location));</span>
+        }
+<span class="fc" id="L1608">        return new GssFunctionException(errorMessage);</span>
+    }
+
+    private static CssNumericNode getSizeNode(CssValueNode valueNode,
+                                              ErrorManager errorManager, boolean isUnitOptional)
+            throws GssFunctionException {
+<span class="fc" id="L1614">        SourceCodeLocation location = valueNode.getSourceCodeLocation();</span>
+<span class="fc bfc" id="L1615" title="All 2 branches covered.">        if (valueNode instanceof CssNumericNode) {</span>
+<span class="fc" id="L1616">            CssNumericNode node = (CssNumericNode) valueNode;</span>
+<span class="fc" id="L1617">            checkSize(node.getNumericPart(), node.getUnit(), errorManager, location,</span>
+                    isUnitOptional);
+<span class="fc" id="L1619">            return node;</span>
+        }
+<span class="fc" id="L1621">        String message = &quot;Size must be a CssNumericNode with a unit or 0; &quot;</span>
+<span class="fc" id="L1622">                + &quot;was: &quot; + valueNode.toString();</span>
+<span class="fc" id="L1623">        throw error(message, errorManager, location);</span>
+    }
+
+    private static void checkSize(String valueString, String unit,
+                                  ErrorManager errorManager, SourceCodeLocation location,
+                                  boolean isUnitOptional) throws GssFunctionException {
+<span class="fc bfc" id="L1629" title="All 2 branches covered.">        if (unit.equals(CssNumericNode.NO_UNITS)) {</span>
+<span class="fc" id="L1630">            Double value = Double.parseDouble(valueString);</span>
+<span class="pc bpc" id="L1631" title="1 of 4 branches missed.">            if (value != 0.0 &amp;&amp; !isUnitOptional) {</span>
+<span class="nc" id="L1632">                String message = &quot;Size must be 0 or have a unit; was: &quot;</span>
+                        + valueString + unit;
+<span class="nc" id="L1634">                throw error(message, errorManager, location);</span>
+            }
+        }
+<span class="fc" id="L1637">    }</span>
+
+    /**
+     * Helper method for implementors of GssFunction to allow the creation of
+     * a url string in the GSS.
+     *
+     * @param url The url of the image to add.
+     * @return The proper GSS url string.
+     */
+    public static String createUrl(String url) {
+<span class="nc" id="L1647">        return CssFunctionNode.Function.byName(&quot;url&quot;) + &quot;(&quot; + url + &quot;)&quot;;</span>
+    }
+
+    private static final class Size {
+        final String size;
+        final String units;
+
+<span class="fc" id="L1654">        public Size(String size, String units) {</span>
+<span class="fc" id="L1655">            this.size = size;</span>
+<span class="fc" id="L1656">            this.units = units;</span>
+<span class="fc" id="L1657">        }</span>
+    }
+
+    /**
+     * Helper class for checking if a size string contains units. This class is equivalent to
+     * {@link CharMatcher#javaLetter} except that it also accepts {@code %}.
+     */
+<span class="fc" id="L1664">    private static final CharMatcher UNIT_MATCHER = new CharMatcher() {</span>
+        @Override
+        public boolean matches(char c) {
+<span class="fc bfc" id="L1667" title="All 4 branches covered.">            return Character.isLetter(c) || c == '%';</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L1672">            return &quot;GssFunctions.UNIT_MATCHER&quot;;</span>
+        }
+    };
+
+    private static Size parseSize(String sizeWithUnits, boolean isUnitOptional)
+            throws GssFunctionException {
+<span class="fc" id="L1678">        int unitIndex = UNIT_MATCHER.indexIn(sizeWithUnits);</span>
+<span class="fc bfc" id="L1679" title="All 2 branches covered.">        String size = unitIndex &gt; 0 ?</span>
+<span class="fc" id="L1680">                sizeWithUnits.substring(0, unitIndex) : sizeWithUnits;</span>
+<span class="fc bfc" id="L1681" title="All 2 branches covered.">        String units = unitIndex &gt; 0 ?</span>
+<span class="fc" id="L1682">                sizeWithUnits.substring(unitIndex) : CssNumericNode.NO_UNITS;</span>
+<span class="fc" id="L1683">        checkSize(size, units, null /* errorManager */, null /* location */,</span>
+                isUnitOptional);
+<span class="fc" id="L1685">        return new Size(size, units);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -154,7 +154,7 @@ public enum OutputRenamingMapFormat {
     }
 
     /**
-     * Like {@writeRenamingMap(java.util.Map, java.io.Writer)} but does not throw when writes fail.
+     * Like {@link #writeRenamingMap(java.util.Map, java.io.Writer)} but does not throw when writes fail.
      */
     public final void writeRenamingMap(
             Map<String, String> renamingMap, PrintWriter renamingMapWriter) {

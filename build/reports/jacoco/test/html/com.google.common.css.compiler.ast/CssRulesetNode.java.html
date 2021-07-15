@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssRulesetNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssRulesetNode.java</span></div><h1>CssRulesetNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/**
+ * A node representing a style rule.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssRulesetNode extends CssNode {
+    /**
+     * List of selectors of this style rule.
+     */
+    private CssSelectorListNode selectors;
+    /**
+     * The block of declarations inside this style rule.
+     */
+    private CssDeclarationBlockNode declarations;
+
+    /**
+     * Constructor of a ruleset node.
+     *
+     * @param declarations
+     * @param comments
+     */
+    public CssRulesetNode(CssDeclarationBlockNode declarations,
+                          @Nullable List&lt;CssCommentNode&gt; comments) {
+<span class="fc" id="L47">        super(null, comments, null);</span>
+<span class="fc" id="L48">        Preconditions.checkNotNull(declarations);</span>
+<span class="fc" id="L49">        this.declarations = declarations;</span>
+<span class="fc" id="L50">        becomeParentForNode(this.declarations);</span>
+<span class="fc" id="L51">        this.selectors = new CssSelectorListNode();</span>
+<span class="fc" id="L52">        becomeParentForNode(this.selectors);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Constructor of a ruleset node.
+     *
+     * @param declarations
+     */
+    public CssRulesetNode(CssDeclarationBlockNode declarations) {
+<span class="fc" id="L61">        this(declarations, null);</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Constructor of a ruleset node.
+     */
+    public CssRulesetNode() {
+<span class="fc" id="L68">        this(new CssDeclarationBlockNode());</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Constructor of a ruleset node.
+     *
+     * @param comments
+     */
+    public CssRulesetNode(List&lt;CssCommentNode&gt; comments) {
+<span class="nc" id="L77">        this(new CssDeclarationBlockNode(), comments);</span>
+<span class="nc" id="L78">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssRulesetNode(CssRulesetNode node) {
+<span class="fc" id="L86">        this(node.getDeclarations().deepCopy());</span>
+<span class="fc" id="L87">        this.setSourceCodeLocation(node.getSourceCodeLocation());</span>
+<span class="fc" id="L88">        this.setComments(node.getComments());</span>
+<span class="fc" id="L89">        this.selectors = node.getSelectors().deepCopy();</span>
+<span class="fc" id="L90">    }</span>
+
+    @Override
+    public CssRulesetNode deepCopy() {
+<span class="fc" id="L94">        return new CssRulesetNode(this);</span>
+    }
+
+    public CssSelectorListNode getSelectors() {
+<span class="fc" id="L98">        return selectors;</span>
+    }
+
+    public void setSelectors(CssSelectorListNode selectors) {
+<span class="fc" id="L102">        Preconditions.checkNotNull(selectors);</span>
+<span class="fc" id="L103">        removeAsParentOfNode(this.selectors);</span>
+<span class="fc" id="L104">        this.selectors = selectors;</span>
+<span class="fc" id="L105">        becomeParentForNode(this.selectors);</span>
+<span class="fc" id="L106">    }</span>
+
+    public CssDeclarationBlockNode getDeclarations() {
+<span class="fc" id="L109">        return declarations;</span>
+    }
+
+    public void addDeclaration(CssNode declaration) {
+<span class="fc" id="L113">        declarations.addChildToBack(declaration);</span>
+<span class="fc" id="L114">    }</span>
+
+    public void addSelector(CssSelectorNode selector) {
+<span class="fc" id="L117">        selectors.addChildToBack(selector);</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L125">        String output = &quot;&quot;;</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (!getComments().isEmpty()) {</span>
+<span class="nc" id="L127">            output = getComments().toString();</span>
+        }
+<span class="fc" id="L129">        output += selectors.toString() + &quot;{&quot; + declarations.toString() + &quot;}&quot;;</span>
+
+<span class="fc" id="L131">        return output;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

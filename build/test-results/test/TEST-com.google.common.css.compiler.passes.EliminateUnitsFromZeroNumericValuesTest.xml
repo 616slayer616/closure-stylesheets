@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.008">
+  <properties/>
+  <testcase name="testEnterValueNode1" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.0"/>
+  <testcase name="testEnterValueNode2" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.0"/>
+  <testcase name="testEnterValueNode3" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.001"/>
+  <testcase name="testEnterValueNode4" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.0"/>
+  <testcase name="testEnterValueNode5" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.001"/>
+  <testcase name="testEnterValueNode6" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.0"/>
+  <testcase name="testEnterValueNode7" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.001"/>
+  <testcase name="testEnterValueNode8" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.0"/>
+  <testcase name="testEnterValueNode9" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.003"/>
+  <testcase name="testRunPass" classname="com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValuesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Jul 14, 2021 3:58:49 PM com.google.common.css.compiler.passes.EliminateUnitsFromZeroNumericValues enterValueNode
+WARNING: Numeric part of the numeric value node could not be parsed: woo34px
+]]></system-err>
+</testsuite>

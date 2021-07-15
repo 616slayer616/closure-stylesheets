@@ -166,8 +166,8 @@ public final class DefaultGssSourceMapGenerator implements GssSourceMapGenerator
     }
 
     /**
-     * Sets the prefix to be added to the beginning of each source path passed to
-     * {@link #addMapping} as debuggers expect (prefix + sourceName) to be a URL
+     * Sets the prefix to be added to the beginning of each source path
+     * as debuggers expect (prefix + sourceName) to be a URL
      * for loading the source code.
      *
      * @param path The URL prefix to save in the sourcemap file

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RelocateDefaultComments.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">RelocateDefaultComments.java</span></div><h1>RelocateDefaultComments.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import java.util.List;
+
+/**
+ * A compiler pass that moves all comments of each {@link CssDefinitionNode}'s children to the
+ * {@link CssDefinitionNode} itself. (This is to ensure that &quot;@default&quot; annotations are attached
+ * to the {@link CssDefinitionNode} directly.)
+ */
+public class RelocateDefaultComments extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    private final MutatingVisitController visitController;
+
+<span class="fc" id="L31">    public RelocateDefaultComments(MutatingVisitController visitController) {</span>
+<span class="fc" id="L32">        this.visitController = visitController;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+        //TODO(user): Now it moves up every comment to the CssDefinitionNode.
+        // Later we should move only the annotations &quot;@default&quot;.
+<span class="fc" id="L39">        List&lt;CssCommentNode&gt; comments = node.getComments();</span>
+<span class="fc" id="L40">        CssLiteralNode name = node.getName();</span>
+<span class="fc" id="L41">        List&lt;CssValueNode&gt; params = node.getParameters();</span>
+<span class="fc" id="L42">        List&lt;CssCommentNode&gt; nameComments = name.getComments();</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        for (CssCommentNode c : nameComments) {</span>
+<span class="nc" id="L44">            comments.add(c);</span>
+<span class="nc" id="L45">        }</span>
+<span class="fc" id="L46">        nameComments.clear();</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        for (CssValueNode valueNode : params) {</span>
+<span class="fc" id="L48">            List&lt;CssCommentNode&gt; commentsList = valueNode.getComments();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">            for (CssCommentNode c : commentsList) {</span>
+<span class="fc" id="L50">                comments.add(c);</span>
+<span class="fc" id="L51">            }</span>
+<span class="fc" id="L52">            commentsList.clear();</span>
+<span class="fc" id="L53">        }</span>
+<span class="fc" id="L54">        return true;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L59">        visitController.startVisit(this);</span>
+<span class="fc" id="L60">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

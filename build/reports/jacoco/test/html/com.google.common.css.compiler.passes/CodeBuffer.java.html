@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CodeBuffer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">CodeBuffer.java</span></div><h1>CodeBuffer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+
+import javax.annotation.Nullable;
+
+/**
+ * Class to write/delete characters used by {@link CodePrinter} subclasses to print out code.
+ * It has finalized core public APIs to endure correct update of character index and line index
+ * while operating on the buffer.
+ *
+ * &lt;p&gt;This class can be extended and with helper methods if necessary.
+ *
+ * @author steveyang@google.com (Chenyun Yang)
+ * @see TemplateCompactPrinter
+ *
+ * &lt;p&gt;{@code char} is used as operation unit for methods, there is no support for surrogates.
+ */
+public class CodeBuffer {
+
+    private final StringBuilder sb;
+
+    /**
+     * The index within the line of the next character to be written to the buffer.
+     * Indices start at 0, following source map v3.
+     */
+    private int nextCharIndex;
+
+    /**
+     * The index of the line that will contain the character at nextCharIndex.
+     * Indices start at 0, following source map v3.
+     */
+    private int nextLineIndex;
+
+    /**
+     * The index of the last character written to the buffer.
+     * Indices start at 0, following source map v3.
+     */
+    private int lastCharIndex;
+
+<span class="fc" id="L57">    public CodeBuffer() {</span>
+<span class="fc" id="L58">        this.sb = new StringBuilder();</span>
+<span class="fc" id="L59">        resetIndex();</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Returns buffer as String.
+     */
+    public final String getOutput() {
+<span class="fc" id="L66">        return sb.toString();</span>
+    }
+
+    /**
+     * Returns the current length of the buffer.
+     */
+    public final int getCurrentLength() {
+<span class="fc" id="L73">        return sb.length();</span>
+    }
+
+    /**
+     * Returns the last character in the buffer.
+     */
+    public final char getLastChar() {
+<span class="fc" id="L80">        return sb.charAt(sb.length() - 1);</span>
+    }
+
+    /**
+     * Returns {@link #nextCharIndex}.
+     */
+    public final int getNextCharIndex() {
+<span class="fc" id="L87">        return nextCharIndex;</span>
+    }
+
+    /**
+     * Returns {@link #nextLineIndex}.
+     */
+    public final int getNextLineIndex() {
+<span class="fc" id="L94">        return nextLineIndex;</span>
+    }
+
+    /**
+     * Returns {@link #lastCharIndex}.
+     */
+    public final int getLastCharIndex() {
+<span class="fc" id="L101">        return lastCharIndex;</span>
+    }
+
+    /**
+     * Returns the index of the line which contains the last character at lastCharIndex.
+     * It is always the same or 1 index behind {@link #nextLineIndex}.
+     */
+    public final int getLastLineIndex() {
+<span class="fc" id="L109">        return nextLineIndex - (</span>
+<span class="fc bfc" id="L110" title="All 4 branches covered.">                (sb.length() &gt; 0 &amp;&amp; sb.charAt(sb.length() - 1) == '\n') ? 1 : 0);</span>
+    }
+
+    /**
+     * Appends {@code str} to the buffer. The string is safe to contain newlines.
+     * {@code nextCharIndex} and {@code nextLineIndex} will be updated accordingly.
+     *
+     * &lt;p&gt;Prefer to use append(char c) API to append characters for efficiency.
+     */
+    public final CodeBuffer append(@Nullable String str) {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (str == null) {</span>
+<span class="fc" id="L121">            return this;</span>
+        }
+
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (str.length() == 1) {</span>
+<span class="fc" id="L125">            append(str.charAt(0));</span>
+        } else {
+<span class="fc" id="L127">            String[] parts = str.split(&quot;\n&quot;, -1);</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            for (int i = 0; i &lt; parts.length; i++) {</span>
+<span class="fc" id="L129">                sb.append(parts[i]);</span>
+<span class="fc" id="L130">                incrementIndexBy(parts[i].length());</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">                if (i != (parts.length - 1)) {</span>
+<span class="fc" id="L132">                    startNewLine();</span>
+                }
+            }
+        }
+
+<span class="fc" id="L137">        return this;</span>
+    }
+
+    /**
+     * Appends {@code c} to the buffer and update {@code nextCharIndex}.
+     */
+    public final CodeBuffer append(char c) {
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (c == '\n') {</span>
+<span class="fc" id="L145">            startNewLine();</span>
+        } else {
+<span class="fc" id="L147">            sb.append(c);</span>
+<span class="fc" id="L148">            incrementIndexBy(1);</span>
+        }
+<span class="fc" id="L150">        return this;</span>
+    }
+
+    /**
+     * Appends the {@code toString} representation of {@code o} to the buffer.
+     */
+    public final CodeBuffer append(Object o) {
+<span class="fc" id="L157">        append(o.toString());</span>
+<span class="fc" id="L158">        return this;</span>
+    }
+
+    /**
+     * Appends a newline to buffer, resetting {@code nextCharIndex} and incrementing
+     * {@code nextLineIndex}.
+     */
+    public final CodeBuffer startNewLine() {
+<span class="fc" id="L166">        sb.append('\n');</span>
+<span class="fc" id="L167">        incrementIndexForNewline();</span>
+<span class="fc" id="L168">        return this;</span>
+    }
+
+    /**
+     * Deletes the last character in the buffer and updates the {@code nextCharIndex} and
+     * {@code nextLineIndex}.
+     */
+    public final CodeBuffer deleteLastChar() {
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (getCurrentLength() &gt; 0) {</span>
+<span class="fc" id="L177">            decrementIndex();</span>
+<span class="fc" id="L178">            sb.deleteCharAt(getCurrentLength() - 1);</span>
+        }
+<span class="fc" id="L180">        return this;</span>
+    }
+
+    /**
+     * Deletes last {@code n} characters in the buffer.
+     */
+    public final CodeBuffer deleteLastChars(int n) {
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L188">            deleteLastChar();</span>
+        }
+<span class="fc" id="L190">        return this;</span>
+    }
+
+    /**
+     * Clears the contents of the buffer and resets {@code nextCharIndex}
+     * and {@code nextLineIndex}.
+     */
+    public final CodeBuffer reset() {
+<span class="fc" id="L198">        resetIndex();</span>
+<span class="fc" id="L199">        sb.setLength(0);</span>
+<span class="fc" id="L200">        sb.trimToSize();</span>
+<span class="fc" id="L201">        return this;</span>
+    }
+
+    /**
+     * Deletes the last character from the string builder if the character is as given.
+     *
+     * &lt;p&gt;Subclasses can modify this method in order to delete more in cases where they've added extra
+     * delimiters.
+     *
+     * @param ch the character to delete
+     */
+    public void deleteLastCharIfCharIs(char ch) {
+<span class="pc bpc" id="L213" title="1 of 4 branches missed.">        if (getCurrentLength() &gt; 0 &amp;&amp; getLastChar() == ch) {</span>
+<span class="fc" id="L214">            deleteLastChar();</span>
+        }
+<span class="fc" id="L216">    }</span>
+
+    /**
+     * Deletes the end of the buffer if it exactly equals {@code s}.
+     */
+    public void deleteEndingIfEndingIs(String s) {
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">        if (sb.subSequence(sb.length() - s.length(), sb.length()).equals(s)) {</span>
+<span class="fc" id="L223">            deleteLastChars(s.length());</span>
+        }
+<span class="fc" id="L225">    }</span>
+
+    /**
+     * Updates character-related indexes before or after writing some non-newline characters
+     * to the buffer. Use {@link #incrementIndexForNewline} when writing '\n'.
+     *
+     * @param step numbers of characters writes to buffer
+     */
+    private void incrementIndexBy(int step) {
+<span class="fc bfc" id="L234" title="All 2 branches covered.">        if (step &gt; 0) {</span>
+<span class="fc" id="L235">            lastCharIndex = nextCharIndex + step - 1;</span>
+<span class="fc" id="L236">            nextCharIndex = nextCharIndex + step;</span>
+        }
+<span class="fc" id="L238">    }</span>
+
+    /**
+     * Updates character-related indexes before/after writing a newline character to the buffer.
+     */
+    private void incrementIndexForNewline() {
+        // '\n' is written at {@code nextCharIndex}
+<span class="fc" id="L245">        lastCharIndex = nextCharIndex;</span>
+<span class="fc" id="L246">        nextCharIndex = 0;</span>
+
+        // future writing starts at a new line
+<span class="fc" id="L249">        nextLineIndex++;</span>
+<span class="fc" id="L250">    }</span>
+
+    /**
+     * Updates character-related indexes &lt;b&gt;before&lt;/b&gt; deleting a character in buffer.
+     *
+     * &lt;p&gt;Note: Indexes updates must take place before deletion as the last two chars determine
+     * the behavior.
+     */
+    private void decrementIndex() {
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">        Preconditions.checkState(getCurrentLength() &gt; 0);</span>
+
+<span class="fc" id="L261">        nextCharIndex = lastCharIndex;</span>
+
+        // Need to look at the last character to determine how to update indexes
+<span class="fc" id="L264">        int lastIndex = getCurrentLength() - 1;</span>
+
+        // As a '\n' will be removed, {@code nextLineIndex} should be moved to previous line
+<span class="fc bfc" id="L267" title="All 2 branches covered.">        if (sb.charAt(lastIndex) == '\n') {</span>
+<span class="fc" id="L268">            nextLineIndex--;</span>
+        }
+
+        // When the second to last char is a newline, needs to recalculate the {@code lastCharIndex}
+<span class="fc bfc" id="L272" title="All 4 branches covered.">        if (lastIndex - 1 &gt; 0 &amp;&amp; sb.charAt(lastIndex - 1) == '\n') {</span>
+<span class="fc" id="L273">            int lastNewline = sb.lastIndexOf(&quot;\n&quot;);</span>
+<span class="fc" id="L274">            int secondToLastNewLine = sb.substring(0, lastNewline - 1).lastIndexOf('\n');</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">            if (secondToLastNewLine == -1) {</span>
+                // when only one line left after deletion
+<span class="fc" id="L277">                lastCharIndex = lastNewline - 1;</span>
+            } else {
+                // Adjust to 0-based index for {@code lastCharIndex}.
+<span class="fc" id="L280">                lastCharIndex = lastNewline - secondToLastNewLine - 1;</span>
+            }
+<span class="fc" id="L282">        } else {</span>
+            // Otherwise, when deletion happens on same line, move the index one character to the left
+<span class="fc" id="L284">            lastCharIndex = lastCharIndex - 1;</span>
+        }
+<span class="fc" id="L286">    }</span>
+
+    private void resetIndex() {
+<span class="fc" id="L289">        nextCharIndex = 0;</span>
+<span class="fc" id="L290">        nextLineIndex = 0;</span>
+<span class="fc" id="L291">        lastCharIndex = -1;</span>
+<span class="fc" id="L292">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

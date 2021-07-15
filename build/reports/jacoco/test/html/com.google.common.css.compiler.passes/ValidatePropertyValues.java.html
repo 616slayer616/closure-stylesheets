@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ValidatePropertyValues.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">ValidatePropertyValues.java</span></div><h1>ValidatePropertyValues.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * A compiler pass that validates values of properties.
+ *
+ * &lt;p&gt;This pass exists to validate values that are not fully covered by the grammar definition.
+ */
+public class ValidatePropertyValues extends DefaultTreeVisitor implements CssCompilerPass {
+
+    private static final String UNICODE_RANGE_ERROR = &quot;Invalid expression for unicode range. &quot;
+            + &quot;Expected single codepoint (U+25), range (U+0015-00FF), or wildcard range (U+3??)&quot;;
+    @VisibleForTesting
+    static final String UNICODE_ILLEGAL_CODEPOINT_ERROR = &quot;Unicode code point must be within &quot;
+            + &quot;0-10FFFF&quot;;
+
+    private static final String CODE_POINT_PATTERN = &quot;([\\da-zA-Z]+)&quot;;
+<span class="fc" id="L40">    private static final Pattern UNICODE_RANGE_PATTERN =</span>
+<span class="fc" id="L41">            Pattern.compile(String.format(&quot;U\\+%s(?:-%s)?&quot;, CODE_POINT_PATTERN, CODE_POINT_PATTERN));</span>
+<span class="fc" id="L42">    private static final Pattern UNICODE_WILDCARD_PATTERN =</span>
+<span class="fc" id="L43">            Pattern.compile(String.format(&quot;U\\+%s(\\?+)&quot;, CODE_POINT_PATTERN));</span>
+
+    private final ErrorManager errorManager;
+
+    private final VisitController visitController;
+
+<span class="fc" id="L49">    public ValidatePropertyValues(VisitController visitController, ErrorManager errorManager) {</span>
+<span class="fc" id="L50">        this.visitController = visitController;</span>
+<span class="fc" id="L51">        this.errorManager = errorManager;</span>
+<span class="fc" id="L52">    }</span>
+
+    @Override
+    public boolean enterValueNode(CssValueNode value) {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (value instanceof CssUnicodeRangeNode) {</span>
+<span class="fc" id="L57">            validateUnicodeRangeValue((CssUnicodeRangeNode) value);</span>
+        }
+<span class="fc" id="L59">        return true;</span>
+    }
+
+    /**
+     * Verify that a unicode range value is legal.
+     *
+     * &lt;p&gt;See &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/CSS/unicode-range&quot;&gt;&lt;/a&gt;.
+     */
+    private void validateUnicodeRangeValue(CssUnicodeRangeNode value) {
+<span class="fc" id="L68">        Matcher rangeMatcher = UNICODE_RANGE_PATTERN.matcher(value.getValue());</span>
+<span class="fc" id="L69">        Matcher wildcardMatcher = UNICODE_WILDCARD_PATTERN.matcher(value.getValue());</span>
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">        if (!rangeMatcher.matches() &amp;&amp; !wildcardMatcher.matches()) {</span>
+<span class="nc" id="L71">            reportError(UNICODE_RANGE_ERROR, value);</span>
+<span class="nc" id="L72">            return;</span>
+        }
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (rangeMatcher.matches()) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            for (int i = 1; i &lt;= rangeMatcher.groupCount(); ++i) {</span>
+<span class="fc" id="L77">                validateSingleCodePoint(rangeMatcher.group(i), value);</span>
+            }
+        } else {  // wildcardMatcher.matches() == true.
+            // The second group contains only question marks (?). We concatenate it as zeros to the number
+            // prefix for purpose of validation.
+<span class="fc" id="L82">            String codePoint = wildcardMatcher.group(1) + wildcardMatcher.group(2).replaceAll(&quot;\\?&quot;, &quot;0&quot;);</span>
+<span class="fc" id="L83">            validateSingleCodePoint(codePoint, value);</span>
+        }
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Verifies that a code point is within the permissible range (U+0-10FFFF).
+     */
+    private void validateSingleCodePoint(@Nullable String codePoint, CssUnicodeRangeNode value) {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (codePoint == null) {</span>
+<span class="fc" id="L92">            return;</span>
+        }
+<span class="fc" id="L94">        long asLong = Long.parseLong(codePoint, 16);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (asLong &gt; 0x10FFFF) {</span>
+<span class="fc" id="L96">            reportError(UNICODE_ILLEGAL_CODEPOINT_ERROR, value);</span>
+        }
+<span class="fc" id="L98">    }</span>
+
+    private void reportError(String message, CssNode node) {
+<span class="fc" id="L101">        errorManager.report(new GssError(message, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L102">    }</span>
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L106">        visitController.startVisit(this);</span>
+<span class="fc" id="L107">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

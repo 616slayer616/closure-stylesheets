@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JobDescriptionBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">JobDescriptionBuilder.java</span></div><h1>JobDescriptionBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.*;
+import com.google.common.css.JobDescription.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Aids in the creation of inputs for the compiler. A builder can be used for
+ * creating a single {@link JobDescription}.
+ */
+public class JobDescriptionBuilder {
+    List&lt;SourceCode&gt; inputs;
+    String copyrightNotice;
+    OutputFormat outputFormat;
+    InputOrientation inputOrientation;
+    OutputOrientation outputOrientation;
+    OptimizeStrategy optimize;
+    List&lt;String&gt; trueConditionNames;
+    boolean useInternalBidiFlipper;
+    boolean swapLtrRtlInUrl;
+    boolean swapLeftRightInUrl;
+    boolean simplifyCss;
+    boolean eliminateDeadStyles;
+    boolean allowDefPropagation;
+    boolean allowUnrecognizedFunctions;
+    Set&lt;String&gt; allowedNonStandardFunctions;
+    boolean allowUnrecognizedProperties;
+    Set&lt;String&gt; allowedUnrecognizedProperties;
+    boolean allowUndefinedConstants;
+    boolean allowMozDocument;
+    Vendor vendor;
+    boolean allowKeyframes;
+    boolean allowWebkitKeyframes;
+    boolean processDependencies;
+    String cssRenamingPrefix;
+    List&lt;String&gt; excludedClassesFromRenaming;
+    GssFunctionMapProvider gssFunctionMapProvider;
+    SubstitutionMapProvider cssSubstitutionMapProvider;
+    OutputRenamingMapFormat outputRenamingMapFormat;
+    Map&lt;String, String&gt; inputRenamingMap;
+    boolean preserveComments;
+    boolean suppressDependencyCheck;
+    Map&lt;String, Integer&gt; compileConstants;
+    boolean preserveImportantComments;
+
+<span class="fc" id="L67">    JobDescription job = null;</span>
+    boolean createSourceMap;
+    SourceMapDetailLevel sourceMapLevel;
+
+<span class="fc" id="L71">    public JobDescriptionBuilder() {</span>
+<span class="fc" id="L72">        this.inputs = Lists.newArrayList();</span>
+<span class="fc" id="L73">        this.copyrightNotice = null;</span>
+<span class="fc" id="L74">        this.outputFormat = OutputFormat.COMPRESSED;</span>
+<span class="fc" id="L75">        this.inputOrientation = InputOrientation.LTR;</span>
+<span class="fc" id="L76">        this.outputOrientation = OutputOrientation.LTR;</span>
+<span class="fc" id="L77">        this.optimize = OptimizeStrategy.SAFE;</span>
+<span class="fc" id="L78">        this.trueConditionNames = Lists.newArrayList();</span>
+<span class="fc" id="L79">        this.useInternalBidiFlipper = false;</span>
+<span class="fc" id="L80">        this.swapLtrRtlInUrl = false;</span>
+<span class="fc" id="L81">        this.swapLeftRightInUrl = false;</span>
+<span class="fc" id="L82">        this.simplifyCss = false;</span>
+<span class="fc" id="L83">        this.eliminateDeadStyles = false;</span>
+<span class="fc" id="L84">        this.allowDefPropagation = false;</span>
+<span class="fc" id="L85">        this.allowUnrecognizedFunctions = false;</span>
+<span class="fc" id="L86">        this.allowedNonStandardFunctions = Sets.newHashSet();</span>
+<span class="fc" id="L87">        this.allowUnrecognizedProperties = false;</span>
+<span class="fc" id="L88">        this.allowedUnrecognizedProperties = Sets.newHashSet();</span>
+<span class="fc" id="L89">        this.allowUndefinedConstants = false;</span>
+<span class="fc" id="L90">        this.allowMozDocument = false;</span>
+<span class="fc" id="L91">        this.vendor = null;</span>
+<span class="fc" id="L92">        this.allowKeyframes = true;</span>
+<span class="fc" id="L93">        this.allowWebkitKeyframes = true;</span>
+<span class="fc" id="L94">        this.processDependencies = false;</span>
+<span class="fc" id="L95">        this.cssRenamingPrefix = &quot;&quot;;</span>
+<span class="fc" id="L96">        this.excludedClassesFromRenaming = Lists.newArrayList();</span>
+<span class="fc" id="L97">        this.gssFunctionMapProvider = null;</span>
+<span class="fc" id="L98">        this.cssSubstitutionMapProvider = null;</span>
+<span class="fc" id="L99">        this.outputRenamingMapFormat = OutputRenamingMapFormat.JSCOMP_VARIABLE_MAP;</span>
+<span class="fc" id="L100">        this.inputRenamingMap = ImmutableMap.of();</span>
+<span class="fc" id="L101">        this.preserveComments = false;</span>
+<span class="fc" id="L102">        this.suppressDependencyCheck = false;</span>
+<span class="fc" id="L103">        this.compileConstants = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L104">        this.createSourceMap = false;</span>
+<span class="fc" id="L105">        this.sourceMapLevel = SourceMapDetailLevel.DEFAULT;</span>
+<span class="fc" id="L106">        this.preserveImportantComments = false;</span>
+<span class="fc" id="L107">    }</span>
+
+    public JobDescriptionBuilder copyFrom(JobDescription jobToCopy) {
+<span class="fc" id="L110">        setInputs(Lists.newArrayList(jobToCopy.inputs));</span>
+<span class="fc" id="L111">        this.copyrightNotice = jobToCopy.copyrightNotice;</span>
+<span class="fc" id="L112">        setOutputFormat(jobToCopy.outputFormat);</span>
+<span class="fc" id="L113">        setInputOrientation(jobToCopy.inputOrientation);</span>
+<span class="fc" id="L114">        setOutputOrientation(jobToCopy.outputOrientation);</span>
+<span class="fc" id="L115">        this.optimize = jobToCopy.optimize;</span>
+<span class="fc" id="L116">        setTrueConditionNames(jobToCopy.trueConditionNames);</span>
+<span class="fc" id="L117">        this.useInternalBidiFlipper = jobToCopy.useInternalBidiFlipper;</span>
+<span class="fc" id="L118">        this.swapLtrRtlInUrl = jobToCopy.swapLtrRtlInUrl;</span>
+<span class="fc" id="L119">        this.swapLeftRightInUrl = jobToCopy.swapLeftRightInUrl;</span>
+<span class="fc" id="L120">        this.simplifyCss = jobToCopy.simplifyCss;</span>
+<span class="fc" id="L121">        this.eliminateDeadStyles = jobToCopy.eliminateDeadStyles;</span>
+<span class="fc" id="L122">        this.allowDefPropagation = jobToCopy.allowDefPropagation;</span>
+<span class="fc" id="L123">        this.allowUnrecognizedFunctions = jobToCopy.allowUnrecognizedFunctions;</span>
+<span class="fc" id="L124">        this.allowedNonStandardFunctions =</span>
+<span class="fc" id="L125">                ImmutableSet.copyOf(jobToCopy.allowedNonStandardFunctions);</span>
+<span class="fc" id="L126">        this.allowUnrecognizedProperties = jobToCopy.allowUnrecognizedProperties;</span>
+<span class="fc" id="L127">        this.allowedUnrecognizedProperties =</span>
+<span class="fc" id="L128">                ImmutableSet.copyOf(jobToCopy.allowedUnrecognizedProperties);</span>
+<span class="fc" id="L129">        this.allowUndefinedConstants = jobToCopy.allowUndefinedConstants;</span>
+<span class="fc" id="L130">        this.allowMozDocument = jobToCopy.allowMozDocument;</span>
+<span class="fc" id="L131">        this.vendor = jobToCopy.vendor;</span>
+<span class="fc" id="L132">        this.allowKeyframes = jobToCopy.allowKeyframes;</span>
+<span class="fc" id="L133">        this.allowWebkitKeyframes = jobToCopy.allowWebkitKeyframes;</span>
+<span class="fc" id="L134">        this.cssRenamingPrefix = jobToCopy.cssRenamingPrefix;</span>
+<span class="fc" id="L135">        setExcludedClassesFromRenaming(</span>
+<span class="fc" id="L136">                ImmutableList.copyOf(jobToCopy.excludedClassesFromRenaming));</span>
+<span class="fc" id="L137">        this.gssFunctionMapProvider = jobToCopy.gssFunctionMapProvider;</span>
+<span class="fc" id="L138">        this.cssSubstitutionMapProvider = jobToCopy.cssSubstitutionMapProvider;</span>
+<span class="fc" id="L139">        this.outputRenamingMapFormat = jobToCopy.outputRenamingMapFormat;</span>
+<span class="fc" id="L140">        this.inputRenamingMap = jobToCopy.inputRenamingMap;</span>
+<span class="fc" id="L141">        this.preserveComments = jobToCopy.preserveComments;</span>
+<span class="fc" id="L142">        this.suppressDependencyCheck = jobToCopy.suppressDependencyCheck;</span>
+<span class="fc" id="L143">        setCompileConstants(jobToCopy.compileConstants);</span>
+<span class="fc" id="L144">        this.createSourceMap = jobToCopy.createSourceMap;</span>
+<span class="fc" id="L145">        this.sourceMapLevel = jobToCopy.sourceMapLevel;</span>
+<span class="fc" id="L146">        this.preserveImportantComments = jobToCopy.preserveImportantComments;</span>
+<span class="fc" id="L147">        return this;</span>
+    }
+
+    void checkJobIsNotAlreadyCreated() {
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">        Preconditions.checkState(job == null, &quot;You cannot set job properties &quot; +</span>
+                &quot;after the message was created.&quot;);
+<span class="fc" id="L153">    }</span>
+
+    public JobDescriptionBuilder clearInputs() {
+<span class="fc" id="L156">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L157">        this.inputs.clear();</span>
+<span class="fc" id="L158">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setInputs(List&lt;SourceCode&gt; newInputs) {
+<span class="fc" id="L162">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L163">        Preconditions.checkState(this.inputs.isEmpty());</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">        Preconditions.checkArgument(!newInputs.contains(null));</span>
+<span class="fc" id="L165">        this.inputs = Lists.newArrayList(newInputs);</span>
+<span class="fc" id="L166">        return this;</span>
+    }
+
+    public JobDescriptionBuilder addInput(SourceCode sourceCode) {
+<span class="fc" id="L170">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L171">        Preconditions.checkNotNull(sourceCode);</span>
+<span class="fc" id="L172">        this.inputs.add(sourceCode);</span>
+<span class="fc" id="L173">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setOptimizeStrategy(OptimizeStrategy optimize) {
+<span class="fc" id="L177">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L178">        Preconditions.checkNotNull(optimize);</span>
+<span class="fc" id="L179">        this.optimize = optimize;</span>
+<span class="fc" id="L180">        return this;</span>
+    }
+
+    public JobDescriptionBuilder clearTrueConditionNames() {
+<span class="fc" id="L184">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L185">        this.trueConditionNames.clear();</span>
+<span class="fc" id="L186">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setTrueConditionNames(
+            List&lt;String&gt; newTrueConditionNames) {
+<span class="fc" id="L191">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L192">        Preconditions.checkState(this.trueConditionNames.isEmpty());</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">        Preconditions.checkArgument(!newTrueConditionNames.contains(null));</span>
+<span class="fc" id="L194">        this.trueConditionNames = Lists.newArrayList(newTrueConditionNames);</span>
+<span class="fc" id="L195">        return this;</span>
+    }
+
+    public JobDescriptionBuilder addTrueConditionName(String conditionName) {
+<span class="fc" id="L199">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L200">        Preconditions.checkNotNull(conditionName);</span>
+<span class="fc" id="L201">        this.trueConditionNames.add(conditionName);</span>
+<span class="fc" id="L202">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setExcludedClassesFromRenaming(
+            List&lt;String&gt; excludedClassesFromRenaming) {
+<span class="fc" id="L207">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L208">        Preconditions.checkState(this.excludedClassesFromRenaming.isEmpty());</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">        Preconditions.checkArgument(!excludedClassesFromRenaming.contains(null));</span>
+<span class="fc" id="L210">        this.excludedClassesFromRenaming =</span>
+<span class="fc" id="L211">                Lists.newArrayList(excludedClassesFromRenaming);</span>
+<span class="fc" id="L212">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setCssRenamingPrefix(String cssRenamingPrefix) {
+<span class="fc" id="L216">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L217">        Preconditions.checkNotNull(cssRenamingPrefix);</span>
+<span class="fc" id="L218">        this.cssRenamingPrefix = cssRenamingPrefix;</span>
+<span class="fc" id="L219">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setCopyrightNotice(String copyrightNotice) {
+<span class="fc" id="L223">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L224">        this.copyrightNotice = copyrightNotice;</span>
+<span class="fc" id="L225">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setUseInternalBidiFlipper(boolean use) {
+<span class="nc" id="L229">        checkJobIsNotAlreadyCreated();</span>
+<span class="nc" id="L230">        this.useInternalBidiFlipper = use;</span>
+<span class="nc" id="L231">        return this;</span>
+    }
+
+    public JobDescriptionBuilder useInternalBidiFlipper() {
+<span class="nc" id="L235">        return setUseInternalBidiFlipper(true);</span>
+    }
+
+    public JobDescriptionBuilder setSwapLtrRtlInUrl(boolean swap) {
+<span class="nc" id="L239">        checkJobIsNotAlreadyCreated();</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if (useInternalBidiFlipper) {</span>
+<span class="nc" id="L241">            this.swapLtrRtlInUrl = swap;</span>
+        }
+<span class="nc" id="L243">        return this;</span>
+    }
+
+    public JobDescriptionBuilder swapLtrRtlInUrl() {
+<span class="nc" id="L247">        return setSwapLtrRtlInUrl(true);</span>
+    }
+
+    public JobDescriptionBuilder setSwapLeftRightInUrl(boolean swap) {
+<span class="nc" id="L251">        checkJobIsNotAlreadyCreated();</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if (useInternalBidiFlipper) {</span>
+<span class="nc" id="L253">            this.swapLeftRightInUrl = swap;</span>
+        }
+<span class="nc" id="L255">        return this;</span>
+    }
+
+    public JobDescriptionBuilder swapLeftRightInUrl() {
+<span class="nc" id="L259">        return setSwapLeftRightInUrl(true);</span>
+    }
+
+    public JobDescriptionBuilder setInputOrientation(
+            InputOrientation newInputOrientation) {
+<span class="fc" id="L264">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L265">        Preconditions.checkNotNull(newInputOrientation);</span>
+<span class="fc" id="L266">        this.inputOrientation = newInputOrientation;</span>
+<span class="fc" id="L267">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setOutputOrientation(
+            OutputOrientation newOutputOrientation) {
+<span class="fc" id="L272">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L273">        Preconditions.checkNotNull(newOutputOrientation);</span>
+<span class="fc" id="L274">        this.outputOrientation = newOutputOrientation;</span>
+<span class="fc" id="L275">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setOutputFormat(OutputFormat newOutputFormat) {
+<span class="fc" id="L279">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L280">        Preconditions.checkNotNull(newOutputFormat);</span>
+<span class="fc" id="L281">        this.outputFormat = newOutputFormat;</span>
+<span class="fc" id="L282">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setSimplifyCss(boolean simplify) {
+<span class="fc" id="L286">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L287">        this.simplifyCss = simplify;</span>
+<span class="fc" id="L288">        return this;</span>
+    }
+
+    public JobDescriptionBuilder simplifyCss() {
+<span class="nc" id="L292">        return setSimplifyCss(true);</span>
+    }
+
+    public JobDescriptionBuilder setEliminateDeadStyles(boolean eliminate) {
+<span class="fc" id="L296">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L297">        this.eliminateDeadStyles = eliminate;</span>
+<span class="fc" id="L298">        return this;</span>
+    }
+
+    public JobDescriptionBuilder eliminateDeadStyles() {
+<span class="nc" id="L302">        return setEliminateDeadStyles(true);</span>
+    }
+
+    public JobDescriptionBuilder setGssFunctionMapProvider(
+            GssFunctionMapProvider gssFunctionMapProvider) {
+<span class="fc" id="L307">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L308">        this.gssFunctionMapProvider = gssFunctionMapProvider;</span>
+<span class="fc" id="L309">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setCssSubstitutionMapProvider(
+            SubstitutionMapProvider cssSubstitutionMapProvider) {
+<span class="fc" id="L314">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L315">        this.cssSubstitutionMapProvider = cssSubstitutionMapProvider;</span>
+<span class="fc" id="L316">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setAllowUnrecognizedFunctions(boolean allow) {
+<span class="fc" id="L320">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L321">        this.allowUnrecognizedFunctions = allow;</span>
+<span class="fc" id="L322">        return this;</span>
+    }
+
+    public JobDescriptionBuilder allowUnrecognizedFunctions() {
+<span class="nc" id="L326">        return setAllowUnrecognizedFunctions(true);</span>
+    }
+
+    public JobDescriptionBuilder setAllowedNonStandardFunctions(
+            List&lt;String&gt; functionNames) {
+<span class="fc" id="L331">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L332">        this.allowedNonStandardFunctions.addAll(functionNames);</span>
+<span class="fc" id="L333">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setAllowUnrecognizedProperties(boolean allow) {
+<span class="fc" id="L337">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L338">        this.allowUnrecognizedProperties = allow;</span>
+<span class="fc" id="L339">        return this;</span>
+    }
+
+    public JobDescriptionBuilder allowUnrecognizedProperties() {
+<span class="fc" id="L343">        return setAllowUnrecognizedProperties(true);</span>
+    }
+
+    public JobDescriptionBuilder setAllowedUnrecognizedProperties(
+            List&lt;String&gt; propertyNames) {
+<span class="fc" id="L348">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L349">        this.allowedUnrecognizedProperties.addAll(propertyNames);</span>
+<span class="fc" id="L350">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setVendor(Vendor vendor) {
+<span class="fc" id="L354">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L355">        this.vendor = vendor;</span>
+<span class="fc" id="L356">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setAllowKeyframes(boolean allow) {
+<span class="fc" id="L360">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L361">        this.allowKeyframes = allow;</span>
+<span class="fc" id="L362">        return this;</span>
+    }
+
+    public JobDescriptionBuilder allowKeyframes() {
+<span class="nc" id="L366">        return setAllowKeyframes(true);</span>
+    }
+
+    public JobDescriptionBuilder setAllowWebkitKeyframes(boolean allow) {
+<span class="fc" id="L370">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L371">        this.allowWebkitKeyframes = allow;</span>
+<span class="fc" id="L372">        return this;</span>
+    }
+
+    public JobDescriptionBuilder allowWebkitKeyframes() {
+<span class="nc" id="L376">        return setAllowWebkitKeyframes(true);</span>
+    }
+
+    public JobDescriptionBuilder setProcessDependencies(boolean process) {
+<span class="fc" id="L380">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L381">        this.processDependencies = process;</span>
+<span class="fc" id="L382">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setOutputRenamingMapFormat(
+            OutputRenamingMapFormat outputFormat) {
+<span class="fc" id="L387">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L388">        this.outputRenamingMapFormat = outputFormat;</span>
+<span class="fc" id="L389">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setInputRenamingMap(Map&lt;String, String&gt; inputRenamingMap) {
+<span class="nc" id="L393">        checkJobIsNotAlreadyCreated();</span>
+<span class="nc" id="L394">        Preconditions.checkNotNull(inputRenamingMap);</span>
+<span class="nc" id="L395">        this.inputRenamingMap = ImmutableMap.copyOf(inputRenamingMap);</span>
+<span class="nc" id="L396">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setAllowMozDocument(boolean allow) {
+<span class="nc" id="L400">        checkJobIsNotAlreadyCreated();</span>
+<span class="nc" id="L401">        this.allowMozDocument = allow;</span>
+<span class="nc" id="L402">        return this;</span>
+    }
+
+    public JobDescriptionBuilder allowMozDocument() {
+<span class="nc" id="L406">        return setAllowMozDocument(true);</span>
+    }
+
+    public JobDescriptionBuilder setAllowDefPropagation(boolean allow) {
+<span class="fc" id="L410">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L411">        this.allowDefPropagation = allow;</span>
+<span class="fc" id="L412">        return this;</span>
+    }
+
+    public JobDescriptionBuilder allowDefPropagation() {
+<span class="nc" id="L416">        return setAllowDefPropagation(true);</span>
+    }
+
+    public JobDescriptionBuilder setAllowUndefinedConstants(boolean allow) {
+<span class="fc" id="L420">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L421">        this.allowUndefinedConstants = allow;</span>
+<span class="fc" id="L422">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setSuppressDependencyCheck(boolean suppress) {
+<span class="nc" id="L426">        checkJobIsNotAlreadyCreated();</span>
+<span class="nc" id="L427">        this.suppressDependencyCheck = suppress;</span>
+<span class="nc" id="L428">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setPreserveComments(boolean preserve) {
+<span class="fc" id="L432">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L433">        this.preserveComments = preserve;</span>
+<span class="fc" id="L434">        return this;</span>
+    }
+
+    public JobDescriptionBuilder preserveComments() {
+<span class="nc" id="L438">        return setPreserveComments(true);</span>
+    }
+
+    public JobDescriptionBuilder setCompileConstants(
+            Map&lt;String, Integer&gt; newCompileConstants) {
+<span class="fc" id="L443">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L444">        Preconditions.checkState(this.compileConstants.isEmpty());</span>
+<span class="pc bpc" id="L445" title="1 of 2 branches missed.">        Preconditions.checkArgument(!newCompileConstants.containsKey(null));</span>
+<span class="fc" id="L446">        this.compileConstants = new HashMap&lt;&gt;(newCompileConstants);</span>
+<span class="fc" id="L447">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setPreserveImportantComments(boolean preserve) {
+<span class="fc" id="L451">        checkJobIsNotAlreadyCreated();</span>
+<span class="fc" id="L452">        this.preserveImportantComments = preserve;</span>
+<span class="fc" id="L453">        return this;</span>
+    }
+
+    public JobDescriptionBuilder preserveImportantComments() {
+<span class="nc" id="L457">        return setPreserveImportantComments(true);</span>
+    }
+
+    public JobDescription getJobDescription() {
+<span class="fc bfc" id="L461" title="All 2 branches covered.">        if (job != null) {</span>
+<span class="fc" id="L462">            return job;</span>
+        }
+
+<span class="fc" id="L465">        Set&lt;String&gt; allowedAtRules = Sets.newHashSet();</span>
+<span class="pc bpc" id="L466" title="3 of 4 branches missed.">        if (allowKeyframes || allowWebkitKeyframes) {</span>
+<span class="fc" id="L467">            allowedAtRules.add(&quot;keyframes&quot;);</span>
+<span class="fc" id="L468">            allowedAtRules.add(&quot;-moz-keyframes&quot;);</span>
+<span class="fc" id="L469">            allowedAtRules.add(&quot;-ms-keyframes&quot;);</span>
+<span class="fc" id="L470">            allowedAtRules.add(&quot;-o-keyframes&quot;);</span>
+<span class="fc" id="L471">            allowedAtRules.add(&quot;-webkit-keyframes&quot;);</span>
+        }
+<span class="pc bpc" id="L473" title="1 of 2 branches missed.">        if (allowMozDocument) {</span>
+<span class="nc" id="L474">            allowedAtRules.add(&quot;-moz-document&quot;);</span>
+        }
+
+
+<span class="fc" id="L478">        job = new JobDescription(inputs,</span>
+                copyrightNotice, outputFormat, inputOrientation, outputOrientation,
+                optimize, trueConditionNames, useInternalBidiFlipper, swapLtrRtlInUrl,
+                swapLeftRightInUrl, simplifyCss, eliminateDeadStyles,
+                allowDefPropagation, allowUnrecognizedFunctions, allowedNonStandardFunctions,
+                allowUnrecognizedProperties, allowedUnrecognizedProperties, allowUndefinedConstants,
+                allowMozDocument, vendor,
+                allowKeyframes, allowWebkitKeyframes, processDependencies,
+                allowedAtRules, cssRenamingPrefix, excludedClassesFromRenaming,
+                gssFunctionMapProvider, cssSubstitutionMapProvider,
+                outputRenamingMapFormat, inputRenamingMap, preserveComments,
+                suppressDependencyCheck, compileConstants,
+                createSourceMap, sourceMapLevel, preserveImportantComments);
+<span class="fc" id="L491">        return job;</span>
+    }
+
+    public JobDescriptionBuilder setSourceMapLevel(SourceMapDetailLevel sourceMapLevel) {
+<span class="fc" id="L495">        this.sourceMapLevel = sourceMapLevel;</span>
+<span class="fc" id="L496">        return this;</span>
+    }
+
+    public JobDescriptionBuilder setCreateSourceMap(boolean createSourceMap) {
+<span class="fc" id="L500">        this.createSourceMap = createSourceMap;</span>
+<span class="fc" id="L501">        return this;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssFunctionNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssFunctionNode.java</span></div><h1>CssFunctionNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A node representing a function.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssFunctionNode extends CssValueNode implements ChunkAware {
+
+    /**
+     * Contains the list of recognized CSS functions.
+     */
+    public abstract static class Function {
+
+        /**
+         * A map of function names to function objects.
+         */
+        private static final Map&lt;String, Function&gt; NAME_TO_FUNCTION_MAP;
+
+        static {
+<span class="fc" id="L45">            List&lt;String&gt; recognizedCssFunctions = ImmutableList.of(</span>
+                    // CSS 2.1
+                    &quot;attr&quot;,
+                    &quot;counter&quot;,
+                    &quot;rect&quot;,
+                    &quot;rgb&quot;,
+                    &quot;url&quot;,
+
+                    // Per-site user stylesheet rules
+                    // http://lists.w3.org/Archives/Public/www-style/2004Aug/0135
+                    &quot;domain&quot;,
+                    &quot;url-prefix&quot;,
+
+                    // IE8 and earlier:
+                    // .fiftyPercentOpacity { filter: alpha(opacity=50); }
+                    &quot;alpha&quot;,
+
+                    // CSS 3
+                    &quot;cubic-bezier&quot;,
+                    &quot;format&quot;, // used with @font-face
+                    &quot;from&quot;,
+                    &quot;hsl&quot;,
+                    &quot;hsla&quot;,
+                    &quot;local&quot;, // used with @font-face
+                    &quot;matrix&quot;,
+                    &quot;matrix3d&quot;,
+                    &quot;perspective&quot;,
+                    &quot;rgba&quot;,
+                    &quot;rotate&quot;,
+                    &quot;rotateX&quot;,
+                    &quot;rotateY&quot;,
+                    &quot;rotateZ&quot;,
+                    &quot;rotate3d&quot;,
+                    &quot;scale&quot;,
+                    &quot;scaleX&quot;,
+                    &quot;scaleY&quot;,
+                    &quot;scaleZ&quot;,
+                    &quot;scale3d&quot;,
+                    &quot;skew&quot;,
+                    &quot;skewX&quot;,
+                    &quot;skewY&quot;,
+                    &quot;steps&quot;,
+                    &quot;to&quot;,
+                    &quot;translate&quot;,
+                    &quot;translateX&quot;,
+                    &quot;translateY&quot;,
+                    &quot;translateZ&quot;,
+                    &quot;translate3d&quot;,
+
+                    // CSS 3+ mathematical expressions
+                    // https://drafts.csswg.org/css-values/#calc-notation
+                    &quot;min&quot;,
+                    &quot;max&quot;,
+
+                    // Filter
+                    // w3.org/TR/filter-effects-1/#FilterProperty
+                    // &quot;url&quot; already in list
+                    &quot;blur&quot;,
+                    &quot;brightness&quot;,
+                    &quot;contrast&quot;,
+                    &quot;drop-shadow&quot;,
+                    &quot;grayscale&quot;,
+                    &quot;hue-rotate&quot;,
+                    &quot;invert&quot;,
+                    &quot;opacity&quot;,
+                    &quot;saturate&quot;,
+                    &quot;sepia&quot;,
+
+                    // Image-Set
+                    &quot;image-set&quot;,
+                    &quot;-moz-image-set&quot;,
+                    &quot;-ms-image-set&quot;,
+                    &quot;-o-image-set&quot;,
+                    &quot;-webkit-image-set&quot;,
+
+                    // These take the type of gradient (linear or radial) as a parameter.
+                    &quot;-khtml-gradient&quot;,
+                    &quot;-webkit-gradient&quot;, // Prefer -webkit-(linear|radial)-gradient
+
+                    // Linear gradients
+                    &quot;linear-gradient&quot;,
+                    &quot;-moz-linear-gradient&quot;,
+                    &quot;-ms-linear-gradient&quot;,
+                    &quot;-o-linear-gradient&quot;,
+                    &quot;-webkit-linear-gradient&quot;,
+                    &quot;repeating-linear-gradient&quot;,
+                    &quot;-moz-repeating-linear-gradient&quot;,
+                    &quot;-ms-repeating-linear-gradient&quot;,
+                    &quot;-o-repeating-linear-gradient&quot;,
+                    &quot;-webkit-repeating-linear-gradient&quot;,
+
+                    // Radial gradients
+                    &quot;radial-gradient&quot;,
+                    &quot;-moz-radial-gradient&quot;,
+                    &quot;-ms-radial-gradient&quot;,
+                    &quot;-o-radial-gradient&quot;,
+                    &quot;-webkit-radial-gradient&quot;,
+                    &quot;repeating-radial-gradient&quot;,
+                    &quot;-moz-repeating-radial-gradient&quot;,
+                    &quot;-ms-repeating-radial-gradient&quot;,
+                    &quot;-o-repeating-radial-gradient&quot;,
+                    &quot;-webkit-repeating-radial-gradient&quot;,
+
+                    // Calc
+                    &quot;calc&quot;,
+                    &quot;-webkit-calc&quot;,
+                    &quot;-moz-calc&quot;,
+
+                    // CSS Shapes
+                    &quot;inset&quot;,
+                    &quot;circle&quot;,
+                    &quot;ellipse&quot;,
+                    &quot;polygon&quot;,
+
+                    // Custom properties
+                    &quot;var&quot;
+            );
+<span class="fc" id="L162">            ImmutableMap.Builder&lt;String, Function&gt; builder = ImmutableMap.builder();</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">            for (String functionName : recognizedCssFunctions) {</span>
+<span class="fc" id="L164">                builder.put(</span>
+                        functionName,
+<span class="fc" id="L166">                        new Function(functionName) {</span>
+                            @Override
+                            public boolean isRecognized() {
+<span class="nc" id="L169">                                return true;</span>
+                            }
+                        });
+<span class="fc" id="L172">            }</span>
+<span class="fc" id="L173">            NAME_TO_FUNCTION_MAP = builder.build();</span>
+        }
+
+        /**
+         * Serves as a placeholder for custom functions.
+         */
+<span class="fc" id="L179">        public static final Function CUSTOM =</span>
+<span class="fc" id="L180">                new Function(null /* functionName */) {</span>
+                    @Override
+                    public boolean isRecognized() {
+<span class="nc" id="L183">                        return false;</span>
+                    }
+                };
+
+        /**
+         * The name of the function, as it appears in a CSS stylesheet.
+         */
+        private final String functionName;
+
+<span class="fc" id="L192">        private Function(String functionName) {</span>
+<span class="fc" id="L193">            this.functionName = functionName;</span>
+<span class="fc" id="L194">        }</span>
+
+        /**
+         * Returns the CSS {@link Function} with the specified name, or {@code null}
+         * if the name is not in the list of recognized names. Multiple invocations
+         * of this method with the same parameter will return the same object. For a
+         * function that is not in the list of recognized names but should be
+         * considered valid, use {@link Function#CUSTOM}.
+         */
+        public static Function byName(String name) {
+<span class="fc" id="L204">            return NAME_TO_FUNCTION_MAP.get(name);</span>
+        }
+
+        /**
+         * Returns {@code true} when this function is in the list of
+         * recognized names.
+         */
+        public abstract boolean isRecognized();
+
+        /**
+         * @return the name of the CSS function, such as &quot;rgb&quot; or &quot;url&quot;
+         */
+        public String getFunctionName() {
+<span class="fc" id="L217">            return functionName;</span>
+        }
+
+        /**
+         * For debugging only.
+         */
+        @Override
+        public String toString() {
+<span class="fc" id="L225">            return getFunctionName();</span>
+        }
+    }
+
+    private final Function function;
+    private CssFunctionArgumentsNode arguments;
+    private Object chunk;
+
+    /**
+     * Constructor of the class.
+     * &lt;p&gt;
+     * TODO(oana): Deal with the situation that we have an unrecognized
+     * function.
+     *
+     * @param function
+     * @param sourceCodeLocation
+     */
+    public CssFunctionNode(@Nullable Function function,
+                           @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L244">        super(null, sourceCodeLocation);</span>
+<span class="fc" id="L245">        this.function = function;</span>
+<span class="fc" id="L246">        this.arguments = new CssFunctionArgumentsNode();</span>
+<span class="fc" id="L247">        becomeParentForNode(this.arguments);</span>
+<span class="fc" id="L248">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param function
+     */
+    public CssFunctionNode(CssFunctionNode function) {
+<span class="fc" id="L256">        super(function);</span>
+<span class="fc" id="L257">        this.function = function.getFunction();</span>
+<span class="fc" id="L258">        this.arguments = new CssFunctionArgumentsNode(function.getArguments());</span>
+<span class="fc" id="L259">        becomeParentForNode(this.arguments);</span>
+<span class="fc" id="L260">        this.chunk = function.getChunk();</span>
+<span class="fc" id="L261">    }</span>
+
+    /**
+     * Constructor used by the proxy mechanism, avoids unnecessary arguments node
+     * initialization.
+     *
+     * &lt;p&gt;NOTE(dgajda): The signature of this constructor only differs in argument
+     * order from the main constructor of this class.
+     *
+     * @param function           implementation of the function which is &quot;called&quot; by this
+     *                           node
+     * @param sourceCodeLocation location of this node
+     */
+    protected CssFunctionNode(@Nullable SourceCodeLocation sourceCodeLocation,
+                              @Nullable Function function) {
+<span class="fc" id="L276">        super(null, sourceCodeLocation);</span>
+<span class="fc" id="L277">        this.function = function;</span>
+<span class="fc" id="L278">    }</span>
+
+    @Override
+    public CssFunctionNode deepCopy() {
+<span class="fc" id="L282">        return new CssFunctionNode(this);</span>
+    }
+
+    public Function getFunction() {
+<span class="fc" id="L286">        return function;</span>
+    }
+
+    public String getFunctionName() {
+<span class="fc" id="L290">        return function.toString();</span>
+    }
+
+    public CssFunctionArgumentsNode getArguments() {
+<span class="fc" id="L294">        return arguments;</span>
+    }
+
+    public void setArguments(CssFunctionArgumentsNode arguments) {
+<span class="fc" id="L298">        removeAsParentOfNode(this.arguments);</span>
+<span class="fc" id="L299">        this.arguments = arguments;</span>
+<span class="fc" id="L300">        becomeParentForNode(this.arguments);</span>
+<span class="fc" id="L301">    }</span>
+
+    @Override
+    public String toString() {
+<span class="fc" id="L305">        StringBuffer output = new StringBuffer();</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">        if (function.getFunctionName() != null) {</span>
+<span class="fc" id="L307">            output.append(function.getFunctionName());</span>
+        }
+<span class="fc" id="L309">        output.append(&quot;(&quot;);</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        for (CssNode node : getArguments().childIterable()) {</span>
+<span class="fc" id="L311">            output.append(node.toString());</span>
+<span class="fc" id="L312">        }</span>
+<span class="fc" id="L313">        output.append(&quot;)&quot;);</span>
+<span class="fc" id="L314">        return output.toString();</span>
+    }
+
+    @Override
+    public Object getChunk() {
+<span class="fc" id="L319">        return chunk;</span>
+    }
+
+    @Override
+    public void setChunk(Object chunk) {
+<span class="fc" id="L324">        this.chunk = chunk;</span>
+<span class="fc" id="L325">    }</span>
+
+    /**
+     * Print the node instead of null when this node is a parameter.
+     */
+    @Override
+    public String getValue() {
+<span class="fc" id="L332">        return toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

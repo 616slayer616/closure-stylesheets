@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CreateForLoopNodesTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:44" hostname="Patrick-MBP.fritz.box" time="0.087">
+  <properties/>
+  <testcase name="testLoopWithoutAllParameters" classname="com.google.common.css.compiler.passes.CreateForLoopNodesTest" time="0.053"/>
+  <testcase name="testLoopWithoutBlock" classname="com.google.common.css.compiler.passes.CreateForLoopNodesTest" time="0.001"/>
+  <testcase name="testCreateLoopNodeWithConstants" classname="com.google.common.css.compiler.passes.CreateForLoopNodesTest" time="0.021"/>
+  <testcase name="testCreateLoopNodeWithVariables" classname="com.google.common.css.compiler.passes.CreateForLoopNodesTest" time="0.008"/>
+  <testcase name="testLoopWithoutBadVariablePattern" classname="com.google.common.css.compiler.passes.CreateForLoopNodesTest" time="0.001"/>
+  <testcase name="testCreateLoopNodeWithNumbers" classname="com.google.common.css.compiler.passes.CreateForLoopNodesTest" time="0.0"/>
+  <testcase name="testLoopThatOverridesVariable" classname="com.google.common.css.compiler.passes.CreateForLoopNodesTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

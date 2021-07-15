@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClosureCommandLineCompiler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.commandline</a> &gt; <span class="el_source">ClosureCommandLineCompiler.java</span></div><h1>ClosureCommandLineCompiler.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.commandline;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.css.*;
+import com.google.common.css.JobDescription.InputOrientation;
+import com.google.common.css.JobDescription.OutputOrientation;
+import com.google.common.css.JobDescription.SourceMapDetailLevel;
+import com.google.common.css.compiler.ast.ErrorManager;
+import com.google.common.io.Files;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+
+import javax.annotation.Nullable;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+/**
+ * {@link ClosureCommandLineCompiler} is the command-line compiler for Closure
+ * Stylesheets.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+public class ClosureCommandLineCompiler extends DefaultCommandLineCompiler {
+
+    protected ClosureCommandLineCompiler(JobDescription job,
+                                         ExitCodeHandler exitCodeHandler, ErrorManager errorManager) {
+<span class="fc" id="L54">        super(job, exitCodeHandler, errorManager);</span>
+<span class="fc" id="L55">    }</span>
+
+    @VisibleForTesting
+<span class="fc" id="L58">    static class Flags {</span>
+<span class="fc" id="L59">        private static final String USAGE_PREAMBLE =</span>
+<span class="fc" id="L60">                Joiner.on(&quot;\n&quot;).join(new String[]{</span>
+                        &quot;Closure Stylesheets&quot;,
+                        &quot;&quot;,
+                        &quot;One or more CSS/GSS files must be supplied as inputs.&quot;,
+                        &quot;Output will be written to standard out unless --output_file is &quot;
+                                + &quot;specified.&quot;,
+                        &quot;&quot;,
+                        &quot;command line options:&quot;,
+                        &quot;&quot;
+                });
+
+<span class="fc" id="L71">        @Option(name = &quot;--output-file&quot;, aliases = {&quot;-o&quot;},</span>
+                usage = &quot;The output CSS filename. If empty, standard output will be&quot;
+                        + &quot; used. The output is always UTF-8 encoded.&quot;)
+        private String outputFile = null;
+
+<span class="fc" id="L76">        @Option(name = &quot;--input-orientation&quot;, usage =</span>
+                &quot;This specifies the display orientation the input files were written&quot;
+                        + &quot; for. You can choose between: LTR, RTL. LTR is the default and means&quot;
+                        + &quot; that the input style sheets were designed for use with left to&quot;
+                        + &quot; right display User Agents. RTL sheets are designed for use with&quot;
+                        + &quot; right to left UAs. Currently, all input files must have the same&quot;
+                        + &quot; orientation, as there is no way to specify the orientation on a&quot;
+                        + &quot; per-file or per-library basis.&quot;)
+        private InputOrientation inputOrientation = InputOrientation.LTR;
+
+<span class="fc" id="L86">        @Option(name = &quot;--output-orientation&quot;, usage =</span>
+                &quot;Specify this option to perform automatic right to left conversion of&quot;
+                        + &quot; the input. You can choose between: LTR, RTL, NOCHANGE. NOCHANGE&quot;
+                        + &quot; means the input will not be changed in any way with respect to&quot;
+                        + &quot; direction issues. LTR outputs a sheet suitable for left to right&quot;
+                        + &quot; display and RTL outputs a sheet suitable for right to left&quot;
+                        + &quot; display. If the input orientation is different than the requested&quot;
+                        + &quot; output orientation, 'left' and 'right' values in direction&quot;
+                        + &quot; sensitive style rules are flipped. If the input already has the&quot;
+                        + &quot; desired orientation, this option effectively does nothing except&quot;
+                        + &quot; for defining GSS_LTR and GSS_RTL, respectively. The input is LTR&quot;
+                        + &quot; by default and can be changed with the input_orientation flag.&quot;)
+        private OutputOrientation outputOrientation = OutputOrientation.LTR;
+
+<span class="fc" id="L100">        @Option(name = &quot;--pretty-print&quot;,</span>
+                usage = &quot;Whether to format the output with newlines and indents so that&quot;
+                        + &quot; it is more readable.&quot;)
+        private boolean prettyPrint = false;
+
+<span class="fc" id="L105">        @Option(name = &quot;--output-renaming-map&quot;, usage = &quot;The output from&quot;</span>
+                + &quot; the CSS class renaming. Provides a map of class names to what they&quot;
+                + &quot; were renammed to.&quot;)
+        private String renameFile = null;
+
+<span class="fc" id="L110">        @Option(name = &quot;--output-renaming-map-format&quot;, usage = &quot;How to format the&quot;</span>
+                + &quot; output from the CSS class renaming.&quot;)
+        private OutputRenamingMapFormat outputRenamingMapFormat =
+                OutputRenamingMapFormat.JSON;
+
+<span class="fc" id="L115">        @Option(name = &quot;--input-renaming-map&quot;, usage = &quot;The input filename for&quot;</span>
+                + &quot; the CSS class renaming. The file must provide a map of class names&quot;
+                + &quot; that will be used for renaming. If a class name is not found in&quot;
+                + &quot; file, a new name will be generated.&quot;)
+        private String inputRenamingMapFileName = null;
+
+<span class="fc" id="L121">        @Option(name = &quot;--input-renaming-map-format&quot;, usage = &quot;How the input&quot;</span>
+                + &quot; renaiming map file is formatted. Default value is value used in&quot;
+                + &quot; --output-renaming-map-format.&quot;)
+        private OutputRenamingMapFormat inputRenamingMapFormat = null;
+
+<span class="fc" id="L126">        @Option(name = &quot;--output-source-map&quot;, usage = &quot;The source map output.&quot;</span>
+                + &quot; Provides a mapping from the generated output to their original&quot;
+                + &quot; source code location.&quot;)
+        private String sourceMapFile = &quot;&quot;;
+
+<span class="fc" id="L131">        @Option(name = &quot;--source_map_output_level&quot;, usage = &quot;The level to generate &quot;</span>
+                + &quot;source maps. You could choose between DEFAULT, which will generate &quot;
+                + &quot;source map only for selectors, blocks, rules, variables and symbol &quot;
+                + &quot;mappings, and ALL, which outputs mappings for all elements.&quot;)
+        private SourceMapDetailLevel sourceMapLevel = SourceMapDetailLevel.DEFAULT;
+
+<span class="fc" id="L137">        @Option(name = &quot;--copyright-notice&quot;,</span>
+                usage = &quot;Copyright notice to prepend to the output&quot;)
+        private String copyrightNotice = null;
+
+<span class="fc" id="L141">        @Option(name = &quot;--define&quot;, usage = &quot;Specifies the name of a true condition.&quot;</span>
+                + &quot; The condition name can be used in @if boolean expressions.&quot;
+                + &quot; The conditions are ignored if GSS extensions are not enabled.&quot;)
+<span class="fc" id="L144">        private List&lt;String&gt; trueConditions = Lists.newArrayList();</span>
+
+<span class="fc" id="L146">        @Option(name = &quot;--allow-def-propagation&quot;, usage = &quot;Allows @defs and @mixins&quot;</span>
+                + &quot; from one file to propagate to other files.&quot;)
+        private boolean allowDefPropagation = true;
+
+<span class="fc" id="L150">        @Option(name = &quot;--allow-unrecognized-functions&quot;, usage =</span>
+                &quot;Allow unrecognized functions.&quot;)
+        private boolean allowUnrecognizedFunctions = false;
+
+<span class="fc" id="L154">        @Option(name = &quot;--allowed-non-standard-function&quot;, usage =</span>
+                &quot;Specify a non-standard function to whitelist, like alpha()&quot;)
+<span class="fc" id="L156">        private List&lt;String&gt; allowedNonStandardFunctions = Lists.newArrayList();</span>
+
+<span class="fc" id="L158">        @Option(name = &quot;--allowed-unrecognized-property&quot;, usage =</span>
+                &quot;Specify an unrecognized property to whitelist&quot;)
+<span class="fc" id="L160">        private List&lt;String&gt; allowedUnrecognizedProperties = Lists.newArrayList();</span>
+
+<span class="fc" id="L162">        @Option(name = &quot;--allow-unrecognized-properties&quot;, usage =</span>
+                &quot;Allow unrecognized properties.&quot;)
+        private boolean allowUnrecognizedProperties = false;
+
+<span class="fc" id="L166">        @Option(name = &quot;--vendor&quot;, usage =</span>
+                &quot;Creates browser-vendor-specific output by stripping all proprietary &quot;
+                        + &quot;browser-vendor properties from the output except for those &quot;
+                        + &quot;associated with this vendor.&quot;)
+        private Vendor vendor = null;
+
+<span class="fc" id="L172">        @Option(name = &quot;--excluded-classes-from-renaming&quot;, usage =</span>
+                &quot;Pass the compiler a list of CSS class names that shoudn't be renamed.&quot;)
+<span class="fc" id="L174">        private List&lt;String&gt; excludedClassesFromRenaming = Lists.newArrayList();</span>
+
+        // For enum values, args4j automatically lists all possible values when it
+        // prints the usage information for the flag, so including them in the usage
+        // message defined here would be redundant.
+<span class="fc" id="L179">        @Option(name = &quot;--rename&quot;,</span>
+                usage = &quot;How CSS classes should be renamed. Defaults to NONE.&quot;)
+        private RenamingType renamingType = RenamingType.NONE;
+
+<span class="fc" id="L183">        @Option(name = &quot;--gss-function-map-provider&quot;,</span>
+                usage = &quot;The fully qualified class name of a map provider of custom GSS&quot;
+                        + &quot; functions to resolve.&quot;)
+        private String gssFunctionMapProviderClassName =
+                &quot;com.google.common.css.compiler.gssfunctions.&quot;
+                        + &quot;DefaultGssFunctionMapProvider&quot;;
+
+<span class="fc" id="L190">        @Option(name = &quot;--css-renaming-prefix&quot;,</span>
+                usage = &quot;Add a prefix to all renamed css class names.&quot;)
+        private String cssRenamingPrefix = &quot;&quot;;
+
+<span class="fc" id="L194">        @Option(name = &quot;--preserve-comments&quot;, usage =</span>
+                &quot;Preserve comments from sources into pretty printed output css.&quot;)
+        private boolean preserveComments = false;
+
+<span class="fc" id="L198">        @Option(name = &quot;--const&quot;,</span>
+                usage = &quot;Specify integer constants to be used in for loops. Invoke for each const, e.g.: &quot;
+                        + &quot;--const=VAR1=VALUE1 --const=VAR2=VALUE2&quot;)
+        private Map&lt;String, String&gt; compileConstants = new HashMap&lt;&gt;();
+
+<span class="fc" id="L203">        @Option(name = &quot;--preserve-important-comments&quot;, usage = &quot;Preserve important comments from &quot;</span>
+                + &quot;sources into minified output css. Important comments are marked with &quot;
+                + &quot;/*! */, @license, or @preserve.&quot;)
+        private boolean preserveImportantComments = false;
+
+        /**
+         * All remaining arguments are considered input CSS files.
+         */
+<span class="fc" id="L211">        @Argument</span>
+<span class="fc" id="L212">        private List&lt;String&gt; arguments = Lists.newArrayList();</span>
+
+        /**
+         * @return a new {@link JobDescription} using this class's flag values
+         */
+        @VisibleForTesting
+        JobDescription createJobDescription() {
+<span class="fc" id="L219">            JobDescriptionBuilder builder = new JobDescriptionBuilder();</span>
+<span class="fc" id="L220">            builder.setInputOrientation(inputOrientation);</span>
+<span class="fc" id="L221">            builder.setOutputOrientation(outputOrientation);</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">            builder.setOutputFormat(prettyPrint</span>
+<span class="nc" id="L223">                    ? JobDescription.OutputFormat.PRETTY_PRINTED</span>
+<span class="fc" id="L224">                    : JobDescription.OutputFormat.COMPRESSED);</span>
+<span class="fc" id="L225">            builder.setCopyrightNotice(copyrightNotice);</span>
+<span class="fc" id="L226">            builder.setTrueConditionNames(trueConditions);</span>
+<span class="fc" id="L227">            builder.setAllowDefPropagation(allowDefPropagation);</span>
+<span class="fc" id="L228">            builder.setAllowUnrecognizedFunctions(allowUnrecognizedFunctions);</span>
+<span class="fc" id="L229">            builder.setAllowedNonStandardFunctions(allowedNonStandardFunctions);</span>
+<span class="fc" id="L230">            builder.setAllowedUnrecognizedProperties(allowedUnrecognizedProperties);</span>
+<span class="fc" id="L231">            builder.setAllowUnrecognizedProperties(allowUnrecognizedProperties);</span>
+<span class="fc" id="L232">            builder.setVendor(vendor);</span>
+<span class="fc" id="L233">            builder.setAllowKeyframes(true);</span>
+<span class="fc" id="L234">            builder.setAllowWebkitKeyframes(true);</span>
+<span class="fc" id="L235">            builder.setProcessDependencies(true);</span>
+<span class="fc" id="L236">            builder.setExcludedClassesFromRenaming(excludedClassesFromRenaming);</span>
+<span class="fc" id="L237">            builder.setSimplifyCss(true);</span>
+<span class="fc" id="L238">            builder.setEliminateDeadStyles(true);</span>
+<span class="fc" id="L239">            builder.setCssSubstitutionMapProvider(renamingType</span>
+<span class="fc" id="L240">                    .getCssSubstitutionMapProvider());</span>
+<span class="fc" id="L241">            builder.setCssRenamingPrefix(cssRenamingPrefix);</span>
+<span class="fc" id="L242">            builder.setPreserveComments(preserveComments);</span>
+<span class="fc" id="L243">            builder.setOutputRenamingMapFormat(outputRenamingMapFormat);</span>
+<span class="fc" id="L244">            builder.setCompileConstants(parseCompileConstants(compileConstants));</span>
+<span class="fc" id="L245">            builder.setPreserveImportantComments(preserveImportantComments);</span>
+
+<span class="fc" id="L247">            GssFunctionMapProvider gssFunctionMapProvider =</span>
+<span class="fc" id="L248">                    getGssFunctionMapProviderForName(gssFunctionMapProviderClassName);</span>
+<span class="fc" id="L249">            builder.setGssFunctionMapProvider(gssFunctionMapProvider);</span>
+<span class="fc" id="L250">            builder.setSourceMapLevel(sourceMapLevel);</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">            builder.setCreateSourceMap(!Strings.isNullOrEmpty(sourceMapFile));</span>
+
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">            if (inputRenamingMapFileName != null) {</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">                if (inputRenamingMapFormat == null) {</span>
+<span class="nc" id="L255">                    inputRenamingMapFormat = outputRenamingMapFormat;</span>
+                }
+
+                try {
+<span class="nc" id="L259">                    File inputRenamingMapFile = new File(inputRenamingMapFileName);</span>
+<span class="nc" id="L260">                    Reader inputRenamingMapReader = Files.newReader(inputRenamingMapFile, UTF_8);</span>
+<span class="nc" id="L261">                    ImmutableMap&lt;String, String&gt; inputRenamingMap =</span>
+<span class="nc" id="L262">                            inputRenamingMapFormat.readRenamingMap(inputRenamingMapReader);</span>
+<span class="nc" id="L263">                    builder.setInputRenamingMap(inputRenamingMap);</span>
+<span class="nc" id="L264">                } catch (IOException e) {</span>
+<span class="nc" id="L265">                    throw new RuntimeException(String.format(</span>
+                            &quot;Input renaming map file %s can not be read&quot;, inputRenamingMapFileName), e);
+<span class="nc" id="L267">                }</span>
+            }
+
+<span class="fc bfc" id="L270" title="All 2 branches covered.">            for (String fileName : arguments) {</span>
+<span class="fc" id="L271">                File file = new File(fileName);</span>
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">                if (!file.exists()) {</span>
+<span class="nc" id="L273">                    throw new RuntimeException(String.format(</span>
+                            &quot;Input file %s does not exist&quot;, fileName));
+                }
+
+                String fileContents;
+                try {
+<span class="fc" id="L279">                    fileContents = Files.asCharSource(file, UTF_8).read();</span>
+<span class="nc" id="L280">                } catch (IOException e) {</span>
+<span class="nc" id="L281">                    throw new RuntimeException(e);</span>
+<span class="fc" id="L282">                }</span>
+<span class="fc" id="L283">                builder.addInput(new SourceCode(fileName, fileContents));</span>
+<span class="fc" id="L284">            }</span>
+<span class="fc" id="L285">            return builder.getJobDescription();</span>
+        }
+
+        private OutputInfo createOutputInfo() {
+<span class="nc" id="L289">            return new OutputInfo(</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">                    (outputFile == null) ? null : new File(outputFile),</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">                    (renameFile == null) ? null : new File(renameFile),</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">                    (sourceMapFile == null) ? null : new File(sourceMapFile));</span>
+        }
+
+        /**
+         * Parses the values in the compile constants to integers.
+         */
+        private Map&lt;String, Integer&gt; parseCompileConstants(
+                Map&lt;String, String&gt; compileConstants) {
+<span class="fc" id="L300">            Map&lt;String, Integer&gt; parsedConstants = new HashMap&lt;&gt;(compileConstants.size());</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">            for (Map.Entry&lt;String, String&gt; entry : compileConstants.entrySet()) {</span>
+<span class="nc" id="L302">                parsedConstants.put(entry.getKey(), Integer.parseInt(entry.getValue()));</span>
+<span class="nc" id="L303">            }</span>
+<span class="fc" id="L304">            return parsedConstants;</span>
+        }
+    }
+
+    /**
+     * @param gssFunctionMapProviderClassName such as
+     *                                        &quot;com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProvider&quot;
+     * @return a new instance of the {@link GssFunctionMapProvider} that
+     * corresponds to the specified class name, or a new instance of
+     * {@link com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProvider}
+     * if the class name is {@code null}.
+     */
+    private static GssFunctionMapProvider getGssFunctionMapProviderForName(
+            String gssFunctionMapProviderClassName) {
+        // Verify that a class with the given name exists.
+        Class&lt;?&gt; clazz;
+        try {
+<span class="fc" id="L321">            clazz = Class.forName(gssFunctionMapProviderClassName);</span>
+<span class="nc" id="L322">        } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L323">            throw new RuntimeException(String.format(</span>
+                    &quot;Class does not exist: %s&quot;, gssFunctionMapProviderClassName), e);
+<span class="fc" id="L325">        }</span>
+
+        // The class must implement GssFunctionMapProvider.
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">        if (!GssFunctionMapProvider.class.isAssignableFrom(clazz)) {</span>
+<span class="nc" id="L329">            throw new RuntimeException(String.format(</span>
+                    &quot;%s does not implement GssFunctionMapProvider&quot;,
+                    gssFunctionMapProviderClassName));
+        }
+
+        // Create the GssFunctionMapProvider using reflection.
+        try {
+<span class="fc" id="L336">            return (GssFunctionMapProvider) clazz.getDeclaredConstructor().newInstance();</span>
+<span class="nc" id="L337">        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {</span>
+<span class="nc" id="L338">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    private static class OutputInfo {
+        @Nullable
+        public final File outputFile;
+        @Nullable
+        public final File renameFile;
+        @Nullable
+        public final File sourceMapFile;
+
+<span class="nc" id="L350">        private OutputInfo(File outputFile, File renameFile, File sourceMapFile) {</span>
+<span class="nc" id="L351">            this.outputFile = outputFile;</span>
+<span class="nc" id="L352">            this.renameFile = renameFile;</span>
+<span class="nc" id="L353">            this.sourceMapFile = sourceMapFile;</span>
+<span class="nc" id="L354">        }</span>
+    }
+
+    private static void executeJob(
+            JobDescription job, ExitCodeHandler exitCodeHandler, OutputInfo outputInfo) {
+<span class="nc" id="L359">        CompilerErrorManager errorManager = new CompilerErrorManager();</span>
+
+<span class="nc" id="L361">        ClosureCommandLineCompiler compiler =</span>
+                new ClosureCommandLineCompiler(job, exitCodeHandler, errorManager);
+
+<span class="nc" id="L364">        String compilerOutput = compiler.execute(outputInfo.renameFile, outputInfo.sourceMapFile);</span>
+
+<span class="nc bnc" id="L366" title="All 2 branches missed.">        if (outputInfo.outputFile == null) {</span>
+<span class="nc" id="L367">            System.out.print(compilerOutput);</span>
+        } else {
+            try {
+<span class="nc" id="L370">                Files.asCharSink(outputInfo.outputFile, UTF_8).write(compilerOutput);</span>
+<span class="nc" id="L371">            } catch (IOException e) {</span>
+<span class="nc" id="L372">                AbstractCommandLineCompiler.exitOnUnhandledException(e, exitCodeHandler);</span>
+<span class="nc" id="L373">            }</span>
+        }
+<span class="nc" id="L375">    }</span>
+
+    /**
+     * Processes the specified args to construct a corresponding
+     * {@link Flags}. If the args are invalid, prints an appropriate error
+     * message, invokes
+     * {@link ExitCodeHandler#processExitCode(int)}, and returns null.
+     */
+    @VisibleForTesting
+    static @Nullable
+    Flags parseArgs(String[] args,
+                    ExitCodeHandler exitCodeHandler) {
+<span class="fc" id="L387">        Flags flags = new Flags();</span>
+<span class="fc" id="L388">        CmdLineParser argsParser = new CmdLineParser(flags) {</span>
+            @Override
+            public void printUsage(OutputStream out) {
+<span class="nc" id="L391">                PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));</span>
+<span class="nc" id="L392">                writer.write(Flags.USAGE_PREAMBLE);</span>
+
+                // Because super.printUsage() creates its own PrintWriter to wrap the
+                // OutputStream, we call flush() on our PrinterWriter first to make sure
+                // that everything from this PrintWriter is written to the OutputStream
+                // before any usage information.
+<span class="nc" id="L398">                writer.flush();</span>
+<span class="nc" id="L399">                super.printUsage(out);</span>
+<span class="nc" id="L400">            }</span>
+        };
+
+        try {
+<span class="fc" id="L404">            argsParser.parseArgument(args);</span>
+<span class="nc" id="L405">        } catch (CmdLineException e) {</span>
+<span class="nc" id="L406">            argsParser.printUsage(System.err);</span>
+<span class="nc" id="L407">            exitCodeHandler.processExitCode(ERROR_MESSAGE_EXIT_CODE);</span>
+<span class="nc" id="L408">            return null;</span>
+<span class="fc" id="L409">        }</span>
+
+<span class="pc bpc" id="L411" title="1 of 2 branches missed.">        if (flags.arguments.isEmpty()) {</span>
+<span class="nc" id="L412">            System.err.println(&quot;\nERROR: No input files specified.\n&quot;);</span>
+<span class="nc" id="L413">            argsParser.printUsage(System.err);</span>
+<span class="nc" id="L414">            exitCodeHandler.processExitCode(</span>
+                    AbstractCommandLineCompiler.ERROR_MESSAGE_EXIT_CODE);
+<span class="nc" id="L416">            return null;</span>
+        } else {
+<span class="fc" id="L418">            return flags;</span>
+        }
+    }
+
+    public static void main(String[] args) {
+<span class="nc" id="L423">        ExitCodeHandler exitCodeHandler = new DefaultExitCodeHandler();</span>
+<span class="nc" id="L424">        Flags flags = parseArgs(args, exitCodeHandler);</span>
+<span class="nc bnc" id="L425" title="All 2 branches missed.">        if (flags == null) {</span>
+<span class="nc" id="L426">            return;</span>
+        }
+
+<span class="nc" id="L429">        JobDescription job = flags.createJobDescription();</span>
+<span class="nc" id="L430">        OutputInfo info = flags.createOutputInfo();</span>
+<span class="nc" id="L431">        executeJob(job, exitCodeHandler, info);</span>
+<span class="nc" id="L432">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

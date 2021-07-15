@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ColorParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.gssfunctions</a> &gt; <span class="el_source">ColorParser.java</span></div><h1>ColorParser.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2007 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.gssfunctions;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+
+import java.awt.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * A parser that recognizes all color formats allowed by the CSS Level 2
+ * and SVG 1.0 specifications.
+ *
+ * &lt;p&gt;See &lt;a href=&quot;http://www.w3.org/TR/CSS21/syndata.html#color-units&quot;&gt;the CSS
+ * 2.1 colors&lt;/a&gt;.
+ *
+ * &lt;p&gt;A CSS color can be one of 5 things:
+ *
+ * &lt;ul&gt;
+ * &lt;li&gt;A 6-character hexadecimal color, such as &quot;#f6e43a&quot; (lower or upper
+ *      case).&lt;/li&gt;
+ * &lt;li&gt;A 3-character hexadecimal color, such as &quot;#c4d&quot;.&lt;/li&gt;
+ * &lt;li&gt;A 255-based RGB value, such as &quot;rgb(255, 10, 0)&quot; (spaces are allowed
+ *     around values).&lt;/li&gt;
+ * &lt;li&gt;A percent-based RGB value, such as &quot;rgb(100%, 0%, 10%)&quot; (spaces are
+ *     allowed around values).&lt;/li&gt;
+ * &lt;li&gt;A predefined color keyword, such as &quot;red&quot;.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;An example of a parser that will handle all valid CSS 2.1 colors:
+ * &lt;pre&gt;
+ * // Construct a ColorParser instance (thread-safe, and can be reused):
+ * ColorParser parser = new ColorParser(
+ *     ColorParser.Format.HEX3,
+ *     ColorParser.Format.HEX6,
+ *     ColorParser.Format.CSS_RGB,
+ *     ColorParser.Format.CSS_KEYWORDS);
+ * // Parse a color:
+ * Color red = parser.parse(&quot;rgb(255, 0, 0)&quot;);
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;Also see the {@link #parseAny} static convenience method.
+ *
+ * @author chrisn@google.com (Chris Nokleberg)
+ */
+final class ColorParser {
+
+    /**
+     * Pattern for matching #RRGGBB
+     */
+<span class="fc" id="L71">    private static final Pattern HEX6_PATTERN = formatHexadecimalPattern(6);</span>
+
+    /**
+     * Pattern for matching #RRGGBBAA
+     */
+<span class="fc" id="L76">    private static final Pattern HEX8_PATTERN = formatHexadecimalPattern(8);</span>
+
+    /**
+     * Pattern for matching #RGBA
+     */
+<span class="fc" id="L81">    private static final Pattern HEX4_PATTERN = formatHexadecimalPattern(4);</span>
+
+    /**
+     * Pattern for matching rgb(r, g, b) [0-255]
+     */
+    private static final Pattern CSS_RGB_PATTERN;
+
+    /**
+     * Pattern for matching rgb(r, g, b) [0-100%]
+     */
+    private static final Pattern CSS_PERCENT_PATTERN;
+
+    /**
+     * Pattern for matching rgba(r, g, b, a) [0-255, a = 0-1]
+     */
+    private static final Pattern CSS_RGBA_PATTERN;
+
+    /**
+     * Pattern for matching rgba(r, g, b, a) [0-100%, a = 0-1]
+     */
+    private static final Pattern CSS_RGBA_PERCENT_PATTERN;
+
+    // Initialize the patterns to recognize &quot;rgb(...)&quot; colors.
+    static {
+    /*
+      From CSS2 spec:
+
+      An &lt;integer&gt; consists of one or more digits &quot;0&quot; to &quot;9&quot;.
+      A &lt;number&gt; can either be an &lt;integer&gt;, or it can be zero
+      or more digits followed by a dot (.) followed by one or more
+      digits. Both integers and real numbers may be preceded by a &quot;-&quot;
+      or &quot;+&quot; to indicate the sign.
+
+      The format of a percentage value is an optional sign character
+      ('+' or '-', with '+' being the default) immediately followed by a
+      &lt;number&gt; immediately followed by '%'.
+    */
+<span class="fc" id="L118">        String integerPattern = &quot;([+-]?[0-9]+)&quot;;</span>
+<span class="fc" id="L119">        String numberPattern = &quot;([+-]?[0-9]+|[+-]?[0-9]*\\.[0-9]+)&quot;;</span>
+<span class="fc" id="L120">        String rgbTemplate = &quot;^rgb\\(\\s*%1$s\\s*,\\s*%1$s\\s*,\\s*%1$s\\s*\\)$&quot;;</span>
+<span class="fc" id="L121">        CSS_RGB_PATTERN = Pattern.compile(</span>
+<span class="fc" id="L122">                String.format(rgbTemplate, integerPattern));</span>
+<span class="fc" id="L123">        CSS_PERCENT_PATTERN = Pattern.compile(</span>
+<span class="fc" id="L124">                String.format(rgbTemplate, numberPattern + &quot;%&quot;));</span>
+
+<span class="fc" id="L126">        String rgbaTemplate =</span>
+                &quot;^rgba\\(\\s*%1$s\\s*,\\s*%1$s\\s*,\\s*%1$s\\s*\\,\\s*%2$s\\s*\\)$&quot;;
+<span class="fc" id="L128">        CSS_RGBA_PATTERN = Pattern.compile(</span>
+<span class="fc" id="L129">                String.format(rgbaTemplate, integerPattern, numberPattern));</span>
+<span class="fc" id="L130">        CSS_RGBA_PERCENT_PATTERN = Pattern.compile(</span>
+<span class="fc" id="L131">                String.format(rgbaTemplate, numberPattern + &quot;%&quot;, numberPattern));</span>
+    }
+
+    /**
+     * Map of the 16 allowed colors defined in HTML 4.01.
+     */
+<span class="fc" id="L137">    private static final ImmutableMap&lt;String, Color&gt; HTML_COLOR_MAP =</span>
+            new ImmutableMap.Builder&lt;String, Color&gt;()
+<span class="fc" id="L139">                    .put(&quot;aqua&quot;, new Color(0x00FFFF))</span>
+<span class="fc" id="L140">                    .put(&quot;black&quot;, new Color(0x000000))</span>
+<span class="fc" id="L141">                    .put(&quot;blue&quot;, new Color(0x0000FF))</span>
+<span class="fc" id="L142">                    .put(&quot;fuchsia&quot;, new Color(0xFF00FF))</span>
+<span class="fc" id="L143">                    .put(&quot;gray&quot;, new Color(0x808080))</span>
+<span class="fc" id="L144">                    .put(&quot;green&quot;, new Color(0x008000))</span>
+<span class="fc" id="L145">                    .put(&quot;lime&quot;, new Color(0x00FF00))</span>
+<span class="fc" id="L146">                    .put(&quot;maroon&quot;, new Color(0x800000))</span>
+<span class="fc" id="L147">                    .put(&quot;navy&quot;, new Color(0x000080))</span>
+<span class="fc" id="L148">                    .put(&quot;olive&quot;, new Color(0x808000))</span>
+<span class="fc" id="L149">                    .put(&quot;purple&quot;, new Color(0x800080))</span>
+<span class="fc" id="L150">                    .put(&quot;red&quot;, new Color(0xFF0000))</span>
+<span class="fc" id="L151">                    .put(&quot;silver&quot;, new Color(0xC0C0C0))</span>
+<span class="fc" id="L152">                    .put(&quot;teal&quot;, new Color(0x008080))</span>
+<span class="fc" id="L153">                    .put(&quot;white&quot;, new Color(0xFFFFFF))</span>
+<span class="fc" id="L154">                    .put(&quot;yellow&quot;, new Color(0xFFFF00))</span>
+<span class="fc" id="L155">                    .build();</span>
+
+    /**
+     * All the named colors defined in CSS 2.1
+     */
+<span class="fc" id="L160">    private static final ImmutableMap&lt;String, Color&gt; CSS_COLOR_MAP =</span>
+            new ImmutableMap.Builder&lt;String, Color&gt;()
+<span class="fc" id="L162">                    .putAll(HTML_COLOR_MAP)</span>
+<span class="fc" id="L163">                    .put(&quot;orange&quot;, new Color(0xFFA500))</span>
+<span class="fc" id="L164">                    .build();</span>
+
+    /**
+     * All the named colors defined in SVG 1.0
+     */
+<span class="fc" id="L169">    private static final ImmutableMap&lt;String, Color&gt; SVG_COLOR_MAP =</span>
+            new ImmutableMap.Builder&lt;String, Color&gt;()
+<span class="fc" id="L171">                    .putAll(CSS_COLOR_MAP)</span>
+<span class="fc" id="L172">                    .put(&quot;aliceblue&quot;, new Color(0xF0F8FF))</span>
+<span class="fc" id="L173">                    .put(&quot;antiquewhite&quot;, new Color(0xFAEBD7))</span>
+<span class="fc" id="L174">                    .put(&quot;aquamarine&quot;, new Color(0x7FFFD4))</span>
+<span class="fc" id="L175">                    .put(&quot;azure&quot;, new Color(0xF0FFFF))</span>
+<span class="fc" id="L176">                    .put(&quot;beige&quot;, new Color(0xF5F5DC))</span>
+<span class="fc" id="L177">                    .put(&quot;bisque&quot;, new Color(0xFFE4C4))</span>
+<span class="fc" id="L178">                    .put(&quot;blanchedalmond&quot;, new Color(0xFFEBCD))</span>
+<span class="fc" id="L179">                    .put(&quot;blueviolet&quot;, new Color(0x8A2BE2))</span>
+<span class="fc" id="L180">                    .put(&quot;brown&quot;, new Color(0xA52A2A))</span>
+<span class="fc" id="L181">                    .put(&quot;burlywood&quot;, new Color(0xDEB887))</span>
+<span class="fc" id="L182">                    .put(&quot;cadetblue&quot;, new Color(0x5F9EA0))</span>
+<span class="fc" id="L183">                    .put(&quot;chartreuse&quot;, new Color(0x7FFF00))</span>
+<span class="fc" id="L184">                    .put(&quot;chocolate&quot;, new Color(0xD2691E))</span>
+<span class="fc" id="L185">                    .put(&quot;coral&quot;, new Color(0xFF7F50))</span>
+<span class="fc" id="L186">                    .put(&quot;cornflowerblue&quot;, new Color(0x6495ED))</span>
+<span class="fc" id="L187">                    .put(&quot;cornsilk&quot;, new Color(0xFFF8DC))</span>
+<span class="fc" id="L188">                    .put(&quot;crimson&quot;, new Color(0xDC143C))</span>
+<span class="fc" id="L189">                    .put(&quot;cyan&quot;, new Color(0x00FFFF))</span>
+<span class="fc" id="L190">                    .put(&quot;darkblue&quot;, new Color(0x00008B))</span>
+<span class="fc" id="L191">                    .put(&quot;darkcyan&quot;, new Color(0x008B8B))</span>
+<span class="fc" id="L192">                    .put(&quot;darkgoldenrod&quot;, new Color(0xB8860B))</span>
+<span class="fc" id="L193">                    .put(&quot;darkgray&quot;, new Color(0xA9A9A9))</span>
+<span class="fc" id="L194">                    .put(&quot;darkgreen&quot;, new Color(0x006400))</span>
+<span class="fc" id="L195">                    .put(&quot;darkgrey&quot;, new Color(0xA9A9A9))</span>
+<span class="fc" id="L196">                    .put(&quot;darkkhaki&quot;, new Color(0xBDB76B))</span>
+<span class="fc" id="L197">                    .put(&quot;darkmagenta&quot;, new Color(0x8B008B))</span>
+<span class="fc" id="L198">                    .put(&quot;darkolivegreen&quot;, new Color(0x556B2F))</span>
+<span class="fc" id="L199">                    .put(&quot;darkorange&quot;, new Color(0xFF8C00))</span>
+<span class="fc" id="L200">                    .put(&quot;darkorchid&quot;, new Color(0x9932CC))</span>
+<span class="fc" id="L201">                    .put(&quot;darkred&quot;, new Color(0x8B0000))</span>
+<span class="fc" id="L202">                    .put(&quot;darksalmon&quot;, new Color(0xE9967A))</span>
+<span class="fc" id="L203">                    .put(&quot;darkseagreen&quot;, new Color(0x8FBC8F))</span>
+<span class="fc" id="L204">                    .put(&quot;darkslateblue&quot;, new Color(0x483D8B))</span>
+<span class="fc" id="L205">                    .put(&quot;darkslategray&quot;, new Color(0x2F4F4F))</span>
+<span class="fc" id="L206">                    .put(&quot;darkslategrey&quot;, new Color(0x2F4F4F))</span>
+<span class="fc" id="L207">                    .put(&quot;darkturquoise&quot;, new Color(0x00CED1))</span>
+<span class="fc" id="L208">                    .put(&quot;darkviolet&quot;, new Color(0x9400D3))</span>
+<span class="fc" id="L209">                    .put(&quot;deeppink&quot;, new Color(0xFF1493))</span>
+<span class="fc" id="L210">                    .put(&quot;deepskyblue&quot;, new Color(0x00BFFF))</span>
+<span class="fc" id="L211">                    .put(&quot;dimgray&quot;, new Color(0x696969))</span>
+<span class="fc" id="L212">                    .put(&quot;dimgrey&quot;, new Color(0x696969))</span>
+<span class="fc" id="L213">                    .put(&quot;dodgerblue&quot;, new Color(0x1E90FF))</span>
+<span class="fc" id="L214">                    .put(&quot;firebrick&quot;, new Color(0xB22222))</span>
+<span class="fc" id="L215">                    .put(&quot;floralwhite&quot;, new Color(0xFFFAF0))</span>
+<span class="fc" id="L216">                    .put(&quot;forestgreen&quot;, new Color(0x228B22))</span>
+<span class="fc" id="L217">                    .put(&quot;gainsboro&quot;, new Color(0xDCDCDC))</span>
+<span class="fc" id="L218">                    .put(&quot;ghostwhite&quot;, new Color(0xF8F8FF))</span>
+<span class="fc" id="L219">                    .put(&quot;gold&quot;, new Color(0xFFD700))</span>
+<span class="fc" id="L220">                    .put(&quot;goldenrod&quot;, new Color(0xDAA520))</span>
+<span class="fc" id="L221">                    .put(&quot;greenyellow&quot;, new Color(0xADFF2F))</span>
+<span class="fc" id="L222">                    .put(&quot;grey&quot;, new Color(0x808080))</span>
+<span class="fc" id="L223">                    .put(&quot;honeydew&quot;, new Color(0xF0FFF0))</span>
+<span class="fc" id="L224">                    .put(&quot;hotpink&quot;, new Color(0xFF69B4))</span>
+<span class="fc" id="L225">                    .put(&quot;indianred&quot;, new Color(0xCD5C5C))</span>
+<span class="fc" id="L226">                    .put(&quot;indigo&quot;, new Color(0x4B0082))</span>
+<span class="fc" id="L227">                    .put(&quot;ivory&quot;, new Color(0xFFFFF0))</span>
+<span class="fc" id="L228">                    .put(&quot;khaki&quot;, new Color(0xF0E68C))</span>
+<span class="fc" id="L229">                    .put(&quot;lavender&quot;, new Color(0xE6E6FA))</span>
+<span class="fc" id="L230">                    .put(&quot;lavenderblush&quot;, new Color(0xFFF0F5))</span>
+<span class="fc" id="L231">                    .put(&quot;lawngreen&quot;, new Color(0x7CFC00))</span>
+<span class="fc" id="L232">                    .put(&quot;lemonchiffon&quot;, new Color(0xFFFACD))</span>
+<span class="fc" id="L233">                    .put(&quot;lightblue&quot;, new Color(0xADD8E6))</span>
+<span class="fc" id="L234">                    .put(&quot;lightcoral&quot;, new Color(0xF08080))</span>
+<span class="fc" id="L235">                    .put(&quot;lightcyan&quot;, new Color(0xE0FFFF))</span>
+<span class="fc" id="L236">                    .put(&quot;lightgoldenrodyellow&quot;, new Color(0xFAFAD2))</span>
+<span class="fc" id="L237">                    .put(&quot;lightgray&quot;, new Color(0xD3D3D3))</span>
+<span class="fc" id="L238">                    .put(&quot;lightgreen&quot;, new Color(0x90EE90))</span>
+<span class="fc" id="L239">                    .put(&quot;lightgrey&quot;, new Color(0xD3D3D3))</span>
+<span class="fc" id="L240">                    .put(&quot;lightpink&quot;, new Color(0xFFB6C1))</span>
+<span class="fc" id="L241">                    .put(&quot;lightsalmon&quot;, new Color(0xFFA07A))</span>
+<span class="fc" id="L242">                    .put(&quot;lightseagreen&quot;, new Color(0x20B2AA))</span>
+<span class="fc" id="L243">                    .put(&quot;lightskyblue&quot;, new Color(0x87CEFA))</span>
+<span class="fc" id="L244">                    .put(&quot;lightslategray&quot;, new Color(0x778899))</span>
+<span class="fc" id="L245">                    .put(&quot;lightslategrey&quot;, new Color(0x778899))</span>
+<span class="fc" id="L246">                    .put(&quot;lightsteelblue&quot;, new Color(0xB0C4DE))</span>
+<span class="fc" id="L247">                    .put(&quot;lightyellow&quot;, new Color(0xFFFFE0))</span>
+<span class="fc" id="L248">                    .put(&quot;limegreen&quot;, new Color(0x32CD32))</span>
+<span class="fc" id="L249">                    .put(&quot;linen&quot;, new Color(0xFAF0E6))</span>
+<span class="fc" id="L250">                    .put(&quot;magenta&quot;, new Color(0xFF00FF))</span>
+<span class="fc" id="L251">                    .put(&quot;mediumaquamarine&quot;, new Color(0x66CDAA))</span>
+<span class="fc" id="L252">                    .put(&quot;mediumblue&quot;, new Color(0x0000CD))</span>
+<span class="fc" id="L253">                    .put(&quot;mediumorchid&quot;, new Color(0xBA55D3))</span>
+<span class="fc" id="L254">                    .put(&quot;mediumpurple&quot;, new Color(0x9370DB))</span>
+<span class="fc" id="L255">                    .put(&quot;mediumseagreen&quot;, new Color(0x3CB371))</span>
+<span class="fc" id="L256">                    .put(&quot;mediumslateblue&quot;, new Color(0x7B68EE))</span>
+<span class="fc" id="L257">                    .put(&quot;mediumspringgreen&quot;, new Color(0x00FA9A))</span>
+<span class="fc" id="L258">                    .put(&quot;mediumturquoise&quot;, new Color(0x48D1CC))</span>
+<span class="fc" id="L259">                    .put(&quot;mediumvioletred&quot;, new Color(0xC71585))</span>
+<span class="fc" id="L260">                    .put(&quot;midnightblue&quot;, new Color(0x191970))</span>
+<span class="fc" id="L261">                    .put(&quot;mintcream&quot;, new Color(0xF5FFFA))</span>
+<span class="fc" id="L262">                    .put(&quot;mistyrose&quot;, new Color(0xFFE4E1))</span>
+<span class="fc" id="L263">                    .put(&quot;moccasin&quot;, new Color(0xFFE4B5))</span>
+<span class="fc" id="L264">                    .put(&quot;navajowhite&quot;, new Color(0xFFDEAD))</span>
+<span class="fc" id="L265">                    .put(&quot;oldlace&quot;, new Color(0xFDF5E6))</span>
+<span class="fc" id="L266">                    .put(&quot;olivedrab&quot;, new Color(0x6B8E23))</span>
+<span class="fc" id="L267">                    .put(&quot;orangered&quot;, new Color(0xFF4500))</span>
+<span class="fc" id="L268">                    .put(&quot;orchid&quot;, new Color(0xDA70D6))</span>
+<span class="fc" id="L269">                    .put(&quot;palegoldenrod&quot;, new Color(0xEEE8AA))</span>
+<span class="fc" id="L270">                    .put(&quot;palegreen&quot;, new Color(0x98FB98))</span>
+<span class="fc" id="L271">                    .put(&quot;paleturquoise&quot;, new Color(0xAFEEEE))</span>
+<span class="fc" id="L272">                    .put(&quot;palevioletred&quot;, new Color(0xDB7093))</span>
+<span class="fc" id="L273">                    .put(&quot;papayawhip&quot;, new Color(0xFFEFD5))</span>
+<span class="fc" id="L274">                    .put(&quot;peachpuff&quot;, new Color(0xFFDAB9))</span>
+<span class="fc" id="L275">                    .put(&quot;peru&quot;, new Color(0xCD853F))</span>
+<span class="fc" id="L276">                    .put(&quot;pink&quot;, new Color(0xFFC0CB))</span>
+<span class="fc" id="L277">                    .put(&quot;plum&quot;, new Color(0xDDA0DD))</span>
+<span class="fc" id="L278">                    .put(&quot;powderblue&quot;, new Color(0xB0E0E6))</span>
+<span class="fc" id="L279">                    .put(&quot;rosybrown&quot;, new Color(0xBC8F8F))</span>
+<span class="fc" id="L280">                    .put(&quot;royalblue&quot;, new Color(0x4169E1))</span>
+<span class="fc" id="L281">                    .put(&quot;saddlebrown&quot;, new Color(0x8B4513))</span>
+<span class="fc" id="L282">                    .put(&quot;salmon&quot;, new Color(0xFA8072))</span>
+<span class="fc" id="L283">                    .put(&quot;sandybrown&quot;, new Color(0xF4A460))</span>
+<span class="fc" id="L284">                    .put(&quot;seagreen&quot;, new Color(0x2E8B57))</span>
+<span class="fc" id="L285">                    .put(&quot;seashell&quot;, new Color(0xFFF5EE))</span>
+<span class="fc" id="L286">                    .put(&quot;sienna&quot;, new Color(0xA0522D))</span>
+<span class="fc" id="L287">                    .put(&quot;skyblue&quot;, new Color(0x87CEEB))</span>
+<span class="fc" id="L288">                    .put(&quot;slateblue&quot;, new Color(0x6A5ACD))</span>
+<span class="fc" id="L289">                    .put(&quot;slategray&quot;, new Color(0x708090))</span>
+<span class="fc" id="L290">                    .put(&quot;slategrey&quot;, new Color(0x708090))</span>
+<span class="fc" id="L291">                    .put(&quot;snow&quot;, new Color(0xFFFAFA))</span>
+<span class="fc" id="L292">                    .put(&quot;springgreen&quot;, new Color(0x00FF7F))</span>
+<span class="fc" id="L293">                    .put(&quot;steelblue&quot;, new Color(0x4682B4))</span>
+<span class="fc" id="L294">                    .put(&quot;tan&quot;, new Color(0xD2B48C))</span>
+<span class="fc" id="L295">                    .put(&quot;thistle&quot;, new Color(0xD8BFD8))</span>
+<span class="fc" id="L296">                    .put(&quot;tomato&quot;, new Color(0xFF6347))</span>
+<span class="fc" id="L297">                    .put(&quot;turquoise&quot;, new Color(0x40E0D0))</span>
+<span class="fc" id="L298">                    .put(&quot;violet&quot;, new Color(0xEE82EE))</span>
+<span class="fc" id="L299">                    .put(&quot;wheat&quot;, new Color(0xF5DEB3))</span>
+<span class="fc" id="L300">                    .put(&quot;whitesmoke&quot;, new Color(0xF5F5F5))</span>
+<span class="fc" id="L301">                    .put(&quot;yellowgreen&quot;, new Color(0x9ACD32))</span>
+<span class="fc" id="L302">                    .build();</span>
+
+    /**
+     * Optional formats that each parser instance can accept.
+     */
+<span class="fc" id="L307">    public static enum Format {</span>
+        /**
+         * #RRGGBB format
+         */
+<span class="fc" id="L311">        HEX6 {</span>
+            @Override
+            Color parse(String value) {
+<span class="fc bfc" id="L314" title="All 2 branches covered.">                return (HEX6_PATTERN.matcher(value).matches())</span>
+<span class="fc" id="L315">                        ? new Color(Integer.parseInt(value.substring(1), 16)) : null;</span>
+            }
+        },
+
+        /**
+         * #RGB format
+         */
+<span class="fc" id="L322">        HEX3 {</span>
+            @Override
+            Color parse(String value) {
+<span class="fc" id="L325">                return HEX4.parse(value + &quot;F&quot;);</span>
+            }
+        },
+
+        /**
+         * #RGBA format
+         */
+<span class="fc" id="L332">        HEX4 {</span>
+            @Override
+            Color parse(String value) {
+<span class="fc bfc" id="L335" title="All 2 branches covered.">                if (HEX4_PATTERN.matcher(value).matches()) {</span>
+<span class="fc" id="L336">                    int r = Integer.parseInt(value.substring(1, 2), 16);</span>
+<span class="fc" id="L337">                    int g = Integer.parseInt(value.substring(2, 3), 16);</span>
+<span class="fc" id="L338">                    int b = Integer.parseInt(value.substring(3, 4), 16);</span>
+<span class="fc" id="L339">                    int a = Integer.parseInt(value.substring(4, 5), 16);</span>
+<span class="fc" id="L340">                    return</span>
+                            new Color((r &lt;&lt; 4) | r, (g &lt;&lt; 4) | g, (b &lt;&lt; 4) | b, (a &lt;&lt; 4) | a);
+                }
+<span class="fc" id="L343">                return null;</span>
+            }
+        },
+
+        /**
+         * #RRGGBBAA format
+         */
+<span class="fc" id="L350">        HEX8 {</span>
+            @Override
+            Color parse(String value) {
+<span class="nc bnc" id="L353" title="All 2 branches missed.">                if (HEX8_PATTERN.matcher(value).matches()) {</span>
+<span class="nc" id="L354">                    int rgb = Integer.parseInt(value.substring(1, 7), 16);</span>
+<span class="nc" id="L355">                    int a = Integer.parseInt(value.substring(7, 9), 16);</span>
+<span class="nc" id="L356">                    return new Color(a &lt;&lt; 24 | rgb, true);</span>
+                }
+<span class="nc" id="L358">                return null;</span>
+            }
+        },
+
+        /**
+         * rgb(R, G, B) format (R/G/B = 0-255 or 0-100%)
+         */
+<span class="fc" id="L365">        CSS_RGB {</span>
+            @Override
+            Color parse(String value) {
+                // Try to parse with 255-based values...
+<span class="fc" id="L369">                Matcher matcher = CSS_RGB_PATTERN.matcher(value);</span>
+<span class="fc bfc" id="L370" title="All 2 branches covered.">                if (matcher.matches()) {</span>
+<span class="fc" id="L371">                    return newColor(matcher, 255);</span>
+                } else {
+                    // ... or with percent-based values.
+<span class="fc" id="L374">                    matcher = CSS_PERCENT_PATTERN.matcher(value);</span>
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">                    return matcher.matches() ? newColor(matcher, 100) : null;</span>
+                }
+            }
+
+            /** Creates a new color from a regexp match. */
+            private Color newColor(Matcher matcher, float max) {
+<span class="fc" id="L381">                return new Color(</span>
+<span class="fc" id="L382">                        clipRangeAndNormalize(matcher.group(1), max),</span>
+<span class="fc" id="L383">                        clipRangeAndNormalize(matcher.group(2), max),</span>
+<span class="fc" id="L384">                        clipRangeAndNormalize(matcher.group(3), max));</span>
+            }
+        },
+
+        /**
+         * rgba(R, G, B, A) format (R/G/B = 0-255 or 0-100%, A = 0.0-1.0)
+         */
+<span class="fc" id="L391">        CSS_RGBA {</span>
+            @Override
+            Color parse(String value) {
+                // Try to parse with 255-based values...
+<span class="fc" id="L395">                Matcher matcher = CSS_RGBA_PATTERN.matcher(value);</span>
+<span class="fc bfc" id="L396" title="All 2 branches covered.">                if (matcher.matches()) {</span>
+<span class="fc" id="L397">                    return newColor(matcher, 255);</span>
+                } else {
+                    // ... or with percent-based values.
+<span class="fc" id="L400">                    matcher = CSS_RGBA_PERCENT_PATTERN.matcher(value);</span>
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">                    return matcher.matches() ? newColor(matcher, 100) : null;</span>
+                }
+            }
+
+            /** Creates a new color from a regexp match. */
+            private Color newColor(Matcher matcher, float max) {
+<span class="fc" id="L407">                return new Color(</span>
+<span class="fc" id="L408">                        clipRangeAndNormalize(matcher.group(1), max),</span>
+<span class="fc" id="L409">                        clipRangeAndNormalize(matcher.group(2), max),</span>
+<span class="fc" id="L410">                        clipRangeAndNormalize(matcher.group(3), max),</span>
+<span class="fc" id="L411">                        clipRangeAndNormalize(matcher.group(4), 1));</span>
+            }
+        },
+
+        /**
+         * HTML 4.0 color keywords (16 colors)
+         */
+<span class="fc" id="L418">        HTML_KEYWORDS {</span>
+            @Override
+            Color parse(String value) {
+<span class="nc" id="L421">                return HTML_COLOR_MAP.get(value.toLowerCase());</span>
+            }
+        },
+
+        /**
+         * CSS 2.1 color keywords (HTML + &quot;orange&quot;)
+         */
+<span class="fc" id="L428">        CSS_KEYWORDS {</span>
+            @Override
+            Color parse(String value) {
+<span class="nc" id="L431">                return CSS_COLOR_MAP.get(value.toLowerCase());</span>
+            }
+        },
+
+        /**
+         * SVG 1.0 color keywords
+         */
+<span class="fc" id="L438">        SVG_KEYWORDS {</span>
+            @Override
+            Color parse(String value) {
+<span class="fc" id="L441">                return SVG_COLOR_MAP.get(value.toLowerCase());</span>
+            }
+        };
+
+        /**
+         * Parses the given color description.
+         *
+         * @param value the value to parse
+         * @return the parsed color, or null if this format cannot parse the value
+         */
+        abstract Color parse(String value);
+
+        /**
+         * Parses value as float, clips to [0, max], and returns the
+         * clipped value divided by the maximum value.
+         */
+        private static float clipRangeAndNormalize(String value, float max) {
+<span class="fc" id="L458">            return Math.max(0, Math.min(max, Float.parseFloat(value))) / max;</span>
+        }
+    }
+
+    private final Set&lt;Format&gt; formats;
+
+<span class="fc" id="L464">    private static final ColorParser ANY_COLOR_PARSER = new ColorParser(</span>
+            Format.HEX3, Format.HEX6, Format.CSS_RGB, Format.CSS_RGBA,
+            Format.SVG_KEYWORDS);
+
+    /**
+     * Parses a color description using all supported CSS2/CSS3
+     * {@linkplain Format formats} (meaning all formats except
+     * {@linkplain Format#HEX4 hex-4} and {@linkplain Format#HEX8 hex-8}).
+     *
+     * @param value the value to parse
+     * @return the parsed color
+     * @throws IllegalArgumentException if the value cannot be parsed
+     */
+    public static Color parseAny(String value) {
+<span class="fc" id="L478">        return ANY_COLOR_PARSER.parse(value);</span>
+    }
+
+    /**
+     * Constructs a new instance using the given formats.
+     *
+     * @param formats the formats to accept
+     * @throws IllegalArgumentException if no formats are specified
+     */
+<span class="fc" id="L487">    public ColorParser(Format... formats) {</span>
+<span class="pc bpc" id="L488" title="1 of 2 branches missed.">        Preconditions.checkArgument(formats.length &gt; 0,</span>
+                &quot;At least one format is required&quot;);
+<span class="fc" id="L490">        this.formats = EnumSet.copyOf(Arrays.asList(formats));</span>
+<span class="fc" id="L491">    }</span>
+
+    /**
+     * Parses the given color description.
+     *
+     * @param value the value to parse
+     * @return the parsed color
+     * @throws IllegalArgumentException if the value cannot be parsed
+     */
+    public Color parse(String value) {
+<span class="fc" id="L501">        value = value.trim();</span>
+<span class="pc bpc" id="L502" title="1 of 2 branches missed.">        for (Format format : formats) {</span>
+<span class="fc" id="L503">            Color result = format.parse(value);</span>
+<span class="fc bfc" id="L504" title="All 2 branches covered.">            if (result != null) {</span>
+<span class="fc" id="L505">                return result;</span>
+            }
+<span class="fc" id="L507">        }</span>
+        // If we get to this point, we're unable to parse the color.
+<span class="nc" id="L509">        throw new IllegalArgumentException(&quot;Illegal color value, does not match &quot;</span>
+                + &quot;any of &quot; + formats + &quot;: &quot; + value);
+    }
+
+    /**
+     * Formats a hexadecimal color pattern with the given number of digits. For
+     * example, a pattern made from 6 digits matches strings such as &quot;#AB4D9F&quot;.
+     *
+     * @param numberOfDigits The number of digits that the pattern should match
+     * @return The requested pattern.
+     */
+    @VisibleForTesting
+    static Pattern formatHexadecimalPattern(int numberOfDigits) {
+<span class="fc" id="L522">        return Pattern.compile(String.format(&quot;^#[0-9a-fA-F]{%d}$&quot;, numberOfDigits));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

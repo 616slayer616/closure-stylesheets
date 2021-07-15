@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:50" hostname="Patrick-MBP.fritz.box" time="0.024">
+  <properties/>
+  <testcase name="testMatchValueOnlyFunctionLast" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.013"/>
+  <testcase name="testDefMixinUnaffected" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.002"/>
+  <testcase name="testCommentsArePreservedAfterExpansion" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.001"/>
+  <testcase name="testMatchOnPropertyName" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.001"/>
+  <testcase name="testMatchValueOnlyFunction" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.001"/>
+  <testcase name="testMatchValueOnlyMultipleFunctions" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.002"/>
+  <testcase name="testMatchFunction" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.002"/>
+  <testcase name="testCommentsArePreserved" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.001"/>
+  <testcase name="testMatchOnPropertyNameAndValue" classname="com.google.common.css.compiler.passes.AutoExpandBrowserPrefixTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StringCharStream.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">StringCharStream.java</span></div><h1>StringCharStream.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Efficient {@code String} based {@link CharStream} implementation.
+ *
+ * @author dgajda@google.com (Damian Gajda)
+ */
+public class StringCharStream implements CharStream {
+
+<span class="fc" id="L33">    private static final IOException END_OF_STREAM = new IOException();</span>
+
+    /**
+     * The input string.
+     */
+    private final String input;
+    private final int length;
+    private int charPos;
+    private int line;
+    private int column;
+    private char lastChar;
+
+    private int tokenStart;
+    private int beginLine;
+    private int beginColumn;
+
+<span class="fc" id="L49">    private int tabSize = 1;</span>
+    private boolean trackLineColumn;
+
+    /**
+     * This array (working as a map: lineNumber -&gt; characterIndex) helps to
+     * compute token locations efficiently. First element is not used as line
+     * numbers are 1 based.
+     */
+    private int[] lineToCharIndex;
+
+    /**
+     * Creates a character stream for a given string.
+     *
+     * @param inputString input string for this stream
+     */
+<span class="fc" id="L64">    public StringCharStream(String inputString) {</span>
+<span class="fc" id="L65">        input = inputString;</span>
+<span class="fc" id="L66">        length = input.length();</span>
+
+<span class="fc" id="L68">        lastChar = '\u0000';</span>
+<span class="fc" id="L69">        charPos = -1;</span>
+<span class="fc" id="L70">        column = 0;</span>
+<span class="fc" id="L71">        line = 1;</span>
+
+<span class="fc" id="L73">        tokenStart = charPos;</span>
+<span class="fc" id="L74">        beginLine = line;</span>
+<span class="fc" id="L75">        beginColumn = column;</span>
+
+<span class="fc" id="L77">        initCharIndex(input);</span>
+<span class="fc" id="L78">    }</span>
+
+    private void initCharIndex(String source) {
+<span class="fc" id="L81">        List&lt;Integer&gt; lineToCharIndexList = Lists.newArrayList();</span>
+<span class="fc" id="L82">        int charIndex = -1;</span>
+<span class="fc" id="L83">        lineToCharIndexList.add(charIndex);</span>
+        do {
+<span class="fc" id="L85">            charIndex++;</span>
+<span class="fc" id="L86">            lineToCharIndexList.add(charIndex);</span>
+<span class="fc" id="L87">            charIndex = source.indexOf('\n', charIndex);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        } while (charIndex &gt;= 0);</span>
+<span class="fc" id="L89">        lineToCharIndex = Ints.toArray(lineToCharIndexList);</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * Returns an absolute character location for given line and column location.
+     *
+     * @param lineNumber  line number (1 based)
+     * @param indexInLine column number (1 based)
+     * @return 0 based absolute character index in the input string
+     */
+    public int convertToCharacterIndex(int lineNumber, int indexInLine) {
+<span class="fc" id="L100">        return lineToCharIndex[lineNumber] + indexInLine - 1;</span>
+    }
+
+    /**
+     * @return index of last read character
+     */
+    public int getCharIndex() {
+<span class="fc" id="L107">        return charPos;</span>
+    }
+
+    /**
+     * @return index of the first character of a token
+     */
+    @VisibleForTesting
+    int getTokenStart() {
+<span class="fc" id="L115">        return tokenStart;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char readChar() throws IOException {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (charPos + 1 == length) {</span>
+<span class="fc" id="L124">            throw END_OF_STREAM;</span>
+        }
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (lastChar == '\n') {</span>
+<span class="fc" id="L128">            line++;</span>
+<span class="fc" id="L129">            column = 0;</span>
+        }
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (lastChar == '\t') {</span>
+<span class="nc" id="L132">            column += (tabSize - (column % tabSize));</span>
+        } else {
+<span class="fc" id="L134">            column++;</span>
+        }
+<span class="fc" id="L136">        lastChar = input.charAt(++charPos);</span>
+<span class="fc" id="L137">        return lastChar;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getEndColumn() {
+<span class="fc" id="L145">        return column;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getEndLine() {
+<span class="fc" id="L153">        return line;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBeginColumn() {
+<span class="fc" id="L161">        return beginColumn;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBeginLine() {
+<span class="fc" id="L169">        return beginLine;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void backup(int amount) {
+<span class="fc" id="L177">        charPos -= amount;</span>
+<span class="fc bfc" id="L178" title="All 4 branches covered.">        while (line &gt; 1 &amp;&amp; lineToCharIndex[line] &gt; charPos) {</span>
+<span class="fc" id="L179">            line--;</span>
+        }
+<span class="fc" id="L181">        column = charPos - lineToCharIndex[line] + 1;</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        lastChar = charPos &lt; 0 ? '\u0000' : input.charAt(charPos);</span>
+<span class="fc" id="L183">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char BeginToken() throws IOException {
+<span class="fc" id="L190">        readChar();</span>
+<span class="fc" id="L191">        tokenStart = charPos;</span>
+<span class="fc" id="L192">        beginLine = line;</span>
+<span class="fc" id="L193">        beginColumn = column;</span>
+<span class="fc" id="L194">        return lastChar;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String GetImage() {
+<span class="fc" id="L202">        return input.substring(tokenStart, charPos + 1);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char[] GetSuffix(int len) {
+<span class="fc" id="L210">        int end = charPos + 1;</span>
+<span class="fc" id="L211">        int start = end - len;</span>
+<span class="fc" id="L212">        char[] chars = new char[end - start];</span>
+<span class="fc" id="L213">        input.getChars(start, end, chars, 0);</span>
+<span class="fc" id="L214">        return chars;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void Done() {
+        // Does nothing since no resources need to be freed.
+<span class="nc" id="L223">    }</span>
+
+    @Override
+    public void setTabSize(int tabSize) {
+<span class="nc" id="L227">        throw new UnsupportedOperationException(&quot;setTabSize() is not supported.&quot;);</span>
+    }
+
+    @Override
+    public int getTabSize() {
+<span class="nc" id="L232">        return tabSize;</span>
+    }
+
+    @Override
+    public boolean getTrackLineColumn() {
+<span class="nc" id="L237">        return trackLineColumn;</span>
+    }
+
+    @Override
+    public void setTrackLineColumn(boolean trackLineColumn) {
+<span class="nc" id="L242">        this.trackLineColumn = trackLineColumn;</span>
+<span class="nc" id="L243">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

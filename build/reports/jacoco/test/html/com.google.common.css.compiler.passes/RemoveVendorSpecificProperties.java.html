@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RemoveVendorSpecificProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">RemoveVendorSpecificProperties.java</span></div><h1>RemoveVendorSpecificProperties.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.css.Vendor;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nonnull;
+
+/**
+ * A {@link CssCompilerPass} that removes all vendor-specific properties, except
+ * for one {@link Vendor} that is specified in the constructor. This is
+ * designed to facilitate creating a vendor-specific stylesheet. For example,
+ * suppose you have the following CSS:
+ * &lt;pre&gt;
+ * .button {
+ *   border-radius: 2px;
+ *   -moz-border-radius: 2px;
+ *   -webkit-border-radius: 2px;
+ * }
+ * &lt;/pre&gt;
+ * &lt;p&gt;If {@link Vendor#WEBKIT} were specified as the &quot;vendor to keep&quot; when running
+ * this pass, then the resulting CSS would be:
+ * &lt;pre&gt;
+ * .button {
+ *   border-radius: 2px;
+ *   -webkit-border-radius: 2px;
+ * }
+ * &lt;/pre&gt;
+ * {@code border-radius} would not be removed because it is not a
+ * vendor-specific property, and {@code -webkit-border-radius} would not be
+ * removed because {@link Vendor#WEBKIT} was specified as the &quot;vendor to keep.&quot;
+ * Only {@code -moz-border-radius} is removed because it is vendor-specific, but
+ * it is not the whitelisted vendor. If there were properties prefixed with
+ * &quot;-o-&quot; for Opera or &quot;-ms-&quot; for Microsoft, then those would have been removed,
+ * as well.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+public class RemoveVendorSpecificProperties extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    private final Vendor vendorToKeep;
+    private final MutatingVisitController visitController;
+
+    /**
+     * @param vendorToKeep    determines the vendor for whose vendor-specific
+     *                        properties will not be stripped. This parameter may not be null: if
+     *                        there is no such venor, then this pass should not be used.
+     * @param visitController to facilitate traversing the AST
+     */
+    public RemoveVendorSpecificProperties(@Nonnull Vendor vendorToKeep,
+<span class="fc" id="L68">                                          MutatingVisitController visitController) {</span>
+<span class="fc" id="L69">        Preconditions.checkNotNull(vendorToKeep);</span>
+<span class="fc" id="L70">        this.vendorToKeep = vendorToKeep;</span>
+<span class="fc" id="L71">        this.visitController = visitController;</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Checks whether the {@code Property} of {@code declarationNode} is a
+     * vendor-specific property that does not match {@code vendorToKeep}. If so,
+     * then the declaration is removed.
+     */
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declarationNode) {
+<span class="fc" id="L81">        CssPropertyNode propertyNode = declarationNode.getPropertyName();</span>
+<span class="fc" id="L82">        Property property = propertyNode.getProperty();</span>
+<span class="fc" id="L83">        Vendor vendor = property.getVendor();</span>
+<span class="fc bfc" id="L84" title="All 4 branches covered.">        if (vendor != null &amp;&amp; !vendor.equals(vendorToKeep)) {</span>
+<span class="fc" id="L85">            visitController.removeCurrentNode();</span>
+<span class="fc" id="L86">            return false;</span>
+        } else {
+<span class="fc" id="L88">            return true;</span>
+        }
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L94">        visitController.startVisit(this);</span>
+<span class="fc" id="L95">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PassUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">PassUtil.java</span></div><h1>PassUtil.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.List;
+
+/**
+ * Utility methods that can be useful for compiler passes.
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+<span class="nc" id="L30">public class PassUtil {</span>
+
+    /**
+     * Annotation to explicitly state that several consecutive declarations are
+     * alternatives and it should be left up to the user agent to interpret
+     * whichever is appropriate. The annotation excludes the declarations from
+     * being treated as redundant.
+     */
+    @VisibleForTesting
+    public static final String ALTERNATE = &quot;/* @alternate */&quot;;
+
+    /**
+     * Prints a selector including the combinators and refiners but without
+     * a block behind with the compact printer.
+     */
+    public static String printSelector(CssSelectorNode selector) {
+<span class="fc" id="L46">        CssTree t = createTreeWithSelector(selector);</span>
+        // Print the whole tree.
+<span class="fc" id="L48">        String selectorString = compactPrintTree(t);</span>
+        // As the whole tree is printed, the output is the selector with an empty
+        // declaration block (e.g. 'foo{}'). The two curly brackets are removed so
+        // that only the selector remains.
+<span class="fc" id="L52">        return selectorString.substring(0, selectorString.length() - 2);</span>
+    }
+
+    /**
+     * Prints a list of selector including the combinators and refiners but
+     * without a block behind with the compact printer.
+     */
+    public static String printSelectorList(CssSelectorListNode selectorList) {
+<span class="fc" id="L60">        CssTree t = createTreeWithSelectorList(selectorList);</span>
+        // Print the whole tree.
+<span class="fc" id="L62">        String selectorListString = compactPrintTree(t);</span>
+        // As the whole tree is printed, the output is the selector with an empty
+        // declaration block (e.g. 'foo{}'). The two curly brackets are removed so
+        // that only the selector remains.
+<span class="fc" id="L66">        return selectorListString.substring(0, selectorListString.length() - 2);</span>
+    }
+
+    /**
+     * Prints a selector including the combinators and refiners but without
+     * a block behind with the pretty printer.
+     */
+    public static String prettyPrintSelector(CssSelectorNode selector) {
+<span class="nc" id="L74">        CssTree t = createTreeWithSelector(selector);</span>
+        // Print the whole tree.
+<span class="nc" id="L76">        PrettyPrinter prettyPrinter = new PrettyPrinter(t.getVisitController());</span>
+<span class="nc" id="L77">        prettyPrinter.runPass();</span>
+<span class="nc" id="L78">        String selectorString = prettyPrinter.getPrettyPrintedString();</span>
+        // As the whole tree is printed, the output is the selector with an empty
+        // declaration block (e.g. 'foo {\n}\n'). The two curly brackets are removed so
+        // that only the selector remains.
+<span class="nc" id="L82">        int index = selectorString.indexOf('{');</span>
+<span class="nc" id="L83">        return selectorString.substring(0, index - 1);</span>
+    }
+
+    private static CssTree createTreeWithSelector(CssSelectorNode selector) {
+        // Create tree with only this selector.
+<span class="fc" id="L88">        CssDeclarationBlockNode declarations = new CssDeclarationBlockNode();</span>
+<span class="fc" id="L89">        CssRulesetNode rulesetNode = new CssRulesetNode(declarations);</span>
+<span class="fc" id="L90">        rulesetNode.addSelector(selector);</span>
+<span class="fc" id="L91">        return createTreeWithRuleset(rulesetNode);</span>
+    }
+
+    private static CssTree createTreeWithSelectorList(
+            CssSelectorListNode selectorList) {
+<span class="fc" id="L96">        CssDeclarationBlockNode declarations = new CssDeclarationBlockNode();</span>
+<span class="fc" id="L97">        CssRulesetNode rulesetNode = new CssRulesetNode(declarations);</span>
+<span class="fc" id="L98">        rulesetNode.setSelectors(selectorList);</span>
+<span class="fc" id="L99">        return createTreeWithRuleset(rulesetNode);</span>
+    }
+
+    private static CssTree createTreeWithRuleset(CssRulesetNode rulesetNode) {
+<span class="fc" id="L103">        List&lt;CssNode&gt; blockChildren = ImmutableList.of((CssNode) rulesetNode);</span>
+<span class="fc" id="L104">        CssBlockNode block = new CssBlockNode(false, blockChildren);</span>
+<span class="fc" id="L105">        CssRootNode root = new CssRootNode(block);</span>
+<span class="fc" id="L106">        return new CssTree(null, root);</span>
+    }
+
+    private static String compactPrintTree(CssTree tree) {
+<span class="fc" id="L110">        CompactPrinter compactPrinter = new CompactPrinter(tree);</span>
+<span class="fc" id="L111">        compactPrinter.runPass();</span>
+<span class="fc" id="L112">        return compactPrinter.getCompactPrintedString();</span>
+    }
+
+    /**
+     * Returns whether the ALTERNATE comment has been found among the comments of
+     * the node.
+     */
+    public static boolean hasAlternateAnnotation(CssNode node) {
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        for (CssCommentNode comment : node.getComments()) {</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">            if (comment.getValue().equals(ALTERNATE)) {</span>
+<span class="fc" id="L122">                return true;</span>
+            }
+<span class="nc" id="L124">        }</span>
+<span class="fc" id="L125">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

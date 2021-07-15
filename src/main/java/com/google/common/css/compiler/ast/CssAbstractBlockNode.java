@@ -54,6 +54,8 @@ public abstract class CssAbstractBlockNode
 
     /**
      * Copy constructor.
+     *
+     * @param node node
      */
     public CssAbstractBlockNode(CssAbstractBlockNode node) {
         super(node.isEnclosedWithBraces(), node.getComments());

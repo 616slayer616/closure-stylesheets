@@ -199,6 +199,8 @@ public class CssFunctionNode extends CssValueNode implements ChunkAware {
          * of this method with the same parameter will return the same object. For a
          * function that is not in the list of recognized names but should be
          * considered valid, use {@link Function#CUSTOM}.
+         *
+         * @param name name
          */
         public static Function byName(String name) {
             return NAME_TO_FUNCTION_MAP.get(name);
@@ -236,8 +238,8 @@ public class CssFunctionNode extends CssValueNode implements ChunkAware {
      * TODO(oana): Deal with the situation that we have an unrecognized
      * function.
      *
-     * @param function
-     * @param sourceCodeLocation
+     * @param function           function
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssFunctionNode(@Nullable Function function,
                            @Nullable SourceCodeLocation sourceCodeLocation) {
@@ -250,7 +252,7 @@ public class CssFunctionNode extends CssValueNode implements ChunkAware {
     /**
      * Copy constructor.
      *
-     * @param function
+     * @param function function
      */
     public CssFunctionNode(CssFunctionNode function) {
         super(function);

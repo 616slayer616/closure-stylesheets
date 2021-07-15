@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StrictCss2.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">StrictCss2.java</span></div><h1>StrictCss2.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.google.common.css.compiler.ast.*;
+import com.google.common.css.compiler.ast.CssAttributeSelectorNode.MatchType;
+import com.google.common.css.compiler.ast.CssCombinatorNode.Combinator;
+
+import java.util.Set;
+
+/**
+ * This compiler pass enforces that only correct CSS 2.1 is used.
+ * See {@link &quot;http://www.w3.org/TR/CSS21/&quot;} for the specification.
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class StrictCss2 extends StrictCssBase {
+<span class="fc" id="L35">    private static final ImmutableSet&lt;String&gt; PSEUDO_CLASSES_OR_ELEMENT =</span>
+<span class="fc" id="L36">            ImmutableSet.of(&quot;first-child&quot;, &quot;link&quot;, &quot;visited&quot;, &quot;active&quot;, &quot;hover&quot;,</span>
+                    &quot;focus&quot;, &quot;first-line&quot;, &quot;first-letter&quot;, &quot;before&quot;, &quot;after&quot;);
+    private static final ImmutableSet&lt;Combinator&gt;
+<span class="fc" id="L39">            ALLOWED_COMBINATORS = ImmutableSet.of(Combinator.DESCENDANT,</span>
+            Combinator.CHILD, Combinator.ADJACENT_SIBLING);
+    private static final ImmutableSet&lt;MatchType&gt;
+<span class="fc" id="L42">            ALLOWED_ATTRIBUTE_SELECTORS = ImmutableSet.of(MatchType.ANY,</span>
+            MatchType.EXACT, MatchType.EXACT_OR_DASH, MatchType.ONE_WORD);
+
+    /**
+     * Units.
+     * See Section 4.3.2 of
+     * http://www.w3.org/TR/CSS2/syndata.html#value-def-length
+     */
+<span class="fc" id="L50">    private static final Set&lt;String&gt; UNITS = Sets.newHashSet(</span>
+            &quot;&quot;,
+
+            // Relative measures
+            &quot;em&quot;,
+            &quot;ex&quot;,
+            &quot;%&quot;,
+
+            // Absolute measures
+            &quot;in&quot;,
+            &quot;cm&quot;,
+            &quot;mm&quot;,
+            &quot;pt&quot;,
+            &quot;pc&quot;,
+            &quot;px&quot;);
+
+    @VisibleForTesting
+    static final String UNSUPPORTED_COMBINATOR_ERROR_MESSAGE =
+            &quot;An unsupported combinator is used.&quot;;
+    @VisibleForTesting
+    static final String UNSUPPORTED_PESUDO_CLASS_OR_ELEMENT_ERROR_MESSAGE =
+            &quot;An unsupported pseudo-class or pseudo-element is used.&quot;;
+    @VisibleForTesting
+    static final String NEW_PESUDO_ELEMENTS_NOT_ALLOWED_ERROR_MESSAGE =
+            &quot;Pseudo-elements starting with '::' are not allowed in CSS 2.1.&quot;;
+    @VisibleForTesting
+    static final String FORBIDDEN_ATTRIBUTE_COMPARER_ERROR_MESSAGE =
+            &quot;An operator for matching attributes not allowed in CSS 2.1 is used.&quot;;
+
+    public StrictCss2(VisitController visitController,
+                      ErrorManager errorManager) {
+<span class="fc" id="L81">        super(visitController, errorManager);</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * Idenitifies valid units of 'width', 'height', etc.
+     */
+    @Override
+    Set&lt;String&gt; getValidCssUnits() {
+<span class="fc" id="L89">        return UNITS;</span>
+    }
+
+    /**
+     * Ensures that the combinator '~' (introduced in CSS 3) is not used.
+     */
+    @Override
+    public boolean enterCombinator(CssCombinatorNode combinator) {
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (!ALLOWED_COMBINATORS.contains(combinator.getCombinatorType())) {</span>
+<span class="nc" id="L98">            errorManager.report(new GssError(UNSUPPORTED_COMBINATOR_ERROR_MESSAGE,</span>
+<span class="nc" id="L99">                    combinator.getSourceCodeLocation()));</span>
+<span class="nc" id="L100">            return false;</span>
+        }
+<span class="fc" id="L102">        return true;</span>
+    }
+
+    /**
+     * Ensures that only pseudo-classes valid in CSS 2.1 are used. Especially, the
+     * new pseudo-classes introduced in CSS 3 are not valid.
+     */
+    @Override
+    public boolean enterPseudoClass(CssPseudoClassNode node) {
+<span class="pc bpc" id="L111" title="1 of 3 branches missed.">        switch (node.getFunctionType()) {</span>
+            case NONE:
+<span class="fc" id="L113">                return checkNonFunctionPseudoClass(node);</span>
+            case NTH:
+            case NOT:
+<span class="fc" id="L116">                reportUnsupported(node,</span>
+                        UNSUPPORTED_PESUDO_CLASS_OR_ELEMENT_ERROR_MESSAGE,
+                        PSEUDO_CLASSES_OR_ELEMENT);
+<span class="fc" id="L119">                return false;</span>
+        }
+<span class="nc" id="L121">        return true;</span>
+    }
+
+    /**
+     * Ensures that only pseudo-classes and pseudo-elements listed in the
+     * specification are used.
+     */
+    private boolean checkNonFunctionPseudoClass(CssRefinerNode refiner) {
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (!PSEUDO_CLASSES_OR_ELEMENT.contains(refiner.getRefinerName())) {</span>
+<span class="fc" id="L130">            reportUnsupported(refiner,</span>
+                    UNSUPPORTED_PESUDO_CLASS_OR_ELEMENT_ERROR_MESSAGE,
+                    PSEUDO_CLASSES_OR_ELEMENT);
+<span class="fc" id="L133">            return false;</span>
+        }
+<span class="fc" id="L135">        return true;</span>
+    }
+
+    /**
+     * Ensures that the new pseudo-element notation (::) is not used, because
+     * the notation has been introduced in CSS 3.
+     */
+    @Override
+    public boolean enterPseudoElement(CssPseudoElementNode node) {
+<span class="fc" id="L144">        errorManager.report(new GssError(</span>
+                NEW_PESUDO_ELEMENTS_NOT_ALLOWED_ERROR_MESSAGE,
+<span class="fc" id="L146">                node.getSourceCodeLocation()));</span>
+<span class="fc" id="L147">        return false;</span>
+    }
+
+    /**
+     * Ensures that attribute selectors are valid. If the equal sign is preceded
+     * by a special character, only '~' and '|' are allowed.
+     * Valid CSS 2.1 examples: {@code [att]}, {@code [att=val]},
+     * {@code [att~=val]}, {@code [att|=val]}
+     */
+    @Override
+    public boolean enterAttributeSelector(CssAttributeSelectorNode node) {
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        if (!ALLOWED_ATTRIBUTE_SELECTORS.contains(node.getMatchType())) {</span>
+<span class="fc" id="L159">            errorManager.report(new GssError(</span>
+                    FORBIDDEN_ATTRIBUTE_COMPARER_ERROR_MESSAGE,
+<span class="fc" id="L161">                    node.getSourceCodeLocation()));</span>
+<span class="fc" id="L162">            return false;</span>
+        }
+<span class="fc" id="L164">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

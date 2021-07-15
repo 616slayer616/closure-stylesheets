@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:43" hostname="Patrick-MBP.fritz.box" time="1.138">
+  <properties/>
+  <testcase name="testMinUnspecifiedUnit" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.871"/>
+  <testcase name="testMultUnitNotFirst" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.005"/>
+  <testcase name="testAddNegativeValues" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.026"/>
+  <testcase name="testAddPercentagesImplicitUnit" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.003"/>
+  <testcase name="testMinMismatchedUnits" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.002"/>
+  <testcase name="testAddPercentagesMissingUnit" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.002"/>
+  <testcase name="testMult" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.009"/>
+  <testcase name="testMaxUnspecifiedUnit" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.001"/>
+  <testcase name="testMaxMismatchedUnits" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.002"/>
+  <testcase name="testAddPercentagesZeroSize" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.075"/>
+  <testcase name="testDivUnitNotFirst" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.006"/>
+  <testcase name="testMaximum" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.011"/>
+  <testcase name="testMinimum" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.013"/>
+  <testcase name="testConcat" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.049"/>
+  <testcase name="testDivide" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.028"/>
+  <testcase name="testScalars" classname="com.google.common.css.compiler.gssfunctions.DefaultGssFunctionMapProviderTest" time="0.025"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

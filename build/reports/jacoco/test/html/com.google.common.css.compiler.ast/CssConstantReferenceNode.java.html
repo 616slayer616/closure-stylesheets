@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssConstantReferenceNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssConstantReferenceNode.java</span></div><h1>CssConstantReferenceNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+import java.util.regex.Pattern;
+
+/**
+ * A node holding a reference to a constant or an argument of a mixin
+ * definition.
+ *
+ * &lt;p&gt;Because references can be valid within one block, each reference has a
+ * scope where it is valid. For example, references to arguments of mixin
+ * definitions are only valid in the block of the mixin definition whereas
+ * references to global definitions are valid everywhere.
+ *
+ * @author oana@google.com (Oana Florescu)
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class CssConstantReferenceNode extends CssValueNode {
+<span class="fc" id="L37">    private static final Pattern PATTERN = Pattern.compile(&quot;[A-Z_][A-Z0-9_]*&quot;);</span>
+
+    /**
+     * The scope is initialized lazily because it can be impossible to determine
+     * the scope during construction as the node might have no parent at that
+     * time.
+     */
+    private CssNode scope;
+
+    public CssConstantReferenceNode(String value,
+                                    @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L48">        super(value, sourceCodeLocation);</span>
+<span class="fc" id="L49">    }</span>
+
+    public CssConstantReferenceNode(String value) {
+<span class="nc" id="L52">        this(value, null);</span>
+<span class="nc" id="L53">    }</span>
+
+    /**
+     * Creates a new constant reference node that is a deep copy of the
+     * given node.
+     */
+    public CssConstantReferenceNode(CssConstantReferenceNode node) {
+<span class="fc" id="L60">        super(node);</span>
+<span class="fc" id="L61">        this.scope = node.scope;</span>
+<span class="fc" id="L62">    }</span>
+
+    @Override
+    public CssConstantReferenceNode deepCopy() {
+<span class="fc" id="L66">        return new CssConstantReferenceNode(this);</span>
+    }
+
+    /**
+     * Returns the scope of the reference. If the reference belongs to a global
+     * definition, the scope is the 'global scope'. If the reference belongs to
+     * an argument of a mixin definition, the scope is the mixin definition.
+     */
+    public CssNode getScope() {
+<span class="fc" id="L75">        return scope;</span>
+    }
+
+    public void setScope(CssNode scope) {
+<span class="fc" id="L79">        this.scope = scope;</span>
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Returns if the given identifier matches the pattern of a constant.
+     */
+    public static boolean isDefinitionReference(String ident) {
+<span class="fc" id="L86">        return PATTERN.matcher(ident).matches();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

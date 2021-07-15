@@ -23,10 +23,10 @@ package com.google.common.css;
  * CSS class name is hardcoded in the code. Example in Soy:
  * <pre>
  * // Case I: Hardcoded name (incorrect)
- * &lt;div class="CSS_MENU_BAR">&lt;/div>
+ * &lt;div class="CSS_MENU_BAR"&gt;&lt;/div&gt;
  *
  * // Case II: Name used as variable (correct)
- * &lt;div class="{css CSS_MENU_BAR}">&lt;/div>
+ * &lt;div class="{css CSS_MENU_BAR}"&gt;&lt;/div&gt;
  * </pre>
  * <p>In Case I, the div would not get the effects of the CSS class when it is
  * renamed, so hopefully the missing styles would help discover the source of

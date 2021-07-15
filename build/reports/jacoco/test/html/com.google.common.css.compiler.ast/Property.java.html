@@ -1,0 +1,1167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Property.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">Property.java</span></div><h1>Property.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.*;
+import com.google.common.css.Vendor;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * An object that represents a CSS property. Although this class contains a
+ * large set of built-in properties (see {@link #allRecognizedProperties()}), it
+ * is a class rather than an enum so that it is possible to create properties
+ * that are not built-in. User agents will likely add support for new properties
+ * faster than we can add them to this list.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+public final class Property {
+
+    /**
+     * The string that prefixes all custom property names.
+     *
+     * @see &lt;a href=&quot;https://www.w3.org/TR/css-variables/&quot;&gt;Specification&lt;/a&gt;
+     */
+    private static final java.lang.String CUSTOM_PROPERTY_PREFIX = &quot;--&quot;;
+
+    /**
+     * The CSS properties recognized by default by the CSS Compiler, indexed by name. Note that this
+     * includes non-standard properties, such as &quot;-webkit-border-radius&quot;.
+     */
+    private static final BiMap&lt;String, Property&gt; NAME_TO_PROPERTY_MAP;
+
+
+    static {
+<span class="fc" id="L54">        List&lt;Builder&gt; recognizedProperties = ImmutableList.of(</span>
+<span class="fc" id="L55">                builder(&quot;align-content&quot;),</span>
+<span class="fc" id="L56">                builder(&quot;align-items&quot;),</span>
+<span class="fc" id="L57">                builder(&quot;align-self&quot;),</span>
+<span class="fc" id="L58">                builder(&quot;alignment-baseline&quot;).isSvgOnly(),</span>
+<span class="fc" id="L59">                builder(&quot;animation&quot;),</span>
+<span class="fc" id="L60">                builder(&quot;animation-delay&quot;),</span>
+<span class="fc" id="L61">                builder(&quot;animation-direction&quot;),</span>
+<span class="fc" id="L62">                builder(&quot;animation-duration&quot;),</span>
+<span class="fc" id="L63">                builder(&quot;animation-fill-mode&quot;),</span>
+<span class="fc" id="L64">                builder(&quot;animation-iteration-count&quot;),</span>
+<span class="fc" id="L65">                builder(&quot;animation-name&quot;),</span>
+<span class="fc" id="L66">                builder(&quot;animation-play-state&quot;),</span>
+<span class="fc" id="L67">                builder(&quot;animation-timing-function&quot;),</span>
+<span class="fc" id="L68">                builder(&quot;azimuth&quot;),</span>
+<span class="fc" id="L69">                builder(&quot;backface-visibility&quot;),</span>
+<span class="fc" id="L70">                builder(&quot;background-attachment&quot;),</span>
+<span class="fc" id="L71">                builder(&quot;background-clip&quot;),</span>
+<span class="fc" id="L72">                builder(&quot;background-color&quot;),</span>
+<span class="fc" id="L73">                builder(&quot;background-image&quot;),</span>
+<span class="fc" id="L74">                builder(&quot;background-origin&quot;),</span>
+<span class="fc" id="L75">                builder(&quot;background-position&quot;),</span>
+<span class="fc" id="L76">                builder(&quot;background-position-x&quot;),</span>
+<span class="fc" id="L77">                builder(&quot;background-position-y&quot;),</span>
+<span class="fc" id="L78">                builder(&quot;background-repeat&quot;),</span>
+<span class="fc" id="L79">                builder(&quot;background-size&quot;),</span>
+<span class="fc" id="L80">                builder(&quot;background&quot;),</span>
+<span class="fc" id="L81">                builder(&quot;baseline-shift&quot;).isSvgOnly(),</span>
+<span class="fc" id="L82">                builder(&quot;border-collapse&quot;),</span>
+<span class="fc" id="L83">                builder(&quot;border-color&quot;).setHasPositionalParameters(true),</span>
+<span class="fc" id="L84">                builder(&quot;border-spacing&quot;),</span>
+<span class="fc" id="L85">                builder(&quot;border-style&quot;).setHasPositionalParameters(true),</span>
+<span class="fc" id="L86">                builder(&quot;border-top&quot;),</span>
+<span class="fc" id="L87">                builder(&quot;border-right&quot;),</span>
+<span class="fc" id="L88">                builder(&quot;border-bottom&quot;),</span>
+<span class="fc" id="L89">                builder(&quot;border-left&quot;),</span>
+<span class="fc" id="L90">                builder(&quot;border-top-color&quot;),</span>
+<span class="fc" id="L91">                builder(&quot;border-right-color&quot;),</span>
+<span class="fc" id="L92">                builder(&quot;border-bottom-color&quot;),</span>
+<span class="fc" id="L93">                builder(&quot;border-left-color&quot;),</span>
+<span class="fc" id="L94">                builder(&quot;border-top-style&quot;),</span>
+<span class="fc" id="L95">                builder(&quot;border-right-style&quot;),</span>
+<span class="fc" id="L96">                builder(&quot;border-bottom-style&quot;),</span>
+<span class="fc" id="L97">                builder(&quot;border-left-style&quot;),</span>
+<span class="fc" id="L98">                builder(&quot;border-top-width&quot;),</span>
+<span class="fc" id="L99">                builder(&quot;border-right-width&quot;),</span>
+<span class="fc" id="L100">                builder(&quot;border-bottom-width&quot;),</span>
+<span class="fc" id="L101">                builder(&quot;border-left-width&quot;),</span>
+<span class="fc" id="L102">                builder(&quot;border-width&quot;).setHasPositionalParameters(true),</span>
+<span class="fc" id="L103">                builder(&quot;border-image&quot;),</span>
+                // None of border-radius, -webkit-border-radius, and -moz-border-radius
+                // have setHasPositionalParameters(true) because each can take up to 8
+                // values according to the spec, as it is possible to specify the length
+                // of the horizontal and vertical radii independently for each corner:
+                //
+                // http://www.w3.org/TR/css3-background/#the-border-radius
+                //
+                // TODO(bolinfest): This is going to require special handling when it
+                // comes to RTL flipping, which the current
+                // &quot;setHasPositionalParameters()&quot; does not take into account.
+<span class="fc" id="L114">                builder(&quot;border-radius&quot;),</span>
+<span class="fc" id="L115">                builder(&quot;border-top-left-radius&quot;),</span>
+<span class="fc" id="L116">                builder(&quot;border-top-right-radius&quot;),</span>
+<span class="fc" id="L117">                builder(&quot;border-bottom-right-radius&quot;),</span>
+<span class="fc" id="L118">                builder(&quot;border-bottom-left-radius&quot;),</span>
+<span class="fc" id="L119">                builder(&quot;border&quot;),</span>
+<span class="fc" id="L120">                builder(&quot;bottom&quot;),</span>
+<span class="fc" id="L121">                builder(&quot;box-align&quot;).warn(</span>
+                        &quot;The flexbox spec has changed and this property is no longer supported.&quot;),
+<span class="fc" id="L123">                builder(&quot;box-flex&quot;).warn(</span>
+                        &quot;The flexbox spec has changed and this property is no longer supported.&quot;),
+<span class="fc" id="L125">                builder(&quot;box-orient&quot;).warn(</span>
+                        &quot;The flexbox spec has changed and this property is no longer supported.&quot;),
+<span class="fc" id="L127">                builder(&quot;box-pack&quot;).warn(</span>
+                        &quot;The flexbox spec has changed and this property is no longer supported.&quot;),
+<span class="fc" id="L129">                builder(&quot;box-shadow&quot;),</span>
+<span class="fc" id="L130">                builder(&quot;box-sizing&quot;),</span>
+<span class="fc" id="L131">                builder(&quot;break-after&quot;),</span>
+<span class="fc" id="L132">                builder(&quot;break-before&quot;),</span>
+<span class="fc" id="L133">                builder(&quot;break-inside&quot;),</span>
+<span class="fc" id="L134">                builder(&quot;caption-side&quot;),</span>
+<span class="fc" id="L135">                builder(&quot;caret-color&quot;),</span>
+<span class="fc" id="L136">                builder(&quot;clear&quot;),</span>
+<span class="fc" id="L137">                builder(&quot;clip&quot;),</span>
+<span class="fc" id="L138">                builder(&quot;clip-path&quot;).isSvgOnly(),</span>
+<span class="fc" id="L139">                builder(&quot;clip-rule&quot;).isSvgOnly(),</span>
+<span class="fc" id="L140">                builder(&quot;color&quot;),</span>
+<span class="fc" id="L141">                builder(&quot;color-adjust&quot;),</span>
+<span class="fc" id="L142">                builder(&quot;color-interpolation&quot;).isSvgOnly(),</span>
+<span class="fc" id="L143">                builder(&quot;color-interpolation-filters&quot;).isSvgOnly(),</span>
+<span class="fc" id="L144">                builder(&quot;color-profile&quot;).isSvgOnly(),</span>
+<span class="fc" id="L145">                builder(&quot;color-rendering&quot;).isSvgOnly(),</span>
+<span class="fc" id="L146">                builder(&quot;column-count&quot;),</span>
+<span class="fc" id="L147">                builder(&quot;column-fill&quot;),</span>
+<span class="fc" id="L148">                builder(&quot;column-gap&quot;),</span>
+<span class="fc" id="L149">                builder(&quot;column-rule&quot;),</span>
+<span class="fc" id="L150">                builder(&quot;column-rule-color&quot;),</span>
+<span class="fc" id="L151">                builder(&quot;column-rule-style&quot;),</span>
+<span class="fc" id="L152">                builder(&quot;column-rule-width&quot;),</span>
+<span class="fc" id="L153">                builder(&quot;column-span&quot;),</span>
+<span class="fc" id="L154">                builder(&quot;column-width&quot;),</span>
+<span class="fc" id="L155">                builder(&quot;columns&quot;),</span>
+<span class="fc" id="L156">                builder(&quot;contain&quot;),</span>
+<span class="fc" id="L157">                builder(&quot;content&quot;),</span>
+<span class="fc" id="L158">                builder(&quot;counter-increment&quot;),</span>
+<span class="fc" id="L159">                builder(&quot;counter-reset&quot;),</span>
+<span class="fc" id="L160">                builder(&quot;cue-after&quot;),</span>
+<span class="fc" id="L161">                builder(&quot;cue-before&quot;),</span>
+<span class="fc" id="L162">                builder(&quot;cue&quot;),</span>
+<span class="fc" id="L163">                builder(&quot;cursor&quot;),</span>
+<span class="fc" id="L164">                builder(&quot;direction&quot;),</span>
+<span class="fc" id="L165">                builder(&quot;display&quot;),</span>
+<span class="fc" id="L166">                builder(&quot;dominant-baseline&quot;).isSvgOnly(),</span>
+<span class="fc" id="L167">                builder(&quot;elevation&quot;),</span>
+<span class="fc" id="L168">                builder(&quot;empty-cells&quot;),</span>
+<span class="fc" id="L169">                builder(&quot;enable-background&quot;).isSvgOnly(),</span>
+<span class="fc" id="L170">                builder(&quot;-epub-caption-side&quot;),</span>
+<span class="fc" id="L171">                builder(&quot;-epub-hyphens&quot;),</span>
+<span class="fc" id="L172">                builder(&quot;-epub-text-combine&quot;),</span>
+<span class="fc" id="L173">                builder(&quot;-epub-text-emphasis&quot;),</span>
+<span class="fc" id="L174">                builder(&quot;-epub-text-emphasis-color&quot;),</span>
+<span class="fc" id="L175">                builder(&quot;-epub-text-emphasis-style&quot;),</span>
+<span class="fc" id="L176">                builder(&quot;-epub-text-orientation&quot;),</span>
+<span class="fc" id="L177">                builder(&quot;-epub-text-transform&quot;),</span>
+<span class="fc" id="L178">                builder(&quot;-epub-word-break&quot;),</span>
+<span class="fc" id="L179">                builder(&quot;-epub-writing-mode&quot;),</span>
+<span class="fc" id="L180">                builder(&quot;fill&quot;).isSvgOnly(),</span>
+<span class="fc" id="L181">                builder(&quot;fill-opacity&quot;).isSvgOnly(),</span>
+<span class="fc" id="L182">                builder(&quot;fill-rule&quot;).isSvgOnly(),</span>
+                // This is not a MICROSOFT-specific property because it is also an SVG
+                // property: http://www.w3.org/TR/SVG/styling.html
+<span class="fc" id="L185">                builder(&quot;filter&quot;),</span>
+<span class="fc" id="L186">                builder(&quot;flex&quot;),</span>
+<span class="fc" id="L187">                builder(&quot;flex-basis&quot;),</span>
+<span class="fc" id="L188">                builder(&quot;flex-direction&quot;),</span>
+<span class="fc" id="L189">                builder(&quot;flex-flow&quot;),</span>
+<span class="fc" id="L190">                builder(&quot;flex-grow&quot;),</span>
+<span class="fc" id="L191">                builder(&quot;flex-shrink&quot;),</span>
+<span class="fc" id="L192">                builder(&quot;flex-wrap&quot;),</span>
+<span class="fc" id="L193">                builder(&quot;float&quot;),</span>
+<span class="fc" id="L194">                builder(&quot;flood-color&quot;).isSvgOnly(),</span>
+<span class="fc" id="L195">                builder(&quot;flood-opacity&quot;).isSvgOnly(),</span>
+<span class="fc" id="L196">                builder(&quot;font&quot;),</span>
+<span class="fc" id="L197">                builder(&quot;font-family&quot;),</span>
+<span class="fc" id="L198">                builder(&quot;font-feature-settings&quot;),</span>
+<span class="fc" id="L199">                builder(&quot;font-kerning&quot;),</span>
+<span class="fc" id="L200">                builder(&quot;font-language-override&quot;),</span>
+<span class="fc" id="L201">                builder(&quot;font-size&quot;),</span>
+<span class="fc" id="L202">                builder(&quot;font-size-adjust&quot;),</span>
+<span class="fc" id="L203">                builder(&quot;font-stretch&quot;),</span>
+<span class="fc" id="L204">                builder(&quot;font-style&quot;),</span>
+<span class="fc" id="L205">                builder(&quot;font-synthesis&quot;),</span>
+<span class="fc" id="L206">                builder(&quot;font-variant&quot;),</span>
+<span class="fc" id="L207">                builder(&quot;font-variant-alternates&quot;),</span>
+<span class="fc" id="L208">                builder(&quot;font-variant-caps&quot;),</span>
+<span class="fc" id="L209">                builder(&quot;font-variant-east-asian&quot;),</span>
+<span class="fc" id="L210">                builder(&quot;font-variant-ligatures&quot;),</span>
+<span class="fc" id="L211">                builder(&quot;font-variant-numeric&quot;),</span>
+<span class="fc" id="L212">                builder(&quot;font-variant-position&quot;),</span>
+<span class="fc" id="L213">                builder(&quot;font-weight&quot;),</span>
+<span class="fc" id="L214">                builder(&quot;glyph-orientation-horizontal&quot;).isSvgOnly(),</span>
+<span class="fc" id="L215">                builder(&quot;glyph-orientation-vertical&quot;).isSvgOnly(),</span>
+<span class="fc" id="L216">                builder(&quot;grid&quot;),</span>
+<span class="fc" id="L217">                builder(&quot;grid-area&quot;),</span>
+<span class="fc" id="L218">                builder(&quot;grid-auto-columns&quot;),</span>
+<span class="fc" id="L219">                builder(&quot;grid-auto-flow&quot;),</span>
+<span class="fc" id="L220">                builder(&quot;grid-auto-rows&quot;),</span>
+<span class="fc" id="L221">                builder(&quot;grid-column&quot;),</span>
+<span class="fc" id="L222">                builder(&quot;grid-column-end&quot;),</span>
+<span class="fc" id="L223">                builder(&quot;grid-column-gap&quot;),</span>
+<span class="fc" id="L224">                builder(&quot;grid-column-start&quot;),</span>
+<span class="fc" id="L225">                builder(&quot;grid-gap&quot;),</span>
+<span class="fc" id="L226">                builder(&quot;grid-row&quot;),</span>
+<span class="fc" id="L227">                builder(&quot;grid-row-end&quot;),</span>
+<span class="fc" id="L228">                builder(&quot;grid-row-gap&quot;),</span>
+<span class="fc" id="L229">                builder(&quot;grid-row-start&quot;),</span>
+<span class="fc" id="L230">                builder(&quot;grid-template&quot;),</span>
+<span class="fc" id="L231">                builder(&quot;grid-template-areas&quot;),</span>
+<span class="fc" id="L232">                builder(&quot;grid-template-columns&quot;),</span>
+<span class="fc" id="L233">                builder(&quot;grid-template-rows&quot;),</span>
+<span class="fc" id="L234">                builder(&quot;height&quot;),</span>
+<span class="fc" id="L235">                builder(&quot;image-rendering&quot;).isSvgOnly(),</span>
+<span class="fc" id="L236">                builder(&quot;justify-content&quot;),</span>
+<span class="fc" id="L237">                builder(&quot;justify-items&quot;),</span>
+<span class="fc" id="L238">                builder(&quot;justify-self&quot;),</span>
+<span class="fc" id="L239">                builder(&quot;kerning&quot;).isSvgOnly(),</span>
+<span class="fc" id="L240">                builder(&quot;-khtml-user-select&quot;),</span>
+<span class="fc" id="L241">                builder(&quot;left&quot;),</span>
+<span class="fc" id="L242">                builder(&quot;letter-spacing&quot;),</span>
+<span class="fc" id="L243">                builder(&quot;lighting-color&quot;).isSvgOnly(),</span>
+<span class="fc" id="L244">                builder(&quot;line-height&quot;),</span>
+<span class="fc" id="L245">                builder(&quot;list-style-image&quot;),</span>
+<span class="fc" id="L246">                builder(&quot;list-style-position&quot;),</span>
+<span class="fc" id="L247">                builder(&quot;list-style-type&quot;),</span>
+<span class="fc" id="L248">                builder(&quot;list-style&quot;),</span>
+<span class="fc" id="L249">                builder(&quot;margin-right&quot;),</span>
+<span class="fc" id="L250">                builder(&quot;margin-left&quot;),</span>
+<span class="fc" id="L251">                builder(&quot;margin-top&quot;),</span>
+<span class="fc" id="L252">                builder(&quot;margin-bottom&quot;),</span>
+<span class="fc" id="L253">                builder(&quot;margin&quot;).setHasPositionalParameters(true),</span>
+<span class="fc" id="L254">                builder(&quot;marker&quot;).isSvgOnly(),</span>
+<span class="fc" id="L255">                builder(&quot;marker-end&quot;).isSvgOnly(),</span>
+<span class="fc" id="L256">                builder(&quot;marker-mid&quot;).isSvgOnly(),</span>
+<span class="fc" id="L257">                builder(&quot;marker-start&quot;).isSvgOnly(),</span>
+<span class="fc" id="L258">                builder(&quot;mask&quot;).isSvgOnly(),</span>
+<span class="fc" id="L259">                builder(&quot;max-height&quot;),</span>
+<span class="fc" id="L260">                builder(&quot;max-width&quot;),</span>
+<span class="fc" id="L261">                builder(&quot;min-height&quot;),</span>
+<span class="fc" id="L262">                builder(&quot;min-width&quot;),</span>
+<span class="fc" id="L263">                builder(&quot;mix-blend-mode&quot;),</span>
+<span class="fc" id="L264">                builder(&quot;-moz-animation&quot;),</span>
+<span class="fc" id="L265">                builder(&quot;-moz-animation-delay&quot;),</span>
+<span class="fc" id="L266">                builder(&quot;-moz-animation-direction&quot;),</span>
+<span class="fc" id="L267">                builder(&quot;-moz-animation-duration&quot;),</span>
+<span class="fc" id="L268">                builder(&quot;-moz-animation-fill-mode&quot;),</span>
+<span class="fc" id="L269">                builder(&quot;-moz-animation-iteration-count&quot;),</span>
+<span class="fc" id="L270">                builder(&quot;-moz-animation-name&quot;),</span>
+<span class="fc" id="L271">                builder(&quot;-moz-animation-play-state&quot;),</span>
+<span class="fc" id="L272">                builder(&quot;-moz-animation-timing-function&quot;),</span>
+<span class="fc" id="L273">                builder(&quot;-moz-appearance&quot;),</span>
+<span class="fc" id="L274">                builder(&quot;-moz-backface-visibility&quot;),</span>
+<span class="fc" id="L275">                builder(&quot;-moz-background-clip&quot;),</span>
+<span class="fc" id="L276">                builder(&quot;-moz-background-inline-policy&quot;),</span>
+<span class="fc" id="L277">                builder(&quot;-moz-background-origin&quot;),</span>
+<span class="fc" id="L278">                builder(&quot;-moz-background-size&quot;),</span>
+<span class="fc" id="L279">                builder(&quot;-moz-binding&quot;),</span>
+<span class="fc" id="L280">                builder(&quot;-moz-border-bottom-colors&quot;),</span>
+<span class="fc" id="L281">                builder(&quot;-moz-border-end&quot;),</span>
+<span class="fc" id="L282">                builder(&quot;-moz-border-end-color&quot;),</span>
+<span class="fc" id="L283">                builder(&quot;-moz-border-end-style&quot;),</span>
+<span class="fc" id="L284">                builder(&quot;-moz-border-end-width&quot;),</span>
+<span class="fc" id="L285">                builder(&quot;-moz-border-image&quot;),</span>
+<span class="fc" id="L286">                builder(&quot;-moz-border-left-colors&quot;),</span>
+<span class="fc" id="L287">                builder(&quot;-moz-border-radius&quot;),</span>
+<span class="fc" id="L288">                builder(&quot;-moz-border-radius-topleft&quot;),</span>
+<span class="fc" id="L289">                builder(&quot;-moz-border-radius-topright&quot;),</span>
+<span class="fc" id="L290">                builder(&quot;-moz-border-radius-bottomright&quot;),</span>
+<span class="fc" id="L291">                builder(&quot;-moz-border-radius-bottomleft&quot;),</span>
+<span class="fc" id="L292">                builder(&quot;-moz-border-right-colors&quot;),</span>
+<span class="fc" id="L293">                builder(&quot;-moz-border-start&quot;),</span>
+<span class="fc" id="L294">                builder(&quot;-moz-border-start-color&quot;),</span>
+<span class="fc" id="L295">                builder(&quot;-moz-border-start-style&quot;),</span>
+<span class="fc" id="L296">                builder(&quot;-moz-border-start-width&quot;),</span>
+<span class="fc" id="L297">                builder(&quot;-moz-border-top-colors&quot;),</span>
+                // These deprecated flexbox properties are only supported for backwards compatibility.
+<span class="fc" id="L299">                builder(&quot;-moz-box-align&quot;),</span>
+<span class="fc" id="L300">                builder(&quot;-moz-box-direction&quot;),</span>
+<span class="fc" id="L301">                builder(&quot;-moz-box-flex&quot;),</span>
+<span class="fc" id="L302">                builder(&quot;-moz-box-ordinal-group&quot;),</span>
+<span class="fc" id="L303">                builder(&quot;-moz-box-orient&quot;),</span>
+<span class="fc" id="L304">                builder(&quot;-moz-box-pack&quot;),</span>
+                // End of deprecated flexbox properties.
+<span class="fc" id="L306">                builder(&quot;-moz-box-shadow&quot;),</span>
+<span class="fc" id="L307">                builder(&quot;-moz-box-sizing&quot;),</span>
+<span class="fc" id="L308">                builder(&quot;-moz-column-count&quot;),</span>
+<span class="fc" id="L309">                builder(&quot;-moz-column-gap&quot;),</span>
+<span class="fc" id="L310">                builder(&quot;-moz-column-rule&quot;),</span>
+<span class="fc" id="L311">                builder(&quot;-moz-column-rule-color&quot;),</span>
+<span class="fc" id="L312">                builder(&quot;-moz-column-rule-style&quot;),</span>
+<span class="fc" id="L313">                builder(&quot;-moz-column-rule-width&quot;),</span>
+<span class="fc" id="L314">                builder(&quot;-moz-column-width&quot;),</span>
+<span class="fc" id="L315">                builder(&quot;-moz-columns&quot;),</span>
+<span class="fc" id="L316">                builder(&quot;-moz-flex&quot;),</span>
+<span class="fc" id="L317">                builder(&quot;-moz-flex-direction&quot;),</span>
+<span class="fc" id="L318">                builder(&quot;-moz-float-edge&quot;),</span>
+<span class="fc" id="L319">                builder(&quot;-moz-font-feature-settings&quot;),</span>
+<span class="fc" id="L320">                builder(&quot;-moz-font-language-override&quot;),</span>
+<span class="fc" id="L321">                builder(&quot;-moz-force-broken-image-icon&quot;),</span>
+<span class="fc" id="L322">                builder(&quot;-moz-hyphens&quot;),</span>
+<span class="fc" id="L323">                builder(&quot;-moz-image-region&quot;),</span>
+<span class="fc" id="L324">                builder(&quot;-moz-justify-content&quot;),</span>
+<span class="fc" id="L325">                builder(&quot;-moz-margin-end&quot;),</span>
+<span class="fc" id="L326">                builder(&quot;-moz-margin-start&quot;),</span>
+<span class="fc" id="L327">                builder(&quot;-moz-opacity&quot;),</span>
+<span class="fc" id="L328">                builder(&quot;-moz-orient&quot;),</span>
+<span class="fc" id="L329">                builder(&quot;-moz-osx-font-smoothing&quot;),</span>
+<span class="fc" id="L330">                builder(&quot;-moz-outline-radius&quot;),</span>
+<span class="fc" id="L331">                builder(&quot;-moz-outline-radius-bottomleft&quot;),</span>
+<span class="fc" id="L332">                builder(&quot;-moz-outline-radius-bottomright&quot;),</span>
+<span class="fc" id="L333">                builder(&quot;-moz-outline-radius-topleft&quot;),</span>
+<span class="fc" id="L334">                builder(&quot;-moz-outline-radius-topright&quot;),</span>
+<span class="fc" id="L335">                builder(&quot;-moz-padding-end&quot;),</span>
+<span class="fc" id="L336">                builder(&quot;-moz-padding-start&quot;),</span>
+<span class="fc" id="L337">                builder(&quot;-moz-perspective&quot;),</span>
+<span class="fc" id="L338">                builder(&quot;-moz-perspective-origin&quot;),</span>
+<span class="fc" id="L339">                builder(&quot;-moz-script-level&quot;),</span>
+<span class="fc" id="L340">                builder(&quot;-moz-script-min-size&quot;),</span>
+<span class="fc" id="L341">                builder(&quot;-moz-script-size-multiplier&quot;),</span>
+<span class="fc" id="L342">                builder(&quot;-moz-stack-sizing&quot;),</span>
+<span class="fc" id="L343">                builder(&quot;-moz-tab-size&quot;),</span>
+<span class="fc" id="L344">                builder(&quot;-moz-text-blink&quot;),</span>
+<span class="fc" id="L345">                builder(&quot;-moz-text-decoration-color&quot;),</span>
+<span class="fc" id="L346">                builder(&quot;-moz-text-decoration-line&quot;),</span>
+<span class="fc" id="L347">                builder(&quot;-moz-text-decoration-style&quot;),</span>
+<span class="fc" id="L348">                builder(&quot;-moz-text-size-adjust&quot;),</span>
+<span class="fc" id="L349">                builder(&quot;-moz-transform&quot;),</span>
+<span class="fc" id="L350">                builder(&quot;-moz-transform-origin&quot;),</span>
+<span class="fc" id="L351">                builder(&quot;-moz-transform-style&quot;),</span>
+<span class="fc" id="L352">                builder(&quot;-moz-transition&quot;),</span>
+<span class="fc" id="L353">                builder(&quot;-moz-transition-delay&quot;),</span>
+<span class="fc" id="L354">                builder(&quot;-moz-transition-duration&quot;),</span>
+<span class="fc" id="L355">                builder(&quot;-moz-transition-property&quot;),</span>
+<span class="fc" id="L356">                builder(&quot;-moz-transition-timing-function&quot;),</span>
+<span class="fc" id="L357">                builder(&quot;-moz-user-focus&quot;),</span>
+<span class="fc" id="L358">                builder(&quot;-moz-user-input&quot;),</span>
+<span class="fc" id="L359">                builder(&quot;-moz-user-modify&quot;),</span>
+<span class="fc" id="L360">                builder(&quot;-moz-user-select&quot;),</span>
+<span class="fc" id="L361">                builder(&quot;-moz-window-shadow&quot;),</span>
+<span class="fc" id="L362">                builder(&quot;-ms-accelerator&quot;),</span>
+<span class="fc" id="L363">                builder(&quot;-ms-align-items&quot;),</span>
+<span class="fc" id="L364">                builder(&quot;-ms-animation&quot;),</span>
+<span class="fc" id="L365">                builder(&quot;-ms-animation-delay&quot;),</span>
+<span class="fc" id="L366">                builder(&quot;-ms-animation-direction&quot;),</span>
+<span class="fc" id="L367">                builder(&quot;-ms-animation-duration&quot;),</span>
+<span class="fc" id="L368">                builder(&quot;-ms-animation-fill-mode&quot;),</span>
+<span class="fc" id="L369">                builder(&quot;-ms-animation-iteration-count&quot;),</span>
+<span class="fc" id="L370">                builder(&quot;-ms-animation-name&quot;),</span>
+<span class="fc" id="L371">                builder(&quot;-ms-animation-play-state&quot;),</span>
+<span class="fc" id="L372">                builder(&quot;-ms-animation-timing-function&quot;),</span>
+<span class="fc" id="L373">                builder(&quot;-ms-background-position-x&quot;),</span>
+<span class="fc" id="L374">                builder(&quot;-ms-background-position-y&quot;),</span>
+<span class="fc" id="L375">                builder(&quot;-ms-behavior&quot;),</span>
+<span class="fc" id="L376">                builder(&quot;-ms-block-progression&quot;),</span>
+                // These deprecated flexbox properties are only supported for backwards compatibility.
+<span class="fc" id="L378">                builder(&quot;-ms-box-align&quot;),</span>
+<span class="fc" id="L379">                builder(&quot;-ms-box-direction&quot;),</span>
+<span class="fc" id="L380">                builder(&quot;-ms-box-flex&quot;),</span>
+<span class="fc" id="L381">                builder(&quot;-ms-box-line-progression&quot;),</span>
+<span class="fc" id="L382">                builder(&quot;-ms-box-lines&quot;),</span>
+<span class="fc" id="L383">                builder(&quot;-ms-box-ordinal-group&quot;),</span>
+<span class="fc" id="L384">                builder(&quot;-ms-box-orient&quot;),</span>
+<span class="fc" id="L385">                builder(&quot;-ms-box-pack&quot;),</span>
+                // End of deprecated flexbox properties.
+<span class="fc" id="L387">                builder(&quot;-ms-box-shadow&quot;),</span>
+<span class="fc" id="L388">                builder(&quot;-ms-box-sizing&quot;),</span>
+<span class="fc" id="L389">                builder(&quot;-ms-filter&quot;),</span>
+<span class="fc" id="L390">                builder(&quot;-ms-flex&quot;),</span>
+<span class="fc" id="L391">                builder(&quot;-ms-flex-align&quot;),</span>
+<span class="fc" id="L392">                builder(&quot;-ms-flex-direction&quot;),</span>
+<span class="fc" id="L393">                builder(&quot;-ms-flex-flow&quot;),</span>
+<span class="fc" id="L394">                builder(&quot;-ms-flex-negative&quot;),</span>
+<span class="fc" id="L395">                builder(&quot;-ms-flex-order&quot;),</span>
+<span class="fc" id="L396">                builder(&quot;-ms-flex-pack&quot;),</span>
+<span class="fc" id="L397">                builder(&quot;-ms-flex-positive&quot;),</span>
+<span class="fc" id="L398">                builder(&quot;-ms-flex-preferred-size&quot;),</span>
+<span class="fc" id="L399">                builder(&quot;-ms-flex-wrap&quot;),</span>
+<span class="fc" id="L400">                builder(&quot;-ms-grid-column&quot;),</span>
+<span class="fc" id="L401">                builder(&quot;-ms-grid-column-align&quot;),</span>
+<span class="fc" id="L402">                builder(&quot;-ms-grid-column-span&quot;),</span>
+<span class="fc" id="L403">                builder(&quot;-ms-grid-columns&quot;),</span>
+<span class="fc" id="L404">                builder(&quot;-ms-grid-layer&quot;),</span>
+<span class="fc" id="L405">                builder(&quot;-ms-grid-row&quot;),</span>
+<span class="fc" id="L406">                builder(&quot;-ms-grid-row-align&quot;),</span>
+<span class="fc" id="L407">                builder(&quot;-ms-grid-row-span&quot;),</span>
+<span class="fc" id="L408">                builder(&quot;-ms-grid-rows&quot;),</span>
+<span class="fc" id="L409">                builder(&quot;-ms-high-contrast-adjust&quot;),</span>
+<span class="fc" id="L410">                builder(&quot;-ms-ime-mode&quot;),</span>
+<span class="fc" id="L411">                builder(&quot;-ms-interpolation-mode&quot;),</span>
+<span class="fc" id="L412">                builder(&quot;-ms-justify-content&quot;),</span>
+<span class="fc" id="L413">                builder(&quot;-ms-layout-flow&quot;),</span>
+<span class="fc" id="L414">                builder(&quot;-ms-layout-grid&quot;),</span>
+<span class="fc" id="L415">                builder(&quot;-ms-layout-grid-char&quot;),</span>
+<span class="fc" id="L416">                builder(&quot;-ms-layout-grid-line&quot;),</span>
+<span class="fc" id="L417">                builder(&quot;-ms-layout-grid-mode&quot;),</span>
+<span class="fc" id="L418">                builder(&quot;-ms-layout-grid-type&quot;),</span>
+<span class="fc" id="L419">                builder(&quot;-ms-line-break&quot;),</span>
+<span class="fc" id="L420">                builder(&quot;-ms-line-grid-mode&quot;),</span>
+<span class="fc" id="L421">                builder(&quot;-ms-overflow-x&quot;),</span>
+<span class="fc" id="L422">                builder(&quot;-ms-overflow-y&quot;),</span>
+<span class="fc" id="L423">                builder(&quot;-ms-scrollbar-3dlight-color&quot;),</span>
+<span class="fc" id="L424">                builder(&quot;-ms-scrollbar-arrow-color&quot;),</span>
+<span class="fc" id="L425">                builder(&quot;-ms-scrollbar-base-color&quot;),</span>
+<span class="fc" id="L426">                builder(&quot;-ms-scrollbar-darkshadow-color&quot;),</span>
+<span class="fc" id="L427">                builder(&quot;-ms-scrollbar-face-color&quot;),</span>
+<span class="fc" id="L428">                builder(&quot;-ms-scrollbar-highlight-color&quot;),</span>
+<span class="fc" id="L429">                builder(&quot;-ms-scrollbar-shadow-color&quot;),</span>
+<span class="fc" id="L430">                builder(&quot;-ms-scrollbar-track-color&quot;),</span>
+<span class="fc" id="L431">                builder(&quot;-ms-text-align-last&quot;),</span>
+<span class="fc" id="L432">                builder(&quot;-ms-text-autospace&quot;),</span>
+<span class="fc" id="L433">                builder(&quot;-ms-text-justify&quot;),</span>
+<span class="fc" id="L434">                builder(&quot;-ms-text-kashida-space&quot;),</span>
+<span class="fc" id="L435">                builder(&quot;-ms-text-overflow&quot;),</span>
+<span class="fc" id="L436">                builder(&quot;-ms-text-size-adjust&quot;),</span>
+<span class="fc" id="L437">                builder(&quot;-ms-text-underline-position&quot;),</span>
+<span class="fc" id="L438">                builder(&quot;-ms-transform&quot;),</span>
+<span class="fc" id="L439">                builder(&quot;-ms-transform-origin&quot;),</span>
+<span class="fc" id="L440">                builder(&quot;-ms-transition&quot;),</span>
+<span class="fc" id="L441">                builder(&quot;-ms-transition-delay&quot;),</span>
+<span class="fc" id="L442">                builder(&quot;-ms-transition-duration&quot;),</span>
+<span class="fc" id="L443">                builder(&quot;-ms-transition-property&quot;),</span>
+<span class="fc" id="L444">                builder(&quot;-ms-transition-timing-function&quot;),</span>
+<span class="fc" id="L445">                builder(&quot;-ms-user-select&quot;),</span>
+<span class="fc" id="L446">                builder(&quot;-ms-word-break&quot;),</span>
+<span class="fc" id="L447">                builder(&quot;-ms-word-wrap&quot;),</span>
+<span class="fc" id="L448">                builder(&quot;-ms-writing-mode&quot;),</span>
+<span class="fc" id="L449">                builder(&quot;-ms-zoom&quot;),</span>
+<span class="fc" id="L450">                builder(&quot;-o-animation&quot;),</span>
+<span class="fc" id="L451">                builder(&quot;-o-animation-delay&quot;),</span>
+<span class="fc" id="L452">                builder(&quot;-o-animation-direction&quot;),</span>
+<span class="fc" id="L453">                builder(&quot;-o-animation-duration&quot;),</span>
+<span class="fc" id="L454">                builder(&quot;-o-animation-fill-mode&quot;),</span>
+<span class="fc" id="L455">                builder(&quot;-o-animation-iteration-count&quot;),</span>
+<span class="fc" id="L456">                builder(&quot;-o-animation-name&quot;),</span>
+<span class="fc" id="L457">                builder(&quot;-o-animation-play-state&quot;),</span>
+<span class="fc" id="L458">                builder(&quot;-o-animation-timing-function&quot;),</span>
+<span class="fc" id="L459">                builder(&quot;-o-background-size&quot;),</span>
+<span class="fc" id="L460">                builder(&quot;-o-object-fit&quot;),</span>
+<span class="fc" id="L461">                builder(&quot;-o-object-position&quot;),</span>
+<span class="fc" id="L462">                builder(&quot;-o-text-overflow&quot;),</span>
+<span class="fc" id="L463">                builder(&quot;-o-transform&quot;),</span>
+<span class="fc" id="L464">                builder(&quot;-o-transform-origin&quot;),</span>
+<span class="fc" id="L465">                builder(&quot;-o-transition&quot;),</span>
+<span class="fc" id="L466">                builder(&quot;-o-transition-delay&quot;),</span>
+<span class="fc" id="L467">                builder(&quot;-o-transition-duration&quot;),</span>
+<span class="fc" id="L468">                builder(&quot;-o-transition-property&quot;),</span>
+<span class="fc" id="L469">                builder(&quot;-o-transition-timing-function&quot;),</span>
+<span class="fc" id="L470">                builder(&quot;object-fit&quot;),</span>
+<span class="fc" id="L471">                builder(&quot;object-position&quot;),</span>
+<span class="fc" id="L472">                builder(&quot;opacity&quot;),</span>
+<span class="fc" id="L473">                builder(&quot;order&quot;),</span>
+<span class="fc" id="L474">                builder(&quot;orphans&quot;),</span>
+<span class="fc" id="L475">                builder(&quot;outline-color&quot;),</span>
+<span class="fc" id="L476">                builder(&quot;outline-offset&quot;),</span>
+<span class="fc" id="L477">                builder(&quot;outline-style&quot;),</span>
+<span class="fc" id="L478">                builder(&quot;outline-width&quot;),</span>
+<span class="fc" id="L479">                builder(&quot;outline&quot;),</span>
+<span class="fc" id="L480">                builder(&quot;overflow&quot;),</span>
+<span class="fc" id="L481">                builder(&quot;overflow-x&quot;),</span>
+<span class="fc" id="L482">                builder(&quot;overflow-y&quot;),</span>
+<span class="fc" id="L483">                builder(&quot;overflow-wrap&quot;),</span>
+<span class="fc" id="L484">                builder(&quot;padding-top&quot;),</span>
+<span class="fc" id="L485">                builder(&quot;padding-right&quot;),</span>
+<span class="fc" id="L486">                builder(&quot;padding-bottom&quot;),</span>
+<span class="fc" id="L487">                builder(&quot;padding-left&quot;),</span>
+<span class="fc" id="L488">                builder(&quot;padding&quot;).setHasPositionalParameters(true),</span>
+<span class="fc" id="L489">                builder(&quot;page-break-after&quot;),</span>
+<span class="fc" id="L490">                builder(&quot;page-break-before&quot;),</span>
+<span class="fc" id="L491">                builder(&quot;page-break-inside&quot;),</span>
+<span class="fc" id="L492">                builder(&quot;pause-after&quot;),</span>
+<span class="fc" id="L493">                builder(&quot;pause-before&quot;),</span>
+<span class="fc" id="L494">                builder(&quot;pause&quot;),</span>
+<span class="fc" id="L495">                builder(&quot;perspective&quot;),</span>
+<span class="fc" id="L496">                builder(&quot;perspective-origin&quot;),</span>
+<span class="fc" id="L497">                builder(&quot;pitch-range&quot;),</span>
+<span class="fc" id="L498">                builder(&quot;pitch&quot;),</span>
+<span class="fc" id="L499">                builder(&quot;play-during&quot;),</span>
+<span class="fc" id="L500">                builder(&quot;pointer-events&quot;),</span>
+<span class="fc" id="L501">                builder(&quot;position&quot;),</span>
+<span class="fc" id="L502">                builder(&quot;quotes&quot;),</span>
+<span class="fc" id="L503">                builder(&quot;resize&quot;),</span>
+<span class="fc" id="L504">                builder(&quot;richness&quot;),</span>
+<span class="fc" id="L505">                builder(&quot;right&quot;),</span>
+<span class="fc" id="L506">                builder(&quot;scrollbar-3dlight-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L507">                builder(&quot;scrollbar-arrow-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L508">                builder(&quot;scrollbar-base-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L509">                builder(&quot;scrollbar-darkshadow-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L510">                builder(&quot;scrollbar-face-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L511">                builder(&quot;scrollbar-highlight-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L512">                builder(&quot;scrollbar-shadow-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L513">                builder(&quot;scrollbar-track-color&quot;).setVendor(Vendor.MICROSOFT),</span>
+<span class="fc" id="L514">                builder(&quot;shape-rendering&quot;).isSvgOnly(),</span>
+<span class="fc" id="L515">                builder(&quot;shape-image-threshold&quot;),</span>
+<span class="fc" id="L516">                builder(&quot;shape-margin&quot;),</span>
+<span class="fc" id="L517">                builder(&quot;shape-outside&quot;),</span>
+<span class="fc" id="L518">                builder(&quot;size&quot;),</span>
+<span class="fc" id="L519">                builder(&quot;speak-header&quot;),</span>
+<span class="fc" id="L520">                builder(&quot;speak-numeral&quot;),</span>
+<span class="fc" id="L521">                builder(&quot;speak-punctuation&quot;),</span>
+<span class="fc" id="L522">                builder(&quot;speak&quot;),</span>
+<span class="fc" id="L523">                builder(&quot;speech-rate&quot;),</span>
+<span class="fc" id="L524">                builder(&quot;src&quot;), // Only for use within @font-face</span>
+<span class="fc" id="L525">                builder(&quot;stop-color&quot;).isSvgOnly(),</span>
+<span class="fc" id="L526">                builder(&quot;stop-opacity&quot;).isSvgOnly(),</span>
+<span class="fc" id="L527">                builder(&quot;stress&quot;),</span>
+<span class="fc" id="L528">                builder(&quot;stroke&quot;).isSvgOnly(),</span>
+<span class="fc" id="L529">                builder(&quot;stroke-dasharray&quot;).isSvgOnly(),</span>
+<span class="fc" id="L530">                builder(&quot;stroke-dashoffset&quot;).isSvgOnly(),</span>
+<span class="fc" id="L531">                builder(&quot;stroke-linecap&quot;).isSvgOnly(),</span>
+<span class="fc" id="L532">                builder(&quot;stroke-linejoin&quot;).isSvgOnly(),</span>
+<span class="fc" id="L533">                builder(&quot;stroke-miterlimit&quot;).isSvgOnly(),</span>
+<span class="fc" id="L534">                builder(&quot;stroke-opacity&quot;).isSvgOnly(),</span>
+<span class="fc" id="L535">                builder(&quot;stroke-width&quot;).isSvgOnly(),</span>
+<span class="fc" id="L536">                builder(&quot;table-layout&quot;),</span>
+<span class="fc" id="L537">                builder(&quot;text-align&quot;),</span>
+<span class="fc" id="L538">                builder(&quot;text-anchor&quot;).isSvgOnly(),</span>
+<span class="fc" id="L539">                builder(&quot;text-decoration&quot;),</span>
+<span class="fc" id="L540">                builder(&quot;text-decoration-color&quot;),</span>
+<span class="fc" id="L541">                builder(&quot;text-decoration-line&quot;),</span>
+<span class="fc" id="L542">                builder(&quot;text-decoration-skip&quot;),</span>
+<span class="fc" id="L543">                builder(&quot;text-decoration-style&quot;),</span>
+<span class="fc" id="L544">                builder(&quot;text-emphasis&quot;),</span>
+<span class="fc" id="L545">                builder(&quot;text-emphasis-color&quot;),</span>
+<span class="fc" id="L546">                builder(&quot;text-emphasis-position&quot;),</span>
+<span class="fc" id="L547">                builder(&quot;text-emphasis-style&quot;),</span>
+<span class="fc" id="L548">                builder(&quot;text-indent&quot;),</span>
+<span class="fc" id="L549">                builder(&quot;text-overflow&quot;),</span>
+<span class="fc" id="L550">                builder(&quot;text-rendering&quot;).isSvgOnly(),</span>
+<span class="fc" id="L551">                builder(&quot;text-shadow&quot;),</span>
+<span class="fc" id="L552">                builder(&quot;text-transform&quot;),</span>
+<span class="fc" id="L553">                builder(&quot;top&quot;),</span>
+<span class="fc" id="L554">                builder(&quot;transform&quot;),</span>
+<span class="fc" id="L555">                builder(&quot;transform-origin&quot;),</span>
+<span class="fc" id="L556">                builder(&quot;transform-style&quot;),</span>
+<span class="fc" id="L557">                builder(&quot;transition-delay&quot;),</span>
+<span class="fc" id="L558">                builder(&quot;transition-duration&quot;),</span>
+<span class="fc" id="L559">                builder(&quot;transition-property&quot;),</span>
+<span class="fc" id="L560">                builder(&quot;transition-timing-function&quot;),</span>
+<span class="fc" id="L561">                builder(&quot;transition&quot;),</span>
+<span class="fc" id="L562">                builder(&quot;unicode-bidi&quot;),</span>
+<span class="fc" id="L563">                builder(&quot;unicode-range&quot;),</span>
+<span class="fc" id="L564">                builder(&quot;vector-effect&quot;).isSvgOnly(),</span>
+<span class="fc" id="L565">                builder(&quot;vertical-align&quot;),</span>
+<span class="fc" id="L566">                builder(&quot;visibility&quot;),</span>
+<span class="fc" id="L567">                builder(&quot;voice-balance&quot;),</span>
+<span class="fc" id="L568">                builder(&quot;voice-duration&quot;),</span>
+<span class="fc" id="L569">                builder(&quot;voice-family&quot;),</span>
+<span class="fc" id="L570">                builder(&quot;voice-pitch&quot;),</span>
+<span class="fc" id="L571">                builder(&quot;voice-range&quot;),</span>
+<span class="fc" id="L572">                builder(&quot;voice-rate&quot;),</span>
+<span class="fc" id="L573">                builder(&quot;voice-stress&quot;),</span>
+<span class="fc" id="L574">                builder(&quot;voice-volume&quot;),</span>
+<span class="fc" id="L575">                builder(&quot;volume&quot;),</span>
+<span class="fc" id="L576">                builder(&quot;-webkit-align-content&quot;),</span>
+<span class="fc" id="L577">                builder(&quot;-webkit-align-items&quot;),</span>
+<span class="fc" id="L578">                builder(&quot;-webkit-align-self&quot;),</span>
+<span class="fc" id="L579">                builder(&quot;-webkit-animation&quot;),</span>
+<span class="fc" id="L580">                builder(&quot;-webkit-animation-delay&quot;),</span>
+<span class="fc" id="L581">                builder(&quot;-webkit-animation-direction&quot;),</span>
+<span class="fc" id="L582">                builder(&quot;-webkit-animation-duration&quot;),</span>
+<span class="fc" id="L583">                builder(&quot;-webkit-animation-fill-mode&quot;),</span>
+<span class="fc" id="L584">                builder(&quot;-webkit-animation-iteration-count&quot;),</span>
+<span class="fc" id="L585">                builder(&quot;-webkit-animation-name&quot;),</span>
+<span class="fc" id="L586">                builder(&quot;-webkit-animation-play-state&quot;),</span>
+<span class="fc" id="L587">                builder(&quot;-webkit-animation-timing-function&quot;),</span>
+<span class="fc" id="L588">                builder(&quot;-webkit-app-region&quot;),</span>
+<span class="fc" id="L589">                builder(&quot;-webkit-appearance&quot;),</span>
+<span class="fc" id="L590">                builder(&quot;-webkit-aspect-ratio&quot;),</span>
+<span class="fc" id="L591">                builder(&quot;-webkit-backface-visibility&quot;),</span>
+<span class="fc" id="L592">                builder(&quot;-webkit-background-clip&quot;),</span>
+<span class="fc" id="L593">                builder(&quot;-webkit-background-composite&quot;),</span>
+<span class="fc" id="L594">                builder(&quot;-webkit-background-origin&quot;),</span>
+<span class="fc" id="L595">                builder(&quot;-webkit-background-size&quot;),</span>
+<span class="fc" id="L596">                builder(&quot;-webkit-border-after&quot;),</span>
+<span class="fc" id="L597">                builder(&quot;-webkit-border-after-color&quot;),</span>
+<span class="fc" id="L598">                builder(&quot;-webkit-border-after-style&quot;),</span>
+<span class="fc" id="L599">                builder(&quot;-webkit-border-after-width&quot;),</span>
+<span class="fc" id="L600">                builder(&quot;-webkit-border-before&quot;),</span>
+<span class="fc" id="L601">                builder(&quot;-webkit-border-before-color&quot;),</span>
+<span class="fc" id="L602">                builder(&quot;-webkit-border-before-style&quot;),</span>
+<span class="fc" id="L603">                builder(&quot;-webkit-border-before-width&quot;),</span>
+<span class="fc" id="L604">                builder(&quot;-webkit-border-bottom-left-radius&quot;),</span>
+<span class="fc" id="L605">                builder(&quot;-webkit-border-bottom-right-radius&quot;),</span>
+<span class="fc" id="L606">                builder(&quot;-webkit-border-end&quot;),</span>
+<span class="fc" id="L607">                builder(&quot;-webkit-border-end-color&quot;),</span>
+<span class="fc" id="L608">                builder(&quot;-webkit-border-end-style&quot;),</span>
+<span class="fc" id="L609">                builder(&quot;-webkit-border-end-width&quot;),</span>
+<span class="fc" id="L610">                builder(&quot;-webkit-border-fit&quot;),</span>
+<span class="fc" id="L611">                builder(&quot;-webkit-border-horizontal-spacing&quot;),</span>
+<span class="fc" id="L612">                builder(&quot;-webkit-border-image&quot;),</span>
+<span class="fc" id="L613">                builder(&quot;-webkit-border-radius&quot;),</span>
+<span class="fc" id="L614">                builder(&quot;-webkit-border-start&quot;),</span>
+<span class="fc" id="L615">                builder(&quot;-webkit-border-start-color&quot;),</span>
+<span class="fc" id="L616">                builder(&quot;-webkit-border-start-style&quot;),</span>
+<span class="fc" id="L617">                builder(&quot;-webkit-border-start-width&quot;),</span>
+<span class="fc" id="L618">                builder(&quot;-webkit-border-top-left-radius&quot;),</span>
+<span class="fc" id="L619">                builder(&quot;-webkit-border-top-right-radius&quot;),</span>
+<span class="fc" id="L620">                builder(&quot;-webkit-border-vertical-spacing&quot;),</span>
+                // These deprecated flexbox properties are only supported for backwards compatibility.
+<span class="fc" id="L622">                builder(&quot;-webkit-box-align&quot;),</span>
+<span class="fc" id="L623">                builder(&quot;-webkit-box-direction&quot;),</span>
+<span class="fc" id="L624">                builder(&quot;-webkit-box-flex&quot;),</span>
+<span class="fc" id="L625">                builder(&quot;-webkit-box-flex-group&quot;),</span>
+<span class="fc" id="L626">                builder(&quot;-webkit-box-lines&quot;),</span>
+<span class="fc" id="L627">                builder(&quot;-webkit-box-ordinal-group&quot;),</span>
+<span class="fc" id="L628">                builder(&quot;-webkit-box-orient&quot;),</span>
+<span class="fc" id="L629">                builder(&quot;-webkit-box-pack&quot;),</span>
+                // End of deprecated flexbox properties.
+<span class="fc" id="L631">                builder(&quot;-webkit-box-reflect&quot;),</span>
+<span class="fc" id="L632">                builder(&quot;-webkit-box-shadow&quot;),</span>
+<span class="fc" id="L633">                builder(&quot;-webkit-box-sizing&quot;),</span>
+<span class="fc" id="L634">                builder(&quot;-webkit-clip-path&quot;),</span>
+<span class="fc" id="L635">                builder(&quot;-webkit-color-correction&quot;),</span>
+<span class="fc" id="L636">                builder(&quot;-webkit-column-axis&quot;),</span>
+<span class="fc" id="L637">                builder(&quot;-webkit-column-break-after&quot;),</span>
+<span class="fc" id="L638">                builder(&quot;-webkit-column-break-before&quot;),</span>
+<span class="fc" id="L639">                builder(&quot;-webkit-column-break-inside&quot;),</span>
+<span class="fc" id="L640">                builder(&quot;-webkit-column-count&quot;),</span>
+<span class="fc" id="L641">                builder(&quot;-webkit-column-gap&quot;),</span>
+<span class="fc" id="L642">                builder(&quot;-webkit-column-rule&quot;),</span>
+<span class="fc" id="L643">                builder(&quot;-webkit-column-rule-color&quot;),</span>
+<span class="fc" id="L644">                builder(&quot;-webkit-column-rule-style&quot;),</span>
+<span class="fc" id="L645">                builder(&quot;-webkit-column-rule-width&quot;),</span>
+<span class="fc" id="L646">                builder(&quot;-webkit-column-span&quot;),</span>
+<span class="fc" id="L647">                builder(&quot;-webkit-column-width&quot;),</span>
+<span class="fc" id="L648">                builder(&quot;-webkit-columns&quot;),</span>
+<span class="fc" id="L649">                builder(&quot;-webkit-cursor-visibility&quot;),</span>
+<span class="fc" id="L650">                builder(&quot;-webkit-dashboard-region&quot;),</span>
+<span class="fc" id="L651">                builder(&quot;-webkit-filter&quot;),</span>
+<span class="fc" id="L652">                builder(&quot;-webkit-flex&quot;),</span>
+<span class="fc" id="L653">                builder(&quot;-webkit-flex-align&quot;),</span>
+<span class="fc" id="L654">                builder(&quot;-webkit-flex-basis&quot;),</span>
+<span class="fc" id="L655">                builder(&quot;-webkit-flex-direction&quot;),</span>
+<span class="fc" id="L656">                builder(&quot;-webkit-flex-flow&quot;),</span>
+<span class="fc" id="L657">                builder(&quot;-webkit-flex-grow&quot;),</span>
+<span class="fc" id="L658">                builder(&quot;-webkit-flex-order&quot;),</span>
+<span class="fc" id="L659">                builder(&quot;-webkit-flex-pack&quot;),</span>
+<span class="fc" id="L660">                builder(&quot;-webkit-flex-shrink&quot;),</span>
+<span class="fc" id="L661">                builder(&quot;-webkit-flex-wrap&quot;),</span>
+<span class="fc" id="L662">                builder(&quot;-webkit-flow-from&quot;),</span>
+<span class="fc" id="L663">                builder(&quot;-webkit-flow-into&quot;),</span>
+<span class="fc" id="L664">                builder(&quot;-webkit-font-feature-settings&quot;),</span>
+<span class="fc" id="L665">                builder(&quot;-webkit-font-size-delta&quot;),</span>
+<span class="fc" id="L666">                builder(&quot;-webkit-font-smoothing&quot;),</span>
+<span class="fc" id="L667">                builder(&quot;-webkit-font-variant-ligatures&quot;),</span>
+<span class="fc" id="L668">                builder(&quot;-webkit-grid-columns&quot;),</span>
+<span class="fc" id="L669">                builder(&quot;-webkit-grid-rows&quot;),</span>
+<span class="fc" id="L670">                builder(&quot;-webkit-highlight&quot;),</span>
+<span class="fc" id="L671">                builder(&quot;-webkit-hyphenate-character&quot;),</span>
+<span class="fc" id="L672">                builder(&quot;-webkit-hyphenate-limit-after&quot;),</span>
+<span class="fc" id="L673">                builder(&quot;-webkit-hyphenate-limit-before&quot;),</span>
+<span class="fc" id="L674">                builder(&quot;-webkit-hyphenate-limit-lines&quot;),</span>
+<span class="fc" id="L675">                builder(&quot;-webkit-justify-content&quot;),</span>
+<span class="fc" id="L676">                builder(&quot;-webkit-line-box-contain&quot;),</span>
+<span class="fc" id="L677">                builder(&quot;-webkit-line-break&quot;),</span>
+<span class="fc" id="L678">                builder(&quot;-webkit-line-clamp&quot;),</span>
+<span class="fc" id="L679">                builder(&quot;-webkit-line-grid&quot;),</span>
+<span class="fc" id="L680">                builder(&quot;-webkit-line-grid-snap&quot;),</span>
+<span class="fc" id="L681">                builder(&quot;-webkit-locale&quot;),</span>
+<span class="fc" id="L682">                builder(&quot;-webkit-logical-height&quot;),</span>
+<span class="fc" id="L683">                builder(&quot;-webkit-logical-width&quot;),</span>
+<span class="fc" id="L684">                builder(&quot;-webkit-margin-after&quot;),</span>
+<span class="fc" id="L685">                builder(&quot;-webkit-margin-after-collapse&quot;),</span>
+<span class="fc" id="L686">                builder(&quot;-webkit-margin-before&quot;),</span>
+<span class="fc" id="L687">                builder(&quot;-webkit-margin-before-collapse&quot;),</span>
+<span class="fc" id="L688">                builder(&quot;-webkit-margin-bottom-collapse&quot;),</span>
+<span class="fc" id="L689">                builder(&quot;-webkit-margin-collapse&quot;),</span>
+<span class="fc" id="L690">                builder(&quot;-webkit-margin-end&quot;),</span>
+<span class="fc" id="L691">                builder(&quot;-webkit-margin-start&quot;),</span>
+<span class="fc" id="L692">                builder(&quot;-webkit-margin-top-collapse&quot;),</span>
+<span class="fc" id="L693">                builder(&quot;-webkit-marquee&quot;),</span>
+<span class="fc" id="L694">                builder(&quot;-webkit-marquee-direction&quot;),</span>
+<span class="fc" id="L695">                builder(&quot;-webkit-marquee-increment&quot;),</span>
+<span class="fc" id="L696">                builder(&quot;-webkit-marquee-repetition&quot;),</span>
+<span class="fc" id="L697">                builder(&quot;-webkit-marquee-speed&quot;),</span>
+<span class="fc" id="L698">                builder(&quot;-webkit-marquee-style&quot;),</span>
+<span class="fc" id="L699">                builder(&quot;-webkit-mask&quot;),</span>
+<span class="fc" id="L700">                builder(&quot;-webkit-mask-attachment&quot;),</span>
+<span class="fc" id="L701">                builder(&quot;-webkit-mask-box-image&quot;),</span>
+<span class="fc" id="L702">                builder(&quot;-webkit-mask-box-image-outset&quot;),</span>
+<span class="fc" id="L703">                builder(&quot;-webkit-mask-box-image-repeat&quot;),</span>
+<span class="fc" id="L704">                builder(&quot;-webkit-mask-box-image-slice&quot;),</span>
+<span class="fc" id="L705">                builder(&quot;-webkit-mask-box-image-source&quot;),</span>
+<span class="fc" id="L706">                builder(&quot;-webkit-mask-box-image-width&quot;),</span>
+<span class="fc" id="L707">                builder(&quot;-webkit-mask-clip&quot;),</span>
+<span class="fc" id="L708">                builder(&quot;-webkit-mask-composite&quot;),</span>
+<span class="fc" id="L709">                builder(&quot;-webkit-mask-image&quot;),</span>
+<span class="fc" id="L710">                builder(&quot;-webkit-mask-origin&quot;),</span>
+<span class="fc" id="L711">                builder(&quot;-webkit-mask-position&quot;),</span>
+<span class="fc" id="L712">                builder(&quot;-webkit-mask-position-x&quot;),</span>
+<span class="fc" id="L713">                builder(&quot;-webkit-mask-position-y&quot;),</span>
+<span class="fc" id="L714">                builder(&quot;-webkit-mask-repeat&quot;),</span>
+<span class="fc" id="L715">                builder(&quot;-webkit-mask-repeat-x&quot;),</span>
+<span class="fc" id="L716">                builder(&quot;-webkit-mask-repeat-y&quot;),</span>
+<span class="fc" id="L717">                builder(&quot;-webkit-mask-size&quot;),</span>
+<span class="fc" id="L718">                builder(&quot;-webkit-match-nearest-mail-blockquote-color&quot;),</span>
+<span class="fc" id="L719">                builder(&quot;-webkit-max-logical-height&quot;),</span>
+<span class="fc" id="L720">                builder(&quot;-webkit-max-logical-width&quot;),</span>
+<span class="fc" id="L721">                builder(&quot;-webkit-min-logical-height&quot;),</span>
+<span class="fc" id="L722">                builder(&quot;-webkit-min-logical-width&quot;),</span>
+<span class="fc" id="L723">                builder(&quot;-webkit-nbsp-mode&quot;),</span>
+<span class="fc" id="L724">                builder(&quot;-webkit-opacity&quot;),</span>
+<span class="fc" id="L725">                builder(&quot;-webkit-order&quot;),</span>
+<span class="fc" id="L726">                builder(&quot;-webkit-overflow-scrolling&quot;),</span>
+<span class="fc" id="L727">                builder(&quot;-webkit-padding-after&quot;),</span>
+<span class="fc" id="L728">                builder(&quot;-webkit-padding-before&quot;),</span>
+<span class="fc" id="L729">                builder(&quot;-webkit-padding-end&quot;),</span>
+<span class="fc" id="L730">                builder(&quot;-webkit-padding-start&quot;),</span>
+<span class="fc" id="L731">                builder(&quot;-webkit-perspective&quot;),</span>
+<span class="fc" id="L732">                builder(&quot;-webkit-perspective-origin&quot;),</span>
+<span class="fc" id="L733">                builder(&quot;-webkit-perspective-origin-x&quot;),</span>
+<span class="fc" id="L734">                builder(&quot;-webkit-perspective-origin-y&quot;),</span>
+<span class="fc" id="L735">                builder(&quot;-webkit-print-color-adjust&quot;),</span>
+<span class="fc" id="L736">                builder(&quot;-webkit-region-break-after&quot;),</span>
+<span class="fc" id="L737">                builder(&quot;-webkit-region-break-before&quot;),</span>
+<span class="fc" id="L738">                builder(&quot;-webkit-region-break-inside&quot;),</span>
+<span class="fc" id="L739">                builder(&quot;-webkit-region-overflow&quot;),</span>
+<span class="fc" id="L740">                builder(&quot;-webkit-rtl-ordering&quot;),</span>
+<span class="fc" id="L741">                builder(&quot;-webkit-svg-shadow&quot;),</span>
+<span class="fc" id="L742">                builder(&quot;-webkit-tap-highlight-color&quot;),</span>
+<span class="fc" id="L743">                builder(&quot;-webkit-text-decorations-in-effect&quot;),</span>
+<span class="fc" id="L744">                builder(&quot;-webkit-text-emphasis-position&quot;),</span>
+<span class="fc" id="L745">                builder(&quot;-webkit-text-fill-color&quot;),</span>
+<span class="fc" id="L746">                builder(&quot;-webkit-text-security&quot;),</span>
+<span class="fc" id="L747">                builder(&quot;-webkit-text-size-adjust&quot;),</span>
+<span class="fc" id="L748">                builder(&quot;-webkit-text-stroke&quot;),</span>
+<span class="fc" id="L749">                builder(&quot;-webkit-text-stroke-color&quot;),</span>
+<span class="fc" id="L750">                builder(&quot;-webkit-text-stroke-width&quot;),</span>
+<span class="fc" id="L751">                builder(&quot;-webkit-touch-callout&quot;),</span>
+<span class="fc" id="L752">                builder(&quot;-webkit-transform&quot;),</span>
+<span class="fc" id="L753">                builder(&quot;-webkit-transform-origin&quot;),</span>
+<span class="fc" id="L754">                builder(&quot;-webkit-transform-origin-x&quot;),</span>
+<span class="fc" id="L755">                builder(&quot;-webkit-transform-origin-y&quot;),</span>
+<span class="fc" id="L756">                builder(&quot;-webkit-transform-origin-z&quot;),</span>
+<span class="fc" id="L757">                builder(&quot;-webkit-transform-style&quot;),</span>
+<span class="fc" id="L758">                builder(&quot;-webkit-transition&quot;),</span>
+<span class="fc" id="L759">                builder(&quot;-webkit-transition-delay&quot;),</span>
+<span class="fc" id="L760">                builder(&quot;-webkit-transition-duration&quot;),</span>
+<span class="fc" id="L761">                builder(&quot;-webkit-transition-function&quot;),</span>
+<span class="fc" id="L762">                builder(&quot;-webkit-transition-property&quot;),</span>
+<span class="fc" id="L763">                builder(&quot;-webkit-transition-timing-function&quot;),</span>
+<span class="fc" id="L764">                builder(&quot;-webkit-user-drag&quot;),</span>
+<span class="fc" id="L765">                builder(&quot;-webkit-user-modify&quot;),</span>
+<span class="fc" id="L766">                builder(&quot;-webkit-user-select&quot;),</span>
+<span class="fc" id="L767">                builder(&quot;-webkit-wrap&quot;),</span>
+<span class="fc" id="L768">                builder(&quot;-webkit-wrap-flow&quot;),</span>
+<span class="fc" id="L769">                builder(&quot;-webkit-wrap-margin&quot;),</span>
+<span class="fc" id="L770">                builder(&quot;-webkit-wrap-padding&quot;),</span>
+<span class="fc" id="L771">                builder(&quot;-webkit-wrap-shape-inside&quot;),</span>
+<span class="fc" id="L772">                builder(&quot;-webkit-wrap-shape-outside&quot;),</span>
+<span class="fc" id="L773">                builder(&quot;-webkit-wrap-through&quot;),</span>
+<span class="fc" id="L774">                builder(&quot;-webkit-writing-mode&quot;),</span>
+<span class="fc" id="L775">                builder(&quot;white-space&quot;),</span>
+<span class="fc" id="L776">                builder(&quot;windows&quot;),</span>
+<span class="fc" id="L777">                builder(&quot;will-change&quot;),</span>
+<span class="fc" id="L778">                builder(&quot;width&quot;),</span>
+<span class="fc" id="L779">                builder(&quot;word-break&quot;),</span>
+<span class="fc" id="L780">                builder(&quot;word-spacing&quot;),</span>
+<span class="fc" id="L781">                builder(&quot;word-wrap&quot;),</span>
+<span class="fc" id="L782">                builder(&quot;writing-mode&quot;),</span>
+<span class="fc" id="L783">                builder(&quot;z-index&quot;),</span>
+<span class="fc" id="L784">                builder(&quot;zoom&quot;).setVendor(Vendor.MICROSOFT)</span>
+        );
+        ImmutableBiMap.Builder&lt;String, Property&gt; allProperies =
+<span class="fc" id="L787">                ImmutableBiMap.builder();</span>
+<span class="fc bfc" id="L788" title="All 2 branches covered.">        for (Builder builder : recognizedProperties) {</span>
+<span class="fc" id="L789">            Property property = builder.build();</span>
+<span class="fc" id="L790">            allProperies.put(property.getName(), property);</span>
+<span class="fc" id="L791">        }</span>
+<span class="fc" id="L792">        NAME_TO_PROPERTY_MAP = allProperies.build();</span>
+<span class="fc" id="L793">    }</span>
+
+    private final String name;
+
+    private final Set&lt;String&gt; shorthands;
+
+    private final String partition;
+
+    @Nullable
+    private final Vendor vendor;
+
+    private final boolean hasPositionalParameters;
+
+    private final boolean isCustom;
+
+    private final boolean isSvgOnly;
+
+    private final String warning;
+
+    private Property(
+            String name,
+            Set&lt;String&gt; shorthands,
+            String partition,
+            @Nullable Vendor vendor,
+            boolean hasPositionDependentValues,
+            boolean isCustom,
+            boolean isSvgOnly,
+<span class="fc" id="L820">            @Nullable String warning) {</span>
+<span class="fc bfc" id="L821" title="All 2 branches covered.">        if (!isCustom) {</span>
+<span class="fc" id="L822">            Preconditions.checkArgument(name.equals(name.toLowerCase()),</span>
+                    &quot;property name should be all lowercase: %s&quot;, name);
+        }
+<span class="fc" id="L825">        this.name = name;</span>
+<span class="fc" id="L826">        this.shorthands = shorthands;</span>
+<span class="fc" id="L827">        this.partition = partition;</span>
+<span class="fc" id="L828">        this.vendor = vendor;</span>
+<span class="fc" id="L829">        this.hasPositionalParameters = hasPositionDependentValues;</span>
+<span class="fc" id="L830">        this.isCustom = isCustom;</span>
+<span class="fc" id="L831">        this.isSvgOnly = isSvgOnly;</span>
+<span class="fc" id="L832">        this.warning = warning;</span>
+<span class="fc" id="L833">    }</span>
+
+    private static Property createUserDefinedProperty(String name) {
+<span class="pc bpc" id="L836" title="1 of 2 branches missed.">        Preconditions.checkArgument(!NAME_TO_PROPERTY_MAP.containsKey(name));</span>
+<span class="fc" id="L837">        Builder builder = builder(name)</span>
+<span class="fc" id="L838">                .setShorthands(ImmutableSet.&lt;String&gt;of());</span>
+<span class="fc bfc" id="L839" title="All 2 branches covered.">        if (name.startsWith(CUSTOM_PROPERTY_PREFIX)) {</span>
+<span class="fc" id="L840">            builder.isCustom();</span>
+        }
+<span class="fc" id="L842">        return builder.build();</span>
+    }
+
+    /**
+     * @return a {@code Property} with the specified {@code name}. If {@code name}
+     * corresponds to a recognized property, then the corresponding
+     * {@code Property} will be returned; otherwise, a new {@code Property}
+     * with the specified {@code name} will be created.
+     */
+    public static Property byName(String name) {
+        // All CSS property names are case-insensitive, except for custom properties.
+<span class="fc bfc" id="L853" title="All 2 branches covered.">        if (!name.startsWith(CUSTOM_PROPERTY_PREFIX)) {</span>
+<span class="fc" id="L854">            name = name.toLowerCase();</span>
+        }
+
+<span class="fc" id="L857">        Property property = NAME_TO_PROPERTY_MAP.get(name);</span>
+<span class="fc bfc" id="L858" title="All 2 branches covered.">        if (property != null) {</span>
+<span class="fc" id="L859">            return property;</span>
+        } else {
+<span class="fc" id="L861">            return Property.createUserDefinedProperty(name);</span>
+        }
+    }
+
+    /**
+     * @return the name of this CSS property as it appears in a stylesheet, such
+     * as &quot;z-index&quot;
+     */
+    public String getName() {
+<span class="fc" id="L870">        return name;</span>
+    }
+
+    /**
+     * @return whether this Property is recognized by default by the CSS Compiler.
+     * Note that this is not the same as a being a &quot;standard&quot; CSS property
+     * because the CSS Compiler recognizes non-standard CSS properties such as
+     * &quot;-webkit-border-radius&quot;, among others.
+     */
+    public boolean isRecognizedProperty() {
+<span class="fc" id="L880">        return NAME_TO_PROPERTY_MAP.containsKey(name);</span>
+    }
+
+    /**
+     * Returns the set of shorthand properties related to this property, or the
+     * empty set if this property is not standard.
+     *
+     * &lt;p&gt;For example, {@code border-left-style} has {@code border},
+     * {@code border-left} and {@code border-style} as shorthands.
+     */
+    public Set&lt;String&gt; getShorthands() {
+<span class="fc" id="L891">        return shorthands;</span>
+    }
+
+    /**
+     * Gets the partition of this property. All properties with the same partition
+     * share a common shorthand. A non-standard property is its own single
+     * partition.
+     * &lt;p&gt;
+     * For example, {@code padding}, {@code padding-bottom}, {@code padding-left},
+     * {@code padding-right}, {@code padding-top} are all in the {@code padding}
+     * partition. As another example, {@code z-index} is its own single partition.
+     *
+     * @return a string representing the partition
+     */
+    public String getPartition() {
+<span class="fc" id="L906">        return partition;</span>
+    }
+
+    /**
+     * @return whether this Property is a vendor-specific CSS property, such as
+     * &quot;-webkit-border-radius&quot;
+     */
+    public boolean isVendorSpecific() {
+<span class="nc bnc" id="L914" title="All 2 branches missed.">        return vendor != null;</span>
+    }
+
+    /**
+     * @return the corresponding {@link Vendor} if {@link #isVendorSpecific()} returns {@code true};
+     * otherwise, returns {@code null}
+     */
+    public @Nullable
+    Vendor getVendor() {
+<span class="fc" id="L923">        return vendor;</span>
+    }
+
+    /**
+     * @return whether this property can take positional parameters, such as &quot;margin&quot;, where the
+     * parameters &quot;1px 2px 3px&quot; imply &quot;1px 2px 3px 2px&quot;
+     */
+    public boolean hasPositionalParameters() {
+<span class="fc" id="L931">        return hasPositionalParameters;</span>
+    }
+
+    /**
+     * @return whether this is a CSS custom property
+     */
+    public boolean isCustom() {
+<span class="fc" id="L938">        return isCustom;</span>
+    }
+
+    public boolean isSvgOnly() {
+<span class="nc" id="L942">        return isSvgOnly;</span>
+    }
+
+    public boolean hasWarning() {
+<span class="pc bpc" id="L946" title="1 of 2 branches missed.">        return warning != null;</span>
+    }
+
+    public String getWarning() {
+<span class="nc" id="L950">        return warning;</span>
+    }
+
+    /**
+     * @return an immutable set of CSS properties recognized by default by the CSS
+     * Compiler
+     */
+    public static Set&lt;String&gt; allRecognizedPropertyNames() {
+<span class="nc" id="L958">        return NAME_TO_PROPERTY_MAP.keySet();</span>
+    }
+
+    /**
+     * @return an immutable set of {@link Property} instances recognized by default by the
+     * CSS Compiler
+     */
+    public static Set&lt;Property&gt; allRecognizedProperties() {
+<span class="nc" id="L966">        return NAME_TO_PROPERTY_MAP.values();</span>
+    }
+
+    private static Builder builder(String name) {
+<span class="fc" id="L970">        return new Builder(name);</span>
+    }
+
+    /**
+     * For now, this class is private. If it turns out there is a legitimate need
+     * to create properties through a public builder (a need that cannot be met
+     * by {@link Property#byName(String)}), then this class should be changed so
+     * that it is public.
+     */
+    @VisibleForTesting
+    static final class Builder {
+        private final String name;
+        private Set&lt;String&gt; shorthands;
+        private Vendor vendor;
+        private boolean hasPositionalParameters;
+        private boolean isCustom;
+        private boolean isSvgOnly;
+        private String warning;
+
+<span class="fc" id="L989">        private Builder(String name) {</span>
+<span class="fc" id="L990">            Preconditions.checkNotNull(name);</span>
+<span class="fc" id="L991">            this.name = name;</span>
+<span class="fc" id="L992">            this.shorthands = null;</span>
+<span class="fc" id="L993">            this.vendor = Vendor.parseProperty(name);</span>
+<span class="fc" id="L994">            this.hasPositionalParameters = false;</span>
+<span class="fc" id="L995">            this.isCustom = false;</span>
+<span class="fc" id="L996">            this.isSvgOnly = false;</span>
+<span class="fc" id="L997">            this.warning = null;</span>
+<span class="fc" id="L998">        }</span>
+
+        public Property build() {
+<span class="fc bfc" id="L1001" title="All 2 branches covered.">            if (this.shorthands == null) {</span>
+<span class="fc" id="L1002">                this.shorthands = computeShorthandPropertiesFor(this.name);</span>
+            }
+<span class="fc" id="L1004">            String partition = Iterables.getFirst(this.shorthands, name);</span>
+<span class="fc" id="L1005">            return new Property(</span>
+                    this.name,
+                    this.shorthands,
+                    partition,
+                    this.vendor,
+                    this.hasPositionalParameters,
+                    this.isCustom,
+                    this.isSvgOnly,
+                    this.warning);
+        }
+
+        public Builder setVendor(Vendor vendor) {
+<span class="fc" id="L1017">            this.vendor = vendor;</span>
+<span class="fc" id="L1018">            return this;</span>
+        }
+
+        public Builder setHasPositionalParameters(boolean hasPositionalParameters) {
+<span class="fc" id="L1022">            this.hasPositionalParameters = hasPositionalParameters;</span>
+<span class="fc" id="L1023">            return this;</span>
+        }
+
+        /**
+         * Indicates that the property is a CSS custom property.
+         */
+        public Builder isCustom() {
+<span class="fc" id="L1030">            this.isCustom = true;</span>
+<span class="fc" id="L1031">            return this;</span>
+        }
+
+        /**
+         * Indicates that the property is relevant only when styling SVG, but not HTML.
+         */
+        public Builder isSvgOnly() {
+<span class="fc" id="L1038">            this.isSvgOnly = true;</span>
+<span class="fc" id="L1039">            return this;</span>
+        }
+
+        public Builder setShorthands(Set&lt;String&gt; shorthands) {
+<span class="fc" id="L1043">            this.shorthands = shorthands;</span>
+<span class="fc" id="L1044">            return this;</span>
+        }
+
+        /**
+         * @param warning to display when this property is referenced
+         */
+        public Builder warn(String warning) {
+<span class="fc" id="L1051">            this.warning = warning;</span>
+<span class="fc" id="L1052">            return this;</span>
+        }
+
+        /**
+         * The set of all standard shorthand properties.
+         */
+<span class="fc" id="L1058">        private static final ImmutableSet&lt;String&gt; SHORTHAND_PROPERTIES =</span>
+<span class="fc" id="L1059">                ImmutableSet.of(</span>
+                        &quot;background&quot;,
+                        &quot;border&quot;,
+                        &quot;border-bottom&quot;,
+                        &quot;border-color&quot;,
+                        &quot;border-left&quot;,
+                        &quot;border-right&quot;,
+                        &quot;border-style&quot;,
+                        &quot;border-top&quot;,
+                        &quot;border-width&quot;,
+                        &quot;font&quot;,
+                        &quot;list-style&quot;,
+                        &quot;margin&quot;,
+                        &quot;outline&quot;,
+                        &quot;padding&quot;,
+                        &quot;pause&quot;);
+
+        /**
+         * The set of standard properties that seem to have shorthands as defined by {@link
+         * #computeShorthandPropertiesFor}, but don't.
+         */
+<span class="fc" id="L1080">        private static final ImmutableSet&lt;String&gt; NO_SHORTHAND =</span>
+<span class="fc" id="L1081">                ImmutableSet.of(&quot;border-collapse&quot;, &quot;border-spacing&quot;);</span>
+
+<span class="fc" id="L1083">        private static final ImmutableMap&lt;String, String&gt; BORDER_RADIUS_PROPERTIES =</span>
+<span class="fc" id="L1084">                ImmutableMap.&lt;String, String&gt;builder()</span>
+<span class="fc" id="L1085">                        .put(&quot;border-radius&quot;, &quot;border-radius&quot;)</span>
+<span class="fc" id="L1086">                        .put(&quot;border-top-left-radius&quot;, &quot;border-radius&quot;)</span>
+<span class="fc" id="L1087">                        .put(&quot;border-top-right-radius&quot;, &quot;border-radius&quot;)</span>
+<span class="fc" id="L1088">                        .put(&quot;border-bottom-right-radius&quot;, &quot;border-radius&quot;)</span>
+<span class="fc" id="L1089">                        .put(&quot;border-bottom-left-radius&quot;, &quot;border-radius&quot;)</span>
+<span class="fc" id="L1090">                        .put(&quot;-webkit-border-radius&quot;, &quot;-webkit-border-radius&quot;)</span>
+<span class="fc" id="L1091">                        .put(&quot;-webkit-border-top-left-radius&quot;, &quot;-webkit-border-radius&quot;)</span>
+<span class="fc" id="L1092">                        .put(&quot;-webkit-border-top-right-radius&quot;, &quot;-webkit-border-radius&quot;)</span>
+<span class="fc" id="L1093">                        .put(&quot;-webkit-border-bottom-right-radius&quot;, &quot;-webkit-border-radius&quot;)</span>
+<span class="fc" id="L1094">                        .put(&quot;-webkit-border-bottom-left-radius&quot;, &quot;-webkit-border-radius&quot;)</span>
+<span class="fc" id="L1095">                        .put(&quot;-moz-border-radius&quot;, &quot;-moz-border-radius&quot;)</span>
+<span class="fc" id="L1096">                        .put(&quot;-moz-border-radius-topleft&quot;, &quot;-moz-border-radius&quot;)</span>
+<span class="fc" id="L1097">                        .put(&quot;-moz-border-radius-topright&quot;, &quot;-moz-border-radius&quot;)</span>
+<span class="fc" id="L1098">                        .put(&quot;-moz-border-radius-bottomright&quot;, &quot;-moz-border-radius&quot;)</span>
+<span class="fc" id="L1099">                        .put(&quot;-moz-border-radius-bottomleft&quot;, &quot;-moz-border-radius&quot;)</span>
+<span class="fc" id="L1100">                        .build();</span>
+
+        /**
+         * Computes the set of shorthand properties for a given standard property.
+         *
+         * &lt;p&gt;As a first approximation, property 'x-y' would have 'x' as a
+         * shorthand, and property 'x-y-z' would have 'x', 'x-y' and 'x-z' as
+         * shorthands. However, at each stage , we also check that the shorthands
+         * computed as above are actually part of the given standard shorthand
+         * properties. If not, then we return without including them. Note that
+         * since we assume that the given shorthand properties are standard, only a
+         * border-related shorthand such as 'border-left-color' can have three
+         * shorthands. All other properties have either zero or one shorthand.
+         *
+         * @param property the given standard property
+         * @return the set of shorthands of the given property (not including the
+         * property itself if it is a shorthand), a subset of the given set of
+         * standard shorthand properties
+         */
+        private static ImmutableSet&lt;String&gt; computeShorthandPropertiesFor(
+                String property) {
+<span class="fc bfc" id="L1121" title="All 2 branches covered.">            if (NO_SHORTHAND.contains(property)) {</span>
+<span class="fc" id="L1122">                return ImmutableSet.of();</span>
+            }
+
+<span class="fc" id="L1125">            int lastHyphenIndex = property.lastIndexOf('-');</span>
+<span class="fc bfc" id="L1126" title="All 2 branches covered.">            if (lastHyphenIndex == -1) {</span>
+<span class="fc" id="L1127">                return ImmutableSet.of();</span>
+            }
+
+            // Special-case border-radius properties because they are particularly
+            // odd.
+<span class="fc bfc" id="L1132" title="All 2 branches covered.">            if (BORDER_RADIUS_PROPERTIES.keySet().contains(property)) {</span>
+<span class="fc" id="L1133">                return ImmutableSet.of(BORDER_RADIUS_PROPERTIES.get(property));</span>
+            }
+
+<span class="fc" id="L1136">            String possibleShorthand = property.substring(0, lastHyphenIndex);</span>
+<span class="fc bfc" id="L1137" title="All 2 branches covered.">            if (!SHORTHAND_PROPERTIES.contains(possibleShorthand)) {</span>
+<span class="fc" id="L1138">                return ImmutableSet.of();</span>
+            }
+
+<span class="fc" id="L1141">            int butlastHyphenIndex = possibleShorthand.lastIndexOf('-');</span>
+<span class="fc bfc" id="L1142" title="All 2 branches covered.">            if (butlastHyphenIndex == -1) {</span>
+<span class="fc" id="L1143">                return ImmutableSet.of(possibleShorthand);</span>
+            }
+
+<span class="fc" id="L1146">            String smallestShorthand = property.substring(0, butlastHyphenIndex);</span>
+<span class="fc bfc" id="L1147" title="All 2 branches covered.">            if (!SHORTHAND_PROPERTIES.contains(smallestShorthand)) {</span>
+<span class="fc" id="L1148">                return ImmutableSet.of(possibleShorthand);</span>
+            }
+
+            // Only border-related properties may have more than one shorthand,
+            // in which case they will have three shorthands.
+<span class="fc" id="L1153">            Preconditions.checkArgument(smallestShorthand.equals(&quot;border&quot;));</span>
+
+<span class="fc" id="L1155">            String otherShorthand =</span>
+<span class="fc" id="L1156">                    smallestShorthand + property.substring(lastHyphenIndex);</span>
+
+<span class="fc" id="L1158">            Preconditions.checkArgument(SHORTHAND_PROPERTIES.contains(</span>
+                    otherShorthand), &quot;%s is not a shorthand property for %s&quot;,
+                    otherShorthand, property);
+
+<span class="fc" id="L1162">            return ImmutableSet.of(</span>
+                    smallestShorthand, possibleShorthand, otherShorthand);
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

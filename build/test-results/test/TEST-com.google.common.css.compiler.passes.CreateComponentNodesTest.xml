@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CreateComponentNodesTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.01">
+  <properties/>
+  <testcase name="testParentNameError" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.002"/>
+  <testcase name="testExtendsError1" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.001"/>
+  <testcase name="testExtendsError2" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.001"/>
+  <testcase name="testCreateComponentNode1" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.0"/>
+  <testcase name="testCreateComponentNode2" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.0"/>
+  <testcase name="testCreateComponentNode3" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.001"/>
+  <testcase name="testBlockError" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.0"/>
+  <testcase name="testInvalidParamNumError1" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.0"/>
+  <testcase name="testInvalidParamNumError2" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.001"/>
+  <testcase name="testImplicitlyNamedComponent" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.0"/>
+  <testcase name="testNameError" classname="com.google.common.css.compiler.passes.CreateComponentNodesTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

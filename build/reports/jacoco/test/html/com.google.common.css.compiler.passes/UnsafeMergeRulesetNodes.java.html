@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnsafeMergeRulesetNodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">UnsafeMergeRulesetNodes.java</span></div><h1>UnsafeMergeRulesetNodes.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.*;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.*;
+
+// TODO(user): Consider adding an annotation of which classes
+//     co-occur (or more generally, of which selectors with the same
+//     specificity co-match) to prevent some breaking re-ordering.
+//     For example, something like @conflict .FOO, .BAR should prevent
+//     re-ordering conflicting declarations of the specified
+//     selectors.
+
+/**
+ * Compiler pass that merges rulesets aggressively. The ordering of
+ * the rulesets ensures that shorthand properties appear before their
+ * detailed properties, and that the ordering of conflicting shorthand
+ * properties is preserved. It assumes all other ordering is
+ * irrelevant. When the {@link MarkRemovableRulesetNodes} pass is run
+ * before this pass, the assumptions of this pass will be valid if no
+ * DOM element matches two or more selectors of the same specificity
+ * with conflicting declarations. For example, selectors {@code .FOO}
+ * and {@code .BAR} might conflict if these classes co-occur on a DOM
+ * element. As another example, {@code .FOO span} and {@code .BAR span}
+ * might conflict say if a {@code span} DOM element has a parent with
+ * a {@code FOO} class and a grandparent with a {@code BAR} class.
+ */
+public class UnsafeMergeRulesetNodes implements CssCompilerPass {
+
+    /**
+     * Partitions for which a fixed pre-determined ordering of properties won't do.
+     */
+<span class="fc" id="L52">    private static final ImmutableSet&lt;String&gt; ORDER_DEPENDENT_PARTITIONS = ImmutableSet.of(&quot;border&quot;);</span>
+
+    private final CssTree tree;
+    private final boolean byPartition;
+    private final boolean skipping;
+
+    /**
+     * Constructor.
+     *
+     * &lt;p&gt;This pass runs in two modes, depending on the value of
+     * {@code byPartition}. If {@code byPartition} is {@code true}, all
+     * declarations on a selector are first grouped by their partition (as defined
+     * by {@link CssPropertyNode#getPartition}). Then, selectors which have the
+     * same declarations for a partition are grouped together into a ruleset. If
+     * {@code byPartition} is {@code false} (recommended), partitioning is only
+     * performed on order-dependent partitions (as defined by
+     * {@link #ORDER_DEPENDENT_PARTITIONS}.
+     *
+     * @param tree        the tree to run the pass on
+     * @param byPartition whether to group &lt;em&gt;all&lt;/em&gt; declarations by partition
+     *                    (and not just the ones such as border where order matters)
+     * @param skipping    whether to skip certain properties as defined by
+     *                    {@link SkippingTreeVisitor}
+     */
+    public UnsafeMergeRulesetNodes(
+<span class="fc" id="L77">            CssTree tree, boolean byPartition, boolean skipping) {</span>
+<span class="fc" id="L78">        this.tree = tree;</span>
+<span class="fc" id="L79">        this.byPartition = byPartition;</span>
+<span class="fc" id="L80">        this.skipping = skipping;</span>
+<span class="fc" id="L81">    }</span>
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L85">        replace(collect());</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Performs the collect phase by traversing the tree, collecting all the
+     * rules and placing a placeholder ruleset.
+     */
+    private CollectPhaseTreeVisitor collect() {
+<span class="fc" id="L93">        CollectPhaseTreeVisitor collectPhaseVisitor =</span>
+<span class="fc" id="L94">                new CollectPhaseTreeVisitor(tree.getMutatingVisitController(), byPartition, skipping);</span>
+<span class="fc" id="L95">        collectPhaseVisitor.runPass();</span>
+<span class="fc" id="L96">        return collectPhaseVisitor;</span>
+    }
+
+    /**
+     * Performs the replace phase, by using the structures from the collect phase
+     * to compute a new list of rulesets and traversing the tree to replace the
+     * placeholder with the new list.
+     */
+    private void replace(CollectPhaseTreeVisitor collectPhaseVisitor) {
+        // If we don't have a placeholder, then nothing has been collected, and
+        // nothing is to be done.
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (collectPhaseVisitor.getPlaceholderRuleset() == null) {</span>
+<span class="nc" id="L108">            return;</span>
+        }
+
+<span class="fc" id="L111">        List&lt;CssNode&gt; rulesets = Lists.newArrayList();</span>
+
+        for (Map.Entry&lt;CssDeclarationNode, Collection&lt;CssSelectorNode&gt;&gt; entry
+<span class="fc bfc" id="L114" title="All 2 branches covered.">                : collectPhaseVisitor.getDecToSels()) {</span>
+<span class="fc" id="L115">            rulesets.add(makeOneDeclarationRuleset(entry.getKey(), entry.getValue()));</span>
+<span class="fc" id="L116">        }</span>
+
+        for (Map.Entry&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt; entry
+<span class="fc bfc" id="L119" title="All 2 branches covered.">                : collectPhaseVisitor.getPartitions()) {</span>
+<span class="fc" id="L120">            rulesets.add(makePartitionRuleset(entry.getKey(), entry.getValue()));</span>
+<span class="fc" id="L121">        }</span>
+
+<span class="fc" id="L123">        new ReplacePhaseTreeVisitor(</span>
+<span class="fc" id="L124">                tree.getMutatingVisitController(),</span>
+                rulesets,
+<span class="fc" id="L126">                collectPhaseVisitor.getPlaceholderRuleset())</span>
+<span class="fc" id="L127">                .runPass();</span>
+<span class="fc" id="L128">    }</span>
+
+    /**
+     * Makes a ruleset with many selectors and one declaration.
+     */
+    private CssRulesetNode makeOneDeclarationRuleset(
+            CssDeclarationNode dec, Iterable&lt;CssSelectorNode&gt; sels) {
+<span class="fc" id="L135">        CssRulesetNode ruleset = new CssRulesetNode(new CssDeclarationBlockNode());</span>
+<span class="fc" id="L136">        ruleset.addDeclaration(dec);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        for (CssSelectorNode sel : sels) {</span>
+<span class="fc" id="L138">            ruleset.addSelector(sel.deepCopy());</span>
+<span class="fc" id="L139">        }</span>
+<span class="fc" id="L140">        return ruleset;</span>
+    }
+
+    /**
+     * Makes a ruleset with many selectors and many declarations, whose
+     * properties are assumed to be from the same partition.
+     */
+    private CssRulesetNode makePartitionRuleset(
+            Iterable&lt;CssDeclarationNode&gt; decs, Iterable&lt;CssSelectorNode&gt; sels) {
+<span class="fc" id="L149">        CssRulesetNode ruleset = new CssRulesetNode(new CssDeclarationBlockNode());</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (CssDeclarationNode dec : decs) {</span>
+<span class="fc" id="L151">            ruleset.addDeclaration(dec.deepCopy());</span>
+<span class="fc" id="L152">        }</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        for (CssSelectorNode sel : sels) {</span>
+<span class="fc" id="L154">            ruleset.addSelector(sel.deepCopy());</span>
+<span class="fc" id="L155">        }</span>
+<span class="fc" id="L156">        return ruleset;</span>
+    }
+
+    /**
+     * The tree visitor for the collect phase, which collects all the rules
+     * replacing them with one placeholder rule.
+     */
+    private static class CollectPhaseTreeVisitor extends SkippingTreeVisitor
+            implements CssCompilerPass {
+        private final MutatingVisitController visitController;
+        private final boolean byPartition;
+<span class="fc" id="L167">        private final Multimap&lt;CssDeclarationNode, CssSelectorNode&gt; decToSel =</span>
+<span class="fc" id="L168">                TreeMultimap.create(DECLARATION_COMPARATOR, TO_STRING_COMPARATOR);</span>
+<span class="fc" id="L169">        private final Partitioner partitioner = new Partitioner();</span>
+<span class="fc" id="L170">        private CssRulesetNode placeholderRuleset = null;</span>
+
+        public CollectPhaseTreeVisitor(
+                MutatingVisitController visitController, boolean byPartition, boolean skipping) {
+<span class="fc" id="L174">            super(skipping);</span>
+<span class="fc" id="L175">            this.visitController = visitController;</span>
+<span class="fc" id="L176">            this.byPartition = byPartition;</span>
+<span class="fc" id="L177">        }</span>
+
+        /**
+         * Processes a ruleset when allowed by collecting it and then deleting it
+         * from the tree. If this is the first ruleset to be deleted, adds a
+         * placeholder ruleset to be replaced in the {#replacePhase}.
+         */
+        @Override
+        public boolean enterRuleset(CssRulesetNode ruleset) {
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">            if (canModifyRuleset(ruleset)) {</span>
+<span class="fc" id="L187">                collectRuleset(ruleset);</span>
+<span class="fc" id="L188">                deleteRuleset();</span>
+            }
+<span class="fc" id="L190">            return true;</span>
+        }
+
+        @Override
+        public void runPass() {
+<span class="fc" id="L195">            visitController.startVisit(this);</span>
+<span class="fc" id="L196">        }</span>
+
+        /**
+         * Returns entries of declaration/selectors grouped by declarations.
+         */
+        Iterable&lt;Map.Entry&lt;CssDeclarationNode, Collection&lt;CssSelectorNode&gt;&gt;&gt; getDecToSels() {
+<span class="fc" id="L202">            return decToSel.asMap().entrySet();</span>
+        }
+
+        /**
+         * Returns entries of declarations/selectors grouped by partitions, then
+         * selectors.
+         */
+        Iterable&lt;Map.Entry&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt;&gt; getPartitions() {
+<span class="fc" id="L210">            return partitioner.getMap().entrySet();</span>
+        }
+
+        /**
+         * Returns the placeholder ruleset, to be replaced.
+         */
+        CssRulesetNode getPlaceholderRuleset() {
+<span class="fc" id="L217">            return placeholderRuleset;</span>
+        }
+
+        private void collectRuleset(CssRulesetNode ruleset) {
+<span class="fc bfc" id="L221" title="All 2 branches covered.">            for (CssNode abstractDecl : ruleset.getDeclarations().childIterable()) {</span>
+<span class="fc" id="L222">                Preconditions.checkState(abstractDecl instanceof CssDeclarationNode);</span>
+<span class="fc" id="L223">                CssDeclarationNode dec = (CssDeclarationNode) abstractDecl;</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">                boolean inPartition = byPartition</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">                        || ORDER_DEPENDENT_PARTITIONS.contains(dec.getPropertyName().getPartition());</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">                for (CssSelectorNode sel : ruleset.getSelectors().childIterable()) {</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">                    if (inPartition) {</span>
+<span class="fc" id="L228">                        partitioner.add(dec, sel);</span>
+                    } else {
+<span class="fc" id="L230">                        decToSel.put(dec, sel);</span>
+                    }
+<span class="fc" id="L232">                }</span>
+<span class="fc" id="L233">            }</span>
+<span class="fc" id="L234">        }</span>
+
+        private void deleteRuleset() {
+<span class="fc bfc" id="L237" title="All 2 branches covered.">            if (placeholderRuleset == null) {</span>
+                // We don't have a place holder yet. Create one.
+<span class="fc" id="L239">                placeholderRuleset = new CssRulesetNode(new CssDeclarationBlockNode());</span>
+<span class="fc" id="L240">                visitController.replaceCurrentBlockChildWith(</span>
+<span class="fc" id="L241">                        ImmutableList.of((CssNode) placeholderRuleset), false);</span>
+            } else {
+<span class="fc" id="L243">                visitController.removeCurrentNode();</span>
+            }
+<span class="fc" id="L245">        }</span>
+    }
+
+    /**
+     * The tree visitor for the replace phase, which replaces the placeholder with
+     * the new computed rulesets.
+     */
+    private static class ReplacePhaseTreeVisitor extends DefaultTreeVisitor
+            implements CssCompilerPass {
+        private final MutatingVisitController visitController;
+        private final List&lt;CssNode&gt; rulesets;
+        private final CssRulesetNode placeholderRuleset;
+
+        public ReplacePhaseTreeVisitor(
+                MutatingVisitController visitController,
+                List&lt;CssNode&gt; rulesets,
+<span class="fc" id="L261">                CssRulesetNode placeholderRuleset) {</span>
+<span class="fc" id="L262">            this.visitController = visitController;</span>
+<span class="fc" id="L263">            this.rulesets = rulesets;</span>
+<span class="fc" id="L264">            this.placeholderRuleset = placeholderRuleset;</span>
+<span class="fc" id="L265">        }</span>
+
+        @Override
+        public boolean enterRuleset(CssRulesetNode ruleset) {
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">            if (ruleset == placeholderRuleset) {</span>
+<span class="fc" id="L270">                visitController.replaceCurrentBlockChildWith(rulesets, false);</span>
+            }
+<span class="fc" id="L272">            return true;</span>
+        }
+
+        @Override
+        public void runPass() {
+<span class="fc" id="L277">            visitController.startVisit(this);</span>
+<span class="fc" id="L278">        }</span>
+    }
+
+    /**
+     * A partition organizes pairs of declaration/selector.
+     */
+    private static abstract class Partition {
+        @SuppressWarnings(&quot;unused&quot;)
+        protected final String partition;
+
+<span class="fc" id="L288">        protected Partition(String partition) {</span>
+<span class="fc" id="L289">            this.partition = partition;</span>
+<span class="fc" id="L290">        }</span>
+
+        /**
+         * Creates a new partition.
+         */
+        public static Partition newPartition(String partition) {
+<span class="fc bfc" id="L296" title="All 2 branches covered.">            return ORDER_DEPENDENT_PARTITIONS.contains(partition)</span>
+<span class="fc" id="L297">                    ? new OrderDependentPartition(partition)</span>
+<span class="fc" id="L298">                    : new OrderIndependentPartition(partition);</span>
+        }
+
+        /**
+         * Adds the given pair of declaration/selector to the partition. Assumes
+         * that the selector belongs to this partition.
+         */
+        public abstract void add(CssDeclarationNode declaration, CssSelectorNode selector);
+
+        /**
+         * Adds the pairs of this partition to the given map.
+         */
+        public abstract void addTo(Map&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt; outMap);
+
+        /**
+         * Returns the selectors keyed by the given declarations in the given map.
+         */
+        protected Set&lt;CssSelectorNode&gt; getSelectorsByDeclarations(
+                Collection&lt;CssDeclarationNode&gt; declarations,
+                Map&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt; map) {
+<span class="fc" id="L318">            Set&lt;CssSelectorNode&gt; selectors = map.get(declarations);</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">            if (selectors == null) {</span>
+<span class="fc" id="L320">                selectors = Sets.newTreeSet(TO_STRING_COMPARATOR);</span>
+<span class="fc" id="L321">                map.put(declarations, selectors);</span>
+            }
+<span class="fc" id="L323">            return selectors;</span>
+        }
+    }
+
+    /**
+     * A partition whose declarations are order-independent.
+     */
+    private static class OrderIndependentPartition extends Partition {
+        private final Multimap&lt;CssSelectorNode, CssDeclarationNode&gt; inMap;
+
+        private OrderIndependentPartition(String partition) {
+<span class="fc" id="L334">            super(partition);</span>
+<span class="fc" id="L335">            this.inMap = TreeMultimap.create(TO_STRING_COMPARATOR, DECLARATION_COMPARATOR);</span>
+<span class="fc" id="L336">        }</span>
+
+        @Override
+        public void add(CssDeclarationNode declaration, CssSelectorNode selector) {
+<span class="fc" id="L340">            inMap.put(selector, declaration);</span>
+<span class="fc" id="L341">        }</span>
+
+        @Override
+        public void addTo(Map&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt; outMap) {
+            for (Map.Entry&lt;CssSelectorNode, Collection&lt;CssDeclarationNode&gt;&gt; entry
+<span class="fc bfc" id="L346" title="All 2 branches covered.">                    : inMap.asMap().entrySet()) {</span>
+<span class="fc" id="L347">                getSelectorsByDeclarations(entry.getValue(), outMap).add(entry.getKey());</span>
+<span class="fc" id="L348">            }</span>
+<span class="fc" id="L349">        }</span>
+    }
+
+    /**
+     * A partition whose declarations are order-dependent.
+     */
+    private static class OrderDependentPartition extends Partition {
+        private final Map&lt;CssSelectorNode, List&lt;CssDeclarationNode&gt;&gt; inMap;
+
+        private OrderDependentPartition(String partition) {
+<span class="fc" id="L359">            super(partition);</span>
+<span class="fc" id="L360">            this.inMap = Maps.newTreeMap(TO_STRING_COMPARATOR);</span>
+<span class="fc" id="L361">        }</span>
+
+        @Override
+        public void add(CssDeclarationNode declaration, CssSelectorNode selector) {
+<span class="fc" id="L365">            getDeclarations(selector).add(declaration);</span>
+<span class="fc" id="L366">        }</span>
+
+        @Override
+        public void addTo(Map&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt; outMap) {
+            for (Map.Entry&lt;CssSelectorNode, List&lt;CssDeclarationNode&gt;&gt; entry
+<span class="fc bfc" id="L371" title="All 2 branches covered.">                    : inMap.entrySet()) {</span>
+<span class="fc" id="L372">                getSelectorsByDeclarations(entry.getValue(), outMap).add(entry.getKey());</span>
+<span class="fc" id="L373">            }</span>
+<span class="fc" id="L374">        }</span>
+
+        private List&lt;CssDeclarationNode&gt; getDeclarations(CssSelectorNode selector) {
+<span class="fc" id="L377">            List&lt;CssDeclarationNode&gt; declarations = inMap.get(selector);</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">            if (declarations == null) {</span>
+<span class="fc" id="L379">                declarations = Lists.newLinkedList();</span>
+<span class="fc" id="L380">                inMap.put(selector, declarations);</span>
+            }
+<span class="fc" id="L382">            return declarations;</span>
+        }
+    }
+
+    /**
+     * A partitioner adds up pairs of declaration/selector to build a map from
+     * groups of declarations in the same partition to selectors.
+     */
+<span class="fc" id="L390">    private static class Partitioner {</span>
+        /**
+         * This map stores all the declaration/selector pairs added to the
+         * partitioner, grouped by partitions.
+         */
+<span class="fc" id="L395">        private final Map&lt;String, Partition&gt; partitions = Maps.newHashMap();</span>
+
+        /**
+         * Adds a declaration/selector pair to the partitioner.
+         *
+         * @param declaration the declaration of the pair to add
+         * @param selector    the selector of the pair to add
+         */
+        public void add(CssDeclarationNode declaration, CssSelectorNode selector) {
+<span class="fc" id="L404">            String partitionName = declaration.getPropertyName().getPartition();</span>
+<span class="fc" id="L405">            getPartition(partitionName).add(declaration, selector);</span>
+<span class="fc" id="L406">        }</span>
+
+        /**
+         * Computes a conveninent map from groups of declarations to sets of
+         * selectors from all the additions to the partitioner.
+         *
+         * @return a map conveniently summarizing all the additions to the partitioner
+         */
+        public Map&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt; getMap() {
+<span class="fc" id="L415">            Map&lt;Collection&lt;CssDeclarationNode&gt;, Set&lt;CssSelectorNode&gt;&gt; map =</span>
+<span class="fc" id="L416">                    Maps.newTreeMap(TO_STRING_ITERABLE_COMPARATOR);</span>
+<span class="fc bfc" id="L417" title="All 2 branches covered.">            for (Partition partition : partitions.values()) {</span>
+<span class="fc" id="L418">                partition.addTo(map);</span>
+<span class="fc" id="L419">            }</span>
+<span class="fc" id="L420">            return map;</span>
+        }
+
+        private Partition getPartition(String partitionName) {
+<span class="fc" id="L424">            Partition partition = partitions.get(partitionName);</span>
+<span class="fc bfc" id="L425" title="All 2 branches covered.">            if (partition == null) {</span>
+<span class="fc" id="L426">                partition = Partition.newPartition(partitionName);</span>
+<span class="fc" id="L427">                partitions.put(partitionName, partition);</span>
+            }
+<span class="fc" id="L429">            return partition;</span>
+        }
+    }
+
+    /**
+     * Compares objects by their string representation.
+     */
+    @VisibleForTesting
+<span class="fc" id="L437">    static final Comparator&lt;Object&gt; TO_STRING_COMPARATOR = Ordering.usingToString();</span>
+
+    /**
+     * Create a comparator for iterables that compares element pairwise using the
+     * given element comparator.
+     */
+    private static &lt;T&gt; Comparator&lt;Iterable&lt;? extends T&gt;&gt; createIterableComparator(
+            final Comparator&lt;T&gt; elementComparator) {
+<span class="fc" id="L445">        return new Comparator&lt;Iterable&lt;? extends T&gt;&gt;() {</span>
+            @Override
+            public int compare(Iterable&lt;? extends T&gt; o1, Iterable&lt;? extends T&gt; o2) {
+<span class="fc" id="L448">                Iterator&lt;? extends T&gt; i1 = o1.iterator();</span>
+<span class="fc" id="L449">                Iterator&lt;? extends T&gt; i2 = o2.iterator();</span>
+                while (true) {
+<span class="fc bfc" id="L451" title="All 4 branches covered.">                    if (i1.hasNext() &amp;&amp; !i2.hasNext()) {</span>
+<span class="fc" id="L452">                        return 1;</span>
+<span class="fc bfc" id="L453" title="All 4 branches covered.">                    } else if (!i1.hasNext() &amp;&amp; i2.hasNext()) {</span>
+<span class="fc" id="L454">                        return -1;</span>
+<span class="pc bpc" id="L455" title="1 of 4 branches missed.">                    } else if (!i1.hasNext() &amp;&amp; !i2.hasNext()) {</span>
+<span class="fc" id="L456">                        return 0;</span>
+                    } else {
+<span class="fc" id="L458">                        int c = elementComparator.compare(i1.next(), i2.next());</span>
+<span class="fc bfc" id="L459" title="All 2 branches covered.">                        if (c != 0) {</span>
+<span class="fc" id="L460">                            return c;</span>
+                        }
+<span class="fc" id="L462">                    }</span>
+                }
+            }
+        };
+    }
+
+    /**
+     * Compares iterables by their extended string representation.
+     */
+    @VisibleForTesting
+<span class="fc" id="L472">    static final Comparator&lt;Iterable&lt;?&gt;&gt; TO_STRING_ITERABLE_COMPARATOR =</span>
+<span class="fc" id="L473">            createIterableComparator(TO_STRING_COMPARATOR);</span>
+
+    /**
+     * Compare declarations, ensuring that shorthand properties appear before
+     * their related properties and using their string representation otherwise.
+     */
+    @VisibleForTesting
+<span class="fc" id="L480">    static final Comparator&lt;CssDeclarationNode&gt; DECLARATION_COMPARATOR =</span>
+<span class="fc" id="L481">            new Comparator&lt;CssDeclarationNode&gt;() {</span>
+                @Override
+                public int compare(CssDeclarationNode o1, CssDeclarationNode o2) {
+<span class="fc" id="L484">                    Property property1 = o1.getPropertyName().getProperty();</span>
+<span class="fc" id="L485">                    Property property2 = o2.getPropertyName().getProperty();</span>
+<span class="fc bfc" id="L486" title="All 2 branches covered.">                    if (property1.getShorthands().contains(property2.getName())) {</span>
+<span class="fc" id="L487">                        return 1;</span>
+<span class="fc bfc" id="L488" title="All 2 branches covered.">                    } else if (property2.getShorthands().contains(property1.getName())) {</span>
+<span class="fc" id="L489">                        return -1;</span>
+                    } else {
+<span class="fc" id="L491">                        return TO_STRING_COMPARATOR.compare(o1, o2);</span>
+                    }
+                }
+            };
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

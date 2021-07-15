@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrettyPrinter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">PrettyPrinter.java</span></div><h1>PrettyPrinter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.css.compiler.ast.CssCompilerPass;
+import com.google.common.css.compiler.ast.CssTree;
+import com.google.common.css.compiler.ast.CssTreeVisitor;
+import com.google.common.css.compiler.ast.VisitController;
+
+import javax.annotation.Nullable;
+
+/**
+ * A pretty-printer for {@link CssTree} instances. This is work in progress.
+ * Look at PrettyPrinterTest to see what's supported.
+ *
+ * @author mkretzschmar@google.com (Martin Kretzschmar)
+ * @author oana@google.com (Oana Florescu)
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class PrettyPrinter extends CodePrinter implements CssCompilerPass {
+<span class="fc" id="L35">    private String prettyPrintedString = null;</span>
+<span class="fc" id="L36">    private boolean stripQuotes = false;</span>
+<span class="fc" id="L37">    private boolean preserveComments = false;</span>
+
+    public PrettyPrinter(VisitController visitController,
+                         @Nullable CodeBuffer buffer,
+                         @Nullable GssSourceMapGenerator generator) {
+<span class="fc" id="L42">        super(visitController, buffer, generator);</span>
+<span class="fc" id="L43">    }</span>
+
+    public PrettyPrinter(VisitController visitController, GssSourceMapGenerator generator) {
+<span class="nc" id="L46">        this(visitController, null /* buffer */, generator);</span>
+<span class="nc" id="L47">    }</span>
+
+    public PrettyPrinter(VisitController visitController) {
+<span class="fc" id="L50">        this(visitController, null /* buffer */, null /* generator */);</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * Whether to strip quotes from certain values. This facilitates
+     * tests that want to compare trees.
+     */
+    public void setStripQuotes(boolean stripQuotes) {
+<span class="nc" id="L58">        this.stripQuotes = stripQuotes;</span>
+<span class="nc" id="L59">    }</span>
+
+    /**
+     * Whether comments in the CSS nodes are preserved in the pretty printed
+     * output.
+     * &lt;p&gt;Note: Comments layout is not guaranteed, since detailed position
+     * information in the input files is not preserved by the parser. Line breaks
+     * are added after every comment with current identation as best effort.&lt;/p&gt;
+     */
+    public PrettyPrinter setPreserveComments(boolean preserve) {
+<span class="nc" id="L69">        this.preserveComments = preserve;</span>
+<span class="nc" id="L70">        return this;</span>
+    }
+
+    public String getPrettyPrintedString() {
+<span class="fc" id="L74">        return prettyPrintedString;</span>
+    }
+
+    @Override
+    protected CssTreeVisitor createVisitor(VisitController visitController, CodeBuffer codeBuffer) {
+<span class="fc" id="L79">        return new PrettyPrintingVisitor(codeBuffer, stripQuotes, preserveComments);</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L84">        resetBuffer();</span>
+<span class="fc" id="L85">        visit();</span>
+<span class="fc" id="L86">        prettyPrintedString = getOutputBuffer();</span>
+<span class="fc" id="L87">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

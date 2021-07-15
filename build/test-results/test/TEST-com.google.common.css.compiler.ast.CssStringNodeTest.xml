@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.ast.CssStringNodeTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:51" hostname="Patrick-MBP.fritz.box" time="0.006">
+  <properties/>
+  <testcase name="testCssValueNodeFixedPoint" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.001"/>
+  <testcase name="testConcreteRoundtrip" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.0"/>
+  <testcase name="testHtmlEscaper" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.001"/>
+  <testcase name="testCopyCtor" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.0"/>
+  <testcase name="testUnescape" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.001"/>
+  <testcase name="testShortEscaper" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.0"/>
+  <testcase name="testCssValueNodeRoundtrip" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.0"/>
+  <testcase name="testEscape" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.001"/>
+  <testcase name="testInsertsIgnoredWhitespaceAfterEscape" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.001"/>
+  <testcase name="testStringCannotDirectlyContainNewline" classname="com.google.common.css.compiler.ast.CssStringNodeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

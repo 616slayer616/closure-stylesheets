@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SourceCodeLocationBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">SourceCodeLocationBuilder.java</span></div><h1>SourceCodeLocationBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+import com.google.common.base.Preconditions;
+
+/**
+ * Aids in the creation of source code locations. A builder can be used for
+ * creating a single {@link SourceCodeLocation}.
+ */
+public class SourceCodeLocationBuilder {
+    private SourceCode sourceCode;
+    private int beginCharacterIndex;
+    private int beginLineNumber;
+    private int beginIndexInLine;
+    private int endCharacterIndex;
+    private int endLineNumber;
+    private int endIndexInLine;
+
+    /**
+     * {@code null} until the location gets created. After that, none of the set
+     * methods should be called, only {@link #getSourceCodeLocation()} should be
+     * called.
+     */
+<span class="fc" id="L39">    private SourceCodeLocation sourceCodeLocation = null;</span>
+
+<span class="fc" id="L41">    public SourceCodeLocationBuilder() {</span>
+        // We initialize to a unknown location.
+<span class="fc" id="L43">        sourceCode = null;</span>
+<span class="fc" id="L44">        beginCharacterIndex = -1;</span>
+<span class="fc" id="L45">        beginLineNumber = 0;</span>
+<span class="fc" id="L46">        beginIndexInLine = 0;</span>
+<span class="fc" id="L47">        endCharacterIndex = -1;</span>
+<span class="fc" id="L48">        endLineNumber = 0;</span>
+<span class="fc" id="L49">        endIndexInLine = 0;</span>
+<span class="fc" id="L50">    }</span>
+
+    private void checkLocationIsNotAlreadyCreated() {
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        Preconditions.checkState(sourceCodeLocation == null, &quot;You cannot set &quot; +</span>
+                &quot;source code location properties after the object was created.&quot;);
+<span class="fc" id="L55">    }</span>
+
+    public SourceCodeLocationBuilder setSourceCode(SourceCode newSourceCode) {
+<span class="fc" id="L58">        checkLocationIsNotAlreadyCreated();</span>
+<span class="fc" id="L59">        Preconditions.checkNotNull(newSourceCode);</span>
+<span class="fc" id="L60">        this.sourceCode = newSourceCode;</span>
+<span class="fc" id="L61">        return this;</span>
+    }
+
+    public boolean hasSourceCode() {
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        return this.sourceCode != null;</span>
+    }
+
+    public SourceCodeLocationBuilder setBeginLocation(int characterIndex,
+                                                      int lineNumber, int indexInLine) {
+<span class="fc" id="L70">        checkLocationIsNotAlreadyCreated();</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        Preconditions.checkArgument(characterIndex &gt;= 0,</span>
+                &quot;The passed location is not valid.&quot;);
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        Preconditions.checkArgument(lineNumber &gt;= 1,</span>
+                &quot;The passed location is not valid.&quot;);
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        Preconditions.checkArgument(indexInLine &gt;= 1,</span>
+                &quot;The passed location is not valid.&quot;);
+<span class="fc" id="L77">        this.beginCharacterIndex = characterIndex;</span>
+<span class="fc" id="L78">        this.beginLineNumber = lineNumber;</span>
+<span class="fc" id="L79">        this.beginIndexInLine = indexInLine;</span>
+<span class="fc" id="L80">        return this;</span>
+    }
+
+    public SourceCodeLocationBuilder setBeginLocation(SourceCodeLocation.SourceCodePoint begin) {
+<span class="fc" id="L84">        checkLocationIsNotAlreadyCreated();</span>
+<span class="fc" id="L85">        Preconditions.checkNotNull(begin);</span>
+<span class="fc" id="L86">        setBeginLocation(begin.getCharacterIndex(), begin.getLineNumber(),</span>
+<span class="fc" id="L87">                begin.getIndexInLine());</span>
+<span class="fc" id="L88">        return this;</span>
+    }
+
+    public boolean hasBeginLocation() {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        return this.beginCharacterIndex != -1;</span>
+    }
+
+    public SourceCodeLocationBuilder setEndLocation(int characterIndex,
+                                                    int lineNumber, int indexInLine) {
+<span class="fc" id="L97">        checkLocationIsNotAlreadyCreated();</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        Preconditions.checkArgument(characterIndex &gt;= 0,</span>
+                &quot;The passed characterIndex is not valid.&quot;);
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">        Preconditions.checkArgument(lineNumber &gt;= 1,</span>
+                &quot;The passed lineNumber is not valid.&quot;);
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        Preconditions.checkArgument(indexInLine &gt;= 1,</span>
+                &quot;The passed indexInLine is not valid.&quot;);
+<span class="fc" id="L104">        this.endCharacterIndex = characterIndex;</span>
+<span class="fc" id="L105">        this.endLineNumber = lineNumber;</span>
+<span class="fc" id="L106">        this.endIndexInLine = indexInLine;</span>
+<span class="fc" id="L107">        return this;</span>
+    }
+
+    public SourceCodeLocationBuilder setEndLocation(SourceCodeLocation.SourceCodePoint end) {
+<span class="fc" id="L111">        checkLocationIsNotAlreadyCreated();</span>
+<span class="fc" id="L112">        Preconditions.checkNotNull(end);</span>
+<span class="fc" id="L113">        setEndLocation(end.getCharacterIndex(), end.getLineNumber(),</span>
+<span class="fc" id="L114">                end.getIndexInLine());</span>
+<span class="fc" id="L115">        return this;</span>
+    }
+
+    public SourceCodeLocationBuilder setLocation(int characterIndex,
+                                                 int lineNumber, int indexInLine) {
+<span class="nc" id="L120">        checkLocationIsNotAlreadyCreated();</span>
+<span class="nc" id="L121">        setBeginLocation(characterIndex, lineNumber, indexInLine);</span>
+<span class="nc" id="L122">        setEndLocation(characterIndex, lineNumber, indexInLine);</span>
+<span class="nc" id="L123">        return this;</span>
+    }
+
+    public SourceCodeLocation getSourceCodeLocation() {
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        if (sourceCodeLocation != null) {</span>
+<span class="nc" id="L128">            return sourceCodeLocation;</span>
+        }
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        Preconditions.checkState(sourceCode != null,</span>
+                &quot;You should specify a source code object&quot;);
+<span class="pc bpc" id="L132" title="6 of 8 branches missed.">        Preconditions.checkState(</span>
+                (beginCharacterIndex &gt;= 0 &amp;&amp; endCharacterIndex &gt;= 0) ||
+                        (beginCharacterIndex == -1 &amp;&amp; endCharacterIndex == -1),
+                &quot;Both the start and the end locations must be set.&quot;);
+<span class="pc bpc" id="L136" title="3 of 4 branches missed.">        Preconditions.checkState(hasSourceCode() || !hasBeginLocation(),</span>
+                &quot;Must specify the source code if you specify a location.&quot;);
+        try {
+<span class="fc" id="L139">            sourceCodeLocation = new SourceCodeLocation(sourceCode,</span>
+                    beginCharacterIndex, beginLineNumber, beginIndexInLine,
+                    endCharacterIndex, endLineNumber, endIndexInLine);
+<span class="nc" id="L142">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L143">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L144">                    String.format(</span>
+                            &quot;with sourceCode = %s, beginCharacterIndex = %d, &quot;
+                                    + &quot;beginLineNumber = %d, beginIndexInLine = %d, &quot;
+                                    + &quot;endCharacterIndex = %d, endLineNumber = %d, &quot;
+                                    + &quot;endIndexInLine = %d&quot;,
+<span class="nc" id="L149">                            sourceCode.getFileContents(), beginCharacterIndex,</span>
+<span class="nc" id="L150">                            beginLineNumber, beginIndexInLine, endCharacterIndex,</span>
+<span class="nc" id="L151">                            endLineNumber, endIndexInLine),</span>
+                    e);
+<span class="fc" id="L153">        }</span>
+<span class="fc" id="L154">        return sourceCodeLocation;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MinimalSubstitutionMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">MinimalSubstitutionMap.java</span></div><h1>MinimalSubstitutionMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * MinimalSubstitutionMap is a SubstitutionMap that renames CSS classes to the
+ * shortest string possible.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
+
+    /**
+     * Possible first chars in a CSS class name
+     */
+<span class="fc" id="L39">    private static final char[] START_CHARS = {</span>
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+            'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+            'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    };
+
+    /**
+     * Possible non-first chars in a CSS class name
+     */
+<span class="fc" id="L49">    private static final char[] CHARS = {</span>
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+            'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+            'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    };
+
+    /**
+     * Last value used with toShortString().
+     */
+    private int lastIndex;
+
+    /**
+     * Characters that can be used at the start of a CSS class name.
+     */
+    private final char[] startChars;
+
+    /**
+     * Characters that can be used in a CSS class name (though not necessarily as
+     * the first character).
+     */
+    private final char[] usableChars;
+
+    /**
+     * Number of startChars.
+     */
+    private final int startCharsRadix;
+
+    /**
+     * Number of chars.
+     */
+    private final int charsRadix;
+
+    /**
+     * Value equal to Math.log(charsRadix). Stored as a field so it does not need
+     * to be recomputed each time toShortString() is invoked.
+     */
+    private final double logCharsRadix;
+
+    /**
+     * Map of CSS classes that were renamed. Keys are original class names and
+     * values are their renamed equivalents.
+     */
+    private final Map&lt;String, String&gt; renamedCssClasses;
+
+    /**
+     * A set of CSS class names that may not be output from this substitution map.
+     */
+    private ImmutableSet&lt;String&gt; outputValueBlacklist;
+
+    public MinimalSubstitutionMap() {
+<span class="fc" id="L101">        this(ImmutableSet.&lt;String&gt;of());</span>
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * @param outputValueBlacklist A set of CSS class names that may not be
+     *                             returned as the output from a substitution lookup.
+     */
+    public MinimalSubstitutionMap(Set&lt;String&gt; outputValueBlacklist) {
+<span class="fc" id="L109">        this(START_CHARS, CHARS, outputValueBlacklist);</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Creates a new MinimalSubstitutionMap that generates CSS class names from
+     * the specified set of characters.
+     *
+     * @param startChars Possible values for the first character of a CSS class
+     *                   name.
+     * @param usableChars      Possible values for the characters other than the first
+     *                   character in a CSS class name.
+     */
+    @VisibleForTesting
+    MinimalSubstitutionMap(char[] startChars, char[] usableChars) {
+<span class="fc" id="L123">        this(startChars, usableChars, ImmutableSet.&lt;String&gt;of());</span>
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * Creates a new MinimalSubstitutionMap that generates CSS class names from
+     * the specified set of characters.
+     *
+     * @param startChars           Possible values for the first character of a CSS class
+     *                             name.
+     * @param usableChars                Possible values for the characters other than the first
+     *                             character in a CSS class name.
+     * @param outputValueBlacklist A set of CSS class names that may not be
+     *                             returned as the output from a substitution lookup.
+     */
+    @VisibleForTesting
+    MinimalSubstitutionMap(
+<span class="fc" id="L139">            char[] startChars, char[] usableChars, Set&lt;String&gt; outputValueBlacklist) {</span>
+<span class="fc" id="L140">        this.lastIndex = 0;</span>
+<span class="fc" id="L141">        this.startChars = Arrays.copyOf(startChars, startChars.length);</span>
+<span class="fc" id="L142">        this.startCharsRadix = this.startChars.length;</span>
+<span class="fc" id="L143">        this.usableChars = Arrays.copyOf(usableChars, usableChars.length);</span>
+<span class="fc" id="L144">        this.charsRadix = this.usableChars.length;</span>
+<span class="fc" id="L145">        this.logCharsRadix = Math.log(charsRadix);</span>
+<span class="fc" id="L146">        this.renamedCssClasses = Maps.newHashMap();</span>
+<span class="fc" id="L147">        this.outputValueBlacklist =</span>
+<span class="fc" id="L148">                ImmutableSet.copyOf(Preconditions.checkNotNull(outputValueBlacklist));</span>
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String get(String key) {
+<span class="fc" id="L156">        String value = renamedCssClasses.get(key);</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (value == null) {</span>
+            do {
+<span class="fc" id="L159">                value = toShortString(lastIndex++);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">            } while (this.outputValueBlacklist.contains(value));</span>
+
+<span class="fc" id="L162">            renamedCssClasses.put(key, value);</span>
+        }
+<span class="fc" id="L164">        return value;</span>
+    }
+
+    @Override
+    public void initializeWithMappings(Map&lt;? extends String, ? extends String&gt; m) {
+<span class="fc" id="L169">        Preconditions.checkState(renamedCssClasses.isEmpty());</span>
+<span class="fc" id="L170">        this.outputValueBlacklist =</span>
+<span class="fc" id="L171">                ImmutableSet.&lt;String&gt;builder().addAll(outputValueBlacklist).addAll(m.values()).build();</span>
+<span class="fc" id="L172">        this.renamedCssClasses.putAll(m);</span>
+<span class="fc" id="L173">    }</span>
+
+    /**
+     * Converts a 32-bit integer to a unique short string whose first character
+     * is in {@link #START_CHARS} and whose subsequent characters, if any, are
+     * in {@link #CHARS}. The result is 1-6 characters in length.
+     *
+     * @param index The index into the enumeration of possible CSS class names
+     *              given the set of valid CSS characters in this class.
+     * @return The CSS class name that corresponds to the index of the
+     * enumeration.
+     */
+    @VisibleForTesting
+    String toShortString(int index) {
+        // Given the number of non-start characters, C, then for each start
+        // character, S, there will be:
+        //   1 one-letter CSS class name that starts with S
+        //   C two-letter CSS class names that start with S
+        //   C^2 three-letter CSS class names that start with S
+        //   C^3 four-letter CSS class names that start with S
+        //   and so on...
+        //
+        // That means that the number of non-start characters, n, in terms of i is
+        // defined as the greatest value of n that satisfies the following:
+        //
+        // 1 + C + C^2 + ... + C^(n - 1) &lt;= i
+        //
+        // Substituting (C^n - 1) / (C - 1) for the geometric series, we get:
+        //
+        // (C^n - 1) / (C - 1) &lt;= i
+        // (C^n - 1) &lt;= i * (C - 1)
+        // C^n &lt;= i * (C - 1) + 1
+        // log C^n &lt;= log (i * (C - 1) + 1)
+        // n log C &lt;= log (i * (C - 1) + 1)
+        // n &lt;= log (i * (C - 1) + 1) / log C
+        //
+        // Because we are looking for the largest value of n that satisfies the
+        // inequality and we require n to be an integer, n can be expressed as:
+        //
+        // n = [[ log (i * (C - 1) + 1) / log C ]]
+        //
+        // where [[ x ]] is the greatest integer not exceeding x.
+        //
+        // Once n is known, the standard modulo-then-divide approach can be used to
+        // determine each character that should be appended to s.
+<span class="fc" id="L218">        int i = index / startCharsRadix;</span>
+<span class="fc" id="L219">        final int n = (int) (Math.log(i * (charsRadix - 1) + 1d) / logCharsRadix);</span>
+
+        // The array is 1 more than the number of secondary chars to account for the
+        // first char.
+<span class="fc" id="L223">        char[] cssNameChars = new char[n + 1];</span>
+<span class="fc" id="L224">        cssNameChars[0] = startChars[index % startCharsRadix];</span>
+
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        for (int k = 1; k &lt;= n; ++k) {</span>
+<span class="fc" id="L227">            cssNameChars[k] = usableChars[i % charsRadix];</span>
+<span class="fc" id="L228">            i /= charsRadix;</span>
+        }
+
+<span class="fc" id="L231">        return new String(cssNameChars);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

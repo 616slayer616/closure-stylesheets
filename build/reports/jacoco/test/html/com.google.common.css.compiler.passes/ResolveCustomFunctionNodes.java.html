@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResolveCustomFunctionNodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">ResolveCustomFunctionNodes.java</span></div><h1>ResolveCustomFunctionNodes.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * This compiler pass replaces {@link CssCustomFunctionNode} instances with the
+ * list of nodes returned by the GssFunction.
+ */
+public class ResolveCustomFunctionNodes extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    private final MutatingVisitController visitController;
+    protected Map&lt;String, GssFunction&gt; functionMap;
+    private final ErrorManager errorManager;
+    private final boolean allowUnknownFunctions;
+    private final Set&lt;String&gt; allowedNonStandardFunctions;
+
+    /**
+     * Constructs the pass.
+     *
+     * @param visitController The visit controller
+     * @param errorManager    The error manager
+     * @param functionMap     The map from function names to resolve to GSS functions
+     */
+    public ResolveCustomFunctionNodes(MutatingVisitController visitController,
+                                      ErrorManager errorManager,
+                                      Map&lt;String, GssFunction&gt; functionMap) {
+<span class="nc" id="L51">        this(visitController, errorManager, functionMap,</span>
+                false /* allowUnknownFunctions */);
+<span class="nc" id="L53">    }</span>
+
+    /**
+     * Constructs the pass.
+     *
+     * @param visitController       The visit controller
+     * @param errorManager          The error manager
+     * @param functionMap           The map from function names to resolve to GSS functions
+     * @param allowUnknownFunctions Whether to allow unknown function calls,
+     *                              leaving them as is, instead of reporting an error
+     */
+    public ResolveCustomFunctionNodes(MutatingVisitController visitController,
+                                      ErrorManager errorManager,
+                                      Map&lt;String, GssFunction&gt; functionMap,
+                                      boolean allowUnknownFunctions) {
+<span class="nc" id="L68">        this(visitController, errorManager, functionMap, allowUnknownFunctions,</span>
+<span class="nc" id="L69">                ImmutableSet.&lt;String&gt;of() /* allowedNonStandardFunctions */);</span>
+<span class="nc" id="L70">    }</span>
+
+    /**
+     * Constructs the pass.
+     *
+     * @param visitController             The visit controller
+     * @param errorManager                The error manager
+     * @param functionMap                 The map from function names to resolve to GSS functions
+     * @param allowUnknownFunctions       Whether to allow unknown function calls,
+     *                                    leaving them as is, instead of reporting an error
+     * @param allowedNonStandardFunctions functions that should not yield a
+     *                                    warning if they appear in a stylesheet
+     */
+    public ResolveCustomFunctionNodes(MutatingVisitController visitController,
+                                      ErrorManager errorManager,
+                                      Map&lt;String, GssFunction&gt; functionMap,
+                                      boolean allowUnknownFunctions,
+<span class="fc" id="L87">                                      Set&lt;String&gt; allowedNonStandardFunctions) {</span>
+<span class="fc" id="L88">        Preconditions.checkNotNull(functionMap);</span>
+<span class="fc" id="L89">        this.visitController = visitController;</span>
+<span class="fc" id="L90">        this.errorManager = errorManager;</span>
+<span class="fc" id="L91">        this.functionMap = functionMap;</span>
+<span class="fc" id="L92">        this.allowUnknownFunctions = allowUnknownFunctions;</span>
+<span class="fc" id="L93">        this.allowedNonStandardFunctions = ImmutableSet.copyOf(</span>
+                allowedNonStandardFunctions);
+<span class="fc" id="L95">    }</span>
+
+    @Override
+    public void leaveFunctionNode(CssFunctionNode functionNode) {
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (!(functionNode instanceof Proxiable)) {</span>
+<span class="fc" id="L100">            return;</span>
+        }
+
+<span class="fc" id="L103">        CssCustomFunctionNode node = (CssCustomFunctionNode) functionNode;</span>
+
+<span class="fc" id="L105">        List&lt;CssValueNode&gt; functionResult = node.getResult();</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        if (functionResult == null) {</span>
+            // Look up the function's name in the map.
+<span class="fc" id="L108">            String functionName = node.getFunctionName();</span>
+<span class="fc" id="L109">            GssFunction function = functionMap.get(functionName);</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">            if (function == null) {</span>
+<span class="pc bpc" id="L111" title="1 of 4 branches missed.">                if (!allowUnknownFunctions &amp;&amp; !allowedNonStandardFunctions.contains(</span>
+                        functionName)) {
+<span class="fc" id="L113">                    errorManager.report(new GssError(</span>
+<span class="fc" id="L114">                            String.format(&quot;Unknown function \&quot;%s\&quot;&quot;, functionName),</span>
+<span class="fc" id="L115">                            node.getSourceCodeLocation()));</span>
+<span class="fc" id="L116">                    visitController.removeCurrentNode();</span>
+                }
+<span class="fc" id="L118">                return;</span>
+            }
+<span class="fc" id="L120">            List&lt;CssValueNode&gt; arguments =</span>
+<span class="fc" id="L121">                    CssCustomFunctionNode.fixupFunctionArguments(node.getArguments().childIterable());</span>
+
+<span class="fc" id="L123">            Integer expArgNumber = function.getNumExpectedArguments();</span>
+<span class="fc" id="L124">            int argNumber = arguments.size();</span>
+<span class="pc bpc" id="L125" title="1 of 4 branches missed.">            if (expArgNumber != null &amp;&amp; expArgNumber.intValue() != argNumber) {</span>
+<span class="nc" id="L126">                errorManager.report(new GssError(&quot;Function expects &quot; + expArgNumber</span>
+                        + &quot; arguments but has &quot; + argNumber,
+<span class="nc" id="L128">                        node.getSourceCodeLocation()));</span>
+<span class="nc" id="L129">                visitController.removeCurrentNode();</span>
+<span class="nc" id="L130">                return;</span>
+            }
+
+            try {
+<span class="fc" id="L134">                functionResult = evaluateFunction(node, function, arguments, errorManager);</span>
+<span class="fc" id="L135">            } catch (GssFunctionException e) {</span>
+<span class="fc" id="L136">                visitController.removeCurrentNode();</span>
+<span class="fc" id="L137">                return;</span>
+<span class="nc" id="L138">            } catch (RuntimeException e) {</span>
+<span class="nc" id="L139">                errorManager.report(</span>
+                        new GssError(
+<span class="nc" id="L141">                                Throwables.getStackTraceAsString(e),</span>
+<span class="nc" id="L142">                                node.getSourceCodeLocation()));</span>
+<span class="nc" id="L143">                visitController.removeCurrentNode();</span>
+<span class="nc" id="L144">                return;</span>
+<span class="fc" id="L145">            }</span>
+        }
+<span class="fc" id="L147">        visitController.replaceCurrentBlockChildWith(functionResult, false);</span>
+<span class="fc" id="L148">    }</span>
+
+    /**
+     * Evaluates the given function node.
+     *
+     * &lt;p&gt;Subclasses may sublcass this method to change the evaluation
+     * process in some circumstances.
+     *
+     * @param node         the function node to evaluate
+     * @param function     the GSS function matching this node
+     * @param arguments    the arguments of this node
+     * @param errorManager the error manager passed into the GSS function call
+     * @return the result of the evaluation as a list of value nodes
+     * @throws GssFunctionException if the function call is invalid
+     * @throws RuntimeException     if the function call fails to complete
+     */
+    protected List&lt;CssValueNode&gt; evaluateFunction(
+            CssCustomFunctionNode node,
+            GssFunction function,
+            List&lt;CssValueNode&gt; arguments,
+            ErrorManager errorManager) throws GssFunctionException {
+
+<span class="fc" id="L170">        List&lt;CssValueNode&gt; functionResult =</span>
+<span class="fc" id="L171">                function.getCallResultNodes(arguments, errorManager);</span>
+<span class="fc" id="L172">        node.setResult(functionResult);</span>
+<span class="fc" id="L173">        return functionResult;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L178">        visitController.startVisit(this);</span>
+<span class="fc" id="L179">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

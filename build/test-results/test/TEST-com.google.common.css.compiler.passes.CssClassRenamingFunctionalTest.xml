@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CssClassRenamingFunctionalTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.007">
+  <properties/>
+  <testcase name="testCssClassRenaming1" classname="com.google.common.css.compiler.passes.CssClassRenamingFunctionalTest" time="0.005"/>
+  <testcase name="testCssClassRenaming2" classname="com.google.common.css.compiler.passes.CssClassRenamingFunctionalTest" time="0.001"/>
+  <testcase name="testCssClassRenaming3" classname="com.google.common.css.compiler.passes.CssClassRenamingFunctionalTest" time="0.0"/>
+  <testcase name="testCssClassRenaming4" classname="com.google.common.css.compiler.passes.CssClassRenamingFunctionalTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

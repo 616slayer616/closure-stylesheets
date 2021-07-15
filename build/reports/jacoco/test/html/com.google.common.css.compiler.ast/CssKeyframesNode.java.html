@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssKeyframesNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssKeyframesNode.java</span></div><h1>CssKeyframesNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+/**
+ * A node representing an @-webkit-keyframes rule.
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class CssKeyframesNode extends CssAtRuleNode implements ChunkAware {
+    /**
+     * The chunk this selector belongs to.
+     */
+    private Object chunk;
+
+    public CssKeyframesNode(CssLiteralNode name) {
+<span class="fc" id="L31">        super(Type.UNKNOWN_BLOCK, name, new CssBlockNode());</span>
+<span class="fc" id="L32">    }</span>
+
+    public CssKeyframesNode(CssKeyframesNode node) {
+<span class="nc" id="L35">        super(node);</span>
+<span class="nc" id="L36">        setChunk(node.getChunk());</span>
+<span class="nc" id="L37">    }</span>
+
+    /**
+     * Used by CreateVendorPrefixedKeyframes to copy an existing keyframes node
+     * to create a browser specific duplicate having different name.
+     */
+    public CssKeyframesNode(CssLiteralNode name, CssKeyframesNode node) {
+<span class="fc" id="L44">        super(node);</span>
+<span class="fc" id="L45">        setName(name);</span>
+<span class="fc" id="L46">        setChunk(node.getChunk());</span>
+<span class="fc" id="L47">    }</span>
+
+    @Override
+    public CssKeyframesNode deepCopy() {
+<span class="nc" id="L51">        return new CssKeyframesNode(this);</span>
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L59">        String output = &quot;&quot;;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (!getComments().isEmpty()) {</span>
+<span class="nc" id="L61">            output = getComments().toString();</span>
+        }
+<span class="nc" id="L63">        output += &quot;@&quot; + getName().toString() + getParameters().toString();</span>
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (getBlock() != null) {</span>
+<span class="nc" id="L66">            output += &quot;{&quot; + getBlock().toString() + &quot;}&quot;;</span>
+        }
+
+<span class="nc" id="L69">        return output;</span>
+    }
+
+    @Override
+    public CssBlockNode getBlock() {
+        // The type is ensured by the constructor.
+<span class="fc" id="L75">        return (CssBlockNode) super.getBlock();</span>
+    }
+
+    @Override
+    public void setChunk(Object chunk) {
+<span class="fc" id="L80">        this.chunk = chunk;</span>
+<span class="fc" id="L81">    }</span>
+
+    @Override
+    public Object getChunk() {
+<span class="fc" id="L85">        return chunk;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

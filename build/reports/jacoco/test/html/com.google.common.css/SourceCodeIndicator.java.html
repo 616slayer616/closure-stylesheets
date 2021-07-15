@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SourceCodeIndicator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">SourceCodeIndicator.java</span></div><h1>SourceCodeIndicator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+import com.google.common.base.Preconditions;
+
+import javax.annotation.Nullable;
+
+/**
+ * Represents a line of source code, together with an associated &quot;indicator&quot;
+ * line. If the indicator line is displayed immediately after (or before) the
+ * source code line it should have the effect of visually indicating a portion
+ * of the source code line. Some examples:
+ * &lt;pre class=&quot;code&gt;
+ * int i = 0.1;
+ * ^^^     ^^^
+ * &lt;/pre&gt;
+ * &lt;pre class=&quot;code&gt;
+ *     vvvvvvv
+ * int i = 0.1;
+ * &lt;/pre&gt;
+ * &lt;p&gt;Note that the indicator line is not required to indicate continuous
+ * portions of the code line. However, in our application it is only going to be
+ * used for continuous portions.
+ *
+ * &lt;p&gt;Support for special characters (such as tab, backspace and end-of-line) in
+ * the code line is the responsibility of the class that displays the two lines.
+ * The indicator in this class assumes a one-to-one mapping of code characters
+ * to display characters and to indicator line characters. The meaning of &quot;line&quot;
+ * is left to the users of this class; it does not enforce that its &quot;lines&quot;
+ * contain no newline characters. In our application we should make sure we
+ * don't pass newline characters to this class.
+ *
+ * &lt;p&gt;The indicator line is not required to have the same length as the code
+ * line. This means that trailing whitespace can be absent. However, uses such
+ * as:
+ * &lt;pre class=&quot;code&gt;
+ * int i = 0;
+ * ____#####_
+ * &lt;/pre&gt;
+ * &lt;p&gt;are considered valid. Note that the indicator line contains no whitespace and
+ * that both lines are the same size. As long as the visual indication is
+ * achieved, the indicator line is unconstrained.
+ *
+ * &lt;p&gt;The indicator line might be absent. If that is the case,
+ * {@link #getIndicatorLine()} returns {@code null}.
+ */
+public class SourceCodeIndicator {
+    private final String codeLine;
+    private final String indicatorLine;
+
+    /**
+     * Constructs a SourceCodeIndicator.
+     *
+     * @param codeLine      the line of source code to be displayed
+     * @param indicatorLine The line that indicates a portion of the source code
+     *                      line. Can be {@code null} if this information is not available or not
+     *                      required for display.
+     */
+<span class="nc" id="L74">    SourceCodeIndicator(String codeLine, @Nullable String indicatorLine) {</span>
+<span class="nc" id="L75">        Preconditions.checkNotNull(codeLine);</span>
+<span class="nc" id="L76">        this.codeLine = codeLine;</span>
+<span class="nc" id="L77">        this.indicatorLine = indicatorLine;</span>
+<span class="nc" id="L78">    }</span>
+
+    /**
+     * @return the code line
+     */
+    public String getCodeLine() {
+<span class="nc" id="L84">        return codeLine;</span>
+    }
+
+    /**
+     * @return the indicator line
+     */
+    public String getIndicatorLine() {
+<span class="nc" id="L91">        return indicatorLine;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

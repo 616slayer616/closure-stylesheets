@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssAtRuleNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssAtRuleNode.java</span></div><h1>CssAtRuleNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/**
+ * A node corresponding to an at-rule such as {@code @if} or {@code @media}.
+ */
+public abstract class CssAtRuleNode extends CssNodesListNode&lt;CssValueNode&gt; {
+    private final Type type;
+    private CssLiteralNode name;
+    private CssAbstractBlockNode block;
+
+    /**
+     * The Types of at-rules we (should/could) know about.
+     */
+    // TODO(user): Add support for all of these. Support generally means
+    //     overriding this class and adding constraints, both during parsing and
+    //     during tree construction. We can also add methods and types in order
+    //     to have richer information on specific rules. Until a specific rule is
+    //     supported, it can be represented using CssUnknownAtRuleNode.
+<span class="fc" id="L40">    public enum Type {</span>
+<span class="fc" id="L41">        CHARSET(&quot;charset&quot;, false /* hasBlock */),</span>
+<span class="fc" id="L42">        IMPORT(&quot;import&quot;, false /* hasBlock */),</span>
+<span class="fc" id="L43">        NAMESPACE(&quot;namespace&quot;, false /* hasBlock */),</span>
+
+<span class="fc" id="L45">        MEDIA(&quot;media&quot;),</span>
+<span class="fc" id="L46">        PAGE(&quot;page&quot;),</span>
+<span class="fc" id="L47">        FONT_FACE(&quot;font-face&quot;),</span>
+
+        // The recognized page margin box types in CSS 3.
+        // See http://www.w3.org/TR/css3-page/#margin-boxes
+<span class="fc" id="L51">        TOP_LEFT_CORNER(&quot;top-left-corner&quot;),</span>
+<span class="fc" id="L52">        TOP_LEFT(&quot;top-left&quot;),</span>
+<span class="fc" id="L53">        TOP_CENTER(&quot;top-center&quot;),</span>
+<span class="fc" id="L54">        TOP_RIGHT(&quot;top-right&quot;),</span>
+<span class="fc" id="L55">        TOP_RIGHT_CORNER(&quot;top-right-corner&quot;),</span>
+<span class="fc" id="L56">        LEFT_TOP(&quot;left-top&quot;),</span>
+<span class="fc" id="L57">        LEFT_MIDDLE(&quot;left-middle&quot;),</span>
+<span class="fc" id="L58">        LEFT_BOTTOM(&quot;left-bottom&quot;),</span>
+<span class="fc" id="L59">        RIGHT_TOP(&quot;right-top&quot;),</span>
+<span class="fc" id="L60">        RIGHT_MIDDLE(&quot;right-middle&quot;),</span>
+<span class="fc" id="L61">        RIGHT_BOTTOM(&quot;right-bottom&quot;),</span>
+<span class="fc" id="L62">        BOTTOM_LEFT_CORNER(&quot;bottom-left-corner&quot;),</span>
+<span class="fc" id="L63">        BOTTOM_LEFT(&quot;bottom-left&quot;),</span>
+<span class="fc" id="L64">        BOTTOM_CENTER(&quot;bottom-center&quot;),</span>
+<span class="fc" id="L65">        BOTTOM_RIGHT(&quot;bottom-right&quot;),</span>
+<span class="fc" id="L66">        BOTTOM_RIGHT_CORNER(&quot;bottom-right-corner&quot;),</span>
+
+        // Non-standard extension.
+        // See http://disruptive-innovations.com/zoo/cssvariables/
+<span class="fc" id="L70">        VARIABLES(&quot;variables&quot;),</span>
+
+        // The Google extensions to CSS, referred to as GSS.
+<span class="fc" id="L73">        DEF(&quot;def&quot;, false /* hasBlock */),</span>
+<span class="fc" id="L74">        IF(&quot;if&quot;),</span>
+<span class="fc" id="L75">        ELSEIF(&quot;elseif&quot;),</span>
+<span class="fc" id="L76">        ELSE(&quot;else&quot;),</span>
+
+        // Loops extension.
+<span class="fc" id="L79">        FOR(&quot;for&quot;),</span>
+
+        // GSS components.
+<span class="fc" id="L82">        ABSTRACT_COMPONENT(&quot;abstract_component&quot;),</span>
+<span class="fc" id="L83">        COMPONENT(&quot;component&quot;),</span>
+
+        // GSS mixins
+<span class="fc" id="L86">        DEFMIXIN(&quot;defmixin&quot;),</span>
+<span class="fc" id="L87">        MIXIN(&quot;mixin&quot;, false /* hasBlock */),</span>
+
+        // GSS dependency management
+<span class="fc" id="L90">        PROVIDE(&quot;provide&quot;, false /* hasBlock */),</span>
+<span class="fc" id="L91">        REQUIRE(&quot;require&quot;, false /* hasBlock */),</span>
+
+        // An at rule of which we know nothing about. We can safely assume its
+        // canonical name is its &quot;name&quot; literal converted to lower case and with no
+        // escapes.
+<span class="fc" id="L96">        UNKNOWN(null, false /* hasBlock */),</span>
+        // Same as above, but we allow it to have a block node.
+<span class="fc" id="L98">        UNKNOWN_BLOCK(null, true /* hasBlock */);</span>
+
+        private final String canonicalName;
+        private final boolean hasBlock;
+
+        /**
+         * Most at rules require a block.
+         */
+        private Type(@Nullable String canonicalName) {
+<span class="fc" id="L107">            this(canonicalName, true /* hasBlock */);</span>
+<span class="fc" id="L108">        }</span>
+
+<span class="fc" id="L110">        private Type(@Nullable String canonicalName, boolean hasBlock) {</span>
+<span class="fc" id="L111">            this.canonicalName = canonicalName;</span>
+<span class="fc" id="L112">            this.hasBlock = hasBlock;</span>
+<span class="fc" id="L113">        }</span>
+
+        public String getCanonicalName() {
+<span class="fc" id="L116">            return canonicalName;</span>
+        }
+
+        public boolean hasBlock() {
+<span class="fc" id="L120">            return hasBlock;</span>
+        }
+
+        public boolean isConditional() {
+<span class="pc bpc" id="L124" title="1 of 6 branches missed.">            return this == IF || this == ELSEIF || this == ELSE;</span>
+        }
+
+        /**
+         * For debugging only.
+         */
+        @Override
+        public String toString() {
+<span class="fc" id="L132">            return &quot;@&quot; + getCanonicalName();</span>
+        }
+    }
+
+    /**
+     * Constructor for an AtRule node.
+     *
+     * @param type     Type of rule
+     * @param name     Name of rule
+     * @param block    The block child of this rule
+     * @param comments The comments associated to this rule
+     */
+    CssAtRuleNode(Type type, CssLiteralNode name,
+                  @Nullable CssAbstractBlockNode block,
+                  @Nullable List&lt;CssCommentNode&gt; comments) {
+<span class="fc" id="L147">        super(false, comments);</span>
+<span class="fc" id="L148">        Preconditions.checkNotNull(type);</span>
+<span class="fc" id="L149">        Preconditions.checkNotNull(name);</span>
+<span class="pc bpc" id="L150" title="1 of 4 branches missed.">        Preconditions.checkArgument(type.hasBlock() || block == null);</span>
+<span class="fc" id="L151">        this.type = type;</span>
+<span class="fc" id="L152">        this.name = name;</span>
+<span class="fc" id="L153">        this.block = block;</span>
+        // TODO(user): We could check that the canonicalized name matches the
+        //     type that was passed. The same for setName().
+<span class="fc" id="L156">        becomeParentForNode(this.name);</span>
+<span class="fc" id="L157">        becomeParentForNode(this.block);</span>
+<span class="fc" id="L158">    }</span>
+
+    /**
+     * Constructor for an AtRule node.
+     *
+     * @param type  Type of rule
+     * @param name  Name of rule
+     * @param block The block child of this rule
+     */
+    CssAtRuleNode(Type type, CssLiteralNode name,
+                  @Nullable CssAbstractBlockNode block) {
+<span class="fc" id="L169">        this(type, name, block, null);</span>
+<span class="fc" id="L170">    }</span>
+
+    /**
+     * Constructor for an AtRule node.
+     *
+     * @param type Type of rule
+     * @param name Name of rule
+     */
+    CssAtRuleNode(Type type, CssLiteralNode name) {
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        this(type, name, type.hasBlock() ? new CssBlockNode() : null);</span>
+<span class="fc" id="L180">    }</span>
+
+    /**
+     * Constructor for an AtRule node.
+     *
+     * @param type     Type of rule
+     * @param name     Name of rule
+     * @param comments The comments associated to this rule
+     */
+    CssAtRuleNode(Type type, CssLiteralNode name, List&lt;CssCommentNode&gt; comments) {
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        this(type, name, type.hasBlock() ? new CssBlockNode() : null, comments);</span>
+<span class="fc" id="L191">    }</span>
+
+    CssAtRuleNode(CssAtRuleNode node) {
+<span class="fc" id="L194">        this(node.getType(), node.getName().deepCopy(),</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">                node.getBlock() != null ? node.getBlock().deepCopy() : null,</span>
+<span class="fc" id="L196">                deepCopyNodes(node.getComments()));</span>
+<span class="fc" id="L197">        setParameters(deepCopyNodes(node.getParameters()));</span>
+<span class="fc" id="L198">        setSourceCodeLocation(node.getSourceCodeLocation());</span>
+<span class="fc" id="L199">    }</span>
+
+    public Type getType() {
+<span class="fc" id="L202">        return type;</span>
+    }
+
+    public CssLiteralNode getName() {
+<span class="fc" id="L206">        return name;</span>
+    }
+
+    void setName(CssLiteralNode name) {
+<span class="fc" id="L210">        Preconditions.checkNotNull(name);</span>
+<span class="fc" id="L211">        removeAsParentOfNode(this.name);</span>
+<span class="fc" id="L212">        this.name = name;</span>
+<span class="fc" id="L213">        becomeParentForNode(this.name);</span>
+<span class="fc" id="L214">    }</span>
+
+    public List&lt;CssValueNode&gt; getParameters() {
+<span class="fc" id="L217">        return this.children;</span>
+    }
+
+    public int getParametersCount() {
+<span class="fc" id="L221">        return numChildren();</span>
+    }
+
+    public void setParameters(List&lt;CssValueNode&gt; parameters) {
+<span class="fc" id="L225">        setChildren(parameters);</span>
+<span class="fc" id="L226">    }</span>
+
+    /**
+     * Subclasses should override {@code getBlock} to return a more specific
+     * subclass of {@link CssAbstractBlockNode}.
+     */
+    protected CssAbstractBlockNode getBlock() {
+<span class="fc" id="L233">        return block;</span>
+    }
+
+    void setBlock(@Nullable CssAbstractBlockNode block) {
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        Preconditions.checkArgument(block != null);</span>
+<span class="fc" id="L238">        Preconditions.checkArgument(block.isEnclosedWithBraces(),</span>
+                &quot;Only blocks that are enclosed with braces are valid for @-rules.&quot;);
+<span class="fc" id="L240">        removeAsParentOfNode(this.block);</span>
+<span class="fc" id="L241">        this.block = block;</span>
+<span class="fc" id="L242">        becomeParentForNode(this.block);</span>
+<span class="fc" id="L243">    }</span>
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L250">        String output = &quot;&quot;;</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">        if (!getComments().isEmpty()) {</span>
+<span class="nc" id="L252">            output = getComments().toString();</span>
+        }
+<span class="fc" id="L254">        output += getType().toString() + getParameters().toString();</span>
+
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">        if (getBlock() != null) {</span>
+<span class="fc" id="L257">            output += &quot;{&quot; + getBlock().toString() + &quot;}&quot;;</span>
+        }
+
+<span class="fc" id="L260">        return output;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

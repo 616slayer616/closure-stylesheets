@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CreateDefinitionNodesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.003">
+  <properties/>
+  <testcase name="testCreateDefNode1" classname="com.google.common.css.compiler.passes.CreateDefinitionNodesTest" time="0.0"/>
+  <testcase name="testBlockError" classname="com.google.common.css.compiler.passes.CreateDefinitionNodesTest" time="0.0"/>
+  <testcase name="testNameSyntacticallyInvalid" classname="com.google.common.css.compiler.passes.CreateDefinitionNodesTest" time="0.001"/>
+  <testcase name="testNameError" classname="com.google.common.css.compiler.passes.CreateDefinitionNodesTest" time="0.001"/>
+  <testcase name="testNoNameError" classname="com.google.common.css.compiler.passes.CreateDefinitionNodesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

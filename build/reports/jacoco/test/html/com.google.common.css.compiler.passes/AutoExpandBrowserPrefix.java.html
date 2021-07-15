@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AutoExpandBrowserPrefix.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">AutoExpandBrowserPrefix.java</span></div><h1>AutoExpandBrowserPrefix.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A compiler pass that automatically detects certain properties that need additional
+ * browser specific property declarations, and adds them.
+ * The properties to be matched for expansion are provided by the {@link BrowserPrefixGenerator}.
+ *
+ * &lt;p&gt;This mechanism is an alternative to using conventional mixins.
+ * Problems with conventional mixins:
+ * - developers have to always remember to use the mixin consistently
+ * - they have to go find the appropriate mixins
+ * - the framework has to to verify the code and ensure mixins were used correctly
+ * Automation addresses all of the above issues.
+ *
+ * &lt;p&gt;Currently three most common cases are handled:
+ * #1 Matching and replacing only the property name. Eg. flex-grow: VALUE;
+ * #2 Matching property name and value, replacing the value. Eg. display: flex;
+ * #3 Matching property name and value where value is a function, replacing the function name.
+ * Eg. background-image: linear-gradient(ARGS);
+ */
+public class AutoExpandBrowserPrefix extends DefaultTreeVisitor implements CssCompilerPass {
+
+    private final MutatingVisitController visitController;
+    private final ImmutableList&lt;BrowserPrefixRule&gt; expansionRules;
+    private boolean inDefMixinBlock;
+
+<span class="fc" id="L49">    public AutoExpandBrowserPrefix(MutatingVisitController visitController) {</span>
+<span class="fc" id="L50">        this.visitController = visitController;</span>
+<span class="fc" id="L51">        this.expansionRules = BrowserPrefixGenerator.getExpansionRules();</span>
+<span class="fc" id="L52">    }</span>
+
+    @Override
+    public boolean enterMixinDefinition(CssMixinDefinitionNode node) {
+<span class="fc" id="L56">        inDefMixinBlock = true;</span>
+<span class="fc" id="L57">        return true;</span>
+    }
+
+    @Override
+    public void leaveMixinDefinition(CssMixinDefinitionNode node) {
+<span class="fc" id="L62">        inDefMixinBlock = false;</span>
+<span class="fc" id="L63">    }</span>
+
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declaration) {
+        // Do not auto expand properties inside @defmixin blocks.
+        // To enable compatibility with existing mixin expansion, don't apply the rules to the
+        // mixin definitions. This leaves the mixin expansion unaffected.
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (inDefMixinBlock) {</span>
+<span class="fc" id="L71">            return true;</span>
+        }
+<span class="fc" id="L73">        ImmutableList.Builder&lt;CssDeclarationNode&gt; expansionNodes = ImmutableList.builder();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        for (BrowserPrefixRule rule : expansionRules) {</span>
+            // If the name is present in the rule then it must match the declaration.
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            if (rule.getMatchPropertyName() != null</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">                    &amp;&amp; !rule.getMatchPropertyName().equals(declaration.getPropertyName().getPropertyName())) {</span>
+<span class="fc" id="L78">                continue;</span>
+            }
+            // Handle case #1 when no property value is available.
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            if (rule.getMatchPropertyValue() == null) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">                for (CssDeclarationNode ruleExpansionNode : rule.getExpansionNodes()) {</span>
+<span class="fc" id="L83">                    CssDeclarationNode expansionNode = ruleExpansionNode.deepCopy();</span>
+<span class="fc" id="L84">                    expansionNode.setPropertyValue(declaration.getPropertyValue().deepCopy());</span>
+<span class="fc" id="L85">                    expansionNode.setSourceCodeLocation(declaration.getSourceCodeLocation());</span>
+<span class="fc" id="L86">                    expansionNode.setComments(declaration.getComments());</span>
+<span class="fc" id="L87">                    expansionNode.appendComment(new CssCommentNode(&quot;/* @alternate */&quot;, null));</span>
+<span class="fc" id="L88">                    expansionNodes.add(expansionNode);</span>
+<span class="fc" id="L89">                }</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">            } else if (!rule.isFunction()) {</span>
+                // Handle case #2 where the property value is not a function.
+<span class="fc" id="L92">                expansionNodes.addAll(getNonFunctionValueMatches(rule, declaration));</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">            } else if (hasMatchingValueOnlyFunction(declaration, rule)) {</span>
+                // Handle case #3 where the property value is a function. Eg. linear-gradient().
+                // The rule is value-only and one of the declaration values matches.
+<span class="fc" id="L96">                expansionNodes.addAll(expandMatchingValueOnlyFunctions(declaration, rule));</span>
+            } else {
+                // The rule is not value-only or did not match, check other rules.
+<span class="fc" id="L99">                expansionNodes.addAll(getOtherMatches(declaration, rule));</span>
+            }
+
+<span class="fc" id="L102">            ImmutableList&lt;CssDeclarationNode&gt; replacements = expansionNodes.build();</span>
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">            if (!replacements.isEmpty()) {</span>
+<span class="fc" id="L105">                visitController.replaceCurrentBlockChildWith(</span>
+                        replacements, false /* visitTheReplacementNodes */);
+<span class="fc" id="L107">                break; // found a match, don't need to look for more</span>
+            }
+<span class="fc" id="L109">        }</span>
+<span class="fc" id="L110">        return true;</span>
+    }
+
+    protected ImmutableList&lt;CssDeclarationNode&gt; getNonFunctionValueMatches(
+            BrowserPrefixRule rule, CssDeclarationNode declaration) {
+        // Ensure that the property value matches exactly.
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        if (!(declaration.getPropertyValue().getChildren().size() == 1</span>
+<span class="fc" id="L117">                &amp;&amp; rule.getMatchPropertyValue()</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">                .equals(declaration.getPropertyValue().getChildAt(0).getValue()))) {</span>
+<span class="nc" id="L119">            return ImmutableList.of();</span>
+        }
+<span class="fc" id="L121">        ImmutableList.Builder&lt;CssDeclarationNode&gt; replacements = ImmutableList.builder();</span>
+        // TODO(user): Maybe support multiple values for non-function value-only expansions.
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        for (CssPropertyValueNode ruleValueNode : rule.getValueOnlyExpansionNodes()) {</span>
+            // For valueOnlyExpansionNodes the property name comes from the declaration.
+<span class="nc" id="L125">            CssDeclarationNode expansionNode =</span>
+                    new CssDeclarationNode(
+<span class="nc" id="L127">                            declaration.getPropertyName(),</span>
+<span class="nc" id="L128">                            ruleValueNode.deepCopy(),</span>
+<span class="nc" id="L129">                            declaration.getSourceCodeLocation());</span>
+<span class="nc" id="L130">            expansionNode.appendComment(new CssCommentNode(&quot;/* @alternate */&quot;, null));</span>
+<span class="nc" id="L131">            replacements.add(expansionNode);</span>
+<span class="nc" id="L132">        }</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        for (CssDeclarationNode ruleExpansionNode : rule.getExpansionNodes()) {</span>
+<span class="fc" id="L134">            CssDeclarationNode expansionNode = ruleExpansionNode.deepCopy();</span>
+<span class="fc" id="L135">            expansionNode.setSourceCodeLocation(declaration.getSourceCodeLocation());</span>
+<span class="fc" id="L136">            replacements.add(expansionNode);</span>
+<span class="fc" id="L137">        }</span>
+<span class="fc" id="L138">        return replacements.build();</span>
+    }
+
+    private ImmutableList&lt;CssDeclarationNode&gt; getOtherMatches(
+            CssDeclarationNode declaration, BrowserPrefixRule rule) {
+<span class="fc" id="L143">        CssValueNode matchValueNode = declaration.getPropertyValue().getChildAt(0);</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">        if (!(matchValueNode instanceof CssFunctionNode)) {</span>
+<span class="fc" id="L145">            return ImmutableList.of();</span>
+        }
+<span class="fc" id="L147">        CssFunctionNode matchFunctionNode = (CssFunctionNode) matchValueNode;</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (!matchFunctionNode.getFunctionName().equals(rule.getMatchPropertyValue())) {</span>
+<span class="nc" id="L149">            return ImmutableList.of();</span>
+        }
+<span class="fc" id="L151">        ImmutableList.Builder&lt;CssDeclarationNode&gt; replacements = ImmutableList.builder();</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        for (CssDeclarationNode ruleExpansionNode : rule.getExpansionNodes()) {</span>
+<span class="fc" id="L153">            CssDeclarationNode expansionNode = ruleExpansionNode.deepCopy();</span>
+<span class="fc" id="L154">            CssValueNode expandValueNode = expansionNode.getPropertyValue().getChildAt(0);</span>
+<span class="fc" id="L155">            CssFunctionNode expandFunctionNode = (CssFunctionNode) expandValueNode;</span>
+<span class="fc" id="L156">            expandFunctionNode.setArguments(matchFunctionNode.getArguments().deepCopy());</span>
+<span class="fc" id="L157">            expansionNode.setSourceCodeLocation(declaration.getSourceCodeLocation());</span>
+<span class="fc" id="L158">            replacements.add(expansionNode);</span>
+<span class="fc" id="L159">        }</span>
+<span class="fc" id="L160">        return replacements.build();</span>
+    }
+
+    /**
+     * Returns true if the value node is a function and matches the rule.
+     */
+    private static boolean matchesValueOnlyFunction(CssValueNode declarationValueNode,
+                                                    BrowserPrefixRule rule) {
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        return (declarationValueNode instanceof CssFunctionNode)</span>
+<span class="fc" id="L169">                &amp;&amp; ((CssFunctionNode) declarationValueNode).getFunctionName()</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">                .equals(rule.getMatchPropertyValue());</span>
+    }
+
+    /**
+     * Returns true if the rule is value-only and at least one function value in the declaration
+     * matches the rule.
+     */
+    private static boolean hasMatchingValueOnlyFunction(CssDeclarationNode declaration,
+                                                        BrowserPrefixRule rule) {
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (rule.getValueOnlyExpansionNodes().isEmpty()) {</span>
+<span class="fc" id="L180">            return false;</span>
+        }
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        for (CssValueNode declarationValueNode : declaration.getPropertyValue().getChildren()) {</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            if (matchesValueOnlyFunction(declarationValueNode, rule)) {</span>
+<span class="fc" id="L184">                return true;</span>
+            }
+<span class="fc" id="L186">        }</span>
+<span class="fc" id="L187">        return false;</span>
+    }
+
+    /**
+     * Returns the value-only function expansion for this declaration and rule. For each value-only
+     * expansion rule we can match 0 or more values.
+     * For example: margin: calc(X) calc(Y); -&gt; margin: -webkit-calc(X) -webkit-calc(Y);
+     */
+    private static ImmutableList&lt;CssDeclarationNode&gt; expandMatchingValueOnlyFunctions(
+            CssDeclarationNode declaration, BrowserPrefixRule rule) {
+<span class="fc" id="L197">        ImmutableList.Builder&lt;CssDeclarationNode&gt; expansionNodes = ImmutableList.builder();</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        for (CssPropertyValueNode ruleValueNode : rule.getValueOnlyExpansionNodes()) {</span>
+<span class="fc" id="L199">            List&lt;CssValueNode&gt; expansionNodeValues =</span>
+<span class="fc" id="L200">                    new ArrayList&lt;&gt;(declaration.getPropertyValue().numChildren());</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">            for (CssValueNode declarationValueNode : declaration.getPropertyValue().getChildren()) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">                if (matchesValueOnlyFunction(declarationValueNode, rule)) {</span>
+<span class="fc" id="L203">                    CssFunctionNode declarationFunctionNode = (CssFunctionNode) declarationValueNode;</span>
+<span class="fc" id="L204">                    CssFunctionNode expansionFunctionNode =</span>
+<span class="fc" id="L205">                            (CssFunctionNode) ruleValueNode.getChildAt(0).deepCopy();</span>
+<span class="fc" id="L206">                    expansionFunctionNode.setArguments(declarationFunctionNode.getArguments().deepCopy());</span>
+<span class="fc" id="L207">                    expansionNodeValues.add(expansionFunctionNode);</span>
+<span class="fc" id="L208">                } else {</span>
+<span class="fc" id="L209">                    expansionNodeValues.add(declarationValueNode.deepCopy());</span>
+                }
+<span class="fc" id="L211">            }</span>
+            // For valueOnlyExpansionNodes the property name comes from the declaration.
+<span class="fc" id="L213">            CssPropertyValueNode expansionValues = new CssPropertyValueNode(expansionNodeValues);</span>
+<span class="fc" id="L214">            CssDeclarationNode expansionNode =</span>
+                    new CssDeclarationNode(
+<span class="fc" id="L216">                            declaration.getPropertyName(), expansionValues, declaration.getComments(),</span>
+<span class="fc" id="L217">                            declaration.getSourceCodeLocation());</span>
+
+<span class="fc" id="L219">            expansionNode.appendComment(new CssCommentNode(&quot;/* @alternate */&quot;, null));</span>
+<span class="fc" id="L220">            expansionNodes.add(expansionNode);</span>
+<span class="fc" id="L221">        }</span>
+<span class="fc" id="L222">        return expansionNodes.build();</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L227">        visitController.startVisit(this);</span>
+<span class="fc" id="L228">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

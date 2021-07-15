@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssMathNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssMathNode.java</span></div><h1>CssMathNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
+/**
+ * A CSS node that holds a mathematical expression.
+ *
+ * &lt;p&gt;See http://www.w3.org/TR/css3-values/#calc
+ */
+public final class CssMathNode extends CssCompositeValueNode {
+
+    private CssMathNode(
+            CssValueNode operand1,
+            CssCompositeValueNode.Operator operator,
+            CssValueNode operand2,
+            boolean hasParenthesis) {
+<span class="fc" id="L36">        super(ImmutableList.of(operand1, operand2), operator, hasParenthesis, null);</span>
+<span class="fc" id="L37">    }</span>
+
+    public static CssValueNode createFromOperandsAndOperators(
+            List&lt;CssValueNode&gt; operands,
+            List&lt;CssCompositeValueNode.Operator&gt; operators,
+            boolean hasParenthesis) {
+<span class="fc" id="L43">        Preconditions.checkArgument(</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">                operands.size() == operators.size() + 1,</span>
+                &quot;There should be one more operands than operators&quot;);
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (operators.size() == 0) {</span>
+<span class="fc" id="L47">            return operands.get(0);</span>
+        }
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (operators.size() == 1) {</span>
+<span class="fc" id="L50">            return new CssMathNode(operands.get(0), operators.get(0), operands.get(1), hasParenthesis);</span>
+        } else {
+<span class="fc" id="L52">            return new CssMathNode(</span>
+<span class="fc" id="L53">                    operands.get(0),</span>
+<span class="fc" id="L54">                    operators.get(0),</span>
+<span class="fc" id="L55">                    createFromOperandsAndOperators(</span>
+<span class="fc" id="L56">                            operands.subList(1, operands.size()), operators.subList(1, operators.size()), false),</span>
+                    hasParenthesis);
+        }
+    }
+
+    @Override
+    public CssMathNode deepCopy() {
+<span class="fc" id="L63">        CssValueNode operand1 = getValues().get(0);</span>
+<span class="fc" id="L64">        CssValueNode operand2 = getValues().get(1);</span>
+<span class="fc" id="L65">        return new CssMathNode(operand1, getOperator(), operand2, hasParenthesis());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

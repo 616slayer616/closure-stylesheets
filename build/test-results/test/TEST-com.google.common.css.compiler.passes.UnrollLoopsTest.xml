@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.UnrollLoopsTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:44" hostname="Patrick-MBP.fritz.box" time="0.249">
+  <properties/>
+  <testcase name="testUnevalutedVariable" classname="com.google.common.css.compiler.passes.UnrollLoopsTest" time="0.085"/>
+  <testcase name="testDefinitionRenaming" classname="com.google.common.css.compiler.passes.UnrollLoopsTest" time="0.13"/>
+  <testcase name="testSimpleLoopUnroll" classname="com.google.common.css.compiler.passes.UnrollLoopsTest" time="0.008"/>
+  <testcase name="testUnevalutedConstants" classname="com.google.common.css.compiler.passes.UnrollLoopsTest" time="0.007"/>
+  <testcase name="testNestedLoopUnroll" classname="com.google.common.css.compiler.passes.UnrollLoopsTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

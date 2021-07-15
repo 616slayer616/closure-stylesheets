@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
  * A node of the abstract syntax tree.
  * <p>
  * TODO(oana): Declare this class as:
- * public abstract class CssNode<T extends CssNode> {...}
+ * public abstract class CssNode&lt;T extends CssNode&gt; {...}
  */
 public abstract class CssNode implements Locatable {
     /**

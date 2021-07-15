@@ -223,15 +223,10 @@ public class CssCustomFunctionNode extends CssFunctionNode
     /**
      * Turns {@code functionParameters} containing comma and space literals into a correctly-grouped
      * list of {@code CssValueNode}s. For example, in this code:
-     * <pre>{@code
-     *   @def A 1 2 3 4;
-     *   @def B 6 7 8 9;
-     *   @def USE_A true;
-     *   @def MARGIN selectFrom(USE_A, A, B);
+     * <pre>{@code * @def A 1 2 3 4; @def B 6 7 8 9; @def USE_A true; @def MARGIN selectFrom(USE_A, A, B);
      * }</pre>
      * the {@code selectFrom} gets expanded to:
-     * <pre>{@code
-     *   @def MARGIN selectFrom([true][,][1][ ][2][ ][3][ ][4][,][6][ ][7][ ][8][ ][9])
+     * <pre>{@code * @def MARGIN selectFrom([true][,][1][ ][2][ ][3][ ][4][,][6][ ][7][ ][8][ ][9])
      * }</pre>
      * where each value in braces is one parameter. That's <em>17</em> parameters. Passing that
      * parameter list to this function returns a list with 3 values: {@code true}, {@code 1 2 3 4},

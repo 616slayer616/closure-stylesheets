@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.ReplaceMixinsTest" tests="28" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.095">
+  <properties/>
+  <testcase name="testMixinReplacementNested1" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.009"/>
+  <testcase name="testMixinReplacementNested2" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testMixinReplacementNested3" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testMixinReplacementNested4" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testMixinReplacementNested5" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.004"/>
+  <testcase name="testCycle" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.004"/>
+  <testcase name="testMixinReplacement1" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testMixinReplacement2" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testMixinReplacement3" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testMixinReplacement4" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testMixinReplacement5" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.001"/>
+  <testcase name="testMixinReplacementTwice" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.001"/>
+  <testcase name="testNoMatchingMixinDefinition" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.001"/>
+  <testcase name="testMixinReplacementComponents" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.016"/>
+  <testcase name="testMixinReplacementGradient1" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testMixinReplacementGradient2" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testMixinReplacementGradient3" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testDifferentArgumentCount1" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testDifferentArgumentCount2" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testDifferentArgumentCount3" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testDifferentArgumentCount4" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testDifferentArgumentCount5" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testMixinReplacementGradientYouTube" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.005"/>
+  <testcase name="testMixinReplacementOnCompositeValueNodeWithNestedValues" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.004"/>
+  <testcase name="testNestedBad" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.003"/>
+  <testcase name="testIdSeqInFontShorthandUsingDefMixin" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testCompositeValues1" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.002"/>
+  <testcase name="testCompositeValues2" classname="com.google.common.css.compiler.passes.ReplaceMixinsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

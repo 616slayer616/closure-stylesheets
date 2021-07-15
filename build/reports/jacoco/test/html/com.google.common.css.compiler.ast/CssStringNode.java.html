@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssStringNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssStringNode.java</span></div><h1>CssStringNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Function;
+import com.google.common.css.SourceCodeLocation;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Node corresponding to a string value.
+ * &lt;p&gt;
+ * TODO(user): refactor the encoding/decoding logic out of this
+ * class, thereby restoring the architectural integrity of the CssNode
+ * type hierarchy; all these classes should be value types with
+ * no elaborate behaviors.
+ * &lt;p&gt;
+ * This node represents both a CSS fragment and the abstract value
+ * represented by that concrete syntax. For example, the following
+ * three declarations mean precisely the same thing in CSS:
+ * {@code
+ * .warning { content-before: 'warning:'; }
+ * .warning { content-before: &quot;warning:&quot;; }
+ * .warning { content-before: 'war\06e ing:&quot;; }
+ * }
+ * &lt;p&gt;
+ * Some clients care about concrete CSS syntax. For high-fidelity
+ * roundtrip CSS processing it is necessary to preserve the original
+ * author's choice of quote character. On the other hand, some clients
+ * care about abstract values. For purposes of machine translation or
+ * typeface resolution, we are uninterested in the differences that
+ * distinguish the cases shown above; in these applications we would
+ * like to deal in terms of the simple Java String {@code warning:}.
+ * &lt;p&gt;
+ * Java's {@code Character} and {@code String} classes represent
+ * values in the UTF-16 encoding; some codepoints are represented by
+ * surrogate pairs of {@code Character} instances. CSS escape sequences are
+ * designed without a particular encoding in mind; there are CSS
+ * escape sequences that correspond to a single Unicode character
+ * and multiple Java {@code Character} instances.
+ * &lt;p&gt;
+ * Java's {@code Character} repertoire is a strict subset of the
+ * codepoints that can be represented in CSS. When decoding CSS
+ * escape sequences, this class substitutes the Unicode replacement
+ * character for characters that cannot be represented in Java
+ * {@code Strings}, as permitted by
+ * http://www.w3.org/TR/CSS2/syndata.html#characters
+ */
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">public class CssStringNode extends CssValueNode {</span>
+
+    private static final String LINE_BREAK_PATTERN_STRING =
+            &quot;(?:\\n|\\r\\n|\\r|\\f)&quot;;
+
+<span class="fc" id="L70">    private static final CharMatcher CONSUMABLE_WHITESPACE =</span>
+<span class="fc" id="L71">            CharMatcher.anyOf(&quot;\n\t &quot;);</span>
+
+<span class="fc" id="L73">    private static final Pattern ESCAPE_CHAR_STRING_CONTINUATION_PATTERN =</span>
+<span class="fc" id="L74">            Pattern.compile(&quot;\\\\&quot; + LINE_BREAK_PATTERN_STRING);</span>
+<span class="fc" id="L75">    private static final Pattern ESCAPE_CHAR_NOT_SPECIAL =</span>
+<span class="fc" id="L76">            Pattern.compile(&quot;\\\\([^0-9a-fA-F\\n\\r\\f])&quot;);</span>
+<span class="fc" id="L77">    private static final Pattern ESCAPE_CHAR_HARD_TO_TYPE =</span>
+<span class="fc" id="L78">            Pattern.compile(&quot;\\\\([0-9a-fA-F]{1,6})(\\r\\n|[ \\t\\r\\n\\f])?&quot;);</span>
+
+    /**
+     * The pattern for HTML markup special characters
+     */
+<span class="fc" id="L83">    private static final Pattern HTML_PATTERN =</span>
+<span class="fc" id="L84">            Pattern.compile(&quot;[&lt;&gt;\&quot;&amp;']&quot;);</span>
+
+<span class="fc" id="L86">    private static final Pattern LINE_BREAK_PATTERN =</span>
+<span class="fc" id="L87">            Pattern.compile(LINE_BREAK_PATTERN_STRING);</span>
+
+<span class="fc" id="L89">    private static final Pattern HEX_PATTERN =</span>
+<span class="fc" id="L90">            Pattern.compile(&quot;[0-9a-fA-F]+&quot;);</span>
+
+<span class="fc" id="L92">    private static final Pattern WIDE_NONASCII_PATTERN =</span>
+<span class="fc" id="L93">            Pattern.compile(&quot;\\P{ASCII}&quot;);</span>
+
+    private final Type type;
+
+    /**
+     * The characters between the quotes in concrete CSS syntax.  Some
+     * clients will want exact control and high fidelity for values in
+     * these nodes. Some will expect an AST to disregard unimportant
+     * detail and provide convenient access to a normalized
+     * representation of the stylesheet. This field stores a verbatim
+     * snippet of CSS corresponding to this node.
+     */
+    private String concreteValue;
+
+    /**
+     * Constructor of a string node.
+     *
+     * @param type     CSS provides multiple syntax alternatives for strings;
+     *                 which was used for this term?
+     * @param value    the Java String representation of this string (not its
+     *                 concrete CSS syntax)
+     * @param location The location in source code corresponding to this node
+     */
+    public CssStringNode(Type type, SourceCodeLocation location) {
+<span class="fc" id="L117">        super(&quot;&quot;, location);</span>
+<span class="fc" id="L118">        setConcreteValue(location.getSourceCode().getFileContents()</span>
+<span class="fc" id="L119">                .substring(location.getBeginCharacterIndex()</span>
+                                // for the quote
+                                + 1,
+                        // we end after the quote, so adjust
+<span class="fc" id="L123">                        location.getEndCharacterIndex() - 1));</span>
+<span class="fc" id="L124">        this.type = type;</span>
+<span class="fc" id="L125">    }</span>
+
+    /**
+     * Constructor of a string node.
+     *
+     * @param type  CSS provides multiple syntax alternatives for strings;
+     *              which was used for this term?
+     * @param value the Java String representation of this string (not its
+     *              concrete CSS syntax)
+     */
+    public CssStringNode(Type type, String value) {
+<span class="fc" id="L136">        super(value, /* location */ null);</span>
+<span class="fc" id="L137">        this.type = type;</span>
+<span class="fc" id="L138">        setValue(value);</span>
+<span class="fc" id="L139">    }</span>
+
+    /**
+     * Copy constructor.
+     */
+    public CssStringNode(CssStringNode node) {
+<span class="fc" id="L145">        super(node);</span>
+<span class="fc" id="L146">        type = node.type;</span>
+<span class="fc" id="L147">        this.concreteValue = node.getConcreteValue();</span>
+<span class="fc" id="L148">    }</span>
+
+    public Type getType() {
+<span class="nc" id="L151">        return type;</span>
+    }
+
+    /**
+     * Specifies the characters that should appear between the quotes
+     * when this node is written as CSS, and updates this node's value
+     * accordingly.
+     * &lt;p&gt;
+     * For example, the Java method invocation: {@code
+     * n.setConcreteValue(&quot;hi\\\&quot;&quot;);
+     * }
+     * could result in the CSS: {@code
+     * p { content-after: &quot;hi\&quot;&quot;; }
+     * } or perhaps {@code
+     * p { content-after: 'hi\&quot;'; }
+     * }, depending on the {@code CssStringNode.Type} of {@code n} and
+     * the {@code CssTree} in which it occurs, but it would never
+     * result in {@code
+     * p { content-after: &quot;hi\000022&quot;; }
+     * }
+     */
+    public String setConcreteValue(String concreteValue) {
+<span class="fc" id="L173">        this.concreteValue = concreteValue;</span>
+<span class="fc" id="L174">        super.setValue(unescape(concreteValue));</span>
+<span class="fc" id="L175">        return concreteValue;</span>
+    }
+
+    /**
+     * Retrieves the characters that should appear between the quotes
+     * when this node is written in concrete CSS syntax.
+     */
+    public String getConcreteValue() {
+<span class="fc" id="L183">        return concreteValue;</span>
+    }
+
+    /**
+     * Establishes a value for this node by conservatively escaping
+     * {@code value} and delegating to {@link #setConcreteValue} to
+     * maintain consistency between the {@link #value} and the
+     * {@link #concreteValue}.
+     * &lt;p&gt;
+     * This function stores a normalized representation of the given
+     * {@code value}; if you want to work in more exact terms, try
+     * {@link setConcreteValue}.
+     * &lt;p&gt;
+     * For example, the Java snippet: {@code
+     * n.setValue(&quot;Senator's Response&quot;)
+     * } could result in the CSS snippet: {@code
+     * p { content-before: &quot;Senator's Response&quot;; }
+     * }
+     * or {@code
+     * p { content-before: 'Senator\'s Response'; }
+     * }
+     * or {@code
+     * p { content-before: 'Senator\27 s Response'; }
+     * }, depending on the {@code CssStringNode.Type} of {@code n} and
+     * the {@code CssTree} in which it occurs and the choice of the
+     * {@code CssTreeVisitor} that renders the output.
+     * &lt;p&gt;
+     * Note that the {@code value} parameter here will normally not
+     * begin or end with a quotation mark.
+     */
+    @Override
+    public void setValue(String value) {
+<span class="fc" id="L215">        setConcreteValue(escape(type, HTML_ESCAPER, value));</span>
+<span class="fc" id="L216">    }</span>
+
+    @Override
+    public CssStringNode deepCopy() {
+<span class="fc" id="L220">        return new CssStringNode(this);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L225">        return type.toString(getValue(), SHORT_ESCAPER);</span>
+    }
+
+    /**
+     * Determines the canonical Java String representation of a value encoded
+     * in CSS syntax.
+     *
+     * @param escaped whatever lies between the quotes (excluding the quotes
+     *                themselves).
+     */
+    public static String unescape(String escaped) {
+<span class="fc" id="L236">        String result =</span>
+<span class="fc" id="L237">                ESCAPE_CHAR_STRING_CONTINUATION_PATTERN.matcher(escaped).replaceAll(&quot;&quot;);</span>
+<span class="fc" id="L238">        result = ESCAPE_CHAR_NOT_SPECIAL.matcher(result).replaceAll(&quot;$1&quot;);</span>
+<span class="fc" id="L239">        Matcher unicode = ESCAPE_CHAR_HARD_TO_TYPE.matcher(result);</span>
+<span class="fc" id="L240">        StringBuffer sb = new StringBuffer();</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">        while (unicode.find()) {</span>
+            // CSS allows us to substitute characters above 0x110000. Java
+            // requires us to stay at or below MAX_CODE_POINT. If we are
+            // allowed to substitute, and Java requires us to substitute,
+            // then we substitute. Otherwise: (a) everything's fine without
+            // substitution or (b) CSS does not permit a substitution we
+            // need to make for Java's happiness or (c) CSS allows a
+            // substitution but we don't need it. For (a) and (c) we don't
+            // substitute and that's fine. For (b) we don't substitute,
+            // probably that will produce an exception below, and then we'll
+            // know it's worth thinking about that case some more.
+<span class="fc" id="L252">            int codepoint = Integer.parseInt(unicode.group(1), 16);</span>
+<span class="pc bpc" id="L253" title="1 of 4 branches missed.">            if (codepoint &gt; 0x10FFFF &amp;&amp; codepoint &gt; Character.MAX_CODE_POINT) {</span>
+                // CSS allows us to substitute, and Java requires us not to use the
+                // character we were given, so here is a character specifically
+                // for replacements:
+<span class="fc" id="L257">                codepoint = 0xfffd;</span>
+                // TODO(user): this would be a good spot for a warning.
+            }
+            String replacement =
+<span class="fc bfc" id="L261" title="All 2 branches covered.">                    codepoint == 0 ? &quot;&quot; : new String(Character.toChars(codepoint));</span>
+<span class="fc" id="L262">            unicode.appendReplacement(sb, replacement);</span>
+<span class="fc" id="L263">        }</span>
+<span class="fc" id="L264">        unicode.appendTail(sb);</span>
+<span class="fc" id="L265">        result = sb.toString();</span>
+<span class="fc" id="L266">        return result;</span>
+    }
+
+    private static String escapeLineBreaks(String input) {
+<span class="fc" id="L270">        Matcher linebreak = LINE_BREAK_PATTERN.matcher(input);</span>
+<span class="fc" id="L271">        StringBuilder sb = new StringBuilder(input.length());</span>
+<span class="fc" id="L272">        int left = 0;</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        while (linebreak.find()) {</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">            if (linebreak.start() &gt; left) {</span>
+<span class="fc" id="L275">                sb.append(input.subSequence(left, linebreak.start()));</span>
+            }
+<span class="fc" id="L277">            sb.append(&quot;\\00000a&quot;);</span>
+<span class="fc" id="L278">            int right = linebreak.end();</span>
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">            if (right &lt; input.length()) {</span>
+<span class="fc" id="L280">                char c = input.charAt(right);</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">                if (CONSUMABLE_WHITESPACE.matches(c)) {</span>
+                    // add sacrificial whitespace to preserve the original
+<span class="fc" id="L283">                    sb.append(&quot; &quot;);</span>
+                }
+            }
+<span class="fc" id="L286">            left = right;</span>
+<span class="fc" id="L287">        }</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">        if (left &lt; input.length()) {</span>
+<span class="fc" id="L289">            sb.append(input.subSequence(left, input.length()));</span>
+        }
+<span class="fc" id="L291">        return sb.toString();</span>
+    }
+
+    /**
+     * Encodes a CSS term denoting {@code raw}. In general, there are multiple
+     * representations in CSS of the same value; we allow clients to influence
+     * this choice through {@code discretionaryEscaper}.
+     *
+     * @see #HTML_ESCAPER
+     * @see #SHORT_ESCAPER
+     */
+    public static String escape(
+            Type type, Function&lt;? super String, String&gt; discretionaryEscaper,
+            String raw) {
+<span class="fc" id="L305">        String result = raw.replaceAll(</span>
+                // the Java String encoding of the regex encoding of a slash
+                &quot;\\\\&quot;,
+                // the Java String encoding of a regex replacement encoding of a
+                // CSS-escaped slash
+                &quot;\\\\\\\\&quot;);
+<span class="fc" id="L311">        result = escapeLineBreaks(result);</span>
+<span class="fc" id="L312">        result = discretionaryEscaper.apply(result);</span>
+<span class="fc" id="L313">        result = type.escapeForDelimiters(result);</span>
+<span class="fc" id="L314">        return result;</span>
+    }
+
+    /**
+     * Represents this node's value in CSS syntax that is also safe for
+     * inclusion in HTML attribute values and element contents. This is a
+     * good choice when you want defense in depth against client code that
+     * fails to escape things properly.
+     */
+<span class="fc" id="L323">    public static final Function&lt;String, String&gt; HTML_ESCAPER =</span>
+<span class="fc" id="L324">            new Function&lt;String, String&gt;() {</span>
+                public String apply(String input) {
+<span class="fc" id="L326">                    return paranoidEscapeChars(WIDE_NONASCII_PATTERN,</span>
+<span class="fc" id="L327">                            paranoidEscapeChars(</span>
+<span class="fc" id="L328">                                    HTML_PATTERN, input));</span>
+                }
+            };
+
+    /**
+     * Replaces characters of questionable safety in {@code context} by
+     * CSS escape sequences that are safe for DOUBLE_QUOTED_STRING and
+     * SINGLE_QUOTED_STRING nodes and also in HTML attribute values and
+     * element content. This implementation's code is especially simple
+     * in hopes of improving safety.
+     *
+     * @param banned  a {@code Pattern} matching strings of length one
+     *                that should be escaped in the output.
+     * @param context a {@code String} input potentially containing
+     *                codepoints that are {@code banned}.
+     */
+    private static String paranoidEscapeChars(Pattern banned, String context) {
+<span class="fc" id="L345">        StringBuffer sb = new StringBuffer();</span>
+<span class="fc" id="L346">        Matcher markup = banned.matcher(context);</span>
+<span class="fc bfc" id="L347" title="All 2 branches covered.">        while (markup.find()) {</span>
+<span class="fc" id="L348">            String match = markup.group(0);</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">            assert (</span>
+                    // We don't insert characters from whole cloth
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">                    match.length() &gt; 0</span>
+                            // Our replacement accounts for the entire banned snippet,
+                            // which is one codepoint but potentially multiple UTF-16
+                            // Java Characters.
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">                            &amp;&amp; match.length() == match.offsetByCodePoints(0, 1));</span>
+<span class="fc" id="L356">            markup.appendReplacement(</span>
+                    sb,
+<span class="fc" id="L358">                    String.format(&quot;\\\\%06x&quot;, markup.group(0).codePointAt(0)));</span>
+<span class="fc bfc" id="L359" title="All 2 branches covered.">            if (markup.end() &lt; context.length()</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">                    &amp;&amp; CONSUMABLE_WHITESPACE.matches(context.charAt(markup.end()))) {</span>
+                // a whitespace after an escaped character requires the
+                // insertion of an additional whitespace between the
+                // escape sequence and the original whitespace.
+<span class="fc" id="L364">                sb.append(&quot; &quot;);</span>
+            }
+<span class="fc" id="L366">        }</span>
+<span class="fc" id="L367">        markup.appendTail(sb);</span>
+<span class="fc" id="L368">        return sb.toString();</span>
+    }
+
+    /**
+     * Replaces characters that have no literal representation in CSS with
+     * their escape codes. This implementation compromises computational
+     * efficiency in order to produce the shortest possible output for each
+     * replaced character. This is a good choice for readability.
+     */
+<span class="fc" id="L377">    public static final Function&lt;String, String&gt; SHORT_ESCAPER =</span>
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">            new Function&lt;String, String&gt;() {</span>
+                public String apply(String input) {
+<span class="fc" id="L380">                    StringBuffer sb = new StringBuffer();</span>
+<span class="fc" id="L381">                    Matcher m = WIDE_NONASCII_PATTERN.matcher(input);</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">                    while (m.find()) {</span>
+<span class="fc" id="L383">                        String match = m.group(0);</span>
+<span class="pc bpc" id="L384" title="1 of 2 branches missed.">                        assert (</span>
+                                // We don't insert characters from whole cloth
+<span class="pc bpc" id="L386" title="1 of 2 branches missed.">                                match.length() &gt; 0</span>
+                                        // Our replacement accounts for the entire banned snippet,
+                                        // which is one codepoint but potentially multiple UTF-16
+                                        // Java Characters.
+<span class="pc bpc" id="L390" title="1 of 2 branches missed.">                                        &amp;&amp; match.length() == match.offsetByCodePoints(0, 1));</span>
+                        /* Escape codes can have up to 6 digits. We are allowed to pad
+                         * with 0s on the left.
+                         * When the escaped character ends the string, we simply
+                         * substitute the escape code for the escaped character.
+                         * Otherwise, there are two cases in which we must insert a
+                         * whitespace after our escape sequence:
+                         *   (1) We have fewer than 6 digits and the escaped character
+                         *   appears immediately before a hexadecimal digit in the
+                         *   input.
+                         *   (2) The escaped character appears immediately before a
+                         *   whitespace in the input Adding the space never results in
+                         *   longer CSS than adding zero padding, and sometimes it
+                         *   shortens our output, so we never pad with zeroes.
+                         */
+<span class="fc" id="L405">                        String hexDigits = String.format(&quot;%x&quot;, match.codePointAt(0));</span>
+                        String trailer;
+<span class="fc bfc" id="L407" title="All 2 branches covered.">                        if (input.length() &lt;= m.end()) {</span>
+                            // simple: the end of the escape sequence is the end of the string.
+<span class="fc" id="L409">                            trailer = &quot;&quot;;</span>
+<span class="fc bfc" id="L410" title="All 2 branches covered.">                        } else if (hexDigits.length() &lt; 6 &amp;&amp; HEX_PATTERN.matcher(</span>
+<span class="fc bfc" id="L411" title="All 2 branches covered.">                                input.subSequence(m.end(), m.end() + 1)).matches()) {</span>
+                            // a hex digit after a short escape sequence requires
+                            // separation by an inserted whitespace.
+<span class="fc" id="L414">                            trailer = &quot; &quot;;</span>
+<span class="fc bfc" id="L415" title="All 2 branches covered.">                        } else if (CONSUMABLE_WHITESPACE.matches(input.charAt(m.end()))) {</span>
+                            // a whitespace after an escaped character requires the
+                            // insertion of an additional whitespace between the
+                            // escape sequence and the original whitespace.
+<span class="fc" id="L419">                            trailer = &quot; &quot;;</span>
+                        } else {
+<span class="fc" id="L421">                            trailer = &quot;&quot;;</span>
+                        }
+<span class="fc" id="L423">                        m.appendReplacement(</span>
+<span class="fc" id="L424">                                sb, String.format(&quot;\\\\%s%s&quot;, hexDigits, trailer));</span>
+<span class="fc" id="L425">                    }</span>
+<span class="fc" id="L426">                    m.appendTail(sb);</span>
+<span class="fc" id="L427">                    return sb.toString();</span>
+                }
+            };
+
+    /**
+     * Generates a CSS snippet representing this node.
+     * This may differ in semantically unimportant ways from the snippet
+     * from which this node was originally parsed.
+     * &lt;p&gt;
+     * You might reasonably {@code n.setConcreteValue(n.toString(ESC))}
+     * because that will not change what you get from {@code n.getValue()}.
+     * But it is probably an error to write
+     * {@code n.setValue(n.toString(ESC))}; you can pump the string
+     * to unbounded length by putting the latter snippet in the body
+     * of a loop.
+     *
+     * @return a {@code String} corresponding to this node's
+     * abstract value, but suitable for inclusion in CSS.
+     * @see #getValue
+     * @see #getConcreteValue
+     */
+    public String toString(
+            Function&lt;? super String, String&gt; discretionaryEscaper) {
+<span class="fc" id="L450">        return this.type.toString(this.getValue(), discretionaryEscaper);</span>
+    }
+
+    /**
+     * CSS syntax permits strings to be expressed either using
+     * single-quotes or double-quotes.
+     */
+<span class="fc" id="L457">    public enum Type {</span>
+        /* double-quoted string */
+<span class="fc" id="L459">        DOUBLE_QUOTED_STRING(&quot;\&quot;&quot;),</span>
+        /* single-quoted string */
+<span class="fc" id="L461">        SINGLE_QUOTED_STRING(&quot;'&quot;);</span>
+
+        public final String delimiter;
+        public final String format;
+
+<span class="fc" id="L466">        Type(String delimiter) {</span>
+<span class="fc" id="L467">            this.delimiter = delimiter;</span>
+<span class="fc" id="L468">            this.format = String.format(&quot;%s%%s%s&quot;, delimiter, delimiter);</span>
+<span class="fc" id="L469">        }</span>
+
+        public String toString(
+                String value, Function&lt;? super String, String&gt; discretionaryEscaper) {
+<span class="fc" id="L473">            return String.format(format, escape(this, discretionaryEscaper, value));</span>
+        }
+
+        /**
+         * Escape delimiters found in input so that they will not begin
+         * or end new lexemes.
+         */
+        public String escapeForDelimiters(String input) {
+<span class="fc" id="L481">            return input.replaceAll(</span>
+                    delimiter,
+                    // Java String literal encoding of a regex-replacement encoding of
+                    // a slash used to cancel the meaning of the special CSS character
+                    // (the delimiter) that follows.
+                    &quot;\\\\&quot; + delimiter);
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

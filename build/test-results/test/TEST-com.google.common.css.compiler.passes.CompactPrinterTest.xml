@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CompactPrinterTest" tests="41" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.063">
+  <properties/>
+  <testcase name="testAlphaImageLoader" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testMediaQueryPage" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testYouTube" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testConditionalBlock" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testMedia" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testCalc" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testFont" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testFontFace1" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testFontFace2" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testPreservesImportantCommentsWhenSet2" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.004"/>
+  <testcase name="testPreservesImportantCommentsWhenSet3" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testWebkitKeyframes1" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testWebkitKeyframes2" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testEmptyRulesetFancyRefiner" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.0"/>
+  <testcase name="testPagePseudoClass1" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testPagePseudoClass2" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testEmptyRuleset1" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testEmptyRuleset2" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.0"/>
+  <testcase name="testEmptyRuleset3" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testEmptyRuleset4" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testPreservesMultipleImportantCommentsWhenSet" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.003"/>
+  <testcase name="testRefiners" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testPageInMedia" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testCharSet" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testPageSelector" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testPreservesImportantCommentsWhenSet" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.003"/>
+  <testcase name="testDefinitions1" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testDefinitions2" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testDefinitions3" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testMediaQuery" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.005"/>
+  <testcase name="testIeRect" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testImport" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testRuleset1" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.0"/>
+  <testcase name="testRuleset2" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testRuleset3" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.002"/>
+  <testcase name="testRuleset4" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testRuleset5" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testRuleset6" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testPageRule" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <testcase name="testStarPropertyHack" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.0"/>
+  <testcase name="testRemovesComments" classname="com.google.common.css.compiler.passes.CompactPrinterTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

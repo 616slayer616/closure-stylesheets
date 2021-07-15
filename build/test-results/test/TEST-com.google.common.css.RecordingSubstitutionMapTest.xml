@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.RecordingSubstitutionMapTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:40" hostname="Patrick-MBP.fritz.box" time="1.67">
+  <properties/>
+  <testcase name="testReadAndWrite" classname="com.google.common.css.RecordingSubstitutionMapTest" time="1.67"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

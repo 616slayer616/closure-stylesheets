@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.HandleMissingConstantDefinitionsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.005">
+  <properties/>
+  <testcase name="testBadCodeThrowsErrors_functionArgument" classname="com.google.common.css.compiler.passes.HandleMissingConstantDefinitionsTest" time="0.003"/>
+  <testcase name="testGoodCodeNoErrors" classname="com.google.common.css.compiler.passes.HandleMissingConstantDefinitionsTest" time="0.001"/>
+  <testcase name="testBadCodeThrowsErrors" classname="com.google.common.css.compiler.passes.HandleMissingConstantDefinitionsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

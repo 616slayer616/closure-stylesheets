@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssCustomFunctionNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssCustomFunctionNode.java</span></div><h1>CssCustomFunctionNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.collect.Lists;
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/**
+ * A node representing a custom GSS function call.
+ *
+ * @author oana@google.com (Oana Florescu)
+ * @author dgajda@google.com (Damian Gajda)
+ */
+public class CssCustomFunctionNode extends CssFunctionNode
+        implements Proxiable&lt;CssCustomFunctionNode&gt; {
+
+    private final String gssFunctionName;
+    protected List&lt;CssValueNode&gt; resultNodes;
+
+    /**
+     * Constructor of the node.
+     *
+     * @param gssFunctionName    name of the function &quot;called&quot; by this node
+     * @param sourceCodeLocation location of this node
+     */
+    public CssCustomFunctionNode(
+            String gssFunctionName,
+            SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L46">        super(Function.CUSTOM, sourceCodeLocation);</span>
+<span class="fc" id="L47">        this.gssFunctionName = gssFunctionName;</span>
+<span class="fc" id="L48">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param function the copied custom function node
+     */
+    public CssCustomFunctionNode(CssCustomFunctionNode function) {
+<span class="fc" id="L56">        super(function);</span>
+<span class="fc" id="L57">        this.gssFunctionName = function.getFunctionName();</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Constructor used by the proxy mechanism, which avoids creation of child
+     * nodes.
+     *
+     * &lt;p&gt;NOTE(dgajda): The signature of this constructor only differs in argument
+     * order from the main constructor of this class.
+     *
+     * @param gssFunctionName    name of the function &quot;called&quot; by this node
+     * @param sourceCodeLocation location of this node
+     */
+    private CssCustomFunctionNode(
+            @Nullable SourceCodeLocation sourceCodeLocation,
+            String gssFunctionName) {
+<span class="fc" id="L73">        super(sourceCodeLocation, Function.CUSTOM);</span>
+<span class="fc" id="L74">        this.gssFunctionName = gssFunctionName;</span>
+<span class="fc" id="L75">    }</span>
+
+    @Override
+    public CssCustomFunctionNode deepCopy() {
+<span class="fc" id="L79">        return new CssCustomFunctionNode(this);</span>
+    }
+
+    @Override
+    public String getFunctionName() {
+<span class="fc" id="L84">        return gssFunctionName;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L89">        return gssFunctionName + super.toString();</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setArguments(CssFunctionArgumentsNode arguments) {
+<span class="fc" id="L97">        resultNodes = null;</span>
+<span class="fc" id="L98">        super.setArguments(arguments);</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * @return the copy-on-write proxy for this node
+     */
+    @Override
+    public CssCustomFunctionNode createProxy() {
+<span class="fc" id="L106">        return new CssCustomFunctionNodeProxy(this);</span>
+    }
+
+    /**
+     * @return cached result of function value computation
+     */
+    public List&lt;CssValueNode&gt; getResult() {
+<span class="fc" id="L113">        return resultNodes;</span>
+    }
+
+    /**
+     * Saves the value of function computation for later use.
+     *
+     * @param functionResult the list of nodes returned by the call to the
+     *                       {@link GssFunction}
+     */
+    public void setResult(List&lt;CssValueNode&gt; functionResult) {
+<span class="fc" id="L123">        resultNodes = functionResult;</span>
+<span class="fc" id="L124">    }</span>
+
+    /**
+     * Copy-on-Write proxy for {@link CssCustomFunctionNode} used to avoid copying
+     * of function call subtrees in
+     * {@link com.google.common.css.compiler.passes.ReplaceConstantReferences}
+     * pass. It behaves as a proxy of the original node until a write operation
+     * happens. When the first write operation happens, proxy node copies the
+     * original node and since then acts as a plain {@link CssCustomFunctionNode}.
+     *
+     * &lt;p&gt;NOTE(dgajda): Proxied custom function nodes are also replaced by proxies
+     * of themselves to disallow changes, which would be visible to all proxy
+     * nodes. Only one kind of changes is propagated to proxy nodes - this is
+     * setting of function computation results.
+     */
+    public static class CssCustomFunctionNodeProxy extends CssCustomFunctionNode {
+
+        private CssCustomFunctionNode proxiedNode;
+
+        /**
+         * Constructs the node proxy. It uses a special super class constructor
+         * which avoids unnecessary initialization of arguments node.
+         *
+         * @param function the proxied node
+         */
+        public CssCustomFunctionNodeProxy(CssCustomFunctionNode function) {
+<span class="fc" id="L150">            super(function.getSourceCodeLocation(),</span>
+<span class="fc" id="L151">                    function.getFunctionName());</span>
+<span class="fc" id="L152">            this.proxiedNode = function;</span>
+<span class="fc" id="L153">            setChunk(function.getChunk());</span>
+<span class="fc" id="L154">        }</span>
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public CssFunctionArgumentsNode getArguments() {
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">            return proxiedNode != null ?</span>
+<span class="pc" id="L162">                    proxiedNode.getArguments() : super.getArguments();</span>
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void setArguments(CssFunctionArgumentsNode arguments) {
+<span class="nc" id="L170">            proxiedNode = null;</span>
+<span class="nc" id="L171">            super.setArguments(arguments);</span>
+<span class="nc" id="L172">        }</span>
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public CssCustomFunctionNode createProxy() {
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">            CssCustomFunctionNode newProxiedNode = proxiedNode != null ?</span>
+<span class="pc" id="L180">                    proxiedNode : this;</span>
+<span class="fc" id="L181">            return new CssCustomFunctionNodeProxy(newProxiedNode);</span>
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public List&lt;CssValueNode&gt; getResult() {
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            if (proxiedNode == null) {</span>
+<span class="nc" id="L190">                return super.getResult();</span>
+            }
+
+<span class="nc" id="L193">            List&lt;CssValueNode&gt; proxiedNodeResults = proxiedNode.getResult();</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            if (proxiedNodeResults == null) {</span>
+<span class="nc" id="L195">                return null;</span>
+            }
+
+            // Copy results because they are not owned by this node.
+<span class="nc" id="L199">            List&lt;CssValueNode&gt; result =</span>
+<span class="nc" id="L200">                    Lists.newArrayListWithCapacity(proxiedNodeResults.size());</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">            for (CssValueNode cssValueNode : proxiedNodeResults) {</span>
+<span class="nc" id="L202">                result.add(cssValueNode.deepCopy());</span>
+<span class="nc" id="L203">            }</span>
+<span class="nc" id="L204">            return result;</span>
+        }
+
+        /**
+         * Sets the results of function computation for this node, can set results
+         * on the proxied node. This is harmless because proxied node is exactly
+         * the same as proxy node, and function computation results are a
+         * derivative of function arguments.
+         */
+        @Override
+        public void setResult(List&lt;CssValueNode&gt; functionResult) {
+<span class="nc bnc" id="L215" title="All 2 branches missed.">            if (proxiedNode == null) {</span>
+<span class="nc" id="L216">                super.setResult(functionResult);</span>
+            } else {
+<span class="nc" id="L218">                proxiedNode.setResult(functionResult);</span>
+            }
+<span class="nc" id="L220">        }</span>
+    }
+
+    /**
+     * Turns {@code functionParameters} containing comma and space literals into a correctly-grouped
+     * list of {@code CssValueNode}s. For example, in this code:
+     * &lt;pre&gt;{@code
+     *   @def A 1 2 3 4;
+     *   @def B 6 7 8 9;
+     *   @def USE_A true;
+     *   @def MARGIN selectFrom(USE_A, A, B);
+     * }&lt;/pre&gt;
+     * the {@code selectFrom} gets expanded to:
+     * &lt;pre&gt;{@code
+     *   @def MARGIN selectFrom([true][,][1][ ][2][ ][3][ ][4][,][6][ ][7][ ][8][ ][9])
+     * }&lt;/pre&gt;
+     * where each value in braces is one parameter. That's &lt;em&gt;17&lt;/em&gt; parameters. Passing that
+     * parameter list to this function returns a list with 3 values: {@code true}, {@code 1 2 3 4},
+     * and {@code 6 7 8 9}.
+     *
+     * &lt;p&gt;Note that this function must be passed value nodes that are already expanded as it will
+     * create {@code CssLiteralNode}s out of the values between commas via concatenation of their
+     * {@code toString} methods.
+     *
+     * @param functionParameters an iterable that contains resolved parameter values (no references)
+     * @return a list values that represent the actual arguments to the function, one value per
+     * argument
+     */
+    public static List&lt;CssValueNode&gt; fixupFunctionArguments(
+            Iterable&lt;CssValueNode&gt; functionParameters) {
+        // Removes the commas from the arguments and groups arguments separated
+        // by commas, e.g.:
+        // verticalGradient(#fff, #f2f2f2, url(foo) left top)
+        // has 7 initial arguments (2 commas, 5 words).
+        // After the cleanup we end up with the 3 arguments separated by commas.
+        // TODO(user): Clean this up once we get rid of the comma-as-argument hack.
+<span class="fc" id="L256">        List&lt;CssValueNode&gt; arguments = Lists.newArrayList();</span>
+<span class="fc" id="L257">        CssValueNode lastArg = null;</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        for (CssValueNode value : functionParameters) {</span>
+<span class="pc bpc" id="L259" title="1 of 4 branches missed.">            if (value.getValue() != null &amp;&amp; value.getValue().equals(&quot;,&quot;)) {</span>
+<span class="fc" id="L260">                lastArg = null;</span>
+            } else {
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                if (lastArg == null) {</span>
+<span class="fc" id="L263">                    arguments.add(value);</span>
+<span class="fc" id="L264">                    lastArg = value;</span>
+                } else {
+<span class="fc bfc" id="L266" title="All 4 branches covered.">                    if (value instanceof CssLiteralNode &amp;&amp; &quot; &quot;.equals(value.getValue())) {</span>
+                        // Here we are building a parse subtree that, when
+                        // printed by most output passes, looks like the subtree
+                        // we got as input, but actually consists of just a
+                        // CssLiteralNode. This requires us to add some
+                        // whitespace to the printed representations of the
+                        // nodes we are merging, corresponding to the whitespace
+                        // eaten by the parser between lexemes and generated by
+                        // printing passes when flattening a tree back to a
+                        // string. But functions are special: the parse tree
+                        // includes CssLiteralNode(&quot; &quot;) to explicitly represent
+                        // function argument delimiters. We need to avoid adding
+                        // extra space here, just as printing passes do.
+                    } else {
+<span class="fc" id="L280">                        arguments.remove(lastArg);</span>
+<span class="fc" id="L281">                        lastArg =</span>
+                                new CssLiteralNode(
+<span class="fc" id="L283">                                        lastArg.toString() + &quot; &quot; + value.toString(), value.getSourceCodeLocation());</span>
+<span class="fc" id="L284">                        arguments.add(lastArg);</span>
+                    }
+                }
+            }
+<span class="fc" id="L288">        }</span>
+<span class="fc" id="L289">        return arguments;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

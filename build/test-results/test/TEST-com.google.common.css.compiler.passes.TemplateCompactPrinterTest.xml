@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.046">
+  <properties/>
+  <testcase name="testChunkOutput_initialChunk" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.015"/>
+  <testcase name="testMarkedComments_preservedButWithBadAnnotations" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.007"/>
+  <testcase name="testCalc" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.002"/>
+  <testcase name="testMarkedComments_unpreservedByDefault" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.001"/>
+  <testcase name="testChunkOutput_middleChunk" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.004"/>
+  <testcase name="testMarkedComments_multipleAdjacentPreserved" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.001"/>
+  <testcase name="testMarkedComments_preservedWithFooterBeforeNextFile" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.002"/>
+  <testcase name="testMarkedComments_unpreservedExplicitly" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.001"/>
+  <testcase name="testMarkedComments_preservedWithFooterAfterPreviousFile" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.001"/>
+  <testcase name="testChunkOutput_endChunk" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.004"/>
+  <testcase name="testMarkedComments_preserved" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.004"/>
+  <testcase name="testMarkedComments_preservedButWithSomeBadAnnotationsOneGood" classname="com.google.common.css.compiler.passes.TemplateCompactPrinterTest" time="0.002"/>
+  <system-out><![CDATA[Ę
+/* Header comment
+ * @license MIT */
+foo{}ę/* END OF LICENSED CSS FILE */
+
+Ę
+/* Header comment
+ * @license MIT */
+bar{}ę
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

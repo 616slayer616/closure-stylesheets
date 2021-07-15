@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OutputRenamingMapFormat.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">OutputRenamingMapFormat.java</span></div><h1>OutputRenamingMapFormat.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.escape.CharEscaperBuilder;
+import com.google.common.escape.Escaper;
+import com.google.common.io.CharStreams;
+import com.google.gson.*;
+
+import java.io.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
+/**
+ * Defines the values for the --output-renaming-map-format flag in Closure
+ * Stylesheets.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+<span class="fc" id="L40">public enum OutputRenamingMapFormat {</span>
+    /**
+     * Reads/Writes the mapping as JSON, passed as an argument to
+     * {@code goog.setCssNameMapping()}. Designed for use with the Closure
+     * Library in compiled mode.
+     */
+<span class="fc" id="L46">    CLOSURE_COMPILED(&quot;goog.setCssNameMapping(%s);\n&quot;),</span>
+
+    /**
+     * Reads/Writes the mapping as JSON, passed as an argument to
+     * {@code goog.setCssNameMapping()} using the 'BY_WHOLE' mapping style.
+     * Designed for use with the Closure Library in compiled mode where the CSS
+     * name substitutions are taken as-is, which allows, e.g., using
+     * {@code SimpleSubstitutionMap} with class names containing hyphens.
+     */
+<span class="fc" id="L55">    CLOSURE_COMPILED_BY_WHOLE(&quot;goog.setCssNameMapping(%s, 'BY_WHOLE');\n&quot;),</span>
+
+    /**
+     * Before writing the mapping as CLOSURE_COMPILED, split the css name maps by hyphens and write
+     * out each piece individually. see {@code CLOSURE_COMPILED}
+     */
+<span class="fc" id="L61">    CLOSURE_COMPILED_SPLIT_HYPHENS(&quot;goog.setCssNameMapping(%s);\n&quot;) {</span>
+        @Override
+        public void writeRenamingMap(Map&lt;String, String&gt; renamingMap, Writer renamingMapWriter)
+                throws IOException {
+<span class="fc" id="L65">            super.writeRenamingMap(splitEntriesOnHyphens(renamingMap), renamingMapWriter);</span>
+<span class="fc" id="L66">        }</span>
+    },
+
+    /**
+     * Reads/Writes the mapping as JSON, assigned to the global JavaScript variable
+     * {@code CLOSURE_CSS_NAME_MAPPING}. Designed for use with the Closure
+     * Library in uncompiled mode.
+     */
+<span class="fc" id="L74">    CLOSURE_UNCOMPILED(&quot;CLOSURE_CSS_NAME_MAPPING = %s;\n&quot;),</span>
+
+    /**
+     * Reads/Writes the mapping as JSON.
+     */
+<span class="fc" id="L79">    JSON,</span>
+
+    /**
+     * Reads/Writes the mapping from/in a .properties file format, such that it can be read
+     * by {@link Properties}.
+     */
+<span class="fc" id="L85">    PROPERTIES {</span>
+        @Override
+        public void writeRenamingMap(Map&lt;String, String&gt; renamingMap, Writer renamingMapWriter)
+                throws IOException {
+<span class="fc" id="L89">            writeOnePerLine('=', renamingMap, renamingMapWriter);</span>
+            // We write the properties directly rather than using
+            // Properties#store() because it is impossible to suppress the timestamp
+            // comment: http://goo.gl/6hsrN. As noted on the Stack Overflow thread,
+            // the timestamp results in unnecessary diffs between runs. Further, those
+            // who are using a language other than Java to parse this file should not
+            // have to worry about adding support for comments.
+<span class="fc" id="L96">        }</span>
+
+        @Override
+        void readMapInto(
+                BufferedReader in, ImmutableMap.Builder&lt;? super String, ? super String&gt; builder)
+                throws IOException {
+<span class="fc" id="L102">            readOnePerLine('=', in, builder);</span>
+<span class="fc" id="L103">        }</span>
+    },
+
+    /**
+     * This is the current default behavior for output maps. Still used for
+     * legacy reasons.
+     */
+<span class="fc" id="L110">    JSCOMP_VARIABLE_MAP {</span>
+        @Override
+        public void writeRenamingMap(Map&lt;String, String&gt; renamingMap, Writer renamingMapWriter)
+                throws IOException {
+<span class="fc" id="L114">            writeOnePerLine(':', renamingMap, renamingMapWriter);</span>
+<span class="fc" id="L115">        }</span>
+
+        @Override
+        void readMapInto(
+                BufferedReader in, ImmutableMap.Builder&lt;? super String, ? super String&gt; builder)
+                throws IOException {
+<span class="fc" id="L121">            readOnePerLine(':', in, builder);</span>
+<span class="fc" id="L122">        }</span>
+    };
+
+    private final String formatString;
+
+<span class="fc" id="L127">    private OutputRenamingMapFormat(String formatString) {</span>
+<span class="fc" id="L128">        Preconditions.checkNotNull(formatString);</span>
+<span class="fc" id="L129">        this.formatString = formatString;</span>
+<span class="fc" id="L130">    }</span>
+
+    private OutputRenamingMapFormat() {
+<span class="fc" id="L133">        this(&quot;%s&quot;);</span>
+<span class="fc" id="L134">    }</span>
+
+    /**
+     * Writes the renaming map.
+     *
+     * @see com.google.common.css.compiler.commandline.DefaultCommandLineCompiler
+     * #writeRenamingMap(Map, PrintWriter)
+     */
+    public void writeRenamingMap(Map&lt;String, String&gt; renamingMap, Writer renamingMapWriter)
+            throws IOException {
+        // Build up the renaming map as a JsonObject.
+<span class="fc" id="L145">        JsonObject properties = new JsonObject();</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : renamingMap.entrySet()) {</span>
+<span class="fc" id="L147">            properties.addProperty(entry.getKey(), entry.getValue());</span>
+<span class="fc" id="L148">        }</span>
+
+        // Write the JSON wrapped in this output format's formatString.
+<span class="fc" id="L151">        Gson gson = new GsonBuilder().setPrettyPrinting().create();</span>
+<span class="fc" id="L152">        renamingMapWriter.write(String.format(formatString,</span>
+<span class="fc" id="L153">                gson.toJson(properties)));</span>
+<span class="fc" id="L154">    }</span>
+
+    /**
+     * Like {@writeRenamingMap(java.util.Map, java.io.Writer)} but does not throw when writes fail.
+     */
+    public final void writeRenamingMap(
+            Map&lt;String, String&gt; renamingMap, PrintWriter renamingMapWriter) {
+        try {
+<span class="nc" id="L162">            writeRenamingMap(renamingMap, (Writer) renamingMapWriter);</span>
+<span class="nc" id="L163">        } catch (IOException ex) {</span>
+<span class="nc" id="L164">            throw (AssertionError) new AssertionError(&quot;IOException from PrintWriter&quot;).initCause(ex);</span>
+<span class="nc" id="L165">        }</span>
+<span class="nc" id="L166">    }</span>
+
+    /**
+     * Reads the output of {@link #writeRenamingMap} so a renaming map can be reused from one compile
+     * to another.
+     */
+    public ImmutableMap&lt;String, String&gt; readRenamingMap(Reader in) throws IOException {
+<span class="fc" id="L173">        String subsitutionMarker = &quot;%s&quot;;</span>
+<span class="fc" id="L174">        int formatStringSubstitutionIndex = formatString.indexOf(subsitutionMarker);</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">        Preconditions.checkState(formatStringSubstitutionIndex &gt;= 0, formatString);</span>
+
+<span class="fc" id="L177">        String formatPrefix = formatString.substring(0, formatStringSubstitutionIndex);</span>
+<span class="fc" id="L178">        String formatSuffix =</span>
+<span class="fc" id="L179">                formatString.substring(formatStringSubstitutionIndex + subsitutionMarker.length());</span>
+
+        // GSON's JSONParser does not stop reading bytes when it sees a bracket that
+        // closes the value.
+        // We read the whole input in, then strip prefixes and suffixes and then parse
+        // the rest.
+<span class="fc" id="L185">        String content = CharStreams.toString(in);</span>
+
+<span class="fc" id="L187">        content = content.trim();</span>
+<span class="fc" id="L188">        formatPrefix = formatPrefix.trim();</span>
+<span class="fc" id="L189">        formatSuffix = formatSuffix.trim();</span>
+
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">        if (!content.startsWith(formatPrefix)</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">                || !content.endsWith(formatSuffix)</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">                || content.length() &lt; formatPrefix.length() + formatSuffix.length()) {</span>
+<span class="nc" id="L194">            throw new IOException(&quot;Input does not match format &quot; + formatString + &quot; : &quot; + content);</span>
+        }
+
+<span class="fc" id="L197">        content = content.substring(formatPrefix.length(), content.length() - formatSuffix.length());</span>
+
+<span class="fc" id="L199">        ImmutableMap.Builder&lt;String, String&gt; b = ImmutableMap.builder();</span>
+<span class="fc" id="L200">        BufferedReader br = new BufferedReader(new StringReader(content));</span>
+<span class="fc" id="L201">        readMapInto(br, b);</span>
+<span class="fc" id="L202">        requireEndOfInput(br);</span>
+
+<span class="fc" id="L204">        return b.build();</span>
+    }
+
+    /**
+     * Reads the mapping portion of the formatted output.
+     *
+     * &lt;p&gt;This default implementation works for formats that substitute a JSON mapping from rewritten
+     * names to originals into their format string, and may be overridden by formats that do something
+     * different.
+     */
+    void readMapInto(BufferedReader in, ImmutableMap.Builder&lt;? super String, ? super String&gt; builder) throws IOException {
+<span class="fc" id="L215">        JsonElement json = JsonParser.parseReader(in);</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        for (Map.Entry&lt;String, JsonElement&gt; e : json.getAsJsonObject().entrySet()) {</span>
+<span class="fc" id="L217">            builder.put(e.getKey(), e.getValue().getAsString());</span>
+<span class="fc" id="L218">        }</span>
+<span class="fc" id="L219">    }</span>
+
+    /**
+     * Raises an IOException if there are any non-space characters on in, and consumes the remaining
+     * characters on in.
+     */
+    private static void requireEndOfInput(BufferedReader in) throws IOException {
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        for (int ch; (ch = in.read()) &gt;= 0; ) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (!Character.isWhitespace((char) ch)) {</span>
+<span class="nc" id="L228">                throw new IOException(&quot;Expected end of input, not '&quot; + escape((char) ch) + &quot;'&quot;);</span>
+            }
+        }
+<span class="fc" id="L231">    }</span>
+
+<span class="fc" id="L233">    private static final Escaper ESCAPER =</span>
+            new CharEscaperBuilder()
+<span class="fc" id="L235">                    .addEscape('\t', &quot;\\t&quot;)</span>
+<span class="fc" id="L236">                    .addEscape('\n', &quot;\\n&quot;)</span>
+<span class="fc" id="L237">                    .addEscape('\r', &quot;\\r&quot;)</span>
+<span class="fc" id="L238">                    .addEscape('\\', &quot;\\\\&quot;)</span>
+<span class="fc" id="L239">                    .addEscape('\'', &quot;\\'&quot;)</span>
+<span class="fc" id="L240">                    .toEscaper();</span>
+
+    private static String escape(char ch) {
+<span class="nc" id="L243">        return ESCAPER.escape(new String(new char[]{ch}));</span>
+    }
+
+    /**
+     * Splitter used for CLOSURE_COMPILED_SPLIT_HYPHENS format.
+     */
+<span class="fc" id="L249">    private static final Splitter HYPHEN_SPLITTER = Splitter.on(&quot;-&quot;);</span>
+
+    /**
+     * &lt;code&gt;{ &quot;foo-bar&quot;: &quot;f-b&quot; }&lt;/code&gt; =&gt; &lt;code&gt;{ &quot;foo&quot;: &quot;f&quot;, &quot;bar&quot;: &quot;b&quot; }&lt;/code&gt;.
+     *
+     * @see SplittingSubstitutionMap
+     */
+    private static Map&lt;String, String&gt; splitEntriesOnHyphens(Map&lt;String, String&gt; renamingMap) {
+<span class="fc" id="L257">        Map&lt;String, String&gt; newSplitRenamingMap = Maps.newLinkedHashMap();</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : renamingMap.entrySet()) {</span>
+<span class="fc" id="L259">            Iterator&lt;String&gt; keyParts = HYPHEN_SPLITTER.split(entry.getKey()).iterator();</span>
+<span class="fc" id="L260">            Iterator&lt;String&gt; valueParts = HYPHEN_SPLITTER.split(entry.getValue()).iterator();</span>
+<span class="pc bpc" id="L261" title="1 of 4 branches missed.">            while (keyParts.hasNext() &amp;&amp; valueParts.hasNext()) {</span>
+<span class="fc" id="L262">                String keyPart = keyParts.next();</span>
+<span class="fc" id="L263">                String valuePart = valueParts.next();</span>
+<span class="fc" id="L264">                String oldValuePart = newSplitRenamingMap.put(keyPart, valuePart);</span>
+                // Splitting by part to make a simple map shouldn't involve mapping two old names
+                // to the same new name.  It's ok the other way around, but the part relation should
+                // be a partial function.
+<span class="pc bpc" id="L268" title="3 of 4 branches missed.">                Preconditions.checkState(oldValuePart == null || oldValuePart.equals(valuePart));</span>
+<span class="fc" id="L269">            }</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">            if (keyParts.hasNext()) {</span>
+<span class="nc" id="L271">                throw new AssertionError(</span>
+                        &quot;Not all parts of the original class &quot;
+                                + &quot;name were output. Class: &quot;
+<span class="nc" id="L274">                                + entry.getKey()</span>
+                                + &quot; Next Part:&quot;
+<span class="nc" id="L276">                                + keyParts.next());</span>
+            }
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">            if (valueParts.hasNext()) {</span>
+<span class="nc" id="L279">                throw new AssertionError(</span>
+                        &quot;Not all parts of the renamed class were &quot;
+                                + &quot;output. Class: &quot;
+<span class="nc" id="L282">                                + entry.getKey()</span>
+                                + &quot; Renamed Class: &quot;
+<span class="nc" id="L284">                                + entry.getValue()</span>
+                                + &quot; Next Part:&quot;
+<span class="nc" id="L286">                                + valueParts.next());</span>
+            }
+<span class="fc" id="L288">        }</span>
+<span class="fc" id="L289">        return newSplitRenamingMap;</span>
+    }
+
+    private static void writeOnePerLine(
+            char separator, Map&lt;String, String&gt; renamingMap, Writer renamingMapWriter)
+            throws IOException {
+<span class="fc bfc" id="L295" title="All 2 branches covered.">        for (Map.Entry&lt;String, String&gt; entry : renamingMap.entrySet()) {</span>
+<span class="fc" id="L296">            String key = entry.getKey();</span>
+<span class="fc" id="L297">            String value = entry.getValue();</span>
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">            Preconditions.checkState(key.indexOf(separator) &lt; 0);</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">            Preconditions.checkState(key.indexOf('\n') &lt; 0);</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">            Preconditions.checkState(value.indexOf('\n') &lt; 0);</span>
+
+<span class="fc" id="L302">            renamingMapWriter.write(key);</span>
+<span class="fc" id="L303">            renamingMapWriter.write(separator);</span>
+<span class="fc" id="L304">            renamingMapWriter.write(value);</span>
+<span class="fc" id="L305">            renamingMapWriter.write('\n');</span>
+<span class="fc" id="L306">        }</span>
+<span class="fc" id="L307">    }</span>
+
+    private static void readOnePerLine(
+            char separator,
+            BufferedReader in,
+            ImmutableMap.Builder&lt;? super String, ? super String&gt; builder)
+            throws IOException {
+<span class="fc bfc" id="L314" title="All 2 branches covered.">        for (String line; (line = in.readLine()) != null; ) {</span>
+<span class="fc" id="L315">            int eq = line.indexOf(separator);</span>
+<span class="pc bpc" id="L316" title="3 of 4 branches missed.">            if (eq &lt; 0 &amp;&amp; !line.isEmpty()) {</span>
+<span class="nc" id="L317">                throw new IOException(&quot;Line is missing a '&quot; + separator + &quot;': &quot; + line);</span>
+            }
+<span class="fc" id="L319">            builder.put(line.substring(0, eq), line.substring(eq + 1));</span>
+<span class="fc" id="L320">        }</span>
+<span class="fc" id="L321">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

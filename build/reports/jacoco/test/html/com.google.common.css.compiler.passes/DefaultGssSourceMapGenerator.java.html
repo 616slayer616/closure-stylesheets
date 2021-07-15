@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultGssSourceMapGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">DefaultGssSourceMapGenerator.java</span></div><h1>DefaultGssSourceMapGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.css.JobDescription.SourceMapDetailLevel;
+import com.google.common.css.compiler.ast.CssNode;
+import com.google.debugging.sourcemap.*;
+
+import java.io.IOException;
+import java.util.*;
+
+/**
+ * Class to collect and generate source map(v3) for Gss compiler. It is intended to be used by
+ * {@link com.google.common.css.compiler.passes.CodePrinter}.
+ *
+ * &lt;p&gt;Source Map Revision 3 Proposal:
+ * https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?usp=sharing
+ *
+ * @author steveyang@google.com (Chenyun Yang)
+ * @see com.google.debugging.sourcemap.SourceMapGeneratorV3
+ */
+public final class DefaultGssSourceMapGenerator implements GssSourceMapGenerator {
+
+    /**
+     * The underlying source map generator to use.
+     */
+    private SourceMapGenerator generator;
+
+    /**
+     * Maintains a mapping from a given node's source code position to its generated output.
+     * This position is relative to the current run of the CodePrinter and will be normalized
+     * later on by the SourceMap.
+     */
+<span class="fc" id="L53">    static class Mapping {</span>
+        CssNode node;
+        FilePosition start;
+        FilePosition end;
+    }
+
+    /**
+     * Map used internally to get {@code Predicate&lt;CssNode&gt;}s from {@code DetailLevel}.
+     *
+     * &lt;ul&gt;
+     *   &lt;li&gt;{@code ALL} provides the most details by generating source map for every nodes containing
+     *       source locations.
+     *   &lt;li&gt;{@code DEFAULT} generates source map for selected nodes and results in a smaller output
+     *       suitable to use in production.
+     * &lt;/ul&gt;
+     */
+    private static final ImmutableMap&lt;SourceMapDetailLevel, Predicate&lt;CssNode&gt;&gt;
+<span class="fc" id="L70">            DETAIL_LEVEL_PREDICATES =</span>
+<span class="fc" id="L71">            Maps.immutableEnumMap(</span>
+<span class="fc" id="L72">                    ImmutableMap.of(</span>
+                            SourceMapDetailLevel.ALL,
+<span class="fc" id="L74">                            Predicates.&lt;CssNode&gt;alwaysTrue(),</span>
+                            SourceMapDetailLevel.DEFAULT,
+<span class="fc" id="L76">                            Predicates.&lt;CssNode&gt;alwaysTrue()));</span>
+
+    /**
+     * Deque to hold current mappings on stack while visiting the subtree.
+     **/
+    private final Deque&lt;Mapping&gt; mappings;
+
+    /**
+     * List of all the mappings generated for code visit
+     **/
+    private final List&lt;Mapping&gt; allMappings;
+
+    private SourceMapDetailLevel sourceMapDetailLevel;
+
+    /**
+     * Predicate to determine whether to include current node under visit into {@code mappings}.
+     **/
+    private Predicate&lt;CssNode&gt; detailLevelPredicate;
+
+    /**
+     * Constructor to get source map class to use.
+     *
+     * @param sourceMapDetailLevel used to control the output details of source map
+     */
+<span class="fc" id="L100">    public DefaultGssSourceMapGenerator(SourceMapDetailLevel sourceMapDetailLevel) {</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">        Preconditions.checkState(sourceMapDetailLevel != null);</span>
+<span class="fc" id="L102">        this.mappings = new ArrayDeque&lt;&gt;();</span>
+<span class="fc" id="L103">        this.generator = SourceMapGeneratorFactory.getInstance(SourceMapFormat.V3);</span>
+<span class="fc" id="L104">        this.allMappings = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L105">        this.sourceMapDetailLevel = sourceMapDetailLevel;</span>
+<span class="fc" id="L106">        this.detailLevelPredicate = DETAIL_LEVEL_PREDICATES.get(this.sourceMapDetailLevel);</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Appends the generated source map to {@code out}.
+     *
+     * @param out  an {@link Appendable} object to append the output on
+     * @param name filename to be written inside the source map (not the filename where writes to)
+     * @see SourceMapGeneratorV3#appendTo
+     */
+    @Override
+    public void appendOutputTo(Appendable out, String name) throws IOException {
+<span class="fc" id="L118">        generateSourceMap();</span>
+<span class="fc" id="L119">        generator.appendTo(out, name);</span>
+<span class="fc" id="L120">    }</span>
+
+    /**
+     * Starts the source mapping for the given node at the current position.
+     * This is intended to be called before the node is written to the buffer.
+     *
+     * @param node           the {@link CssNode} to be processed
+     * @param startLine      the first character's line number once it starts writing output
+     * @param startCharIndex the first character's character index once it starts writing output
+     */
+    @Override
+    public void startSourceMapping(CssNode node, int startLine, int startCharIndex) {
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        Preconditions.checkState(node != null);</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        Preconditions.checkState(startLine &gt;= 0);</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        Preconditions.checkState(startCharIndex &gt;= 0);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        if (node.getSourceCodeLocation() != null</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">                &amp;&amp; detailLevelPredicate.apply(node)) {</span>
+<span class="fc" id="L137">            Mapping mapping = new Mapping();</span>
+<span class="fc" id="L138">            mapping.node = node;</span>
+<span class="fc" id="L139">            mapping.start = new FilePosition(startLine, startCharIndex);</span>
+<span class="fc" id="L140">            mappings.push(mapping);</span>
+<span class="fc" id="L141">            allMappings.add(mapping);</span>
+        }
+<span class="fc" id="L143">    }</span>
+
+    /**
+     * Finishes the source mapping for the given node at the current position.
+     * This is intended to be called immediately after the whole node is written to the buffer.
+     *
+     * @param node         the {@link CssNode} to be processed
+     * @param endLine      the last character's line number when it ends writing output
+     * @param endCharIndex the last character's character index when it ends writing output
+     */
+    @Override
+    public void endSourceMapping(CssNode node, int endLine, int endCharIndex) {
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        Preconditions.checkState(node != null);</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        Preconditions.checkState(endLine &gt;= 0);</span>
+        // -1 when a node contributes no content at the start of the buffer,
+        // as when a CssImportBlockNode is encountered, and there is no
+        // copyright comment.
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        Preconditions.checkState(endCharIndex &gt;= -1);</span>
+<span class="fc" id="L161">        endCharIndex++; //</span>
+<span class="pc bpc" id="L162" title="1 of 4 branches missed.">        if (!mappings.isEmpty() &amp;&amp; mappings.peek().node == node) {</span>
+<span class="fc" id="L163">            Mapping mapping = mappings.pop();</span>
+<span class="fc" id="L164">            mapping.end = new FilePosition(endLine, endCharIndex);</span>
+        }
+<span class="fc" id="L166">    }</span>
+
+    /**
+     * Sets the prefix to be added to the beginning of each source path passed to
+     * {@link #addMapping} as debuggers expect (prefix + sourceName) to be a URL
+     * for loading the source code.
+     *
+     * @param path The URL prefix to save in the sourcemap file
+     */
+    @Override
+    public void setSourceRoot(String path) {
+<span class="nc" id="L177">        ((SourceMapGeneratorV3) generator).setSourceRoot(path);</span>
+<span class="nc" id="L178">    }</span>
+
+    /**
+     * Generates the source map by passing all mappings to {@link #generator}.
+     */
+    private void generateSourceMap() {
+<span class="fc" id="L184">        List&lt;CompleteMapping&gt; completeMappings = new ArrayList&lt;&gt;(allMappings.size());</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        for (Mapping mapping : allMappings) {</span>
+            // If the node does not have an associated source file or source location
+            // is unknown, then the node does not have sufficient info for source map.
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">            if (mapping.node.getSourceCodeLocation().isUnknown()) {</span>
+<span class="nc" id="L189">                continue;</span>
+            }
+<span class="fc" id="L191">            CompleteMapping completeMapping = new CompleteMapping(mapping);</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">            if (completeMapping.sourceFile == null) {</span>
+<span class="nc" id="L193">                continue;</span>
+            }
+<span class="fc" id="L195">            completeMappings.add(completeMapping);</span>
+<span class="fc" id="L196">        }</span>
+<span class="fc" id="L197">        Collections.sort(completeMappings);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        for (CompleteMapping completeMapping : completeMappings) {</span>
+            // TODO: could pass in an optional symbol name
+<span class="fc" id="L200">            generator.addMapping(</span>
+                    completeMapping.sourceFile, null,
+                    completeMapping.inputStart,
+                    completeMapping.outputStart, completeMapping.outputEnd);
+<span class="fc" id="L204">        }</span>
+<span class="fc" id="L205">    }</span>
+
+
+    private static final class CompleteMapping implements Comparable&lt;CompleteMapping&gt; {
+        final String sourceFile;
+        final FilePosition inputStart;
+        final FilePosition outputStart;
+        final FilePosition outputEnd;
+
+<span class="fc" id="L214">        CompleteMapping(Mapping mapping) {</span>
+<span class="fc" id="L215">            CssNode node = mapping.node;</span>
+<span class="fc" id="L216">            this.sourceFile = getSourceFileName(node);</span>
+<span class="fc" id="L217">            this.inputStart = new FilePosition(</span>
+<span class="fc" id="L218">                    getStartLineno(node), getStartCharIndex(node));</span>
+<span class="fc" id="L219">            this.outputStart = mapping.start;</span>
+<span class="fc" id="L220">            this.outputEnd = mapping.end;</span>
+<span class="fc" id="L221">        }</span>
+
+        @Override
+        public int compareTo(CompleteMapping m) {
+<span class="fc" id="L225">            int delta = outputStart.getLine() - m.outputStart.getLine();</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">            if (delta == 0) {</span>
+<span class="fc" id="L227">                delta = outputStart.getColumn() - m.outputStart.getColumn();</span>
+            }
+<span class="fc" id="L229">            return delta;</span>
+        }
+
+        /**
+         * Gets the source file file for current node.
+         */
+        private static String getSourceFileName(CssNode node) {
+<span class="fc" id="L236">            return node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+        }
+
+        /**
+         * Gets the start line index in the source code of {@code node} adjusted to 0-based indices.
+         *
+         * &lt;p&gt;
+         * Note: Gss compiler uses a 1-based line number and source map V3 uses a 0-based line number.
+         */
+        private static int getStartLineno(CssNode node) {
+<span class="fc" id="L246">            return node.getSourceCodeLocation().getLineNumber() - 1;</span>
+        }
+
+        /**
+         * Gets the start character index in the output buffer for current {@code node}.
+         */
+        private static int getStartCharIndex(CssNode node) {
+<span class="fc" id="L253">            return node.getSourceCodeLocation().getCharacterIndex();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

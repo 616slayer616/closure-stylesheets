@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VerifyRecognizedProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">VerifyRecognizedProperties.java</span></div><h1>VerifyRecognizedProperties.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.Set;
+
+/**
+ * CSS Compiler pass that checks that all properties in the stylesheet are
+ * either on the built-in recognized property list, or were whitelisted
+ * explicitly.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+public class VerifyRecognizedProperties extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    private final Set&lt;String&gt; allowedUnrecognizedProperties;
+    private final VisitController visitController;
+    private final ErrorManager errorManager;
+
+    public VerifyRecognizedProperties(Set&lt;String&gt; allowedUnrecognizedProperties,
+<span class="fc" id="L39">                                      VisitController visitController, ErrorManager errorManager) {</span>
+<span class="fc" id="L40">        this.allowedUnrecognizedProperties = ImmutableSet.copyOf(</span>
+                allowedUnrecognizedProperties);
+<span class="fc" id="L42">        this.visitController = visitController;</span>
+<span class="fc" id="L43">        this.errorManager = errorManager;</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Checks whether the {@code Property} of {@code declarationNode} is a
+     * recognized property. If not, an error is reported.
+     */
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declarationNode) {
+        // TODO(bolinfest): Associate CSS version with a Property so that this check
+        // can also verify the &quot;compliance level.&quot; For example, it may want to
+        // enforce that all properties are CSS 2.1 or earlier.
+<span class="fc" id="L55">        CssPropertyNode propertyNode = declarationNode.getPropertyName();</span>
+<span class="fc" id="L56">        Property property = propertyNode.getProperty();</span>
+<span class="fc" id="L57">        String propertyName = property.getName();</span>
+
+        // CSS custom properties are always recognized.
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (property.isCustom()) {</span>
+<span class="nc" id="L61">            return true;</span>
+        }
+
+        // TODO(bolinfest): Have separate options to specify whether the star hack
+        // or underscore hack should be allowed. See:
+        // http://en.wikipedia.org/wiki/CSS_filter#Star_hack
+        // http://en.wikipedia.org/wiki/CSS_filter#Underscore_hack
+        //
+        // If the star or underscore hack is employed, consider the name without the
+        // hack character in determining whether it is a &quot;recognized property.&quot;
+<span class="pc bpc" id="L71" title="2 of 4 branches missed.">        if (propertyName.startsWith(&quot;*&quot;) || propertyName.startsWith(&quot;_&quot;)) {</span>
+<span class="nc" id="L72">            propertyName = propertyName.substring(1);</span>
+<span class="nc" id="L73">            property = Property.byName(propertyName);</span>
+        }
+
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (!allowedUnrecognizedProperties.contains(property.getName())) {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            if (!property.isRecognizedProperty()) {</span>
+<span class="fc" id="L78">                reportError(String.format(&quot;%s is an unrecognized property&quot;,</span>
+<span class="fc" id="L79">                        property.getName()), propertyNode);</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            } else if (property.hasWarning()) {</span>
+<span class="nc" id="L81">                errorManager.reportWarning(new GssError(</span>
+<span class="nc" id="L82">                        String.format(</span>
+                                &quot;WARNING for use of CSS property %s: %s\n&quot;,
+<span class="nc" id="L84">                                property.getName(), property.getWarning()),</span>
+<span class="nc" id="L85">                        propertyNode.getSourceCodeLocation()));</span>
+            }
+        }
+
+<span class="fc" id="L89">        return true;</span>
+    }
+
+    private void reportError(String message, CssNode node) {
+<span class="fc" id="L93">        errorManager.report(new GssError(message, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L94">    }</span>
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L98">        visitController.startVisit(this);</span>
+<span class="fc" id="L99">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

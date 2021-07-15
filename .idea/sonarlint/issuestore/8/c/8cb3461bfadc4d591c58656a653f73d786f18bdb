@@ -1,0 +1,11 @@
+
+W
+java:S1155">Use isEmpty() to check whether the collection is empty or not.(‚Ï÷üÿÿÿÿ
+P
+java:S2589"7Remove this expression which always evaluates to "true"(ÂÆÚ‡şÿÿÿÿ
+š
+java:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(æŞîÌùÿÿÿÿ
+K
+java:S1135"2Complete the task associated to this TODO comment.(±ã¡àıÿÿÿÿ
+F
+java:S1135"2Complete the task associated to this TODO comment.(èĞæ»

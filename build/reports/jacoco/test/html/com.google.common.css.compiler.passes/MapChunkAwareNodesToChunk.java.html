@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MapChunkAwareNodesToChunk.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">MapChunkAwareNodesToChunk.java</span></div><h1>MapChunkAwareNodesToChunk.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.Map;
+
+/**
+ * Pass which marks which {@link ChunkAware} nodes belong to which chunk.
+ *
+ * @param &lt;T&gt; type of chunk id objects set on {@link ChunkAware} nodes
+ * @author dgajda@google.com (Damian Gajda)
+ */
+public class MapChunkAwareNodesToChunk&lt;T&gt; extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    private final CssTree tree;
+
+    private final Map&lt;String, T&gt; fileToChunk;
+
+    public MapChunkAwareNodesToChunk(
+<span class="fc" id="L38">            CssTree tree, Map&lt;String, T&gt; fileToChunk) {</span>
+<span class="fc" id="L39">        this.tree = tree;</span>
+<span class="fc" id="L40">        this.fileToChunk = fileToChunk;</span>
+<span class="fc" id="L41">    }</span>
+
+    @Override
+    public boolean enterDefinition(CssDefinitionNode definition) {
+<span class="fc" id="L45">        definition.setChunk(getChunk(definition));</span>
+<span class="fc" id="L46">        return true;</span>
+    }
+
+    /**
+     * Marks the selector with an appropriate chunk.
+     */
+    @Override
+    public boolean enterSelector(CssSelectorNode selector) {
+<span class="fc" id="L54">        selector.setChunk(getChunk(selector));</span>
+<span class="fc" id="L55">        return true;</span>
+    }
+
+    @Override
+    public boolean enterFunctionNode(CssFunctionNode function) {
+<span class="fc" id="L60">        function.setChunk(getChunk(function));</span>
+<span class="fc" id="L61">        return true;</span>
+    }
+
+    @Override
+    public boolean enterMediaRule(CssMediaRuleNode media) {
+<span class="fc" id="L66">        media.setChunk(getChunk(media));</span>
+<span class="fc" id="L67">        return true;</span>
+    }
+
+    @Override
+    public boolean enterKeyframesRule(CssKeyframesNode keyframes) {
+<span class="fc" id="L72">        keyframes.setChunk(getChunk(keyframes));</span>
+<span class="fc" id="L73">        return true;</span>
+    }
+
+    @Override
+    public boolean enterFontFace(CssFontFaceNode fontFaceNode) {
+<span class="nc" id="L78">        fontFaceNode.setChunk(getChunk(fontFaceNode));</span>
+<span class="nc" id="L79">        return true;</span>
+    }
+
+    /**
+     * Determine the chunk for the given node.
+     *
+     * @param node A css node that is chunk aware.
+     */
+    private &lt;N extends CssNode &amp; ChunkAware&gt; T getChunk(N node) {
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L89">        T chunk = (T) node.getChunk();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (chunk == null) {</span>
+<span class="fc" id="L91">            chunk = getChunk(node, fileToChunk);</span>
+        }
+<span class="fc" id="L93">        return chunk;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L98">        tree.getVisitController().startVisit(this);</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Finds the chunk of a node, by looking up the filename of its
+     * source code location in the given map from filenames to
+     * chunks. Assumes that the map is complete, such that it always
+     * contains the filename of any valid source code location.
+     *
+     * @param node        the node to find the chunk for
+     * @param fileToChunk a map from filenames to chunks
+     * @return the chunk of the node according to the map
+     */
+    static &lt;T&gt; T getChunk(CssNode node, Map&lt;String, T&gt; fileToChunk) {
+<span class="fc" id="L112">        String file = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc" id="L113">        T chunk = fileToChunk.get(file);</span>
+<span class="fc" id="L114">        Preconditions.checkNotNull(chunk, &quot;File '%s' does not have chunk mapping&quot;,</span>
+                file);
+<span class="fc" id="L116">        return chunk;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

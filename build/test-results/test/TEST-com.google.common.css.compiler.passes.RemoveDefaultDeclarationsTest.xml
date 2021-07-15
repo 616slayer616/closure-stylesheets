@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.008">
+  <properties/>
+  <testcase name="testEnterDeclaration1" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.001"/>
+  <testcase name="testEnterDeclaration2" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.002"/>
+  <testcase name="testEnterDeclaration3" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.001"/>
+  <testcase name="testEnterDeclaration4" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.001"/>
+  <testcase name="testEnterDeclaration5" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.001"/>
+  <testcase name="testImportantDefault" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.0"/>
+  <testcase name="testEnterValueDefault" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.001"/>
+  <testcase name="testEnterValueNotDefault" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.0"/>
+  <testcase name="testRunPass" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
