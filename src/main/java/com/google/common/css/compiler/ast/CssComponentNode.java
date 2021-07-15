@@ -45,10 +45,11 @@ public class CssComponentNode extends CssAtRuleNode {
     /**
      * Constructor of a component.
      *
-     * @param name       Name of the component
-     * @param parentName Name of the parent component (may be null)
-     * @param isAbstract Whether this component is declared abstract
-     * @param block      The body of the component
+     * @param name        Name of the component
+     * @param parentName  Name of the parent component (may be null)
+     * @param isAbstract  Whether this component is declared abstract
+     * @param prefixStyle prefixStyle
+     * @param block       The body of the component
      */
     public CssComponentNode(CssLiteralNode name, @Nullable CssLiteralNode parentName,
                             boolean isAbstract, PrefixStyle prefixStyle, CssBlockNode block) {
@@ -91,6 +92,8 @@ public class CssComponentNode extends CssAtRuleNode {
 
     /**
      * Return how the prefix strings should be handled.
+     *
+     * @return prefix style
      */
     public PrefixStyle getPrefixStyle() {
         return prefixStyle;

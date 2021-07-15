@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * A node representing a GSS definition.
- * For example: <code>@def BASE_BG_COLOR white;</color>
+ * For example: <code>@def BASE_BG_COLOR white;</code>
  *
  * @author oana@google.com (Oana Florescu)
  */
@@ -33,6 +33,9 @@ public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
 
     /**
      * Constructor of a definition.
+     *
+     * @param name     name
+     * @param comments comments
      */
     public CssDefinitionNode(CssLiteralNode name, List<CssCommentNode> comments) {
         super(CssAtRuleNode.Type.DEF, name, comments);
@@ -40,6 +43,8 @@ public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
 
     /**
      * Constructor of a definition.
+     *
+     * @param name name
      */
     public CssDefinitionNode(CssLiteralNode name) {
         super(CssAtRuleNode.Type.DEF, name);
@@ -47,6 +52,9 @@ public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
 
     /**
      * Constructor of a definition.
+     *
+     * @param parameters parameters
+     * @param name       name
      */
     public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name) {
         super(CssAtRuleNode.Type.DEF, name);
@@ -55,6 +63,10 @@ public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
 
     /**
      * Constructor of a definition.
+     *
+     * @param parameters
+     * @param name
+     * @param sourceCodeLocation
      */
     public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name,
                              SourceCodeLocation sourceCodeLocation) {
@@ -65,6 +77,10 @@ public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
 
     /**
      * Constructor of a definition.
+     *
+     * @param parameters parameters
+     * @param name       name
+     * @param comments   comments
      */
     public CssDefinitionNode(List<CssValueNode> parameters, CssLiteralNode name,
                              List<CssCommentNode> comments) {
@@ -74,6 +90,11 @@ public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
 
     /**
      * Constructor of a definition.
+     *
+     * @param parameters         parameters
+     * @param name               name
+     * @param comments           comments
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssDefinitionNode(List<CssValueNode> parameters,
                              CssLiteralNode name, List<CssCommentNode> comments,
@@ -85,7 +106,7 @@ public class CssDefinitionNode extends CssAtRuleNode implements ChunkAware {
     /**
      * Copy constructor.
      *
-     * @param node
+     * @param node node
      */
     public CssDefinitionNode(CssDefinitionNode node) {
         super(node);

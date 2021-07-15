@@ -56,6 +56,8 @@ interface CharStream {
      * had already read some characters, but could not use them to match a
      * (longer) token. So, they will be used again as the prefix of the next
      * token and it is the implemetation's responsibility to do this right.
+     *
+     * @param amount amount
      */
     void backup(int amount);
 
@@ -63,6 +65,9 @@ interface CharStream {
      * Returns the next character that marks the beginning of the next token.
      * All characters must remain in the buffer between two successive calls
      * to this method to implement backup correctly.
+     *
+     * @return next character
+     * @throws java.io.IOException
      */
     char BeginToken() throws java.io.IOException;
 

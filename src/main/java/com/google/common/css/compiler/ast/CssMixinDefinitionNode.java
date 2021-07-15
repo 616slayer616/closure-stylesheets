@@ -50,6 +50,8 @@ public class CssMixinDefinitionNode extends CssAtRuleNode {
 
     /**
      * Creates a new mixin definition node that is a deep copy of the given node.
+     *
+     * @param node node
      */
     public CssMixinDefinitionNode(CssMixinDefinitionNode node) {
         super(node);

@@ -56,7 +56,7 @@ public abstract class CssValueNode extends CssNode {
     /**
      * Constructor of a node that contains a value.
      *
-     * @param value
+     * @param value value
      */
     public CssValueNode(String value) {
         this(value, null);
@@ -65,7 +65,7 @@ public abstract class CssValueNode extends CssNode {
     /**
      * Copy constructor.
      *
-     * @param node
+     * @param node node
      */
     public CssValueNode(CssValueNode node) {
         this(node.getValue(), node.getSourceCodeLocation());

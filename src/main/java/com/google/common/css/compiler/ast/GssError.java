@@ -69,7 +69,7 @@ public class GssError implements Comparable<GssError> {
 
     /**
      * A String template, together with values for the template holes.
-     * {@see java.text.MessageFormat}
+     * {@link java.text.MessageFormat}
      */
     public static class MessageFormatArgs {
         public final String pattern;

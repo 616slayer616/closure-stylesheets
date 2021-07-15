@@ -28,8 +28,8 @@ public class CssCommentNode extends CssValueNode {
     /**
      * Constructor of a comment node.
      *
-     * @param comment
-     * @param sourceCodeLocation
+     * @param comment            comment
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssCommentNode(String comment, SourceCodeLocation sourceCodeLocation) {
         super(comment, sourceCodeLocation);
@@ -38,7 +38,7 @@ public class CssCommentNode extends CssValueNode {
     /**
      * Copy constructor.
      *
-     * @param node
+     * @param node comment node
      */
     public CssCommentNode(CssCommentNode node) {
         super(node);

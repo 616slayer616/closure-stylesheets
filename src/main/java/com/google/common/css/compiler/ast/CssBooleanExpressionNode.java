@@ -76,6 +76,8 @@ public class CssBooleanExpressionNode extends CssValueNode {
 
         /**
          * Lower numbers are lower priority.
+         *
+         * @return priority
          */
         public int getPriority() {
             return -this.ordinal();
@@ -135,9 +137,9 @@ public class CssBooleanExpressionNode extends CssValueNode {
     /**
      * Constructor for a boolean expression node.
      *
-     * @param type
-     * @param value
-     * @param sourceCodeLocation
+     * @param type               type
+     * @param value              value
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssBooleanExpressionNode(Type type, String value,
                                     @Nullable SourceCodeLocation sourceCodeLocation) {
@@ -156,6 +158,8 @@ public class CssBooleanExpressionNode extends CssValueNode {
 
     /**
      * Copy constructor.
+     *
+     * @param node node
      */
     public CssBooleanExpressionNode(CssBooleanExpressionNode node) {
         super(node);
@@ -193,6 +197,8 @@ public class CssBooleanExpressionNode extends CssValueNode {
 
     /**
      * Checks if the expression tree is valid.
+     *
+     * @return isValid
      */
     public boolean isValidExpressionTree() {
         if (getType().isConstant()) {

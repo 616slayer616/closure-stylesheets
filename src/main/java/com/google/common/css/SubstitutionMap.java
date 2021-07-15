@@ -45,7 +45,7 @@ public interface SubstitutionMap {
      * no call to this method is necessary.
      *
      * <p>After the first compilation,
-     * {@link RecordingSubstitutionMap#getRenameMap} may be used with
+     * RecordingSubstitutionMap#getRenameMap may be used with
      * an {@link OutputRenamingMapFormat} to serialize the renaming map
      * in a form that can be used with Closure Library code or Closure
      * Templates.

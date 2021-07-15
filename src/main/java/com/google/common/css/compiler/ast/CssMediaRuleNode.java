@@ -54,6 +54,8 @@ public class CssMediaRuleNode extends CssAtRuleNode implements ChunkAware {
 
     /**
      * Copy constructor.
+     *
+     * @param node node
      */
     public CssMediaRuleNode(CssMediaRuleNode node) {
         super(node);
