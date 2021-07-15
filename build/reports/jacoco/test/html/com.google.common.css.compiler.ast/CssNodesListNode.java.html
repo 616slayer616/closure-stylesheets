@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssNodesListNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssNodesListNode.java</span></div><h1>CssNodesListNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * Represents a list of nodes. This is meant to represent a succession of
+ * statements that logically group together as one node in the tree. Examples
+ * include:
+ * &lt;ul&gt;
+ * &lt;li&gt;all the statements in a stylesheet, except for the ones that can only
+ * appear on top ({@code charset}, {@code import}, etc.)
+ * &lt;li&gt;all the declarations inside a ruleset, a font face or a page rule
+ * &lt;li&gt;all the nodes that form a chain of if-elseif-else rules
+ * &lt;li&gt;the block that belongs to some of the at rules, such as {@code media}
+ * &lt;/ul&gt;
+ *
+ * @param &lt;T&gt; the list is restricted to nodes of this type
+ */
+public abstract class CssNodesListNode&lt;T extends CssNode&gt; extends CssNode {
+<span class="fc" id="L44">    protected List&lt;T&gt; children = Lists.newArrayList();</span>
+    private final boolean isEnclosedWithBraces;
+
+    /**
+     * Constructor of a list of nodes alike.
+     *
+     * @param isEnclosedWithBraces
+     */
+    public CssNodesListNode(boolean isEnclosedWithBraces) {
+<span class="fc" id="L53">        this(isEnclosedWithBraces, null);</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Constructor of a list of nodes alike.
+     *
+     * @param isEnclosedWithBraces
+     * @param comments
+     */
+    public CssNodesListNode(boolean isEnclosedWithBraces,
+                            @Nullable List&lt;CssCommentNode&gt; comments) {
+<span class="fc" id="L64">        super(null, comments, null);</span>
+<span class="fc" id="L65">        this.isEnclosedWithBraces = isEnclosedWithBraces;</span>
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Constructor of a list of nodes alike.
+     *
+     * @param isEnclosedWithBraces
+     * @param comments
+     * @param childrenList         list of children
+     */
+    public CssNodesListNode(boolean isEnclosedWithBraces,
+                            List&lt;T&gt; childrenList,
+                            @Nullable List&lt;CssCommentNode&gt; comments) {
+<span class="fc" id="L78">        super(null, comments, null);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (T child : childrenList) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L81">            T childCopy = (T) child.deepCopy();</span>
+<span class="fc" id="L82">            addChildToBack(childCopy);</span>
+<span class="fc" id="L83">        }</span>
+
+<span class="fc" id="L85">        this.isEnclosedWithBraces = isEnclosedWithBraces;</span>
+<span class="fc" id="L86">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssNodesListNode(CssNodesListNode&lt;? extends CssNode&gt; node) {
+<span class="fc" id="L94">        super(</span>
+<span class="fc" id="L95">                node.getParent(),</span>
+<span class="fc" id="L96">                node.getComments(),</span>
+<span class="fc" id="L97">                node.getSourceCodeLocation());</span>
+<span class="fc" id="L98">        this.isEnclosedWithBraces = node.isEnclosedWithBraces;</span>
+
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        for (CssNode child : node.childIterable()) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L102">            T childCopy = (T) child.deepCopy();</span>
+<span class="fc" id="L103">            addChildToBack(childCopy);</span>
+<span class="fc" id="L104">        }</span>
+<span class="fc" id="L105">    }</span>
+
+    public List&lt;T&gt; getChildren() {
+<span class="fc" id="L108">        return Collections.unmodifiableList(children);</span>
+    }
+
+    public Iterator&lt;T&gt; getChildIterator() {
+<span class="fc" id="L112">        return children.iterator();</span>
+    }
+
+    public Iterable&lt;T&gt; childIterable() {
+<span class="fc" id="L116">        return Iterables.unmodifiableIterable(children);</span>
+    }
+
+    void setChildren(List&lt;T&gt; children) {
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        Preconditions.checkArgument(!children.contains(null));</span>
+<span class="fc" id="L121">        removeAsParentOfNodes(this.children);</span>
+<span class="fc" id="L122">        this.children = copyToList(children);</span>
+<span class="fc" id="L123">        becomeParentForNodes(this.children);</span>
+<span class="fc" id="L124">    }</span>
+
+    T removeChildAt(int index) {
+<span class="pc bpc" id="L127" title="2 of 4 branches missed.">        Preconditions.checkState(index &gt;= 0 &amp;&amp; index &lt; children.size());</span>
+<span class="fc" id="L128">        T child = children.get(index);</span>
+<span class="fc" id="L129">        removeAsParentOfNode(child);</span>
+<span class="fc" id="L130">        children.remove(index);</span>
+<span class="fc" id="L131">        return child;</span>
+    }
+
+    // TODO(dgajda): Make it package private once we can walk the tree backwards
+    //     and ReplaceConstantReferences won't need to use this method directly.
+    public void replaceChildAt(int index, List&lt;? extends T&gt; newChildren) {
+<span class="pc bpc" id="L137" title="2 of 4 branches missed.">        Preconditions.checkState(index &gt;= 0 &amp;&amp; index &lt; children.size());</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        Preconditions.checkArgument(!newChildren.contains(null));</span>
+<span class="fc" id="L139">        removeChildAt(index);</span>
+<span class="fc" id="L140">        children.addAll(index, newChildren);</span>
+<span class="fc" id="L141">        becomeParentForNodes(newChildren);</span>
+<span class="fc" id="L142">    }</span>
+
+    public T getChildAt(int index) {
+<span class="pc bpc" id="L145" title="2 of 4 branches missed.">        Preconditions.checkState(index &gt;= 0 &amp;&amp; index &lt; children.size());</span>
+<span class="fc" id="L146">        return children.get(index);</span>
+    }
+
+    public int numChildren() {
+<span class="fc" id="L150">        return children.size();</span>
+    }
+
+    T removeLastChild() {
+<span class="nc" id="L154">        return removeChildAt(children.size() - 1);</span>
+    }
+
+    public T getLastChild() {
+<span class="fc" id="L158">        return children.get(children.size() - 1);</span>
+    }
+
+    public void addChildToBack(T child) {
+<span class="fc" id="L162">        Preconditions.checkNotNull(child);</span>
+<span class="fc" id="L163">        this.children.add(child);</span>
+<span class="fc" id="L164">        becomeParentForNode(child);</span>
+<span class="fc" id="L165">    }</span>
+
+    public boolean isEmpty() {
+<span class="fc" id="L168">        return children.isEmpty();</span>
+    }
+
+    public boolean isEnclosedWithBraces() {
+<span class="fc" id="L172">        return isEnclosedWithBraces;</span>
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L180">        StringBuffer output = new StringBuffer();</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (!getComments().isEmpty()) {</span>
+<span class="nc" id="L182">            output.append(&quot;[&quot;);</span>
+<span class="nc" id="L183">            output.append(getComments().toString());</span>
+<span class="nc" id="L184">            output.append(children.toString());</span>
+<span class="nc" id="L185">            output.append(&quot;]&quot;);</span>
+        } else {
+<span class="fc" id="L187">            output.append(children.toString());</span>
+        }
+
+<span class="fc" id="L190">        return output.toString();</span>
+    }
+
+    @Override
+    public SourceCodeLocation getSourceCodeLocation() {
+<span class="fc" id="L195">        SourceCodeLocation location = super.getSourceCodeLocation();</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        if (location == null) {</span>
+<span class="fc" id="L197">            location = SourceCodeLocation.merge(children);</span>
+        }
+<span class="fc" id="L199">        return location;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

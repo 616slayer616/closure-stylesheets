@@ -1,0 +1,22 @@
+
+O
+java:S1066"/Merge this if statement with the enclosing one.(Òº£ýùÿÿÿÿ8Ûð³¢ª/
+6
+java:S3626"Remove this redundant jump.(ûÁÝ…8õð³¢ª/
+6
+java:S3626"Remove this redundant jump.(ûÁÝ…8õð³¢ª/
+l
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(»½•8÷ð³¢ª/
+M
+java:S1135"2Complete the task associated to this TODO comment.(ôîÿ÷8Ÿñ³¢ª/
+V	java:S125"<This block of commented-out lines of code should be removed.(„óÎý8­ñ³¢ª/
+\
+java:S1126"AReplace this if-then-else statement by a single return statement.(Ó¹‚¾8®ñ³¢ª/
+m
+java:S1871"MThis branch's code block is the same as the block for the branch on line 396.(¿·úùùÿÿÿÿ8±ñ³¢ª/
+M
+java:S1135"2Complete the task associated to this TODO comment.(¸ÃÄ¬8Èñ³¢ª/
+\
+java:S1126"AReplace this if-then-else statement by a single return statement.(°»¥Ô8Êñ³¢ª/
+~
+java:S1157"cReplace these toUpperCase()/toLowerCase() and equals() calls with a single equalsIgnoreCase() call.(°»¥Ô8Êñ³¢ª/

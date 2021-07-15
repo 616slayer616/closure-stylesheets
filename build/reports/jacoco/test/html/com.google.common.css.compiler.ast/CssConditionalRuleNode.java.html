@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssConditionalRuleNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssConditionalRuleNode.java</span></div><h1>CssConditionalRuleNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
+import javax.annotation.Nullable;
+
+/**
+ * A node representing a conditional rule such as @if or @else.
+ */
+public class CssConditionalRuleNode extends CssAtRuleNode {
+    /**
+     * Constructor of a conditional rule.
+     *
+     * @param type Type of the rule
+     * @param name Name of the rule
+     */
+    public CssConditionalRuleNode(Type type, CssLiteralNode name) {
+<span class="fc" id="L35">        super(type, name);</span>
+<span class="fc" id="L36">        Preconditions.checkArgument(this.getType().isConditional());</span>
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * Constructor of a conditional rule.
+     *
+     * @param type      Type of the rule
+     * @param name      Name of the rule
+     * @param condition The condition of the rule
+     * @param block     A block
+     */
+    public CssConditionalRuleNode(Type type, CssLiteralNode name,
+                                  @Nullable CssBooleanExpressionNode condition,
+                                  CssAbstractBlockNode block) {
+<span class="fc" id="L50">        super(type, name, block);</span>
+<span class="fc" id="L51">        Preconditions.checkArgument(this.getType().isConditional());</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (condition != null) {</span>
+<span class="fc" id="L53">            setCondition(condition);</span>
+        }
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Copy constructor.
+     *
+     * @param node
+     */
+    public CssConditionalRuleNode(CssConditionalRuleNode node) {
+<span class="fc" id="L63">        super(node);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (node.getCondition() != null) {</span>
+<span class="fc" id="L65">            this.setCondition(node.getCondition().deepCopy());</span>
+        }
+<span class="fc" id="L67">    }</span>
+
+    @Override
+    public CssConditionalRuleNode deepCopy() {
+<span class="fc" id="L71">        return new CssConditionalRuleNode(this);</span>
+    }
+
+    @Override
+    void setParent(CssNode parent) {
+<span class="fc" id="L76">        Preconditions.checkArgument(parent instanceof CssConditionalBlockNode);</span>
+<span class="fc" id="L77">        super.setParent(parent);</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * Can only be called after the node is completely built (meaning it has
+     * the condition set).
+     */
+    public CssBooleanExpressionNode getCondition() {
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (getType() == Type.ELSE) {</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">            Preconditions.checkState(getParametersCount() == 0);</span>
+<span class="fc" id="L87">            return null;</span>
+        }
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        Preconditions.checkState(getParametersCount() == 1);</span>
+<span class="fc" id="L90">        return (CssBooleanExpressionNode) this.getParameters().get(0);</span>
+    }
+
+    void setCondition(CssBooleanExpressionNode condition) {
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        Preconditions.checkState(getType() != Type.ELSE);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        Preconditions.checkState(getParametersCount() &lt;= 1);</span>
+<span class="fc" id="L96">        this.setParameters(ImmutableList.&lt;CssValueNode&gt;of(condition));</span>
+<span class="fc" id="L97">    }</span>
+
+    @Override
+    public CssAbstractBlockNode getBlock() {
+<span class="fc" id="L101">        return super.getBlock();</span>
+    }
+
+    // TODO(user): Make sure that the parameters list is made up of a single
+    //      CssBooleanExpressionNode.
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

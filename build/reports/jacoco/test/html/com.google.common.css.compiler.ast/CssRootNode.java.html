@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssRootNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssRootNode.java</span></div><h1>CssRootNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+
+import javax.annotation.Nullable;
+
+/**
+ * The root of a node.
+ */
+public class CssRootNode extends CssNode {
+<span class="fc" id="L27">    private CssAtRuleNode charsetRule = null;</span>
+    private CssImportBlockNode importRules;
+
+    // TODO(user): Support this.
+    // http://www.w3.org/TR/css3-namespace/
+    // private List&lt;CssAtRuleNode&gt; namespaceRules;
+
+    // TODO(user): Support this.
+    // http://disruptive-innovations.com/zoo/cssvariables/
+    // private List&lt;CssAtRuleNode&gt; variablesRules;
+
+    // Contains style rules, media rules, conditional rules, etc.
+    private final CssBlockNode body;
+
+<span class="fc" id="L41">    public CssRootNode(CssBlockNode body) {</span>
+<span class="fc" id="L42">        Preconditions.checkNotNull(body);</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">        Preconditions.checkArgument(!body.isEnclosedWithBraces());</span>
+<span class="fc" id="L44">        this.body = body;</span>
+<span class="fc" id="L45">        this.importRules = new CssImportBlockNode();</span>
+<span class="fc" id="L46">        becomeParentForNode(this.body);</span>
+<span class="fc" id="L47">        becomeParentForNode(this.importRules);</span>
+<span class="fc" id="L48">    }</span>
+
+    public CssRootNode() {
+<span class="fc" id="L51">        this(new CssBlockNode(false /* isEnclosedWithBraces */));</span>
+<span class="fc" id="L52">    }</span>
+
+    public CssRootNode(CssRootNode node) {
+<span class="fc" id="L55">        this(node.getBody().deepCopy());</span>
+<span class="fc" id="L56">        this.setParent(node.getParent());</span>
+        // TODO(oana): When charset rules are added to the tree, a deep copy of it
+        // must be created here.
+<span class="fc" id="L59">        this.importRules = node.getImportRules().deepCopy();</span>
+<span class="fc" id="L60">    }</span>
+
+    @Override
+    public CssRootNode deepCopy() {
+<span class="fc" id="L64">        return new CssRootNode(this);</span>
+    }
+
+    @Override
+    void removeParent() {
+<span class="nc" id="L69">        Preconditions.checkState(false,</span>
+                &quot;You cannot remove the parent node of a tree root.&quot;);
+<span class="nc" id="L71">    }</span>
+
+    @Override
+    void setParent(CssNode parent) {
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        Preconditions.checkState(parent == null,</span>
+                &quot;You cannot set a non-null parent node of a tree root.&quot;);
+<span class="fc" id="L77">    }</span>
+
+    public CssAtRuleNode getCharsetRule() {
+<span class="fc" id="L80">        return this.charsetRule;</span>
+    }
+
+    void setCharsetRule(@Nullable CssAtRuleNode charsetRule) {
+<span class="fc" id="L84">        removeAsParentOfNode(this.charsetRule);</span>
+<span class="fc" id="L85">        this.charsetRule = charsetRule;</span>
+<span class="fc" id="L86">        becomeParentForNode(this.charsetRule);</span>
+<span class="fc" id="L87">    }</span>
+
+    public CssImportBlockNode getImportRules() {
+<span class="fc" id="L90">        return importRules;</span>
+    }
+
+    void setImportRules(@Nullable CssImportBlockNode importRules) {
+<span class="nc" id="L94">        removeAsParentOfNode(this.importRules);</span>
+<span class="nc" id="L95">        this.importRules = importRules;</span>
+<span class="nc" id="L96">        becomeParentForNode(this.importRules);</span>
+<span class="nc" id="L97">    }</span>
+
+    public CssBlockNode getBody() {
+<span class="fc" id="L100">        return body;</span>
+    }
+
+    /**
+     * Debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L108">        StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (getCharsetRule() != null) {</span>
+<span class="nc" id="L110">            sb.append(getCharsetRule().toString());</span>
+        }
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (!getImportRules().isEmpty()) {</span>
+<span class="nc" id="L113">            sb.append(getImportRules().toString());</span>
+        }
+<span class="fc" id="L115">        sb.append(getBody().toString());</span>
+<span class="fc" id="L116">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CheckDependencyNodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">CheckDependencyNodes.java</span></div><h1>CheckDependencyNodes.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * {@link CheckDependencyNodes} ensures that {@code @provide} nodes appear
+ * before {@code @require} nodes.
+ *
+ * @author bolinfest@google.com (Michael Bolin)
+ */
+public class CheckDependencyNodes extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+<span class="fc" id="L37">    private static final String provideName = CssAtRuleNode.Type.PROVIDE</span>
+<span class="fc" id="L38">            .getCanonicalName();</span>
+<span class="fc" id="L39">    private static final String requireName = CssAtRuleNode.Type.REQUIRE</span>
+<span class="fc" id="L40">            .getCanonicalName();</span>
+    private final MutatingVisitController visitController;
+    private final ErrorManager errorManager;
+    private final boolean suppressDependencyCheck;
+
+    /**
+     * A linked collection is used so the dependencies can be iterated in the
+     * order in which they were provided.
+     */
+<span class="fc" id="L49">    private Set&lt;String&gt; provides = Sets.newLinkedHashSet();</span>
+
+    public CheckDependencyNodes(MutatingVisitController visitController,
+                                ErrorManager errorManager) {
+<span class="fc" id="L53">        this(visitController, errorManager, true /* suppressDependencyCheck */);</span>
+<span class="fc" id="L54">    }</span>
+
+    public CheckDependencyNodes(MutatingVisitController visitController,
+<span class="fc" id="L57">                                ErrorManager errorManager, boolean suppressDependencyCheck) {</span>
+<span class="fc" id="L58">        this.visitController = visitController;</span>
+<span class="fc" id="L59">        this.errorManager = errorManager;</span>
+<span class="fc" id="L60">        this.suppressDependencyCheck = suppressDependencyCheck;</span>
+<span class="fc" id="L61">    }</span>
+
+    @Override
+    public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
+<span class="fc" id="L65">        String atRuleName = node.getName().getValue();</span>
+        CssNode dependencyNode;
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (provideName.equals(atRuleName)) {</span>
+<span class="fc" id="L68">            CssLiteralNode arg = extractArgument(node);</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (arg != null) {</span>
+<span class="fc" id="L70">                dependencyNode = createProvideNode(node, arg);</span>
+            } else {
+<span class="nc" id="L72">                return false;</span>
+            }
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        } else if (requireName.equals(atRuleName)) {</span>
+<span class="fc" id="L75">            CssLiteralNode arg = extractArgument(node);</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">            if (arg != null) {</span>
+<span class="fc" id="L77">                dependencyNode = createRequireNode(node, arg);</span>
+            } else {
+<span class="nc" id="L79">                return false;</span>
+            }
+<span class="fc" id="L81">        } else {</span>
+<span class="fc" id="L82">            return true;</span>
+        }
+
+<span class="fc" id="L85">        visitController.replaceCurrentBlockChildWith(</span>
+<span class="fc" id="L86">                Lists.newArrayList(dependencyNode),</span>
+                false /* visitTheReplacementNodes */);
+<span class="fc" id="L88">        return true;</span>
+    }
+
+    private CssLiteralNode extractArgument(CssUnknownAtRuleNode node) {
+<span class="fc" id="L92">        String atRuleName = node.getName().getValue();</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (node.getType().hasBlock()) {</span>
+<span class="nc" id="L94">            reportError(&quot;@&quot; + atRuleName + &quot; with block&quot;, node);</span>
+<span class="nc" id="L95">            return null;</span>
+        }
+<span class="fc" id="L97">        List&lt;CssValueNode&gt; params = node.getParameters();</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">        if (params.isEmpty()) {</span>
+<span class="nc" id="L99">            reportError(&quot;@&quot; + atRuleName + &quot; without name&quot;, node);</span>
+<span class="nc" id="L100">            return null;</span>
+        }
+<span class="fc" id="L102">        CssNode nameNode = params.get(0);</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (!(nameNode instanceof CssStringNode)) {</span>
+<span class="nc" id="L104">            reportError(&quot;@&quot; + atRuleName + &quot; without a quoted string as name&quot;, node);</span>
+<span class="nc" id="L105">            return null;</span>
+        }
+<span class="fc" id="L107">        CssStringNode nameStringNode = (CssStringNode) nameNode;</span>
+<span class="fc" id="L108">        return new CssLiteralNode(nameStringNode.getValue());</span>
+    }
+
+    private CssProvideNode createProvideNode(CssUnknownAtRuleNode node,
+                                             CssLiteralNode provideArgument) {
+        //TODO(user): Make CssProvideNode &amp; CssRequireNode consistent with other at-rule nodes.
+        // Pass the @name as CssLiteralNode and the namespace as CssValueNode.
+<span class="fc" id="L115">        CssProvideNode provideNode = new CssProvideNode(</span>
+                provideArgument,
+<span class="fc" id="L117">                node.getComments(),</span>
+<span class="fc" id="L118">                node.getSourceCodeLocation());</span>
+<span class="fc" id="L119">        String provide = provideNode.getProvide();</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (provides.contains(provide)) {</span>
+<span class="fc" id="L121">            reportError(&quot;Duplicate provide for: &quot; + provide, node);</span>
+        }
+<span class="fc" id="L123">        provides.add(provide);</span>
+<span class="fc" id="L124">        return provideNode;</span>
+    }
+
+    private CssRequireNode createRequireNode(CssUnknownAtRuleNode node,
+                                             CssLiteralNode requireArgument) {
+<span class="fc" id="L129">        CssRequireNode requireNode = new CssRequireNode(</span>
+                requireArgument,
+<span class="fc" id="L131">                node.getComments(),</span>
+<span class="fc" id="L132">                node.getSourceCodeLocation());</span>
+<span class="fc" id="L133">        String require = requireNode.getRequire();</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (!provides.contains(require)) {</span>
+<span class="fc" id="L135">            reportError(&quot;Missing provide for: &quot; + require, node);</span>
+        }
+<span class="fc" id="L137">        return requireNode;</span>
+    }
+
+    private void reportError(String message, CssNode node) {
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (!suppressDependencyCheck) {</span>
+<span class="fc" id="L142">            errorManager.report(new GssError(message, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L143">            visitController.removeCurrentNode();</span>
+        }
+<span class="fc" id="L145">    }</span>
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L149">        visitController.startVisit(this);</span>
+<span class="fc" id="L150">    }</span>
+
+    @VisibleForTesting
+    List&lt;String&gt; getProvidesInOrder() {
+<span class="fc" id="L154">        return ImmutableList.copyOf(provides);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

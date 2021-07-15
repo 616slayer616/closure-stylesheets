@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.MarkDefaultDefinitionsTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.006">
+  <properties/>
+  <testcase name="testMarkDefaultDefinition3" classname="com.google.common.css.compiler.passes.MarkDefaultDefinitionsTest" time="0.003"/>
+  <testcase name="testMarkDefaultDefinitions1" classname="com.google.common.css.compiler.passes.MarkDefaultDefinitionsTest" time="0.001"/>
+  <testcase name="testMarkDefaultDefinitions2" classname="com.google.common.css.compiler.passes.MarkDefaultDefinitionsTest" time="0.001"/>
+  <testcase name="testMarkDefaultDefinitions4" classname="com.google.common.css.compiler.passes.MarkDefaultDefinitionsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

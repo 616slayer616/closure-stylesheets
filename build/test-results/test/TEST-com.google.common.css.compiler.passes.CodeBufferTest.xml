@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CodeBufferTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.005">
+  <properties/>
+  <testcase name="testAppendObject" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.002"/>
+  <testcase name="testAppendNewLineChar" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.001"/>
+  <testcase name="testDeleteLastChars" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testAppendStr" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testStartNewLine" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testReset" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testAppendSequenceOfNewLineChar" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testDeleteLastCharForNewLine" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.001"/>
+  <testcase name="testDeleteLastChar" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testDeleteEndingIfEndingIs" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testInitialSetup" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testDeleteLastCharsWhenExceedBufferLength" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testAppendChar" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testAppendNull" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <testcase name="testAppendStrIncludeNewLine" classname="com.google.common.css.compiler.passes.CodeBufferTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:44" hostname="Patrick-MBP.fritz.box" time="0.172">
+  <properties/>
+  <testcase name="testMinGetCallResultString_mismatchedUnitsFail" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.002"/>
+  <testcase name="testMaxGetCallResultString_mismatchedUnitsFail" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testMultGetCallResultString" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testAddGetCallResultString" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testMultGetCallResultString_noUnits" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testDivGetCallResultString_noUnits" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testSaturateColor" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.15"/>
+  <testcase name="testDivGetCallResultString" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testSpin" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testGreyscale" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testMaxGetCallResultString" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testScalarLeftAssociativeOperator_unexpectedUnitsFail" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testLighten" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testMakeTranslucent_otherLocale" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testAddGetCallResultString_mismatchedUnitsFail" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testSubGetCallResultString" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testSubGetCallResultString_mismatchedUnitsFail" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testMinGetCallResultString" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testConcat" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.006"/>
+  <testcase name="testDarken" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testDesaturateColor" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.001"/>
+  <testcase name="testDivGetCallResultString_otherLocale" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.0"/>
+  <testcase name="testMakeTranslucent" classname="com.google.common.css.compiler.gssfunctions.GssFunctionsTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

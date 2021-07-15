@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrowserPrefixRule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">BrowserPrefixRule.java</span></div><h1>BrowserPrefixRule.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkState;
+
+/**
+ * A utility for the AutoExpandBrowserPrefix pass, which provides a list of rules
+ * that govern automatic addition of browser specific property declarations.
+ *
+ * &lt;p&gt;A rule could be matched on property name or value alone, or both property name and value.
+ * If the value is a function, then the function names must match.
+ *
+ * &lt;p&gt;Each rule, if matched, provides a set of placeholder expansion nodes - which will
+ * be cloned and swapped into the tree, as part of AutoExpandBrowserPrefix pass.
+ */
+public final class BrowserPrefixRule {
+    private final Optional&lt;String&gt; matchPropertyName;
+    private final Optional&lt;String&gt; matchPropertyValue;
+    private final boolean isFunction;
+<span class="fc" id="L42">    private final List&lt;CssDeclarationNode&gt; expansionNodes = Lists.newArrayList();</span>
+<span class="fc" id="L43">    private final List&lt;CssPropertyValueNode&gt; valueOnlyExpansionNodes = Lists.newArrayList();</span>
+
+<span class="fc" id="L45">    private BrowserPrefixRule(Builder builder) {</span>
+<span class="pc bpc" id="L46" title="1 of 4 branches missed.">        checkState(builder.matchPropertyName != null || builder.matchPropertyValue != null);</span>
+<span class="fc" id="L47">        this.matchPropertyName = Optional.fromNullable(builder.matchPropertyName);</span>
+<span class="fc" id="L48">        this.matchPropertyValue = Optional.fromNullable(builder.matchPropertyValue);</span>
+<span class="fc" id="L49">        this.isFunction = builder.isFunction;</span>
+
+        // Pre-compute placeholder expansion nodes for this rule.
+        // Either expandPropertyValueList or expandPropertyNameList will be non-empty.
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (builder.expandPropertyValueList.isEmpty()) {</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">            checkState(!builder.expandPropertyNameList.isEmpty());</span>
+            // Case #1: The value expansion list is empty and there is only a property name to expand.
+<span class="fc bfc" id="L56" title="All 2 branches covered.">            for (String propertyName : builder.expandPropertyNameList) {</span>
+<span class="fc" id="L57">                CssPropertyNode propertyNode = new CssPropertyNode(propertyName);</span>
+                // The property value will be set, when matched.
+<span class="fc" id="L59">                CssPropertyValueNode valueNode = new CssPropertyValueNode();</span>
+<span class="fc" id="L60">                CssDeclarationNode node = new CssDeclarationNode(propertyNode, valueNode);</span>
+<span class="fc" id="L61">                node.appendComment(new CssCommentNode(&quot;/* @alternate */&quot;, null));</span>
+<span class="fc" id="L62">                expansionNodes.add(node);</span>
+<span class="fc" id="L63">            }</span>
+        }
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (builder.expandPropertyNameList.isEmpty()) {</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            checkState(!builder.expandPropertyValueList.isEmpty());</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            for (String propertyValue : builder.expandPropertyValueList) {</span>
+<span class="fc" id="L68">                CssPropertyValueNode valueNode = new CssPropertyValueNode();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">                if (isFunction) {</span>
+                    // Case #3: Property value is a function
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                    checkState(!builder.expandPropertyValueList.isEmpty());</span>
+<span class="fc" id="L72">                    CssFunctionNode functionNode = new CssFunctionNode(</span>
+<span class="fc" id="L73">                            CssFunctionNode.Function.byName(propertyValue), null);</span>
+                    // Function args will be set, when matched.
+<span class="fc" id="L75">                    valueNode.addChildToBack((CssValueNode) functionNode);</span>
+<span class="fc" id="L76">                } else {</span>
+                    // Case #2: Property value is not a function
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                    checkState(matchPropertyValue != null);  // Has both name and value</span>
+<span class="fc" id="L79">                    valueNode.addChildToBack(new CssLiteralNode(propertyValue));</span>
+                }
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                if (matchPropertyName.isPresent()) {</span>
+                    // If the property name is present a full declaration expansion can be created.
+<span class="fc" id="L83">                    CssPropertyNode propertyNode = new CssPropertyNode(matchPropertyName.get());</span>
+<span class="fc" id="L84">                    CssDeclarationNode node = new CssDeclarationNode(propertyNode, valueNode);</span>
+<span class="fc" id="L85">                    node.appendComment(new CssCommentNode(&quot;/* @alternate */&quot;, null));</span>
+<span class="fc" id="L86">                    expansionNodes.add(node);</span>
+<span class="fc" id="L87">                } else {</span>
+                    // Since the property name is not present there is a value-only expansion added.
+                    // The property name will be taken from the original declaration.
+<span class="fc" id="L90">                    valueOnlyExpansionNodes.add(valueNode);</span>
+                }
+<span class="fc" id="L92">            }</span>
+        }
+<span class="fc" id="L94">    }</span>
+
+    @Nullable
+    public String getMatchPropertyName() {
+<span class="fc" id="L98">        return matchPropertyName.orNull();</span>
+    }
+
+    @Nullable
+    public String getMatchPropertyValue() {
+<span class="fc" id="L103">        return matchPropertyValue.orNull();</span>
+    }
+
+    public boolean isFunction() {
+<span class="fc" id="L107">        return isFunction;</span>
+    }
+
+    /**
+     * @return A list of expansion nodes that contain a property names, and may contain a value. These
+     * nodes should be used when replacing declarations by matching property name.
+     */
+    public List&lt;CssDeclarationNode&gt; getExpansionNodes() {
+<span class="fc" id="L115">        return expansionNodes;</span>
+    }
+
+    /**
+     * @return A list of value-only expansion nodes, meaning they do not contain a property name.
+     * These nodes should be used when replacing declarations by matching the value only.
+     */
+    List&lt;CssPropertyValueNode&gt; getValueOnlyExpansionNodes() {
+<span class="fc" id="L123">        return valueOnlyExpansionNodes;</span>
+    }
+
+<span class="fc" id="L126">    static class Builder {</span>
+<span class="fc" id="L127">        @Nullable</span>
+        private String matchPropertyName = null;
+<span class="fc" id="L129">        @Nullable</span>
+        private String matchPropertyValue = null;
+<span class="fc" id="L131">        List&lt;String&gt; expandPropertyNameList = Lists.newArrayList();</span>
+<span class="fc" id="L132">        List&lt;String&gt; expandPropertyValueList = Lists.newArrayList();</span>
+<span class="fc" id="L133">        private boolean isFunction = false;</span>
+
+        /**
+         * Property name to match.
+         */
+        Builder matchPropertyName(String propertyName) {
+<span class="fc" id="L139">            this.matchPropertyName = propertyName;</span>
+<span class="fc" id="L140">            return this;</span>
+        }
+
+        /**
+         * Property value to match.
+         */
+        Builder matchPropertyValue(String propertyValue) {
+<span class="fc" id="L147">            this.matchPropertyValue = propertyValue;</span>
+<span class="fc" id="L148">            return this;</span>
+        }
+
+        /**
+         * Whether the property value to be *matched* is a function.
+         * For example the following is a function:
+         * background-image: linear-gradient(GRADIENT);
+         */
+        Builder isFunction(boolean isFunction) {
+<span class="fc" id="L157">            this.isFunction = isFunction;</span>
+<span class="fc" id="L158">            return this;</span>
+        }
+
+        /**
+         * Property name to add as expansion.
+         */
+        Builder addExpandPropertyName(String propertyName) {
+<span class="fc" id="L165">            expandPropertyNameList.add(propertyName);</span>
+<span class="fc" id="L166">            return this;</span>
+        }
+
+        /**
+         * Property value to add as expansion.
+         */
+        Builder addExpandPropertyValue(String propertyValue) {
+<span class="fc" id="L173">            expandPropertyValueList.add(propertyValue);</span>
+<span class="fc" id="L174">            return this;</span>
+        }
+
+        BrowserPrefixRule build() {
+<span class="fc" id="L178">            return new BrowserPrefixRule(this);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

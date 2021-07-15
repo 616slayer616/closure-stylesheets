@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssPseudoClassNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssPseudoClassNode.java</span></div><h1>CssPseudoClassNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.css.SourceCodeLocation;
+import com.google.common.css.compiler.ast.CssSelectorNode.Specificity;
+
+/**
+ * A {@link CssRefinerNode} implementation that represents a pseudo-class.
+ * For example: {@code :visited}, {@code :nth-child(2n)}
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class CssPseudoClassNode extends CssRefinerNode {
+<span class="fc" id="L31">    private static final ImmutableSet&lt;String&gt; COMPATIBILITY_PSEUDO_ELEMENTS =</span>
+<span class="fc" id="L32">            ImmutableSet.of(&quot;first-line&quot;, &quot;first-letter&quot;, &quot;before&quot;, &quot;after&quot;);</span>
+
+    /**
+     * Indicates if the refiner is a function and if so which one.
+     */
+    private FunctionType functionType;
+    /**
+     * Argument of the function if the refiner is a function else empty
+     */
+    private String argument;
+    /**
+     * Selector for the ':not' function
+     */
+    private CssSelectorNode notSelector;
+
+    /**
+     * Determines if the pseudo-class is a function and if so which one.
+     */
+<span class="fc" id="L50">    public enum FunctionType {</span>
+<span class="fc" id="L51">        NONE,</span>
+<span class="fc" id="L52">        LANG,</span>
+        // TODO(fbenz): make the arguments for nth-functions real nodes
+<span class="fc" id="L54">        NTH,</span>
+<span class="fc" id="L55">        NOT;</span>
+        // No support for 'any' at the moment because it is relatively new and
+        // subject to changes (e.g. introduced in Gecko 2).
+    }
+
+    /**
+     * Constructor for non-function pseudo-classes like {@code :link} or
+     * {@code :visited}
+     */
+    public CssPseudoClassNode(String name,
+                              SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L66">        this(FunctionType.NONE, name, null /* argument */, null /* notSelector */,</span>
+                sourceCodeLocation);
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Constructor for function pseudo-classes except the negation function like
+     * {@code :lang(en)} or {@code :nth-child(2n)}.
+     */
+    public CssPseudoClassNode(FunctionType functionType, String name,
+                              String argument, SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L76">        this(functionType, name, argument, null /* notSelector */,</span>
+                sourceCodeLocation);
+<span class="pc bpc" id="L78" title="2 of 4 branches missed.">        Preconditions.checkArgument(</span>
+                functionType != FunctionType.NOT &amp;&amp; functionType != FunctionType.NONE);
+<span class="fc" id="L80">    }</span>
+
+    /**
+     * Constructor for the negation function pseudo-class.
+     */
+    public CssPseudoClassNode(String name, CssSelectorNode notSelector,
+                              SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L87">        this(FunctionType.NOT, name, null /* argument */, notSelector,</span>
+                sourceCodeLocation);
+<span class="fc" id="L89">    }</span>
+
+    public CssPseudoClassNode(CssPseudoClassNode node) {
+<span class="fc" id="L92">        this(node.functionType, node.refinerName, node.argument, node.notSelector,</span>
+<span class="fc" id="L93">                node.getSourceCodeLocation());</span>
+<span class="fc" id="L94">    }</span>
+
+    private CssPseudoClassNode(FunctionType functionType, String name,
+                               String argument, CssSelectorNode notSelector, SourceCodeLocation
+                                       sourceCodeLocation) {
+<span class="fc" id="L99">        super(Refiner.PSEUDO_CLASS, name, sourceCodeLocation);</span>
+<span class="fc" id="L100">        this.functionType = functionType;</span>
+<span class="fc" id="L101">        this.argument = argument;</span>
+<span class="fc" id="L102">        this.notSelector = notSelector;</span>
+<span class="fc" id="L103">    }</span>
+
+    @Override
+    public CssPseudoClassNode deepCopy() {
+<span class="fc" id="L107">        return new CssPseudoClassNode(this);</span>
+    }
+
+    public FunctionType getFunctionType() {
+<span class="fc" id="L111">        return functionType;</span>
+    }
+
+    public String getArgument() {
+<span class="fc" id="L115">        return argument;</span>
+    }
+
+    public void setArgument(String argument) {
+<span class="fc" id="L119">        this.argument = argument;</span>
+<span class="fc" id="L120">    }</span>
+
+    public CssSelectorNode getNotSelector() {
+<span class="fc" id="L123">        return notSelector;</span>
+    }
+
+    /**
+     * Returns the specificity of this pseudo-class or an old pseudo-element
+     * starting with a single colon.
+     *
+     * &lt;p&gt;The :: notation for pseudo-elements is introduced in CSS level 3 in
+     * order to establish a discrimination between pseudo-classes and
+     * pseudo-elements.
+     * &quot;For compatibility with existing style sheets, user agents must also
+     * accept the previous one-colon notation for pseudo-elements introduced
+     * in CSS levels 1 and 2 (namely, :first-line, :first-letter, :before and
+     * :after). This compatibility is not allowed for the new pseudo-elements
+     * introduced in this specification.&quot;
+     * http://www.w3.org/TR/css3-selectors/#target-pseudo
+     *
+     * &lt;p&gt;The negation pseudo-class itself does not influence the specificity.
+     * However, selectors inside the negation pseudo-class are counted like
+     * any other. Thus, {@code red.level} has the same specificity as
+     * {@code *:not(red.level)}.
+     */
+    @Override
+    public Specificity getSpecificity() {
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (COMPATIBILITY_PSEUDO_ELEMENTS.contains(refinerName)) {</span>
+            // d++ (d = the number of type selectors and pseudo-elements in
+            // the selector)
+<span class="fc" id="L150">            return new Specificity(0, 0, 1);</span>
+        } else {
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">            if (functionType == FunctionType.NOT) {</span>
+<span class="fc" id="L153">                return notSelector.getSpecificity();</span>
+            } else {
+                // c++ (c = the number of class selectors, attributes selectors,
+                // and pseudo-classes in the selector)
+<span class="nc" id="L157">                return new Specificity(0, 1, 0);</span>
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        // TODO(fbenz): toString should not be used to print a node. However,
+        // some tests rely on it. This should be fixed.
+<span class="nc" id="L166">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L167">        sb.append(refinerType.getPrefix());</span>
+<span class="nc" id="L168">        sb.append(refinerName);</span>
+<span class="nc bnc" id="L169" title="All 5 branches missed.">        switch (functionType) {</span>
+            case NONE:
+<span class="nc" id="L171">                sb.append(refinerType.getSuffix());</span>
+<span class="nc" id="L172">                break;</span>
+            case LANG:
+<span class="nc" id="L174">                sb.append(argument);</span>
+<span class="nc" id="L175">                break;</span>
+            case NTH:
+<span class="nc" id="L177">                sb.append(argument);</span>
+<span class="nc" id="L178">                break;</span>
+            case NOT:
+<span class="nc" id="L180">                sb.append(notSelector.toString());</span>
+                break;
+        }
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (functionType != FunctionType.NONE) {</span>
+<span class="nc" id="L184">            sb.append(&quot;)&quot;);</span>
+        }
+<span class="nc" id="L186">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

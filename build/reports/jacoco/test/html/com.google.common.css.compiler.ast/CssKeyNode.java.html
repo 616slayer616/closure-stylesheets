@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssKeyNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssKeyNode.java</span></div><h1>CssKeyNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+
+/**
+ * A node representing a key (for keyframes) in the AST.
+ * A key is used to represent a position in an animation and can be a expressed
+ * with percentage ranging from 0% to 100%, or by &lt;code&gt;from&lt;/code&gt; (= 0%), or
+ * &lt;code&gt;to&lt;/code&gt; (= 100%).
+ * For example: &lt;code&gt;0%, 33.3% { ... }&lt;/code&gt;
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class CssKeyNode extends CssNode implements ChunkAware {
+    /**
+     * Value of the key held by this node.
+     */
+    private String keyValue;
+    /**
+     * The chunk this key belongs to.
+     */
+    private Object chunk;
+
+    /**
+     * Constructor of a key node.
+     *
+     * @param keyValue
+     * @param sourceCodeLocation
+     */
+    public CssKeyNode(@Nullable String keyValue,
+                      @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L50">        super(sourceCodeLocation);</span>
+<span class="fc" id="L51">        this.keyValue = keyValue;</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Constructor of a key node.
+     *
+     * @param keyValue
+     */
+    public CssKeyNode(String keyValue) {
+<span class="fc" id="L60">        this(keyValue, null);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Copy-constructor of a key node.
+     *
+     * @param node
+     */
+    public CssKeyNode(CssKeyNode node) {
+<span class="fc" id="L69">        this(node.getKeyValue(), node.getSourceCodeLocation());</span>
+<span class="fc" id="L70">        this.chunk = node.getChunk();</span>
+<span class="fc" id="L71">    }</span>
+
+    @Override
+    public CssKeyNode deepCopy() {
+<span class="fc" id="L75">        return new CssKeyNode(this);</span>
+    }
+
+    public void setKeyValue(String keyValue) {
+<span class="fc" id="L79">        this.keyValue = keyValue;</span>
+<span class="fc" id="L80">    }</span>
+
+    public String getKeyValue() {
+<span class="fc" id="L83">        return keyValue;</span>
+    }
+
+    @Override
+    public void setChunk(Object chunk) {
+<span class="nc" id="L88">        this.chunk = chunk;</span>
+<span class="nc" id="L89">    }</span>
+
+    @Override
+    public Object getChunk() {
+<span class="fc" id="L93">        return chunk;</span>
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L101">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (keyValue != null) {</span>
+<span class="nc" id="L103">            sb.append(keyValue);</span>
+        }
+<span class="nc" id="L105">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

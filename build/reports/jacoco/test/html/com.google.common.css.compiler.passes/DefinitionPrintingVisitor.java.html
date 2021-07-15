@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefinitionPrintingVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">DefinitionPrintingVisitor.java</span></div><h1>DefinitionPrintingVisitor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.css.compiler.ast.*;
+
+/**
+ * Printer for definition nodes, which outputs GSS definitions so that they can be re-parsed later.
+ *
+ * &lt;p&gt;This pass can only be used if {@link MapChunkAwareNodesToChunk} pass has been run before.
+ * Otherwise this pass won't work.
+ *
+ * @param &lt;T&gt; type of chunk id objects
+ * @author dgajda@google.com (Damian Gajda)
+ */
+public class DefinitionPrintingVisitor&lt;T&gt; extends DefaultTreeVisitor {
+
+    private final CodeBuffer buffer;
+    private final T chunk;
+    private boolean printDefinition;
+
+    /**
+     * Create a printer for all the definitions in the given chunk.
+     */
+<span class="nc" id="L39">    public DefinitionPrintingVisitor(T chunk, CodeBuffer buffer) {</span>
+<span class="nc" id="L40">        this.chunk = chunk;</span>
+<span class="nc" id="L41">        this.buffer = buffer;</span>
+<span class="nc" id="L42">    }</span>
+
+    @Override
+    public boolean enterDefinition(CssDefinitionNode definition) {
+<span class="nc" id="L46">        printDefinition = chunk.equals(definition.getChunk());</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (printDefinition) {</span>
+<span class="nc" id="L48">            buffer.append(&quot;@def &quot;).append(definition.getName()).append(' ');</span>
+        }
+<span class="nc" id="L50">        return printDefinition;</span>
+    }
+
+    @Override
+    public void leaveDefinition(CssDefinitionNode node) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (printDefinition) {</span>
+<span class="nc" id="L56">            buffer.append(&quot;;&quot;).startNewLine();</span>
+<span class="nc" id="L57">            printDefinition = false;</span>
+        }
+<span class="nc" id="L59">    }</span>
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (!printDefinition) {</span>
+<span class="nc" id="L64">            return false;</span>
+        }
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        if (node instanceof CssPriorityNode) {</span>
+<span class="nc" id="L67">            buffer.deleteLastChar();</span>
+        }
+<span class="nc" id="L69">        buffer.append(node);</span>
+<span class="nc" id="L70">        return true;</span>
+    }
+
+    @Override
+    public void leaveValueNode(CssValueNode node) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (!printDefinition) {</span>
+<span class="nc" id="L76">            return;</span>
+        }
+<span class="nc" id="L78">        buffer.append(' ');</span>
+<span class="nc" id="L79">    }</span>
+
+    @Override
+    public boolean enterFunctionNode(CssFunctionNode node) {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (!printDefinition) {</span>
+<span class="nc" id="L84">            return false;</span>
+        }
+<span class="nc" id="L86">        buffer.append(node.getFunctionName());</span>
+<span class="nc" id="L87">        buffer.append('(');</span>
+<span class="nc" id="L88">        return true;</span>
+    }
+
+    @Override
+    public void leaveFunctionNode(CssFunctionNode node) {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (!printDefinition) {</span>
+<span class="nc" id="L94">            return;</span>
+        }
+<span class="nc" id="L96">        buffer.append(&quot;) &quot;);</span>
+<span class="nc" id="L97">    }</span>
+
+    @Override
+    public boolean enterArgumentNode(CssValueNode node) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (!printDefinition) {</span>
+<span class="nc" id="L102">            return false;</span>
+        }
+        // If the previous argument was a function node, then it has a trailing
+        // space that needs to be removed.
+<span class="nc" id="L106">        buffer.deleteLastCharIfCharIs(' ');</span>
+<span class="nc" id="L107">        buffer.append(node);</span>
+<span class="nc" id="L108">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

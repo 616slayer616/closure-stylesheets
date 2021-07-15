@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GssError.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">GssError.java</span></div><h1>GssError.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.css.SourceCodeLocation;
+
+import java.text.MessageFormat;
+
+/**
+ * GSS parser error description.
+ */
+public class GssError implements Comparable&lt;GssError&gt; {
+    private String message;
+    private SourceCodeLocation location;
+<span class="fc" id="L31">    private String line = null;</span>
+<span class="fc" id="L32">    private String format = null;</span>
+
+<span class="fc" id="L34">    public GssError(String message, SourceCodeLocation location) {</span>
+<span class="fc" id="L35">        Preconditions.checkNotNull(message);</span>
+<span class="fc" id="L36">        Preconditions.checkNotNull(location);</span>
+<span class="fc" id="L37">        this.message = message;</span>
+<span class="fc" id="L38">        this.location = location;</span>
+<span class="fc" id="L39">    }</span>
+
+    public SourceCodeLocation getLocation() {
+<span class="fc" id="L42">        return location;</span>
+    }
+
+    public String getMessage() {
+<span class="fc" id="L46">        return message;</span>
+    }
+
+    public String getLine() {
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (line == null) {</span>
+<span class="fc" id="L51">            String source = location.getSourceCode().getFileContents();</span>
+<span class="fc" id="L52">            int beginLineIndex =</span>
+<span class="fc" id="L53">                    location.getBeginCharacterIndex() - location.getBeginIndexInLine() + 1;</span>
+<span class="fc" id="L54">            int endLineIndex = source.indexOf('\n', location.getBeginCharacterIndex());</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (endLineIndex == -1) {</span>
+<span class="fc" id="L56">                endLineIndex = source.length();</span>
+            }
+<span class="fc" id="L58">            line = source.substring(beginLineIndex, endLineIndex);</span>
+        }
+<span class="fc" id="L60">        return line;</span>
+    }
+
+    public String format() {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (format == null) {</span>
+<span class="fc" id="L65">            format = messageFormat().apply();</span>
+        }
+<span class="fc" id="L67">        return format;</span>
+    }
+
+    /**
+     * A String template, together with values for the template holes.
+     * {@see java.text.MessageFormat}
+     */
+    public static class MessageFormatArgs {
+        public final String pattern;
+        public final Object[] arguments;
+
+<span class="fc" id="L78">        public MessageFormatArgs(String pattern, Object... arguments) {</span>
+<span class="fc" id="L79">            this.pattern = pattern;</span>
+<span class="fc" id="L80">            this.arguments = arguments;</span>
+<span class="fc" id="L81">        }</span>
+
+        public String apply() {
+<span class="fc" id="L84">            return MessageFormat.format(pattern, arguments);</span>
+        }
+    }
+
+    /**
+     * Returns a MessageFormatArgs representation of the object. This is
+     * a parbaked precursor to the value given by {@link #format},
+     * intended for use in FormattingLoggers and other contexts where it
+     * is useful to maintain separation between boilerplate and details.
+     */
+    public MessageFormatArgs messageFormat() {
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (location.isUnknown()) {</span>
+<span class="fc" id="L96">            return new MessageFormatArgs(&quot;{0} at unknown location&quot;, message);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        } else if (location.getSourceCode().getFileName() == null) {</span>
+<span class="nc" id="L98">            return new MessageFormatArgs(</span>
+                    &quot;{0} at line {1} column {2}:\n{3}\n{4}^\n&quot;,
+                    message,
+<span class="nc" id="L101">                    location.getBeginLineNumber(),</span>
+<span class="nc" id="L102">                    location.getBeginIndexInLine(), getLine(),</span>
+<span class="nc" id="L103">                    Strings.repeat(&quot; &quot;, location.getBeginIndexInLine() - 1));</span>
+        } else {
+<span class="fc" id="L105">            return new MessageFormatArgs(</span>
+                    &quot;{0} in {1} at line {2} column {3}:\n{4}\n{5}^\n&quot;,
+<span class="fc" id="L107">                    message, location.getSourceCode().getFileName(),</span>
+<span class="fc" id="L108">                    location.getBeginLineNumber(),</span>
+<span class="fc" id="L109">                    location.getBeginIndexInLine(), getLine(),</span>
+<span class="fc" id="L110">                    Strings.repeat(&quot; &quot;, location.getBeginIndexInLine() - 1));</span>
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        // Generated by Intellij IDEA
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (!(o instanceof GssError)) return false;</span>
+
+<span class="nc" id="L120">        GssError gssError = (GssError) o;</span>
+
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (!location.equals(gssError.location)) return false;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (!message.equals(gssError.message)) return false;</span>
+
+<span class="nc" id="L125">        return true;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L130">        return 31 * message.hashCode() + location.hashCode();</span>
+    }
+
+    /**
+     * Compare errors by source name, location and message.
+     */
+    @Override
+    public int compareTo(GssError o) {
+<span class="fc" id="L138">        String source1 = location.getSourceCode().getFileName();</span>
+<span class="fc" id="L139">        String source2 = o.location.getSourceCode().getFileName();</span>
+<span class="pc bpc" id="L140" title="1 of 4 branches missed.">        if (source1 != null &amp;&amp; source2 != null) {</span>
+<span class="fc" id="L141">            int sourceCompare = source1.compareTo(source2);</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">            if (sourceCompare != 0) {</span>
+<span class="nc" id="L143">                return sourceCompare;</span>
+            }
+<span class="pc bpc" id="L145" title="2 of 4 branches missed.">        } else if (source1 == null &amp;&amp; source2 != null) {</span>
+<span class="nc" id="L146">            return -1;</span>
+<span class="pc bpc" id="L147" title="3 of 4 branches missed.">        } else if (source1 != null &amp;&amp; source2 == null) {</span>
+<span class="nc" id="L148">            return 1;</span>
+        }
+
+        // source1 and source2 are the same file.
+<span class="fc" id="L152">        int locationCompare = location.compareTo(o.location);</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        if (locationCompare != 0) {</span>
+<span class="fc" id="L154">            return locationCompare;</span>
+        }
+
+<span class="fc" id="L157">        return message.compareTo(o.message);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

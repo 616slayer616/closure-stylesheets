@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SkippingTreeVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">SkippingTreeVisitor.java</span></div><h1>SkippingTreeVisitor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Set;
+
+/**
+ * Any compiler pass which derives from this is able to skip
+ * processing rules that contain specific property names.
+ * &lt;p&gt;
+ * TODO(user): Should we move these functions to the DefaultVisitController?
+ */
+public class SkippingTreeVisitor extends DefaultTreeVisitor {
+
+<span class="fc" id="L31">    private boolean skipping = false;</span>
+    /**
+     * The rules which contain any of these property names will be skipped,
+     * if skipping is set to true.
+     */
+<span class="fc" id="L36">    Set&lt;String&gt; propertyNamesToSkip = ImmutableSet.of(&quot;display&quot;);</span>
+    // TODO(user): Possible more needed property names (which can trigger
+    // hasLayout in IE): zoom, position, float
+
+    /**
+     * Constructor of a skipping tree visitor which sets the skipping property.
+     *
+     * @param skip
+     */
+<span class="fc" id="L45">    public SkippingTreeVisitor(boolean skip) {</span>
+<span class="fc" id="L46">        skipping = skip;</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * This method checks if the given ruleset is safe to be changed.
+     *
+     * @return {@code false} if the ruleset is not safe to be modified (because
+     * it contains any of the pre-defined property names when skipping is turned
+     * on), true otherwise.
+     */
+    public boolean canModifyRuleset(CssRulesetNode ruleset) {
+        // If skipping is on and the rule contains a property from the set : skip.
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (skipping) {</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            for (String propNameToSkip : propertyNamesToSkip) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">                for (CssNode child : ruleset.getDeclarations().childIterable()) {</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">                    if (!(child instanceof CssDeclarationNode)) {</span>
+<span class="nc" id="L62">                        continue;</span>
+                    }
+<span class="fc" id="L64">                    CssDeclarationNode decl = (CssDeclarationNode) child;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">                    if (decl.getPropertyName().getPropertyName().equals(propNameToSkip)) {</span>
+<span class="fc" id="L66">                        return false;</span>
+                    }
+<span class="fc" id="L68">                }</span>
+<span class="fc" id="L69">            }</span>
+        }
+<span class="fc" id="L71">        return true;</span>
+    }
+
+    public boolean isSkipping() {
+<span class="fc" id="L75">        return skipping;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

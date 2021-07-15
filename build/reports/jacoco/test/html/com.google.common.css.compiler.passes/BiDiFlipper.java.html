@@ -1,0 +1,663 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BiDiFlipper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">BiDiFlipper.java</span></div><h1>BiDiFlipper.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
+import com.google.common.css.compiler.ast.*;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+/**
+ * Compiler pass that BiDi flips all the flippable nodes.
+ * TODO(user): Need to add a function to return tree before flipping.
+ *
+ * @author roozbeh@google.com (Roozbeh Pournader)
+ */
+public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
+
+<span class="fc" id="L40">    private static final DecimalFormat PERCENT_FORMATTER =</span>
+<span class="fc" id="L41">            new DecimalFormat(&quot;#.########&quot;, DecimalFormatSymbols.getInstance(Locale.US));</span>
+    private final MutatingVisitController visitController;
+
+    private final boolean shouldSwapLeftRightInUrl;
+    private final boolean shouldSwapLtrRtlInUrl;
+    private final boolean shouldFlipConstantReferences;
+
+    public BiDiFlipper(MutatingVisitController visitController,
+                       boolean swapLtrRtlInUrl,
+                       boolean swapLeftRightInUrl,
+<span class="fc" id="L51">                       boolean shouldFlipConstantReferences) {</span>
+<span class="fc" id="L52">        this.visitController = visitController;</span>
+<span class="fc" id="L53">        this.shouldSwapLtrRtlInUrl = swapLtrRtlInUrl;</span>
+<span class="fc" id="L54">        this.shouldSwapLeftRightInUrl = swapLeftRightInUrl;</span>
+<span class="fc" id="L55">        this.shouldFlipConstantReferences = shouldFlipConstantReferences;</span>
+<span class="fc" id="L56">    }</span>
+
+    public BiDiFlipper(MutatingVisitController visitController,
+                       boolean swapLtrRtlInUrl,
+                       boolean swapLeftRightInUrl) {
+<span class="fc" id="L61">        this(visitController,</span>
+                swapLtrRtlInUrl,
+                swapLeftRightInUrl,
+                false /* Don't flip constant reference by default. */);
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Map with exact strings to match and their corresponding flipped value. For example, in &quot;float:
+     * left&quot; we need an exact match to flip &quot;left&quot; because we don't want to touch things like
+     * &quot;background: left.png&quot;.
+     */
+<span class="fc" id="L72">    private static final ImmutableMap&lt;String, String&gt; EXACT_MATCHING_FOR_FLIPPING =</span>
+            new ImmutableMap.Builder&lt;String, String&gt;()
+<span class="fc" id="L74">                    .put(&quot;ltr&quot;, &quot;rtl&quot;)</span>
+<span class="fc" id="L75">                    .put(&quot;rtl&quot;, &quot;ltr&quot;)</span>
+<span class="fc" id="L76">                    .put(&quot;left&quot;, &quot;right&quot;)</span>
+<span class="fc" id="L77">                    .put(&quot;right&quot;, &quot;left&quot;)</span>
+<span class="fc" id="L78">                    .put(&quot;e-resize&quot;, &quot;w-resize&quot;)</span>
+<span class="fc" id="L79">                    .put(&quot;w-resize&quot;, &quot;e-resize&quot;)</span>
+<span class="fc" id="L80">                    .put(&quot;ne-resize&quot;, &quot;nw-resize&quot;)</span>
+<span class="fc" id="L81">                    .put(&quot;nw-resize&quot;, &quot;ne-resize&quot;)</span>
+<span class="fc" id="L82">                    .put(&quot;nesw-resize&quot;, &quot;nwse-resize&quot;)</span>
+<span class="fc" id="L83">                    .put(&quot;nwse-resize&quot;, &quot;nesw-resize&quot;)</span>
+<span class="fc" id="L84">                    .put(&quot;se-resize&quot;, &quot;sw-resize&quot;)</span>
+<span class="fc" id="L85">                    .put(&quot;sw-resize&quot;, &quot;se-resize&quot;)</span>
+<span class="fc" id="L86">                    .build();</span>
+
+    /**
+     * Map with the &quot;ends-with&quot; substrings that can be flipped and their corresponding flipped value.
+     * For example, for
+     *
+     * &lt;p&gt;padding-right: 2px
+     *
+     * &lt;p&gt;we need to match that the property name ends with &quot;-right&quot;.
+     */
+<span class="fc" id="L96">    private static final ImmutableMap&lt;String, String&gt; ENDS_WITH_MATCHING_FOR_FLIPPING =</span>
+            new ImmutableMap.Builder&lt;String, String&gt;()
+<span class="fc" id="L98">                    .put(&quot;-left&quot;, &quot;-right&quot;)</span>
+<span class="fc" id="L99">                    .put(&quot;-right&quot;, &quot;-left&quot;)</span>
+<span class="fc" id="L100">                    .put(&quot;-bottomleft&quot;, &quot;-bottomright&quot;)</span>
+<span class="fc" id="L101">                    .put(&quot;-topleft&quot;, &quot;-topright&quot;)</span>
+<span class="fc" id="L102">                    .put(&quot;-bottomright&quot;, &quot;-bottomleft&quot;)</span>
+<span class="fc" id="L103">                    .put(&quot;-topright&quot;, &quot;-topleft&quot;)</span>
+<span class="fc" id="L104">                    .build();</span>
+
+    /**
+     * Map with the &quot;contains&quot; substrings that can be flipped and their corresponding flipped value.
+     * For example, for
+     *
+     * &lt;p&gt;border-right-width: 2px
+     *
+     * &lt;p&gt;we need to match that the property name contains &quot;-right-&quot;.
+     */
+<span class="fc" id="L114">    private static final ImmutableMap&lt;String, String&gt; CONTAINS_MATCHING_FOR_FLIPPING =</span>
+            new ImmutableMap.Builder&lt;String, String&gt;()
+<span class="fc" id="L116">                    .put(&quot;-left-&quot;, &quot;-right-&quot;)</span>
+<span class="fc" id="L117">                    .put(&quot;-right-&quot;, &quot;-left-&quot;)</span>
+<span class="fc" id="L118">                    .build();</span>
+
+    /**
+     * Set of properties that have flippable percentage values.
+     */
+<span class="fc" id="L123">    private static final ImmutableSet&lt;String&gt; PROPERTIES_WITH_FLIPPABLE_PERCENTAGE =</span>
+<span class="fc" id="L124">            ImmutableSet.of(</span>
+                    &quot;background&quot;,
+                    &quot;background-position&quot;,
+                    &quot;background-position-x&quot;,
+                    &quot;-ms-background-position-x&quot;);
+
+    /*
+     * Set of properties that are equivalent to border-radius.
+     * TODO(roozbeh): Replace the explicit listing of prefixes with a general
+     * pattern of &quot;-[a-z]+-&quot; to avoid maintaining a prefix list.
+     */
+<span class="fc" id="L135">    public static final ImmutableSet&lt;String&gt; BORDER_RADIUS_PROPERTIES =</span>
+<span class="fc" id="L136">            ImmutableSet.of(</span>
+                    &quot;border-radius&quot;,
+                    &quot;-webkit-border-radius&quot;,
+                    &quot;-moz-border-radius&quot;);
+
+    /**
+     * Set of properties whose property values may flip if they match the four-part pattern.
+     */
+<span class="fc" id="L144">    public static final ImmutableSet&lt;String&gt; FOUR_PART_PROPERTIES_THAT_SHOULD_FLIP =</span>
+<span class="fc" id="L145">            ImmutableSet.of(&quot;border-color&quot;, &quot;border-style&quot;, &quot;border-width&quot;, &quot;margin&quot;, &quot;padding&quot;);</span>
+
+    /**
+     * Map with the patterns to match URLs against if swap_ltr_rtl_in_url flag is true, and their
+     * replacement string. Only the first occurrence of the pattern is flipped. This would match &quot;ltr&quot;
+     * and &quot;rtl&quot; if they occur as a word inside the path specified by the url. For example, for
+     *
+     * &lt;p&gt;background: url(/foo/rtl/bkg.gif)
+     *
+     * &lt;p&gt;the flipped value would be
+     *
+     * &lt;p&gt;background: url(/foo/ltr/bkg.gif)
+     *
+     * &lt;p&gt;whereas for
+     *
+     * &lt;p&gt;background: url(/foo/bkg-ltr.gif)
+     *
+     * &lt;p&gt;the flipped value would be
+     *
+     * &lt;p&gt;background: url(/foo/bkg-rtl.gif)
+     *
+     * &lt;p&gt;
+     */
+<span class="fc" id="L168">    private static final ImmutableMap&lt;Pattern, String&gt; URL_LTRTL_PATTERN_FOR_FLIPPING =</span>
+            new ImmutableMap.Builder&lt;Pattern, String&gt;()
+<span class="fc" id="L170">                    .put(Pattern.compile(&quot;(?&lt;![a-zA-Z])([-_\\./]*)ltr([-_\\./]+)&quot;), &quot;$1rtl$2&quot;)</span>
+<span class="fc" id="L171">                    .put(Pattern.compile(&quot;(?&lt;![a-zA-Z])([-_\\./]*)rtl([-_\\./]+)&quot;), &quot;$1ltr$2&quot;)</span>
+<span class="fc" id="L172">                    .build();</span>
+
+    /**
+     * Map with the patterns to match URLs against if swap_left_right_in_url flag is true, and their
+     * replacement string. Only the first occurrence of the pattern is flipped. This would match
+     * &quot;left&quot; and &quot;right&quot; if they occur as a word inside the path specified by the url. For example,
+     * for
+     *
+     * &lt;p&gt;background: url(/foo/right/bkg.gif)
+     *
+     * &lt;p&gt;the flipped value would be
+     *
+     * &lt;p&gt;background: url(/foo/left/bkg.gif)
+     *
+     * &lt;p&gt;whereas for
+     *
+     * &lt;p&gt;background: url(/foo/bkg-left.gif)
+     *
+     * &lt;p&gt;the flipped value would be
+     *
+     * &lt;p&gt;background: url(/foo/bkg-right.gif)
+     *
+     * &lt;p&gt;
+     */
+<span class="fc" id="L196">    private static final ImmutableMap&lt;Pattern, String&gt; URL_LEFTRIGHT_PATTERN_FOR_FLIPPING =</span>
+            new ImmutableMap.Builder&lt;Pattern, String&gt;()
+<span class="fc" id="L198">                    .put(Pattern.compile(&quot;(?&lt;![a-zA-Z])([-_\\./]*)left([-_\\./]+)&quot;), &quot;$1right$2&quot;)</span>
+<span class="fc" id="L199">                    .put(Pattern.compile(&quot;(?&lt;![a-zA-Z])([-_\\./]*)right([-_\\./]+)&quot;), &quot;$1left$2&quot;)</span>
+<span class="fc" id="L200">                    .build();</span>
+
+    /**
+     * Return if the string is &quot;left&quot; or &quot;center&quot; or &quot;right&quot;.
+     */
+    private static boolean isLeftOrCenterOrRight(String value) {
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">        return &quot;left&quot;.equals(value)</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">                || &quot;center&quot;.equals(value)</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">                || &quot;right&quot;.equals(value);</span>
+    }
+
+    /**
+     * Return if the node is a slash operator node.
+     */
+    private static boolean isSlashNode(CssValueNode valueNode) {
+<span class="fc bfc" id="L215" title="All 2 branches covered.">        if (valueNode instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L216">            CssCompositeValueNode compositeNode = (CssCompositeValueNode) valueNode;</span>
+<span class="fc" id="L217">            return</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">                    compositeNode.getOperator() == CssCompositeValueNode.Operator.SLASH;</span>
+        }
+<span class="fc" id="L220">        return false;</span>
+    }
+
+    /**
+     * Return if the node is ConstantReference and also flippable.
+     */
+    private boolean shouldFlipConstantReference(CssValueNode valueNode) {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (!shouldFlipConstantReferences) {</span>
+<span class="nc" id="L228">            return false;</span>
+        }
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (!(valueNode instanceof CssConstantReferenceNode)) {</span>
+<span class="nc" id="L231">            return false;</span>
+        }
+<span class="nc" id="L233">        String ref = valueNode.getValue();</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        if (ref.startsWith(ResolveCustomFunctionNodesForChunks.DEF_PREFIX)) {</span>
+            // Since gss function could generate multiple values, we can't do flip if
+            // there's gss function call in place, simply skip this case.
+<span class="nc" id="L237">            return false;</span>
+        }
+<span class="nc" id="L239">        return true;</span>
+    }
+
+    /**
+     * Return if the node is numeric and also has '%'.
+     */
+    private static boolean isNumericAndHasPercentage(CssValueNode value) {
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        if (!(value instanceof CssNumericNode)) {</span>
+<span class="fc" id="L247">            return false;</span>
+        }
+<span class="fc" id="L249">        CssNumericNode numericNode = (CssNumericNode) value;</span>
+<span class="fc" id="L250">        return &quot;%&quot;.equals(numericNode.getUnit());</span>
+    }
+
+    /**
+     * Returns if the percentage value of this node is flippable.
+     *
+     * &lt;p&gt;Assumes simpler CSS 2.1 use of background and background-position (multi-layer is not
+     * supported yet, neither is the extended CSS 3 syntax for positioning, like &quot;right 10% top 20%&quot;).
+     * TODO(roozbeh): add support CSS 3 multi-layer backgrounds. TODO(roozbeh): add support for
+     * extended CSS 3 syntax for positioning.
+     */
+    private static boolean isValidForPercentageFlipping(
+            CssPropertyNode propertyNode, CssPropertyValueNode propertyValueNode, int valueIndex) {
+
+<span class="fc" id="L264">        String propertyName = propertyNode.getPropertyName();</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">        if (PROPERTIES_WITH_FLIPPABLE_PERCENTAGE.contains(propertyName)) {</span>
+<span class="fc bfc" id="L266" title="All 2 branches covered.">            if (valueIndex == 0) {</span>
+<span class="fc" id="L267">                return true; // If this is the first value, it's always flippable</span>
+            }
+<span class="fc bfc" id="L269" title="All 2 branches covered.">            if (&quot;background&quot;.equals(propertyName)) {</span>
+                // Make sure this is not the vertical position: Only flip if the
+                // previous value is not numeric or &quot;left&quot;, &quot;center&quot;, or &quot;right&quot;.
+<span class="fc" id="L272">                CssValueNode previousValueNode =</span>
+<span class="fc" id="L273">                        propertyValueNode.getChildAt(valueIndex - 1);</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">                if (!(previousValueNode instanceof CssNumericNode)</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">                        &amp;&amp; !isLeftOrCenterOrRight(previousValueNode.getValue())) {</span>
+<span class="fc" id="L276">                    return true;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L281">        return false;</span>
+    }
+
+    /**
+     * Sets the percentage to flipped value(100 - 'old value'), if the node is
+     * valid numeric node with percentage.
+     */
+    private CssValueNode flipPercentageValueNode(CssValueNode valueNode) {
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        if (!isNumericAndHasPercentage(valueNode)) {</span>
+<span class="fc" id="L290">            return valueNode;</span>
+        }
+
+<span class="fc" id="L293">        CssNumericNode numericNode = (CssNumericNode) valueNode;</span>
+<span class="fc" id="L294">        String oldPercentageValue = numericNode.getNumericPart();</span>
+<span class="fc" id="L295">        return new CssNumericNode(flipPercentageValue(oldPercentageValue), &quot;%&quot;);</span>
+    }
+
+    /**
+     * Returns a formatted string representing 100% - value. Neither the input nor the output contains
+     * a {@code %}.
+     */
+    public static String flipPercentageValue(String value) {
+<span class="fc" id="L303">        double newValue = 100 - Double.parseDouble(value);</span>
+<span class="fc" id="L304">        return PERCENT_FORMATTER.format(newValue);</span>
+    }
+
+    /**
+     * Flips corners of a border-radius property. Corners are reordered in the following way:
+     *
+     * &lt;ul&gt;
+     *   &lt;li&gt;0 1 is replaced with 1 0,
+     *   &lt;li&gt;0 1 2 is replaced with 1 0 1 2, and
+     *   &lt;li&gt;0 1 2 3 is replaced with 1 0 3 2.
+     * &lt;/ul&gt;
+     *
+     * &lt;p&gt;Lists of other lengths are returned unchanged.
+     *
+     * @param valueNodes the list of values representing the corners of a border-radius property.
+     * @return a list of values with the corners flipped.
+     */
+    private static List&lt;CssValueNode&gt; flipCorners(List&lt;CssValueNode&gt; valueNodes) {
+<span class="fc bfc" id="L322" title="All 4 branches covered.">        switch (valueNodes.size()) {</span>
+            case 2: {
+<span class="fc" id="L324">                List&lt;CssValueNode&gt; flipped = new ArrayList&lt;&gt;(2);</span>
+<span class="fc" id="L325">                flipped.add(valueNodes.get(1));</span>
+<span class="fc" id="L326">                flipped.add(valueNodes.get(0));</span>
+<span class="fc" id="L327">                return flipped;</span>
+            }
+            case 3: {
+<span class="fc" id="L330">                List&lt;CssValueNode&gt; flipped = new ArrayList&lt;&gt;(4);</span>
+<span class="fc" id="L331">                flipped.add(valueNodes.get(1));</span>
+<span class="fc" id="L332">                flipped.add(valueNodes.get(0));</span>
+<span class="fc" id="L333">                flipped.add(valueNodes.get(1).deepCopy());</span>
+<span class="fc" id="L334">                flipped.add(valueNodes.get(2));</span>
+<span class="fc" id="L335">                return flipped;</span>
+            }
+            case 4: {
+<span class="fc" id="L338">                List&lt;CssValueNode&gt; flipped = new ArrayList&lt;&gt;(4);</span>
+<span class="fc" id="L339">                flipped.add(valueNodes.get(1));</span>
+<span class="fc" id="L340">                flipped.add(valueNodes.get(0));</span>
+<span class="fc" id="L341">                flipped.add(valueNodes.get(3));</span>
+<span class="fc" id="L342">                flipped.add(valueNodes.get(2));</span>
+<span class="fc" id="L343">                return flipped;</span>
+            }
+            default:
+<span class="fc" id="L346">                return valueNodes;</span>
+        }
+    }
+
+    /**
+     * Takes a list of property values that belong to a border-radius property and flips them. If
+     * there is a slash in the values, the data is divided around the slash. Then for each section,
+     * flipCorners is called.
+     */
+    private static List&lt;CssValueNode&gt; flipBorderRadius(List&lt;CssValueNode&gt; valueNodes) {
+
+<span class="fc" id="L357">        int count = 0;</span>
+<span class="fc" id="L358">        int slashLocation = -1;</span>
+<span class="fc" id="L359">        CssCompositeValueNode slashNode = null;</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">        for (CssValueNode valueNode : valueNodes) {</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">            if (isSlashNode(valueNode)) {</span>
+<span class="fc" id="L362">                slashLocation = count;</span>
+<span class="fc" id="L363">                slashNode = (CssCompositeValueNode) valueNode;</span>
+<span class="fc" id="L364">                break;</span>
+            }
+<span class="fc" id="L366">            ++count;</span>
+<span class="fc" id="L367">        }</span>
+
+<span class="fc bfc" id="L369" title="All 2 branches covered.">        if (slashLocation == -1) { // No slash found, just one set of values</span>
+<span class="fc" id="L370">            return flipCorners(valueNodes);</span>
+        }
+
+        // The parser treats slashes as combinging the two values around the slash
+        // into one composite value node. This is not really the correct semantics
+        // for the border-radius properties, as the parser will treat
+        // &quot;border-radius: 1px 2px / 5px 6px&quot; as having three value nodes: the first
+        // one will be &quot;1px&quot;, the second one the composite value &quot;2px / 5px&quot;,
+        // and the third one &quot;6px&quot;. We work in this unfortunate parser model here,
+        // first deconstructing and later reconstructing that tree.
+
+<span class="fc" id="L381">        List&lt;CssValueNode&gt; slashNodeValues = slashNode.getValues();</span>
+
+        // Create a list of horizontal values and flip them
+<span class="fc" id="L384">        List&lt;CssValueNode&gt; horizontalValues = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L385">        horizontalValues.addAll(valueNodes.subList(0, slashLocation));</span>
+<span class="fc" id="L386">        horizontalValues.add(slashNodeValues.get(0));</span>
+<span class="fc" id="L387">        List&lt;CssValueNode&gt; newHorizontalValues = flipCorners(horizontalValues);</span>
+
+        // Do the same for vertical values
+<span class="fc" id="L390">        List&lt;CssValueNode&gt; verticalValues = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L391">        verticalValues.add(slashNodeValues.get(1));</span>
+<span class="fc" id="L392">        verticalValues.addAll(valueNodes.subList(slashLocation + 1,</span>
+<span class="fc" id="L393">                valueNodes.size()));</span>
+<span class="fc" id="L394">        List&lt;CssValueNode&gt; newVerticalValues = flipCorners(verticalValues);</span>
+
+        // Create a new slash node
+<span class="fc" id="L397">        List&lt;CssValueNode&gt; newSlashNodeValues = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L398">        newSlashNodeValues.add(newHorizontalValues.get(</span>
+<span class="fc" id="L399">                newHorizontalValues.size() - 1));</span>
+<span class="fc" id="L400">        newSlashNodeValues.add(newVerticalValues.get(0));</span>
+<span class="fc" id="L401">        CssCompositeValueNode newSlashNode = new CssCompositeValueNode(</span>
+                newSlashNodeValues,
+                CssCompositeValueNode.Operator.SLASH,
+                null
+        );
+
+<span class="fc" id="L407">        List&lt;CssValueNode&gt; newValueList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L408">        newValueList.addAll(newHorizontalValues.subList(0,</span>
+<span class="fc" id="L409">                newHorizontalValues.size() - 1));</span>
+<span class="fc" id="L410">        newValueList.add(newSlashNode);</span>
+<span class="fc" id="L411">        newValueList.addAll(newVerticalValues.subList(1, newVerticalValues.size()));</span>
+
+<span class="fc" id="L413">        return newValueList;</span>
+    }
+
+    /**
+     * Takes the list of property values, validate them, then swap the second and last values. So that
+     * 0 1 2 3 becomes 0 3 2 1.
+     *
+     * &lt;p&gt;That is unless the length of the list is not four, it belongs to a property that shouldn't
+     * be flipped, or it's border-radius, where it will be specially handled.
+     *
+     * &lt;p&gt;TODO(roozbeh): Add explicit flipping for 'border-image*' and '*-shadow' properties.
+     */
+    private List&lt;CssValueNode&gt; flipNumericValues(List&lt;CssValueNode&gt; valueNodes, String propertyName) {
+
+<span class="fc bfc" id="L427" title="All 2 branches covered.">        if (BORDER_RADIUS_PROPERTIES.contains(propertyName)) {</span>
+<span class="fc" id="L428">            return flipBorderRadius(valueNodes);</span>
+<span class="fc bfc" id="L429" title="All 2 branches covered.">        } else if (valueNodes.size() != 4</span>
+<span class="fc bfc" id="L430" title="All 2 branches covered.">                || !FOUR_PART_PROPERTIES_THAT_SHOULD_FLIP.contains(propertyName)) {</span>
+<span class="fc" id="L431">            return valueNodes;</span>
+        }
+
+<span class="fc" id="L434">        int count = 0;</span>
+<span class="fc" id="L435">        CssValueNode secondValueNode = null;</span>
+<span class="fc" id="L436">        CssValueNode fourthValueNode = null;</span>
+<span class="fc bfc" id="L437" title="All 2 branches covered.">        for (CssValueNode valueNode : valueNodes) {</span>
+<span class="pc bpc" id="L438" title="1 of 6 branches missed.">            if ((valueNode instanceof CssNumericNode)</span>
+                    || (valueNode instanceof CssLiteralNode)
+                    || (valueNode instanceof CssHexColorNode)
+<span class="nc bnc" id="L441" title="All 2 branches missed.">                    || shouldFlipConstantReference(valueNode)) {</span>
+<span class="fc bfc" id="L442" title="All 3 branches covered.">                switch (count) {</span>
+                    case 3:
+<span class="fc" id="L444">                        fourthValueNode = valueNode.deepCopy();</span>
+<span class="fc" id="L445">                        break;</span>
+                    case 1:
+<span class="fc" id="L447">                        secondValueNode = valueNode.deepCopy();</span>
+<span class="fc" id="L448">                        break;</span>
+                    default: // fall out
+                }
+            } else {
+<span class="nc" id="L452">                return valueNodes;</span>
+            }
+<span class="fc" id="L454">            count++;</span>
+<span class="fc" id="L455">        }</span>
+
+        // Swap second and last in the new list.
+<span class="fc" id="L458">        count = 0;</span>
+<span class="fc" id="L459">        List&lt;CssValueNode&gt; newValueList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L460" title="All 2 branches covered.">        for (CssValueNode valueNode : valueNodes) {</span>
+<span class="fc bfc" id="L461" title="All 2 branches covered.">            if (1 == count) {</span>
+<span class="fc" id="L462">                newValueList.add(fourthValueNode);</span>
+<span class="fc bfc" id="L463" title="All 2 branches covered.">            } else if (3 == count) {</span>
+<span class="fc" id="L464">                newValueList.add(secondValueNode);</span>
+            } else {
+<span class="fc" id="L466">                newValueList.add(valueNode);</span>
+            }
+<span class="fc" id="L468">            count++;</span>
+<span class="fc" id="L469">        }</span>
+<span class="fc" id="L470">        return newValueList;</span>
+    }
+
+    /**
+     * Performs appropriate replacements needed for BiDi flipping a literal value.
+     */
+    public static String flipLiteralValue(String value) {
+<span class="fc bfc" id="L477" title="All 2 branches covered.">        if (EXACT_MATCHING_FOR_FLIPPING.containsKey(value)) {</span>
+<span class="fc" id="L478">            value = EXACT_MATCHING_FOR_FLIPPING.get(value);</span>
+        }
+<span class="fc bfc" id="L480" title="All 2 branches covered.">        for (String s : ENDS_WITH_MATCHING_FOR_FLIPPING.keySet()) {</span>
+<span class="fc bfc" id="L481" title="All 2 branches covered.">            if (value.endsWith(s)) {</span>
+<span class="fc" id="L482">                value = value.replace(s, ENDS_WITH_MATCHING_FOR_FLIPPING.get(s));</span>
+<span class="fc" id="L483">                break;</span>
+            }
+<span class="fc" id="L485">        }</span>
+<span class="fc bfc" id="L486" title="All 2 branches covered.">        for (String s : CONTAINS_MATCHING_FOR_FLIPPING.keySet()) {</span>
+<span class="fc bfc" id="L487" title="All 2 branches covered.">            if (value.contains(s)) {</span>
+<span class="fc" id="L488">                value = value.replace(s, CONTAINS_MATCHING_FOR_FLIPPING.get(s));</span>
+<span class="fc" id="L489">                break;</span>
+            }
+<span class="fc" id="L491">        }</span>
+<span class="fc" id="L492">        return value;</span>
+    }
+
+    /**
+     * Returns flipped node after making appropriate replacements needed for BiDi flipping, if the
+     * node is either a LiteralNode or PropertyNode. Eg: PropertyNode 'padding-right' would become
+     * 'padding-left'.
+     *
+     * &lt;p&gt;Subclasses can override to provide custom flipping behavior.
+     */
+    protected &lt;T extends CssValueNode&gt; T flipNode(T tNode) {
+<span class="fc bfc" id="L503" title="All 2 branches covered.">        if (tNode instanceof CssLiteralNode) {</span>
+<span class="fc" id="L504">            CssLiteralNode literalNode = (CssLiteralNode) tNode;</span>
+<span class="fc" id="L505">            String oldValue = literalNode.getValue();</span>
+<span class="pc bpc" id="L506" title="1 of 2 branches missed.">            if (null == oldValue) {</span>
+<span class="nc" id="L507">                return tNode;</span>
+            }
+<span class="fc" id="L509">            String flippedValue = flipLiteralValue(oldValue);</span>
+<span class="fc bfc" id="L510" title="All 2 branches covered.">            if (flippedValue.equals(oldValue)) {</span>
+<span class="fc" id="L511">                return tNode;</span>
+            }
+
+            // This is safe because of the instanceof check above.
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L516">            T flippedLiteralNode = (T) new CssLiteralNode(flippedValue);</span>
+
+<span class="fc" id="L518">            return flippedLiteralNode;</span>
+<span class="fc bfc" id="L519" title="All 2 branches covered.">        } else if (tNode instanceof CssPropertyNode) {</span>
+<span class="fc" id="L520">            CssPropertyNode propertyNode = (CssPropertyNode) tNode;</span>
+<span class="fc" id="L521">            String oldValue = propertyNode.getPropertyName();</span>
+<span class="pc bpc" id="L522" title="1 of 2 branches missed.">            if (null == oldValue) {</span>
+<span class="nc" id="L523">                return tNode;</span>
+            }
+<span class="fc" id="L525">            String flippedValue = flipLiteralValue(oldValue);</span>
+<span class="fc bfc" id="L526" title="All 2 branches covered.">            if (flippedValue.equals(oldValue)) {</span>
+<span class="fc" id="L527">                return tNode;</span>
+            }
+
+            // This is safe because of the instanceof check above.
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L532">            T flippedPropertyNode = (T) new CssPropertyNode(flippedValue);</span>
+
+<span class="fc" id="L534">            return flippedPropertyNode;</span>
+        } else {
+<span class="fc" id="L536">            return tNode;</span>
+        }
+    }
+
+    /**
+     * Performs appropriate replacements required for flipping url.
+     */
+    private String flipUrlValue(String value) {
+<span class="pc bpc" id="L544" title="1 of 2 branches missed.">        if (null == value) {</span>
+<span class="nc" id="L545">            return null;</span>
+        }
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">        if (shouldSwapLtrRtlInUrl) {</span>
+<span class="fc bfc" id="L548" title="All 2 branches covered.">            for (Pattern p : URL_LTRTL_PATTERN_FOR_FLIPPING.keySet()) {</span>
+<span class="fc bfc" id="L549" title="All 2 branches covered.">                if (p.matcher(value).find()) {</span>
+<span class="fc" id="L550">                    String s = URL_LTRTL_PATTERN_FOR_FLIPPING.get(p);</span>
+<span class="fc" id="L551">                    value = p.matcher(value).replaceFirst(s);</span>
+<span class="fc" id="L552">                    break;</span>
+                }
+<span class="fc" id="L554">            }</span>
+        }
+<span class="pc bpc" id="L556" title="1 of 2 branches missed.">        if (shouldSwapLeftRightInUrl) {</span>
+<span class="fc bfc" id="L557" title="All 2 branches covered.">            for (Pattern p : URL_LEFTRIGHT_PATTERN_FOR_FLIPPING.keySet()) {</span>
+<span class="fc bfc" id="L558" title="All 2 branches covered.">                if (p.matcher(value).find()) {</span>
+<span class="fc" id="L559">                    String s = URL_LEFTRIGHT_PATTERN_FOR_FLIPPING.get(p);</span>
+<span class="fc" id="L560">                    value = p.matcher(value).replaceFirst(s);</span>
+<span class="fc" id="L561">                    break;</span>
+                }
+<span class="fc" id="L563">            }</span>
+        }
+<span class="fc" id="L565">        return value;</span>
+    }
+
+    /**
+     * Return node with flipped url, if it is a 'CssFunctionNode' with
+     * function 'URL'.
+     */
+    private CssValueNode flipUrlNode(CssValueNode valueNode) {
+<span class="fc bfc" id="L573" title="All 2 branches covered.">        if (!((valueNode instanceof CssFunctionNode)</span>
+<span class="fc bfc" id="L574" title="All 2 branches covered.">                &amp;&amp; (&quot;url&quot;.equals(((CssFunctionNode) valueNode).getFunctionName())))) {</span>
+<span class="fc" id="L575">            return valueNode;</span>
+        }
+
+        // Get the url to be flipped.
+<span class="fc" id="L579">        CssFunctionNode oldFunctionNode = (CssFunctionNode) valueNode;</span>
+<span class="fc" id="L580">        CssFunctionArgumentsNode functionArguments = oldFunctionNode.getArguments();</span>
+
+        // Asserting if url function has more than one argument, which
+        // is unusual.
+<span class="pc bpc" id="L584" title="1 of 2 branches missed.">        Preconditions.checkArgument((1 == functionArguments.numChildren()),</span>
+                &quot;url function taking more than one argument&quot;);
+
+<span class="fc" id="L587">        CssValueNode oldArgument = functionArguments.getChildAt(0);</span>
+<span class="fc" id="L588">        String oldUrlValue = oldArgument.getValue();</span>
+        // Get the flipped url.
+<span class="fc" id="L590">        String newUrlValue = flipUrlValue(oldUrlValue);</span>
+
+        // Make a new FunctionNode out of flipped url argument.
+<span class="fc" id="L593">        CssValueNode newArgument = oldArgument.deepCopy();</span>
+<span class="fc" id="L594">        newArgument.setValue(newUrlValue);</span>
+<span class="fc" id="L595">        List&lt;CssValueNode&gt; newArgumentsList = new ArrayList&lt;CssValueNode&gt;();</span>
+<span class="fc" id="L596">        newArgumentsList.add(newArgument);</span>
+
+<span class="fc" id="L598">        CssFunctionNode newFunctionNode = oldFunctionNode.deepCopy();</span>
+<span class="fc" id="L599">        newFunctionNode.setArguments(new CssFunctionArgumentsNode(newArgumentsList));</span>
+<span class="fc" id="L600">        return newFunctionNode;</span>
+    }
+
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declarationNode) {
+        // Return if node is set to non-flippable.
+<span class="fc bfc" id="L606" title="All 2 branches covered.">        if (!declarationNode.getShouldBeFlipped()) {</span>
+<span class="fc" id="L607">            return true;</span>
+        }
+
+        // Update the property name in the declaration.
+<span class="fc" id="L611">        CssDeclarationNode newDeclarationNode = declarationNode.deepCopy();</span>
+<span class="fc" id="L612">        CssPropertyNode propertyNode = declarationNode.getPropertyName();</span>
+<span class="fc" id="L613">        newDeclarationNode.setPropertyName(flipNode(propertyNode));</span>
+
+        // Update the property value.
+<span class="fc" id="L616">        CssPropertyValueNode propertyValueNode = declarationNode.getPropertyValue();</span>
+<span class="fc" id="L617">        List&lt;CssValueNode&gt; valueNodes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L618">        int valueIndex = 0;</span>
+<span class="fc bfc" id="L619" title="All 2 branches covered.">        for (CssValueNode valueNode : propertyValueNode.childIterable()) {</span>
+            // Flip URL argument, if it is a valid url function.
+<span class="fc" id="L621">            CssValueNode temp = flipUrlNode(valueNode);</span>
+            // Flip node value, if it is a property node or literal node with value
+            // that required flipping.
+<span class="fc" id="L624">            temp = flipNode(temp);</span>
+            // Flip node value, if it is numeric and has percentage that
+            // needs flipping.
+<span class="fc bfc" id="L627" title="All 2 branches covered.">            if (isValidForPercentageFlipping(propertyNode, propertyValueNode,</span>
+                    valueIndex)) {
+<span class="fc" id="L629">                temp = flipPercentageValueNode(temp);</span>
+            }
+<span class="fc" id="L631">            valueNodes.add(temp.deepCopy());</span>
+<span class="fc" id="L632">            valueIndex++;</span>
+<span class="fc" id="L633">        }</span>
+<span class="pc bpc" id="L634" title="1 of 2 branches missed.">        if (valueNodes.size() != 0) {</span>
+<span class="fc" id="L635">            CssValueNode priority = null;</span>
+            // Remove possible !important priority node.
+<span class="pc bpc" id="L637" title="1 of 4 branches missed.">            if (!valueNodes.isEmpty() &amp;&amp; Iterables.getLast(valueNodes) instanceof CssPriorityNode) {</span>
+<span class="fc" id="L638">                priority = Iterables.getLast(valueNodes);</span>
+<span class="fc" id="L639">                valueNodes = valueNodes.subList(0, valueNodes.size() - 1);</span>
+            }
+<span class="fc" id="L641">            List&lt;CssValueNode&gt; newValueList =</span>
+<span class="fc" id="L642">                    flipNumericValues(valueNodes, propertyNode.getPropertyName());</span>
+            // Re-add priority node if we removed it earlier.
+<span class="fc bfc" id="L644" title="All 2 branches covered.">            if (priority != null) {</span>
+<span class="fc" id="L645">                newValueList.add(priority);</span>
+            }
+<span class="fc" id="L647">            newDeclarationNode.setPropertyValue(new CssPropertyValueNode(newValueList));</span>
+<span class="fc" id="L648">        } else {</span>
+<span class="nc" id="L649">            newDeclarationNode.setPropertyValue(propertyValueNode.deepCopy());</span>
+        }
+
+<span class="fc" id="L652">        List&lt;CssNode&gt; replacementList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L653">        replacementList.add(newDeclarationNode);</span>
+<span class="fc" id="L654">        visitController.replaceCurrentBlockChildWith(replacementList, false);</span>
+<span class="fc" id="L655">        return true;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L660">        visitController.startVisit(this);</span>
+<span class="fc" id="L661">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

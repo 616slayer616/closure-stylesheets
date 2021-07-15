@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateForLoopNodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">CreateForLoopNodes.java</span></div><h1>CreateForLoopNodes.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.Stack;
+import java.util.regex.Pattern;
+
+/**
+ * A compiler pass that replaces each {@code @for} with a {@link CssForLoopRuleNode}.
+ */
+public class CreateForLoopNodes extends DefaultTreeVisitor implements CssCompilerPass {
+
+    @VisibleForTesting
+    static final String SYNTAX_ERROR = &quot;Invalid syntax for @for rule. Expected: &quot;
+            + &quot;@for &lt;IDENTIFIER&gt; from &lt;CONST|NUMBER&gt; to &lt;CONST|NUMBER&gt;) [step &lt;CONST|NUMBER&gt;]&quot;;
+
+    @VisibleForTesting
+    static final String ILLEGAL_VARIABLE_NAME = &quot;Illegal variable name.&quot;;
+
+    @VisibleForTesting
+    static final String OVERRIDE_VARIABLE_NAME = &quot;Overriding existing variable name.&quot;;
+
+<span class="fc" id="L41">    private static final String FOR_NAME = CssAtRuleNode.Type.FOR.getCanonicalName();</span>
+<span class="fc" id="L42">    private static final Pattern VARIABLE_PATTERN = Pattern.compile(&quot;\\$[a-zA-Z_]\\w*&quot;);</span>
+    private static final String FROM_KEYWORD = &quot;from&quot;;
+    private static final String TO_KEYWORD = &quot;to&quot;;
+    private static final String STEP_KEYWORD = &quot;step&quot;;
+
+    private static final int VARIABLE_INDEX = 0;
+    private static final int FROM_KEYWORD_INDEX = 1;
+    private static final int FROM_VALUE_INDEX = 2;
+    private static final int TO_KEYOWRD_INDEX = 3;
+    private static final int TO_VALUE_INDEX = 4;
+    private static final int STEP_KEYOWRD_INDEX = 5;
+    private static final int STEP_VALUE_INDEX = 6;
+
+    private static final int ARGUMENT_COUNT_WITHOUT_STEP = 5;
+    private static final int ARGUMENT_COUNT_WITH_STEP = 7;
+
+    private final MutatingVisitController visitController;
+    private final ErrorManager errorManager;
+<span class="fc" id="L60">    private final Stack&lt;String&gt; variables = new Stack&lt;&gt;();</span>
+
+<span class="fc" id="L62">    private int uniqueLoopId = 0;</span>
+
+<span class="fc" id="L64">    public CreateForLoopNodes(MutatingVisitController visitController, ErrorManager errorManager) {</span>
+<span class="fc" id="L65">        this.visitController = visitController;</span>
+<span class="fc" id="L66">        this.errorManager = errorManager;</span>
+<span class="fc" id="L67">    }</span>
+
+    @Override
+    public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (!node.getName().getValue().equals(FOR_NAME)) {</span>
+<span class="fc" id="L72">            return true;</span>
+        }
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (!node.getType().hasBlock()) {</span>
+<span class="fc" id="L76">            reportError(&quot;@&quot; + FOR_NAME + &quot; with no block&quot;, node);</span>
+<span class="fc" id="L77">            return false;</span>
+        }
+
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (node.getChildren().size() != ARGUMENT_COUNT_WITHOUT_STEP</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                &amp;&amp; node.getChildren().size() != ARGUMENT_COUNT_WITH_STEP) {</span>
+<span class="fc" id="L82">            reportError(SYNTAX_ERROR, node);</span>
+<span class="fc" id="L83">            return false;</span>
+        }
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (!(node.getChildAt(VARIABLE_INDEX) instanceof CssLoopVariableNode)</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                || !(node.getChildAt(FROM_KEYWORD_INDEX) instanceof CssLiteralNode)</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">                || !FROM_KEYWORD.equals(node.getChildAt(FROM_KEYWORD_INDEX).getValue())</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                || !isValidValueNode(node.getChildAt(FROM_VALUE_INDEX))</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">                || !(node.getChildAt(TO_KEYOWRD_INDEX) instanceof CssLiteralNode)</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">                || !TO_KEYWORD.equals(node.getChildAt(TO_KEYOWRD_INDEX).getValue())</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">                || !isValidValueNode(node.getChildAt(TO_VALUE_INDEX))) {</span>
+<span class="fc" id="L92">            reportError(SYNTAX_ERROR, node);</span>
+<span class="fc" id="L93">            return false;</span>
+        }
+<span class="fc" id="L95">        String variableName = node.getChildAt(VARIABLE_INDEX).getValue();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (!VARIABLE_PATTERN.matcher(variableName).matches()) {</span>
+<span class="nc" id="L97">            reportError(ILLEGAL_VARIABLE_NAME, node.getChildAt(VARIABLE_INDEX));</span>
+<span class="nc" id="L98">            return false;</span>
+        }
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (variables.contains(variableName)) {</span>
+<span class="fc" id="L101">            reportError(OVERRIDE_VARIABLE_NAME, node.getChildAt(VARIABLE_INDEX));</span>
+<span class="fc" id="L102">            return false;</span>
+        }
+
+<span class="fc" id="L105">        CssValueNode from = node.getChildAt(FROM_VALUE_INDEX);</span>
+<span class="fc" id="L106">        CssValueNode to = node.getChildAt(TO_VALUE_INDEX);</span>
+<span class="fc" id="L107">        CssValueNode step = new CssNumericNode(&quot;1&quot;, CssNumericNode.NO_UNITS);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (node.getChildren().size() == ARGUMENT_COUNT_WITH_STEP) {</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            if (!(node.getChildAt(STEP_KEYOWRD_INDEX) instanceof CssLiteralNode)</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                    || !STEP_KEYWORD.equals(node.getChildAt(STEP_KEYOWRD_INDEX).getValue())</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">                    || !isValidValueNode(node.getChildAt(STEP_VALUE_INDEX))) {</span>
+<span class="nc" id="L112">                reportError(SYNTAX_ERROR, node);</span>
+<span class="nc" id="L113">                return false;</span>
+            }
+<span class="fc" id="L115">            step = node.getChildAt(STEP_VALUE_INDEX);</span>
+        }
+
+<span class="fc" id="L118">        CssForLoopRuleNode loopNode = new CssForLoopRuleNode(node.getName(),</span>
+<span class="fc" id="L119">                node.getBlock(),</span>
+<span class="fc" id="L120">                node.getComments(),</span>
+                from,
+                to,
+                step,
+                variableName,
+<span class="fc" id="L125">                nextLoopId(),</span>
+<span class="fc" id="L126">                node.getSourceCodeLocation());</span>
+<span class="fc" id="L127">        loopNode.setParameters(node.getChildren());</span>
+
+<span class="fc" id="L129">        visitController.replaceCurrentBlockChildWith(Lists.newArrayList(loopNode), true);</span>
+<span class="fc" id="L130">        variables.push(variableName);</span>
+<span class="fc" id="L131">        return true;</span>
+    }
+
+    @Override
+    public void leaveForLoop(CssForLoopRuleNode node) {
+<span class="fc" id="L136">        variables.pop();</span>
+<span class="fc" id="L137">    }</span>
+
+    private boolean isValidValueNode(CssValueNode node) {
+<span class="pc bpc" id="L140" title="1 of 4 branches missed.">        return node instanceof CssNumericNode || node instanceof CssLiteralNode;</span>
+    }
+
+    private void reportError(String message, CssNode node) {
+<span class="fc" id="L144">        errorManager.report(new GssError(message, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L145">        visitController.removeCurrentNode();</span>
+<span class="fc" id="L146">    }</span>
+
+    private int nextLoopId() {
+<span class="fc" id="L149">        return uniqueLoopId++;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L154">        visitController.startVisit(this);</span>
+<span class="fc" id="L155">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

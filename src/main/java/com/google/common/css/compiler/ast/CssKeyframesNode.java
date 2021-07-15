@@ -39,6 +39,8 @@ public class CssKeyframesNode extends CssAtRuleNode implements ChunkAware {
     /**
      * Used by CreateVendorPrefixedKeyframes to copy an existing keyframes node
      * to create a browser specific duplicate having different name.
+     *
+     * @param node node
      */
     public CssKeyframesNode(CssLiteralNode name, CssKeyframesNode node) {
         super(node);

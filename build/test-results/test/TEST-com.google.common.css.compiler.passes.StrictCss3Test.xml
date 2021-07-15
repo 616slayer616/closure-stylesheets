@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.StrictCss3Test" tests="24" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.022">
+  <properties/>
+  <testcase name="testBorderValidation" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.003"/>
+  <testcase name="testPseudoClass1" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.004"/>
+  <testcase name="testPseudoClass2" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testPseudoClass3" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoClass4" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testValidLengthUnits" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.002"/>
+  <testcase name="testPseudoClassBad1" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoClassBad2" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoClassBad3" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoClassNth1" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testPseudoClassNth2" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoClassNth3" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testPseudoClassNth4" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testBorderValidation2" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testBorderValidation3" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoElementBad" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.002"/>
+  <testcase name="testPseudoClassNthBad1" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoClassNthBad2" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testPseudoClassNthBad3" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.001"/>
+  <testcase name="testInvalidLengthUnit" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testPseudoElement1" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testPseudoElement2" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testPseudoElement3" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <testcase name="testPseudoElement4" classname="com.google.common.css.compiler.passes.StrictCss3Test" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

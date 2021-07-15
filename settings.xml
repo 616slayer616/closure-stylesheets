@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    User-specific configuration for maven. Includes things that should not
+    be distributed with the pom.xml file, such as developer identity, along with
+    local settings, like proxy information. The default location for the
+    settings file is ~/.m2/settings.xml
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <servers>
+        <server>
+            <id>ossrh</id>
+            <username>616slayer616</username>
+            <password>VyxxuNT7u9iL_Tp</password>
+        </server>
+        <server>
+            <id>31DB7E29</id>
+            <passphrase>orgpadlersonatypeclosurestylesheets</passphrase>
+        </server>
+    </servers>
+
+    <profiles>
+
+    </profiles>
+
+    <activeProfiles>
+    </activeProfiles>
+
+</settings>

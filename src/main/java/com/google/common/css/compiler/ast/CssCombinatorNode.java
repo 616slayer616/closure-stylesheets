@@ -57,9 +57,9 @@ public class CssCombinatorNode extends CssNode {
     /**
      * Constructor of a combinator node.
      *
-     * @param selector
-     * @param type
-     * @param sourceCodeLocation
+     * @param selector           selector
+     * @param type               type
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssCombinatorNode(CssSelectorNode selector,
                              Combinator type,
@@ -73,8 +73,8 @@ public class CssCombinatorNode extends CssNode {
     /**
      * Constructor of a combinator node.
      *
-     * @param type
-     * @param sourceCodeLocation
+     * @param type               type
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssCombinatorNode(Combinator type,
                              SourceCodeLocation sourceCodeLocation) {
@@ -84,7 +84,7 @@ public class CssCombinatorNode extends CssNode {
     /**
      * Copy constructor.
      *
-     * @param node
+     * @param node node
      */
     public CssCombinatorNode(CssCombinatorNode node) {
         this(

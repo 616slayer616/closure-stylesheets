@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractGssParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">AbstractGssParser.java</span></div><h1>AbstractGssParser.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2014 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.common.css.compiler.ast;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.css.SourceCode;
+
+import java.util.List;
+
+/**
+ * Base parser implementation that delegates management of the underlying
+ * JavaCC parser to the subclass. This class does not expose any public
+ * methods; subclasses should expose an appropriate interface.
+ *
+ * @see GssParser
+ */
+<span class="fc" id="L30">public abstract class AbstractGssParser {</span>
+
+<span class="fc" id="L32">    protected static final StringCharStream EMPTY_CHAR_STREAM =</span>
+            new StringCharStream(&quot;&quot;);
+
+    /**
+     * Parses a list of GSS sources. Subclasses should use this method to do
+     * the actual parsing of {@code SourceCode} objects. It will in turn call
+     * the subclass's implementation of {@link #getParser()} as necessary.
+     *
+     * @param sources       a list of GSS {@link SourceCode} objects to parse
+     * @param errorHandling if error handling should be enabled. If this is
+     *                      {@code false}, no {@code GssParserException}s will be returned in
+     *                      the result.
+     * @return ParseResult the result containing the {@link CssTree} and
+     * parsing errors
+     */
+    protected final ParseResult parseInternal(List&lt;SourceCode&gt; sources,
+                                              boolean errorHandling) throws GssParserException {
+<span class="fc" id="L49">        SourceCode globalSourceCode = new SourceCode(&quot;global&quot;, null);</span>
+<span class="fc" id="L50">        CssBlockNode globalBlock =</span>
+                new CssBlockNode(false /* isEnclosedWithBraces */);
+<span class="fc" id="L52">        CssTree tree = new CssTree(globalSourceCode, new CssRootNode(globalBlock));</span>
+        ImmutableList.Builder&lt;GssParserException&gt; builder =
+<span class="fc" id="L54">                ImmutableList.builder();</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (SourceCode source : sources) {</span>
+<span class="fc" id="L56">            getParser().parse(globalBlock, source, errorHandling, builder);</span>
+<span class="fc" id="L57">        }</span>
+<span class="fc" id="L58">        return new ParseResult(tree, builder.build());</span>
+    }
+
+    /**
+     * Implementations must return an empty {@code GssParserCC} object. Whether
+     * this object is actually new or not isn't important which allows pooling.
+     */
+    protected abstract GssParserCC getParser();
+
+    protected static class ParseResult {
+        private final CssTree cssTree;
+        private final ImmutableList&lt;GssParserException&gt; handledErrors;
+
+        private ParseResult(CssTree cssTree,
+<span class="fc" id="L72">                            ImmutableList&lt;GssParserException&gt; handledErrors) {</span>
+<span class="fc" id="L73">            this.cssTree = cssTree;</span>
+<span class="fc" id="L74">            this.handledErrors = handledErrors;</span>
+<span class="fc" id="L75">        }</span>
+
+        protected CssTree getCssTree() {
+<span class="fc" id="L78">            return cssTree;</span>
+        }
+
+        protected ImmutableList&lt;GssParserException&gt; getHandledErrors() {
+<span class="fc" id="L82">            return handledErrors;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

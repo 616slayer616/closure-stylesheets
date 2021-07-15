@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TemplateCompactPrintingVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">TemplateCompactPrintingVisitor.java</span></div><h1>TemplateCompactPrintingVisitor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2010 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+
+/**
+ * Printer for templates, which outputs GSS with holes to be filled for references. In addition, the
+ * declaration boundaries are explicitly noted, so that a declaration can be removed if it ends up
+ * empty.
+ *
+ * &lt;p&gt;This pass can only be used if {@link MapChunkAwareNodesToChunk} pass has been run before.
+ * Otherwise this pass won't work.
+ *
+ * @param &lt;T&gt; type of chunk id objects
+ * @author dgajda@google.com (Damian Gajda)
+ */
+public class TemplateCompactPrintingVisitor&lt;T&gt; extends CompactPrintingVisitor {
+
+    /**
+     * Chunk to be printed by this printer.
+     */
+    private final T chunk;
+
+    /**
+     * Whether currently visited selector (including its children) belongs to printed chunk and
+     * should be printed.
+     */
+    private boolean printSelector;
+
+    public TemplateCompactPrintingVisitor(
+            VisitController visitController,
+            T chunk,
+            @Nullable CodeBuffer buffer) {
+<span class="fc" id="L51">        super(visitController, buffer);</span>
+<span class="fc" id="L52">        this.chunk = chunk;</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    protected void appendValueNode(CssValueNode node) {
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (node instanceof CssConstantReferenceNode) {</span>
+<span class="nc" id="L58">            buffer.append(TemplateCompactPrinter.REFERENCE_START);</span>
+<span class="nc" id="L59">            super.appendValueNode(node);</span>
+<span class="nc" id="L60">            buffer.append(TemplateCompactPrinter.REFERENCE_END);</span>
+        } else {
+<span class="fc" id="L62">            super.appendValueNode(node);</span>
+        }
+<span class="fc" id="L64">    }</span>
+
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declaration) {
+<span class="fc" id="L68">        buffer.append(TemplateCompactPrinter.DECLARATION_START);</span>
+<span class="fc" id="L69">        return super.enterDeclaration(declaration);</span>
+    }
+
+    @Override
+    public void leaveDeclaration(CssDeclarationNode declaration) {
+<span class="fc" id="L74">        super.leaveDeclaration(declaration);</span>
+<span class="fc" id="L75">        buffer.append(TemplateCompactPrinter.DECLARATION_END);</span>
+<span class="fc" id="L76">    }</span>
+
+    @Override
+    public boolean enterRuleset(CssRulesetNode ruleset) {
+<span class="fc" id="L80">        boolean printRuleset = false;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (CssSelectorNode selector : ruleset.getSelectors().childIterable()) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            if (chunk.equals(selector.getChunk())) {</span>
+<span class="fc" id="L83">                printRuleset = true;</span>
+<span class="fc" id="L84">                break;</span>
+            }
+<span class="fc" id="L86">        }</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (printRuleset) {</span>
+<span class="fc" id="L88">            buffer.append(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="fc" id="L90">        return printRuleset;</span>
+    }
+
+    @Override
+    public void leaveRuleset(CssRulesetNode ruleset) {
+        // only called if enterRuleset returns true
+<span class="fc" id="L96">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="fc" id="L97">        super.leaveRuleset(ruleset);</span>
+<span class="fc" id="L98">    }</span>
+
+    @Override
+    public boolean enterMediaRule(CssMediaRuleNode media) {
+<span class="fc" id="L102">        buffer.append(TemplateCompactPrinter.RULE_START);</span>
+<span class="fc" id="L103">        printSelector = chunk.equals(media.getChunk());</span>
+<span class="pc bpc" id="L104" title="1 of 4 branches missed.">        boolean printMediaRule = printSelector &amp;&amp; super.enterMediaRule(media);</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (!printMediaRule) {</span>
+<span class="fc" id="L106">            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="fc" id="L108">        return printMediaRule;</span>
+    }
+
+    @Override
+    public void leaveMediaRule(CssMediaRuleNode media) {
+        // only called if enterMediaRule returns true
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if (printSelector) {</span>
+<span class="fc" id="L115">            super.leaveMediaRule(media);</span>
+        }
+<span class="fc" id="L117">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="fc" id="L118">    }</span>
+
+    @Override
+    public boolean enterSelector(CssSelectorNode selector) {
+<span class="fc" id="L122">        printSelector = chunk.equals(selector.getChunk());</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L124">            return super.enterSelector(selector);</span>
+        }
+<span class="fc" id="L126">        return true;</span>
+    }
+
+    @Override
+    public void leaveSelector(CssSelectorNode selector) {
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L132">            super.leaveSelector(selector);</span>
+        }
+<span class="fc" id="L134">    }</span>
+
+    @Override
+    public boolean enterFontFace(CssFontFaceNode cssFontFaceNode) {
+<span class="fc" id="L138">        buffer.append(TemplateCompactPrinter.RULE_START);</span>
+<span class="fc" id="L139">        printSelector = chunk.equals(cssFontFaceNode.getChunk());</span>
+<span class="pc bpc" id="L140" title="1 of 4 branches missed.">        boolean printFontFace = printSelector &amp;&amp; super.enterFontFace(cssFontFaceNode);</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (!printFontFace) {</span>
+<span class="fc" id="L142">            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="fc" id="L144">        return printFontFace;</span>
+    }
+
+    @Override
+    public void leaveFontFace(CssFontFaceNode cssFontFaceNode) {
+        // only called if enterFontFace returns true
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (printSelector) {</span>
+<span class="fc" id="L151">            super.leaveFontFace(cssFontFaceNode);</span>
+        }
+<span class="fc" id="L153">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="fc" id="L154">    }</span>
+
+    @Override
+    public boolean enterCharSet(CssCharSetNode cssCharSetNode) {
+<span class="fc" id="L158">        buffer.append(TemplateCompactPrinter.RULE_START);</span>
+<span class="fc" id="L159">        boolean printFontFace = super.enterCharSet(cssCharSetNode);</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if (!printFontFace) {</span>
+<span class="nc" id="L161">            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="fc" id="L163">        return printFontFace;</span>
+    }
+
+    @Override
+    public void leaveCharSet(CssCharSetNode cssCharSetNode) {
+        // only called if enterCharSet returns true
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">        if (printSelector) {</span>
+<span class="nc" id="L170">            super.leaveCharSet(cssCharSetNode);</span>
+        }
+<span class="fc" id="L172">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="fc" id="L173">    }</span>
+
+    @Override
+    public boolean enterKeyframeRuleset(CssKeyframeRulesetNode ruleset) {
+<span class="fc" id="L177">        buffer.append(TemplateCompactPrinter.RULE_START);</span>
+<span class="fc" id="L178">        boolean printKeyframeRuleset = super.enterKeyframeRuleset(ruleset);</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if (!printKeyframeRuleset) {</span>
+<span class="nc" id="L180">            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="fc" id="L182">        return printKeyframeRuleset;</span>
+    }
+
+    @Override
+    public void leaveKeyframeRuleset(CssKeyframeRulesetNode ruleset) {
+        // only called if enterKeyframeRuleset returns true
+<span class="fc" id="L188">        super.leaveKeyframeRuleset(ruleset);</span>
+<span class="fc" id="L189">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="fc" id="L190">    }</span>
+
+    @Override
+    public boolean enterKeyframesRule(CssKeyframesNode keyframes) {
+<span class="fc" id="L194">        printSelector = chunk.equals(keyframes.getChunk());</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (!printSelector) {</span>
+<span class="fc" id="L196">            return false;</span>
+        }
+<span class="fc" id="L198">        return super.enterKeyframesRule(keyframes);</span>
+    }
+
+    @Override
+    public void leaveKeyframesRule(CssKeyframesNode keyframes) {
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        if (printSelector) {</span>
+<span class="fc" id="L204">            super.leaveKeyframesRule(keyframes);</span>
+        }
+<span class="fc" id="L206">    }</span>
+
+    @Override
+    public boolean enterPageRule(CssPageRuleNode node) {
+<span class="nc" id="L210">        buffer.append(TemplateCompactPrinter.RULE_START);</span>
+<span class="nc" id="L211">        boolean printPageRule = super.enterPageRule(node);</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (!printPageRule) {</span>
+<span class="nc" id="L213">            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="nc" id="L215">        return printPageRule;</span>
+    }
+
+    @Override
+    public void leavePageRule(CssPageRuleNode node) {
+        // only called if enterPageRule returns true
+<span class="nc" id="L221">        super.leavePageRule(node);</span>
+<span class="nc" id="L222">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="nc" id="L223">    }</span>
+
+    @Override
+    public boolean enterClassSelector(CssClassSelectorNode node) {
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L228">            return super.enterClassSelector(node);</span>
+        }
+<span class="fc" id="L230">        return true;</span>
+    }
+
+    @Override
+    public void leaveClassSelector(CssClassSelectorNode node) {
+<span class="fc bfc" id="L235" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L236">            super.leaveClassSelector(node);</span>
+        }
+<span class="fc" id="L238">    }</span>
+
+    @Override
+    public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
+<span class="nc" id="L242">        buffer.append(TemplateCompactPrinter.RULE_START);</span>
+<span class="nc" id="L243">        boolean printUnknownAtRule = super.enterUnknownAtRule(node);</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        if (!printUnknownAtRule) {</span>
+<span class="nc" id="L245">            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="nc" id="L247">        return printUnknownAtRule;</span>
+    }
+
+    @Override
+    public void leaveUnknownAtRule(CssUnknownAtRuleNode node) {
+        // only called if enterUnknownAtRule returns true
+<span class="nc" id="L253">        super.leaveUnknownAtRule(node);</span>
+<span class="nc" id="L254">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="nc" id="L255">    }</span>
+
+    @Override
+    public boolean enterImportRule(CssImportRuleNode node) {
+<span class="nc" id="L259">        buffer.append(TemplateCompactPrinter.RULE_START);</span>
+<span class="nc" id="L260">        boolean printImportRule = super.enterImportRule(node);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if (!printImportRule) {</span>
+<span class="nc" id="L262">            buffer.deleteLastCharIfCharIs(TemplateCompactPrinter.RULE_START);</span>
+        }
+<span class="nc" id="L264">        return printImportRule;</span>
+    }
+
+    @Override
+    public void leaveImportRule(CssImportRuleNode node) {
+<span class="nc" id="L269">        super.leaveImportRule(node);</span>
+<span class="nc" id="L270">        buffer.append(TemplateCompactPrinter.RULE_END);</span>
+<span class="nc" id="L271">    }</span>
+
+    @Override
+    public boolean enterIdSelector(CssIdSelectorNode node) {
+<span class="fc bfc" id="L275" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L276">            return super.enterIdSelector(node);</span>
+        }
+<span class="fc" id="L278">        return true;</span>
+    }
+
+    @Override
+    public void leaveIdSelector(CssIdSelectorNode node) {
+<span class="fc bfc" id="L283" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L284">            super.leaveIdSelector(node);</span>
+        }
+<span class="fc" id="L286">    }</span>
+
+    @Override
+    public boolean enterPseudoClass(CssPseudoClassNode node) {
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        if (printSelector) {</span>
+<span class="nc" id="L291">            return super.enterPseudoClass(node);</span>
+        }
+<span class="nc" id="L293">        return true;</span>
+    }
+
+    @Override
+    public void leavePseudoClass(CssPseudoClassNode node) {
+<span class="nc bnc" id="L298" title="All 2 branches missed.">        if (printSelector) {</span>
+<span class="nc" id="L299">            super.leavePseudoClass(node);</span>
+        }
+<span class="nc" id="L301">    }</span>
+
+    @Override
+    public boolean enterPseudoElement(CssPseudoElementNode node) {
+<span class="nc bnc" id="L305" title="All 2 branches missed.">        if (printSelector) {</span>
+<span class="nc" id="L306">            return super.enterPseudoElement(node);</span>
+        }
+<span class="nc" id="L308">        return true;</span>
+    }
+
+    @Override
+    public void leavePseudoElement(CssPseudoElementNode node) {
+<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (printSelector) {</span>
+<span class="nc" id="L314">            super.leavePseudoElement(node);</span>
+        }
+<span class="nc" id="L316">    }</span>
+
+    @Override
+    public boolean enterAttributeSelector(CssAttributeSelectorNode node) {
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        if (printSelector) {</span>
+<span class="nc" id="L321">            return super.enterAttributeSelector(node);</span>
+        }
+<span class="nc" id="L323">        return true;</span>
+    }
+
+    @Override
+    public void leaveAttributeSelector(CssAttributeSelectorNode node) {
+<span class="nc bnc" id="L328" title="All 2 branches missed.">        if (printSelector) {</span>
+<span class="nc" id="L329">            super.leaveAttributeSelector(node);</span>
+        }
+<span class="nc" id="L331">    }</span>
+
+    @Override
+    public boolean enterCombinator(CssCombinatorNode combinator) {
+<span class="fc bfc" id="L335" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L336">            return super.enterCombinator(combinator);</span>
+        }
+<span class="fc" id="L338">        return true;</span>
+    }
+
+    @Override
+    public void leaveCombinator(CssCombinatorNode combinator) {
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        if (printSelector) {</span>
+<span class="fc" id="L344">            super.leaveCombinator(combinator);</span>
+        }
+<span class="fc" id="L346">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

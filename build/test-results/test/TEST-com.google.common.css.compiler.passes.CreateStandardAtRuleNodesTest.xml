@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" tests="44" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:45" hostname="Patrick-MBP.fritz.box" time="0.285">
+  <properties/>
+  <testcase name="testCreateMediaNode1" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.055"/>
+  <testcase name="testCreateMediaNode2" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.003"/>
+  <testcase name="testCreateMediaNode3" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testCreateMediaNode4" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testMediaAndAnd" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.004"/>
+  <testcase name="testCreatePageInMediaPseudoClass1" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.003"/>
+  <testcase name="testCreatePageInMediaPseudoClass2" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testImportWithoutParamError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testImportWithWrongParamError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testMediaKeyframes" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.062"/>
+  <testcase name="testCreateCharSetNode" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.006"/>
+  <testcase name="testPageRuleWithoutBlockError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.013"/>
+  <testcase name="testCreatePageInMedia" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testMediaInvalidParameterError1" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.003"/>
+  <testcase name="testMediaInvalidParameterError2" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testMediaInvalidParameterError3" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testMediaInvalidParameterError4" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.005"/>
+  <testcase name="testMediaInvalidParameterError5" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testMinColorIndex" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testPageSelectorWithParametersError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testMediaWithoutParamError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testCreateFontNodeWithoutBlockError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testCreateFontNodeWithParametersError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testCreateFontNode" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.025"/>
+  <testcase name="testCreatePageSelectorNode" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.009"/>
+  <testcase name="testCreatePageWithPseudoClassNode1" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testCreatePageWithPseudoClassNode2" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testCreatePageWithTypeSelector" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testCreatePageNode" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testMediaWithoutBlockError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testPageSelectorWithoutBlockError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testImportWithTooManyParamsError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.021"/>
+  <testcase name="testMediaWithWrongBlockError" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testMisplacedImportWarnings" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.015"/>
+  <testcase name="testCreateMediaNodeWithConditional" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.002"/>
+  <testcase name="testCreateSimpleImportNode" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.004"/>
+  <testcase name="testPageRuleInvalidParameters1" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testPageRuleInvalidParameters2" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testPageRuleInvalidParameters3" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testPageRuleInvalidParameters4" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testPrintableImports" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.003"/>
+  <testcase name="testMonochrome" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.001"/>
+  <testcase name="testCreateUriImportNode" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.0"/>
+  <testcase name="testCreateComplexImportNode" classname="com.google.common.css.compiler.passes.CreateStandardAtRuleNodesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

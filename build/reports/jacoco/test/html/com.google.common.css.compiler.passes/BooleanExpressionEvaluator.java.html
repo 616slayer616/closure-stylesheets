@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BooleanExpressionEvaluator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">BooleanExpressionEvaluator.java</span></div><h1>BooleanExpressionEvaluator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.google.common.css.compiler.ast.CssBooleanExpressionNode;
+import com.google.common.css.compiler.ast.CssBooleanExpressionNode.Type;
+
+import java.util.Set;
+
+/**
+ * An evaluator for boolean expressions. The evaluation returns a new boolean
+ * expression node corresponding to true, false, or to the condition if that was
+ * not recognized.
+ */
+public class BooleanExpressionEvaluator {
+    final CssBooleanExpressionNode expression;
+    final Set&lt;String&gt; trueConditions;
+    final Set&lt;String&gt; falseConditions;
+    final boolean theRestAreUnknown;
+
+    /**
+     * Evaluates a boolean expression given a set of true conditions. Conditions
+     * that are not in the set are assumed to be false.
+     */
+    public BooleanExpressionEvaluator(CssBooleanExpressionNode expression,
+                                      Set&lt;String&gt; trueConditions) {
+<span class="fc" id="L44">        this(expression, trueConditions, ImmutableSet.&lt;String&gt;of(),</span>
+                false /* the rest of the conditions are assumed known */);
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        Preconditions.checkArgument(!trueConditions.contains(null));</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Evaluates a boolean expression given a set of true conditions and a set of
+     * false conditions. Conditions that are not in any of the sets are assumed to
+     * be unknown and are left in the resulting boolean expression.
+     */
+    public BooleanExpressionEvaluator(CssBooleanExpressionNode expression,
+                                      Set&lt;String&gt; trueConditions, Set&lt;String&gt; falseConditions) {
+<span class="fc" id="L56">        this(expression, trueConditions, falseConditions,</span>
+                true /* the rest of the conditions are assumed not known */);
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        Preconditions.checkArgument(!trueConditions.contains(null));</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        Preconditions.checkArgument(!falseConditions.contains(null));</span>
+<span class="fc" id="L60">    }</span>
+
+    private BooleanExpressionEvaluator(CssBooleanExpressionNode expression,
+                                       Set&lt;String&gt; trueConditions, Set&lt;String&gt; falseConditions,
+<span class="fc" id="L64">                                       boolean theRestAreUnknown) {</span>
+<span class="pc bpc" id="L65" title="3 of 4 branches missed.">        Preconditions.checkArgument(falseConditions.isEmpty() ||</span>
+                !theRestAreUnknown);
+<span class="fc" id="L67">        Preconditions.checkArgument(</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">                !trueConditions.contains(Type.TRUE_CONSTANT) &amp;&amp;</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">                        !trueConditions.contains(Type.FALSE_CONSTANT) &amp;&amp;</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">                        !falseConditions.contains(Type.TRUE_CONSTANT) &amp;&amp;</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                        !falseConditions.contains(Type.FALSE_CONSTANT));</span>
+<span class="fc" id="L72">        this.expression = expression;</span>
+<span class="fc" id="L73">        this.trueConditions =</span>
+<span class="fc" id="L74">                Sets.union(trueConditions, ImmutableSet.of(Type.TRUE_CONSTANT));</span>
+<span class="fc" id="L75">        this.falseConditions =</span>
+<span class="fc" id="L76">                Sets.union(falseConditions, ImmutableSet.of(Type.FALSE_CONSTANT));</span>
+<span class="fc" id="L77">        this.theRestAreUnknown = theRestAreUnknown;</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * Evaluates the boolean expression associated with this evaluator.
+     */
+    public CssBooleanExpressionNode evaluate() {
+<span class="fc" id="L84">        Object result = evaluateTree(expression);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (result instanceof Boolean) {</span>
+<span class="fc" id="L86">            return new CssBooleanExpressionNode(Type.CONSTANT,</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">                    (Boolean) result ? Type.TRUE_CONSTANT : Type.FALSE_CONSTANT);</span>
+        }
+<span class="fc" id="L89">        return (CssBooleanExpressionNode) result;</span>
+    }
+
+    /**
+     * Evaluates the tree corresponding to a boolean expression node.
+     */
+    private Object evaluateTree(CssBooleanExpressionNode node) {
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (node.getType().isConstant()) {</span>
+<span class="fc" id="L98">            String constantName = node.getValue();</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            if (trueConditions.contains(constantName)) {</span>
+<span class="fc" id="L100">                return Boolean.TRUE;</span>
+            }
+<span class="fc bfc" id="L102" title="All 2 branches covered.">            if (falseConditions.contains(constantName)) {</span>
+<span class="fc" id="L103">                return Boolean.FALSE;</span>
+            }
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (theRestAreUnknown) {</span>
+                // Copy of this constant node.
+<span class="fc" id="L107">                return new CssBooleanExpressionNode(node.getType(), node.getValue(),</span>
+<span class="fc" id="L108">                        node.getSourceCodeLocation());</span>
+            } else {
+<span class="fc" id="L110">                return Boolean.FALSE;</span>
+            }
+        }
+
+        // If we are here it means that the expression has operators.
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (node.getType().isUnaryOperator()) {</span>
+<span class="fc" id="L116">            return evaluateTreeWithUnaryOperator(node);</span>
+        } else {
+            // assert node.getType().isBinaryOperator();
+<span class="fc" id="L119">            return evaluateTreeWithBinaryOperator(node);</span>
+        }
+    }
+
+    /**
+     * Evaluates the tree corresponding to a boolean expression node with an unary
+     * operator.
+     */
+    private Object evaluateTreeWithUnaryOperator(CssBooleanExpressionNode node) {
+        // For a unary operator we only need to evaluate the left operand.
+        // assert node.getType() == Type.NOT;
+<span class="fc" id="L130">        Object operand = evaluateTree(node.getLeft());</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        if (operand instanceof Boolean) {</span>
+<span class="fc" id="L132">            Boolean boolResult = (Boolean) operand;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            return !boolResult;</span>
+        }
+        // Return a tree for &quot;!operand&quot;.
+<span class="fc" id="L136">        CssBooleanExpressionNode operandResult =</span>
+                (CssBooleanExpressionNode) operand;
+<span class="fc" id="L138">        return new CssBooleanExpressionNode(node.getType(), node.getValue(),</span>
+<span class="fc" id="L139">                operandResult, node.getSourceCodeLocation());</span>
+    }
+
+    /**
+     * Evaluates the tree corresponding to a boolean expression node with a binary
+     * operator.
+     */
+    private Object evaluateTreeWithBinaryOperator(
+            CssBooleanExpressionNode node) {
+        // For a binary operator we need to evaluate both left and right operands.
+<span class="fc" id="L149">        Object leftOperand = evaluateTree(node.getLeft());</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (leftOperand instanceof Boolean) {</span>
+<span class="fc" id="L151">            Boolean leftBoolResult = (Boolean) leftOperand;</span>
+<span class="fc bfc" id="L152" title="All 4 branches covered.">            if (leftBoolResult == true &amp;&amp; node.getType() == Type.OR) {</span>
+<span class="fc" id="L153">                return Boolean.TRUE;</span>
+            }
+<span class="pc bpc" id="L155" title="1 of 4 branches missed.">            if (leftBoolResult == false &amp;&amp; node.getType() == Type.AND) {</span>
+<span class="fc" id="L156">                return Boolean.FALSE;</span>
+            }
+        }
+
+<span class="fc" id="L160">        Object rightOperand = evaluateTree(node.getRight());</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">        if (rightOperand instanceof Boolean) {</span>
+<span class="fc" id="L162">            Boolean rightBoolResult = (Boolean) rightOperand;</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">            if (leftOperand instanceof Boolean) {</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">                if (node.getType() == Type.AND) {</span>
+<span class="pc bpc" id="L165" title="1 of 4 branches missed.">                    return (Boolean) leftOperand &amp;&amp; (Boolean) rightOperand;</span>
+                } else {
+                    // assert node.getType() == Type.OR;
+<span class="nc bnc" id="L168" title="All 4 branches missed.">                    return (Boolean) leftOperand || (Boolean) rightOperand;</span>
+                }
+            } else {
+<span class="fc bfc" id="L171" title="All 4 branches covered.">                if (rightBoolResult == true &amp;&amp; node.getType() == Type.OR) {</span>
+<span class="fc" id="L172">                    return Boolean.TRUE;</span>
+                }
+<span class="fc bfc" id="L174" title="All 4 branches covered.">                if (rightBoolResult == false &amp;&amp; node.getType() == Type.AND) {</span>
+<span class="fc" id="L175">                    return Boolean.FALSE;</span>
+                }
+                // We either have (left &amp;&amp; true) or (left || false).
+<span class="fc" id="L178">                return leftOperand;</span>
+            }
+        } else {
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            if (leftOperand instanceof Boolean) {</span>
+                // In this case the result is dictated by the right operand, as we can
+                // only have (TRUE &amp;&amp; right) or (FALSE || right).
+                // assert leftOperand.equals(Boolean.TRUE) &amp;&amp; node.getType() == Type.AND ||
+                //       leftOperand.equals(Boolean.FALSE) &amp;&amp; node.getType() == Type.OR;
+<span class="fc" id="L186">                return rightOperand;</span>
+            } else {
+                // Return a tree for &quot;leftOperand operator rightOperand&quot;.
+<span class="fc" id="L189">                CssBooleanExpressionNode leftResult =</span>
+                        (CssBooleanExpressionNode) leftOperand;
+<span class="fc" id="L191">                CssBooleanExpressionNode rightResult =</span>
+                        (CssBooleanExpressionNode) rightOperand;
+<span class="fc" id="L193">                return new CssBooleanExpressionNode(node.getType(), node.getValue(),</span>
+<span class="fc" id="L194">                        leftResult, rightResult, node.getSourceCodeLocation());</span>
+            }
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

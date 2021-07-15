@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.ast.CssAbstractBlockNodeTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:51" hostname="Patrick-MBP.fritz.box" time="0.002">
+  <properties/>
+  <testcase name="testAddChildError" classname="com.google.common.css.compiler.ast.CssAbstractBlockNodeTest" time="0.002"/>
+  <testcase name="testAddChild" classname="com.google.common.css.compiler.ast.CssAbstractBlockNodeTest" time="0.0"/>
+  <testcase name="testAddChildren" classname="com.google.common.css.compiler.ast.CssAbstractBlockNodeTest" time="0.0"/>
+  <testcase name="testAddChildrenError" classname="com.google.common.css.compiler.ast.CssAbstractBlockNodeTest" time="0.0"/>
+  <testcase name="testDeepCopy" classname="com.google.common.css.compiler.ast.CssAbstractBlockNodeTest" time="0.0"/>
+  <testcase name="testConstructor" classname="com.google.common.css.compiler.ast.CssAbstractBlockNodeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

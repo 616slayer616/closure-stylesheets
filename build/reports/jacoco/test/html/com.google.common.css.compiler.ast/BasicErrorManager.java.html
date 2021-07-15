@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BasicErrorManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">BasicErrorManager.java</span></div><h1>BasicErrorManager.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.collect.Sets;
+
+import java.util.SortedSet;
+
+/**
+ * A basic error manager that sorts all errors reported to it and generate a
+ * sorted report when the {@link #generateReport()} method is called.
+ * (Sorting is based on {@link GssError#compareTo(GssError)}.)
+ * &lt;p&gt;
+ * This error manager delegates the method of output to subclasses via {@link #print(String)}.
+ */
+<span class="fc" id="L30">public abstract class BasicErrorManager implements ErrorManager {</span>
+<span class="fc" id="L31">    protected final SortedSet&lt;GssError&gt; errors = Sets.newTreeSet();</span>
+<span class="fc" id="L32">    protected final SortedSet&lt;GssError&gt; warnings = Sets.newTreeSet();</span>
+
+    @Override
+    public void report(GssError error) {
+<span class="fc" id="L36">        errors.add(error);</span>
+<span class="fc" id="L37">    }</span>
+
+    @Override
+    public void reportWarning(GssError warning) {
+<span class="fc" id="L41">        warnings.add(warning);</span>
+<span class="fc" id="L42">    }</span>
+
+    @Override
+    public void generateReport() {
+<span class="nc" id="L46">        SortedSet&lt;GssError&gt; all = Sets.newTreeSet();</span>
+<span class="nc" id="L47">        all.addAll(warnings);</span>
+<span class="nc" id="L48">        all.addAll(errors);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        for (GssError error : all) {</span>
+<span class="nc" id="L50">            print(error.format());</span>
+<span class="nc" id="L51">        }</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (!all.isEmpty()) {</span>
+<span class="nc" id="L53">            print(errors.size() + &quot; error(s), &quot; + warnings.size() + &quot; warning(s)\n&quot;);</span>
+        }
+<span class="nc" id="L55">    }</span>
+
+    public int getErrorCount() {
+<span class="nc" id="L58">        return errors.size();</span>
+    }
+
+    public boolean hasErrors() {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        return !errors.isEmpty();</span>
+    }
+
+    public abstract void print(String msg);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

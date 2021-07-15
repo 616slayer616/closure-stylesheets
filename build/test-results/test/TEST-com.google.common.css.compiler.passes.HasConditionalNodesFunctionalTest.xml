@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.HasConditionalNodesFunctionalTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.008">
+  <properties/>
+  <testcase name="testSimpleTrue" classname="com.google.common.css.compiler.passes.HasConditionalNodesFunctionalTest" time="0.002"/>
+  <testcase name="testSimpleFalse" classname="com.google.common.css.compiler.passes.HasConditionalNodesFunctionalTest" time="0.002"/>
+  <testcase name="testComplexTrue" classname="com.google.common.css.compiler.passes.HasConditionalNodesFunctionalTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

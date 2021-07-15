@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EliminateUnitsFromZeroNumericValues.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">EliminateUnitsFromZeroNumericValues.java</span></div><h1>EliminateUnitsFromZeroNumericValues.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.css.compiler.ast.*;
+import com.google.common.css.compiler.ast.CssCompositeValueNode.Operator;
+
+import java.util.logging.Logger;
+
+/**
+ * A compiler pass that eliminates useless units from 0.
+ *
+ * &lt;p&gt;It is only allowed to eliminate units from relative or absolute length
+ * units. See:
+ * &lt;a href=&quot;http://www.w3.org/TR/1998/WD-css2-19980128/syndata.html#length-units&quot;&gt;
+ * CSS 2 length units&lt;/a&gt; and
+ * &lt;a href=&quot;http://www.w3.org/TR/css3-values/#lengths&quot;&gt;CSS 3 length units&lt;/a&gt;
+ *
+ * @author oana@google.com (Oana Florescu)
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class EliminateUnitsFromZeroNumericValues extends DefaultTreeVisitor
+        implements CssCompilerPass {
+<span class="fc" id="L39">    private static final ImmutableSet&lt;String&gt; REMOVABLE_LENGTH_UNITS =</span>
+<span class="fc" id="L40">            ImmutableSet.of(&quot;em&quot;, &quot;ex&quot;, &quot;px&quot;, &quot;gd&quot;, &quot;rem&quot;, &quot;vw&quot;, &quot;vh&quot;, &quot;vm&quot;, &quot;ch&quot;,</span>
+                    &quot;in&quot;, &quot;cm&quot;, &quot;mm&quot;, &quot;pt&quot;, &quot;pc&quot;);
+
+<span class="fc" id="L43">    private static final Logger logger = Logger.getLogger(</span>
+<span class="fc" id="L44">            EliminateUnitsFromZeroNumericValues.class.getName());</span>
+
+    private final MutatingVisitController visitController;
+
+    public EliminateUnitsFromZeroNumericValues(
+<span class="fc" id="L49">            MutatingVisitController visitController) {</span>
+<span class="fc" id="L50">        this.visitController = visitController;</span>
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (!(node instanceof CssNumericNode) // Don't process non-numeric nodes</span>
+                // Don't strip units from operands of + and - inside calc() expressions; they are invalid.
+                // See https://www.w3.org/TR/css3-values/#calc-type-checking, and clarification by
+                // spec author: https://bugs.chromium.org/p/chromium/issues/detail?id=641556#c5.
+<span class="fc bfc" id="L59" title="All 2 branches covered.">                || isPlusOrMinusOperand(node)) {</span>
+<span class="fc" id="L60">            return true;</span>
+        }
+<span class="fc" id="L62">        CssNumericNode numericNode = (CssNumericNode) node;</span>
+<span class="fc" id="L63">        String numericValue = numericNode.getNumericPart();</span>
+        try {
+<span class="fc" id="L65">            float value = Float.parseFloat(numericValue);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (value == 0.0) {</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">                if (REMOVABLE_LENGTH_UNITS.contains(numericNode.getUnit())) {</span>
+<span class="fc" id="L68">                    numericNode.setUnit(&quot;&quot;);</span>
+                }
+<span class="fc" id="L70">                numericNode.setNumericPart(&quot;0&quot;);</span>
+            } else {
+                // Removes the 0s at the left of the dot.
+<span class="fc" id="L73">                int stripFront = 0;</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                while (numericValue.charAt(stripFront) == '0') {</span>
+<span class="fc" id="L75">                    stripFront++;</span>
+                }
+
+<span class="fc" id="L78">                int stripBack = numericValue.length() - 1;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                if (numericValue.contains(&quot;.&quot;)) {</span>
+                    // Remove the 0s at the right of the dot.
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                    while (numericValue.charAt(stripBack) == '0') {</span>
+<span class="fc" id="L82">                        stripBack--;</span>
+                    }
+                    // Maybe remove the dot.
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                    if (numericValue.charAt(stripBack) == '.') {</span>
+<span class="fc" id="L86">                        stripBack--;</span>
+                    }
+<span class="fc" id="L88">                    numericValue = numericValue.substring(stripFront, stripBack + 1);</span>
+                }
+<span class="fc" id="L90">                numericNode.setNumericPart(numericValue);</span>
+            }
+<span class="fc" id="L92">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L93">            logger.warning(</span>
+                    &quot;Numeric part of the numeric value node could not be &quot;
+                            + &quot;parsed: &quot;
+<span class="fc" id="L96">                            + node.toString()</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                            + ((node.getSourceCodeLocation() != null)</span>
+<span class="nc" id="L98">                            ? &quot;@&quot; + node.getSourceCodeLocation().getLineNumber()</span>
+<span class="fc" id="L99">                            : &quot;&quot;));</span>
+<span class="fc" id="L100">        }</span>
+<span class="fc" id="L101">        return true;</span>
+    }
+
+    private static boolean isPlusOrMinusOperand(CssValueNode node) {
+<span class="fc" id="L105">        CssNode parent = node.getParent();</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        return parent instanceof CssMathNode</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">                &amp;&amp; (((CssMathNode) parent).getOperator() == Operator.ADD</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                || ((CssMathNode) parent).getOperator() == Operator.SUB);</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L113">        visitController.startVisit(this);</span>
+<span class="fc" id="L114">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

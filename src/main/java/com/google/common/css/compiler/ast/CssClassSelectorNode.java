@@ -63,6 +63,8 @@ public class CssClassSelectorNode extends CssRefinerNode {
 
     /**
      * Returns the kind or absence of a component scoping prefix.
+     *
+     * @return kind or absence of a component scoping prefix
      */
     public ComponentScoping getScoping() {
         return scoping;

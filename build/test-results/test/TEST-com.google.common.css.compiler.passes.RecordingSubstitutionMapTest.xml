@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.RecordingSubstitutionMapTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:45" hostname="Patrick-MBP.fritz.box" time="0.185">
+  <properties/>
+  <testcase name="testGet" classname="com.google.common.css.compiler.passes.RecordingSubstitutionMapTest" time="0.009"/>
+  <testcase name="testMapWithTypeMinimal" classname="com.google.common.css.compiler.passes.RecordingSubstitutionMapTest" time="0.108"/>
+  <testcase name="testOrderIsPreserved" classname="com.google.common.css.compiler.passes.RecordingSubstitutionMapTest" time="0.009"/>
+  <testcase name="testMapWithTypeIdentity" classname="com.google.common.css.compiler.passes.RecordingSubstitutionMapTest" time="0.059"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CollectProvideNamespaces.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">CollectProvideNamespaces.java</span></div><h1>CollectProvideNamespaces.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.Map;
+
+/**
+ * A compiler pass to help find missing {@code @require} lines for def constant references
+ * and mixins.
+ * This pass simply collects namespaces that correpond to constant definitions and mixins.
+ * Also see the CheckMissingRequire pass that is used in conjunction with this one.
+ * &lt;p&gt;
+ * NOTE: The maps in this class can only be used within the same set of pass runs.
+ */
+public final class CollectProvideNamespaces extends DefaultTreeVisitor implements CssCompilerPass {
+    private final VisitController visitController;
+
+    // Key: filename; Value: provide namespace
+<span class="fc" id="L39">    private final Map&lt;String, String&gt; filenameProvideMap = Maps.newHashMap();</span>
+    // Key: filename; Value: require namespace
+<span class="fc" id="L41">    private final ListMultimap&lt;String, String&gt; filenameRequireMap = LinkedListMultimap.create();</span>
+
+    // Multiple namespaces can contain the same defs due to duplicate defs (or mods).
+    // Key: def name; Value: provide namespace
+<span class="fc" id="L45">    private final ListMultimap&lt;String, String&gt; defProvideMap = LinkedListMultimap.create();</span>
+    // Key: defmixin name; Value: provide namespace
+<span class="fc" id="L47">    private final ListMultimap&lt;String, String&gt; defmixinProvideMap = LinkedListMultimap.create();</span>
+
+    public Map&lt;String, String&gt; getFilenameProvideMap() {
+<span class="fc" id="L50">        return filenameProvideMap;</span>
+    }
+
+    public ListMultimap&lt;String, String&gt; getFilenameRequireMap() {
+<span class="fc" id="L54">        return filenameRequireMap;</span>
+    }
+
+    public ListMultimap&lt;String, String&gt; getDefProvideMap() {
+<span class="fc" id="L58">        return defProvideMap;</span>
+    }
+
+    public ListMultimap&lt;String, String&gt; getDefmixinProvideMap() {
+<span class="fc" id="L62">        return defmixinProvideMap;</span>
+    }
+
+<span class="fc" id="L65">    public CollectProvideNamespaces(VisitController visitController) {</span>
+<span class="fc" id="L66">        this.visitController = visitController;</span>
+<span class="fc" id="L67">    }</span>
+
+    @Override
+    public boolean enterProvideNode(CssProvideNode node) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        Preconditions.checkState(node.getSourceCodeLocation() != null);</span>
+<span class="fc" id="L72">        String filename = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc" id="L73">        filenameProvideMap.put(filename, node.getProvide());</span>
+<span class="fc" id="L74">        return true;</span>
+    }
+
+    @Override
+    public boolean enterRequireNode(CssRequireNode node) {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        Preconditions.checkState(node.getSourceCodeLocation() != null);</span>
+<span class="fc" id="L80">        String filename = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc" id="L81">        filenameRequireMap.put(filename, node.getRequire());</span>
+<span class="fc" id="L82">        return true;</span>
+    }
+
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (node.getSourceCodeLocation() == null) {</span>
+            // Cannot enforce provide / require for generated GSS components.
+<span class="nc" id="L89">            return true;</span>
+        }
+<span class="fc" id="L91">        String filename = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc" id="L92">        String provideNamespace = filenameProvideMap.get(filename);</span>
+<span class="fc" id="L93">        defProvideMap.put(node.getName().getValue(), provideNamespace);</span>
+<span class="fc" id="L94">        return true;</span>
+    }
+
+    @Override
+    public boolean enterMixinDefinition(CssMixinDefinitionNode node) {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (node.getSourceCodeLocation() == null) {</span>
+            // Cannot enforce provide / require for generated GSS components.
+<span class="nc" id="L101">            return true;</span>
+        }
+<span class="nc" id="L103">        String filename = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="nc" id="L104">        String provideNamespace = filenameProvideMap.get(filename);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        Preconditions.checkArgument(provideNamespace != null);</span>
+<span class="nc" id="L106">        defmixinProvideMap.put(node.getDefinitionName(), provideNamespace);</span>
+<span class="nc" id="L107">        return true;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L112">        filenameProvideMap.clear();</span>
+<span class="fc" id="L113">        filenameRequireMap.clear();</span>
+<span class="fc" id="L114">        defProvideMap.clear();</span>
+<span class="fc" id="L115">        defmixinProvideMap.clear();</span>
+<span class="fc" id="L116">        visitController.startVisit(this);</span>
+<span class="fc" id="L117">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

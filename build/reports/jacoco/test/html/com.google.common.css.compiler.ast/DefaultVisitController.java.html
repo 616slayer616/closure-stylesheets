@@ -1,0 +1,2212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DefaultVisitController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">DefaultVisitController.java</span></div><h1>DefaultVisitController.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Queues;
+import com.google.common.css.compiler.ast.CssCompositeValueNode.Operator;
+
+import java.util.Deque;
+import java.util.List;
+
+/**
+ * Default implementation of the MutatingVisitController. The controller is
+ * mutating or not depending on a flag passed as a parameter to the constructor.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+class DefaultVisitController implements MutatingVisitController {
+
+    /**
+     * The (sub)tree to be visited.
+     */
+    private final CssNode subtree;
+
+    /**
+     * Whether mutations of the tree are allowed or not.
+     */
+    private final boolean allowMutating;
+
+    /**
+     * The visitor of the tree.
+     */
+    @VisibleForTesting
+    CssTreeVisitor visitor;
+
+    /**
+     * The stack of states for the controller.
+     */
+<span class="fc" id="L54">    private final StateStack stateStack = new StateStack();</span>
+
+    @SuppressWarnings(&quot;serial&quot;)
+    private static class StopVisitRequestedException extends RuntimeException {
+    }
+
+    /**
+     * Interface for CSS AST visit states. Visit states are used to track which
+     * node and what type of node is currently visited, perform tree modifications
+     * and take care of visit state transitions. Visit states should only allow
+     * valid state transitions - this can be used as AST structure validation.
+     *
+     * @param &lt;T&gt; type of the children CSS nodes that can be used as a replacement
+     *            for currently visited block node
+     */
+    @VisibleForTesting
+    interface VisitState&lt;T extends CssNode&gt; {
+        /**
+         * Performs the visit by calling appropriate methods of the visitor
+         * (enter and leave).
+         */
+        void doVisit();
+
+        /**
+         * Transitions to next state by putting a new one onto the stack or popping
+         * the old one off the state stack. Some implementations can handle children
+         * nodes changes and omit visits of children nodes (effectively a subtree).
+         */
+        void transitionToNextState();
+
+        /**
+         * Notifies the state, that the stop tree visit has been requested.&lt;p&gt;
+         *
+         * &lt;p&gt;NOTE(dgajda): Practically unused, remove?
+         */
+        void stopVisitCalled();
+
+        /**
+         * Notifies the state that removal of current node is requested.
+         * Performs the removal by passing the control to the state
+         * below current one.
+         */
+        void removeCurrentNodeCalled();
+
+        /**
+         * Removes currently visited child node.
+         */
+        void removeCurrentChild();
+
+        /**
+         * Used to notify current state and allow the state below of the top state
+         * remove the current node with a list of replacement nodes.
+         *
+         * &lt;p&gt;NOTE(dgajda): This method probably does not need to be in VisitState.
+         *
+         * @param &lt;S&gt;                      type od replacement nodes
+         * @param replacementNodes         nodes used to replace current block
+         * @param visitTheReplacementNodes whether new nodes should also be visited
+         */
+        &lt;S extends CssNode&gt; void replaceCurrentBlockChildWithCalled(
+                List&lt;S&gt; replacementNodes,
+                boolean visitTheReplacementNodes);
+
+        /**
+         * Replaces current node with given replacement nodes.
+         * Called by {@link #replaceCurrentBlockChildWithCalled(List, boolean)}.
+         *
+         * @param replacementNodes         nodes used to replace current block
+         * @param visitTheReplacementNodes whether new nodes should also be visited
+         */
+        void replaceCurrentBlockChildWith(List&lt;T&gt; replacementNodes,
+                                          boolean visitTheReplacementNodes);
+    }
+
+    /**
+     * Base implementation of AST visit state.
+     *
+     * @param &lt;N&gt; type of the children CSS nodes that can be used as a replacement
+     *            for currently visited block node
+     */
+    @VisibleForTesting
+<span class="fc" id="L135">    abstract class BaseVisitState&lt;N extends CssNode&gt;</span>
+            implements VisitState&lt;N&gt; {
+        @Override
+        public void stopVisitCalled() {
+<span class="fc" id="L139">        }</span>
+
+        @Override
+        public void removeCurrentChild() {
+            // Assume that by default this cannot happen.
+<span class="nc" id="L144">            throw new AssertionError(&quot;Current child removal is not supported by &quot; +</span>
+<span class="nc" id="L145">                    this.getClass().getName() + &quot; VisitState class.&quot;);</span>
+        }
+
+        @Override
+        public void removeCurrentNodeCalled() {
+<span class="fc" id="L150">            stateStack.pop();</span>
+<span class="fc" id="L151">            stateStack.getTop().removeCurrentChild();</span>
+<span class="fc" id="L152">        }</span>
+
+        @Override
+        public &lt;S extends CssNode&gt; void replaceCurrentBlockChildWithCalled(
+                List&lt;S&gt; replacementNodes, boolean visitTheReplacementNodes) {
+<span class="fc" id="L157">            stateStack.pop();</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L159">            VisitState&lt;S&gt; topState = (VisitState&lt;S&gt;) stateStack.getTop();</span>
+<span class="fc" id="L160">            topState.replaceCurrentBlockChildWith(</span>
+                    replacementNodes, visitTheReplacementNodes);
+<span class="fc" id="L162">        }</span>
+
+        @Override
+        public void replaceCurrentBlockChildWith(
+                List&lt;N&gt; replacementNodes, boolean visitTheReplacementNodes) {
+            // Assume that by default this cannot happen.
+            // assert false;
+<span class="fc" id="L169">        }</span>
+
+        public VisitState&lt;? extends CssNode&gt; createFallbackState(N child) {
+<span class="nc" id="L172">            return null;</span>
+        }
+    }
+
+    /**
+     * Base class for VisitStates which control visits of {@link CssNodesListNode}
+     * children.
+     *
+     * @param &lt;T&gt; type of the children CSS nodes that can be used as a replacement
+     *            for currently visited block node
+     */
+    abstract class VisitChildrenState&lt;T extends CssNode&gt;
+            extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssNodesListNode&lt;T&gt; block;
+
+<span class="fc" id="L188">        private int currentIndex = -1;</span>
+
+<span class="fc" id="L190">        VisitChildrenState(CssNodesListNode&lt;T&gt; block) {</span>
+<span class="fc" id="L191">            this.block = block;</span>
+<span class="fc" id="L192">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L196" title="All 2 branches covered.">            if (currentIndex == block.numChildren() - 1) {</span>
+<span class="fc" id="L197">                stateStack.pop();</span>
+<span class="fc" id="L198">                return;</span>
+            }
+            // Remain in this state to finish visiting all the children
+<span class="fc" id="L201">            currentIndex++;</span>
+<span class="fc" id="L202">            stateStack.push(getVisitState(block.getChildAt(currentIndex)));</span>
+<span class="fc" id="L203">            return;</span>
+        }
+
+        /**
+         * Returns a visit state for a given child node.
+         *
+         * @param node child node to create visit state for
+         * @return new visit state
+         */
+        abstract VisitState&lt;CssNode&gt; getVisitState(T node);
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void doVisit() {
+            // Does nothing.
+<span class="fc" id="L220">        }</span>
+    }
+
+    /**
+     * Base class for VisitStates which control visits of {@link CssNodesListNode}
+     * children and can replace currently visited node with replacement nodes.
+     *
+     * @param &lt;T&gt; type of the children CSS nodes that can be used as a replacement
+     *            for currently visited block node
+     */
+    abstract class VisitReplaceChildrenState&lt;T extends CssNode&gt;
+            extends BaseVisitState&lt;T&gt; {
+
+<span class="fc" id="L233">        protected int currentIndex = -1;</span>
+<span class="fc" id="L234">        protected boolean doNotIncreaseIndex = false;</span>
+        protected final CssNodesListNode&lt;T&gt; node;
+
+<span class="fc" id="L237">        VisitReplaceChildrenState(CssNodesListNode&lt;T&gt; node) {</span>
+<span class="fc" id="L238">            this.node = node;</span>
+<span class="fc" id="L239">        }</span>
+
+        @Override
+        public void doVisit() {
+            // Does nothing.
+<span class="fc" id="L244">        }</span>
+
+        @Override
+        public void removeCurrentChild() {
+<span class="fc" id="L248">            node.removeChildAt(currentIndex);</span>
+<span class="fc" id="L249">            doNotIncreaseIndex = true;</span>
+<span class="fc" id="L250">        }</span>
+
+        @Override
+        public void replaceCurrentBlockChildWith(
+                List&lt;T&gt; replacementNodes, boolean visitTheReplacementNodes) {
+<span class="fc" id="L255">            node.replaceChildAt(currentIndex, replacementNodes);</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">            if (visitTheReplacementNodes) {</span>
+<span class="fc" id="L257">                doNotIncreaseIndex = true;</span>
+            } else {
+<span class="fc" id="L259">                currentIndex += replacementNodes.size() - 1;</span>
+            }
+<span class="fc" id="L261">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+            // We get out of this state if we are on the last child and we are allowed
+            // to increment the index, which means we arrived here with no special
+            // case, or we have just removed the last element.
+<span class="fc bfc" id="L268" title="All 4 branches covered.">            if ((currentIndex == node.numChildren() - 1 &amp;&amp; !doNotIncreaseIndex)</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">                    || currentIndex == node.numChildren()) {</span>
+<span class="fc" id="L270">                stateStack.pop();</span>
+<span class="fc" id="L271">                return;</span>
+            }
+            // Remain in this state to finish visiting all the children.
+<span class="fc bfc" id="L274" title="All 2 branches covered.">            if (!doNotIncreaseIndex) {</span>
+<span class="fc" id="L275">                currentIndex++;</span>
+            } else {
+<span class="fc" id="L277">                doNotIncreaseIndex = false;</span>
+            }
+<span class="fc" id="L279">            VisitState&lt;? extends CssNode&gt; state =</span>
+<span class="fc" id="L280">                    createVisitState(node.getChildAt(currentIndex), this);</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">            if (state != null) {</span>
+<span class="fc" id="L282">                stateStack.push(state);</span>
+            }
+<span class="fc" id="L284">        }</span>
+    }
+
+    /**
+     * Unfinished base class for VisitStates which share the same code to
+     * optionally visit child nodes.
+     *
+     * @param &lt;T&gt; type of the children CSS nodes that can be used as a replacement
+     *            for currently visited block node
+     */
+<span class="fc" id="L294">    abstract class VisitChildrenOptionalState&lt;T extends CssNode&gt;</span>
+            extends BaseVisitState&lt;CssNode&gt; {
+        // TODO(user): move the common code here or delete this
+        // useless complexity.
+    }
+
+    @VisibleForTesting
+    class RootVisitBeforeChildrenState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssRootNode root;
+
+<span class="fc" id="L305">        RootVisitBeforeChildrenState(CssRootNode root) {</span>
+<span class="fc" id="L306">            Preconditions.checkNotNull(root);</span>
+<span class="fc" id="L307">            this.root = root;</span>
+<span class="fc" id="L308">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L312">            visitor.enterTree(root);</span>
+<span class="fc" id="L313">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L317">            stateStack.transitionTo(</span>
+<span class="fc" id="L318">                    new RootVisitCharsetState(root, root.getCharsetRule()));</span>
+<span class="fc" id="L319">        }</span>
+    }
+
+    @VisibleForTesting
+    class RootVisitAfterChildrenState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssRootNode root;
+
+<span class="fc" id="L327">        RootVisitAfterChildrenState(CssRootNode root) {</span>
+<span class="fc" id="L328">            Preconditions.checkNotNull(root);</span>
+<span class="fc" id="L329">            this.root = root;</span>
+<span class="fc" id="L330">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L334">            visitor.leaveTree(root);</span>
+<span class="fc" id="L335">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L339">            stateStack.pop();</span>
+            // assert stateStack.isEmpty();
+<span class="fc" id="L341">        }</span>
+    }
+
+    @VisibleForTesting
+    class RootVisitCharsetState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssRootNode root;
+
+        private final CssAtRuleNode charsetRule;
+
+<span class="fc" id="L351">        RootVisitCharsetState(CssRootNode root, CssAtRuleNode charsetRule) {</span>
+<span class="fc" id="L352">            this.root = root;</span>
+<span class="fc" id="L353">            this.charsetRule = charsetRule;</span>
+<span class="fc" id="L354">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="pc bpc" id="L358" title="1 of 2 branches missed.">            if (charsetRule == null) {</span>
+                // Nothing left to do.
+<span class="fc" id="L360">                return;</span>
+            }
+<span class="nc" id="L362">        }</span>
+
+        @Override
+        public void removeCurrentNodeCalled() {
+<span class="fc" id="L366">            root.setCharsetRule(null);</span>
+<span class="fc" id="L367">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L371">            stateStack.transitionTo(new RootVisitImportBlockState(root,</span>
+<span class="fc" id="L372">                    root.getImportRules()));</span>
+<span class="fc" id="L373">        }</span>
+    }
+
+    @VisibleForTesting
+    class RootVisitImportBlockState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssRootNode root;
+
+        private final CssImportBlockNode block;
+
+<span class="fc" id="L383">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L385">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L387">        RootVisitImportBlockState(CssRootNode root, CssImportBlockNode block) {</span>
+<span class="fc" id="L388">            this.root = root;</span>
+<span class="fc" id="L389">            this.block = block;</span>
+<span class="fc" id="L390">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L394" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L395">                shouldVisitChildren = visitor.enterImportBlock(block);</span>
+            } else {
+<span class="fc" id="L397">                visitor.leaveImportBlock(block);</span>
+            }
+<span class="fc" id="L399">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L403" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L404">                stateStack.push(new VisitImportBlockChildrenState(block));</span>
+<span class="fc" id="L405">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L407">                stateStack.transitionTo(</span>
+<span class="fc" id="L408">                        new RootVisitBodyState(root, root.getBody()));</span>
+            }
+<span class="fc" id="L410">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitImportBlockChildrenState
+            extends VisitChildrenState&lt;CssImportRuleNode&gt; {
+
+<span class="fc" id="L417">        VisitImportBlockChildrenState(CssImportBlockNode block) {</span>
+<span class="fc" id="L418">            super(block);</span>
+<span class="fc" id="L419">        }</span>
+
+        @Override
+        VisitState&lt;CssNode&gt; getVisitState(CssImportRuleNode node) {
+<span class="fc" id="L423">            return new VisitImportRuleState(node);</span>
+        }
+
+    }
+
+    @VisibleForTesting
+    class VisitImportRuleState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssImportRuleNode node;
+
+<span class="fc" id="L433">        VisitImportRuleState(CssImportRuleNode node) {</span>
+<span class="fc" id="L434">            this.node = node;</span>
+<span class="fc" id="L435">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="pc bpc" id="L439" title="1 of 2 branches missed.">            if (visitor.enterImportRule(node)) {</span>
+<span class="fc" id="L440">                visitor.leaveImportRule(node);</span>
+            }
+<span class="fc" id="L442">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L446">            stateStack.pop();</span>
+<span class="fc" id="L447">        }</span>
+    }
+
+
+    @VisibleForTesting
+    class VisitProvideState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssProvideNode node;
+
+<span class="fc" id="L456">        VisitProvideState(CssProvideNode node) {</span>
+<span class="fc" id="L457">            this.node = node;</span>
+<span class="fc" id="L458">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L462">            visitor.enterProvideNode(node);</span>
+<span class="fc" id="L463">            visitor.leaveProvideNode(node);</span>
+<span class="fc" id="L464">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L468">            stateStack.pop();</span>
+<span class="fc" id="L469">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitRequireState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssRequireNode node;
+
+<span class="fc" id="L477">        VisitRequireState(CssRequireNode node) {</span>
+<span class="fc" id="L478">            this.node = node;</span>
+<span class="fc" id="L479">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L483">            visitor.enterRequireNode(node);</span>
+<span class="fc" id="L484">            visitor.leaveRequireNode(node);</span>
+<span class="fc" id="L485">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L489">            stateStack.pop();</span>
+<span class="fc" id="L490">        }</span>
+    }
+
+    @VisibleForTesting
+    class RootVisitBodyState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssRootNode root;
+
+        private final CssBlockNode body;
+
+<span class="fc" id="L500">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L502">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L504">        RootVisitBodyState(CssRootNode root, CssBlockNode body) {</span>
+<span class="fc" id="L505">            this.root = root;</span>
+<span class="fc" id="L506">            this.body = body;</span>
+<span class="fc" id="L507">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L511" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L512">                shouldVisitChildren = visitor.enterBlock(body);</span>
+            } else {
+<span class="fc" id="L514">                visitor.leaveBlock(body);</span>
+            }
+<span class="fc" id="L516">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L520" title="All 4 branches covered.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L521">                stateStack.push(new VisitBlockChildrenState(body));</span>
+<span class="fc" id="L522">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L524">                stateStack.transitionTo(new RootVisitAfterChildrenState(root));</span>
+            }
+<span class="fc" id="L526">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitBlockChildrenState extends VisitReplaceChildrenState&lt;CssNode&gt; {
+
+<span class="fc" id="L532">        VisitBlockChildrenState(CssBlockNode block) {</span>
+<span class="fc" id="L533">            super(block);</span>
+<span class="fc" id="L534">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitDefinitionState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssDefinitionNode node;
+
+<span class="fc" id="L542">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L544">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L546">        VisitDefinitionState(CssDefinitionNode node) {</span>
+<span class="fc" id="L547">            this.node = node;</span>
+<span class="fc" id="L548">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L552" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L553">                shouldVisitChildren = visitor.enterDefinition(node);</span>
+            } else {
+<span class="fc" id="L555">                visitor.leaveDefinition(node);</span>
+            }
+<span class="fc" id="L557">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L561" title="All 4 branches covered.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L562">                stateStack.push(new VisitDefinitionParametersState(node));</span>
+<span class="fc" id="L563">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L565">                stateStack.pop();</span>
+            }
+<span class="fc" id="L567">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitDefinitionParametersState
+            extends VisitReplaceChildrenState&lt;CssValueNode&gt; {
+
+<span class="fc" id="L574">        VisitDefinitionParametersState(CssDefinitionNode def) {</span>
+<span class="fc" id="L575">            super(def);</span>
+<span class="fc" id="L576">        }</span>
+
+        @Override
+        public VisitState&lt;CssValueNode&gt; createFallbackState(CssValueNode child) {
+<span class="fc" id="L580">            return new VisitValueNodeState(child);</span>
+        }
+    }
+
+    @VisibleForTesting
+    class VisitMediaRuleState extends VisitReplaceChildrenState&lt;CssValueNode&gt; {
+
+        private final CssMediaRuleNode node;
+
+<span class="fc" id="L589">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L591">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L593">        VisitMediaRuleState(CssMediaRuleNode node) {</span>
+<span class="fc" id="L594">            super(node);</span>
+<span class="fc" id="L595">            this.node = node;</span>
+<span class="fc" id="L596">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L600" title="All 4 branches covered.">            if (!visitedChildren &amp;&amp; currentIndex == -1) {</span>
+<span class="fc" id="L601">                shouldVisitChildren = visitor.enterMediaRule(node);</span>
+<span class="fc bfc" id="L602" title="All 2 branches covered.">            } else if (visitedChildren) {</span>
+<span class="fc" id="L603">                visitor.leaveMediaRule(node);</span>
+            }
+<span class="fc" id="L605">        }</span>
+
+        @Override
+        public void replaceCurrentBlockChildWith(
+                List&lt;CssValueNode&gt; replacementNodes, boolean visitTheReplacementNodes) {
+            // If we're replacing the current property with a composite value
+            // separated by the space, we really just want to graft those nodes at
+            // the current child's location.
+<span class="pc bpc" id="L613" title="1 of 2 branches missed.">            if (replacementNodes.size() == 1</span>
+<span class="fc bfc" id="L614" title="All 2 branches covered.">                    &amp;&amp; replacementNodes.get(0) instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L615">                CssCompositeValueNode compositeValueNode =</span>
+<span class="fc" id="L616">                        (CssCompositeValueNode) replacementNodes.get(0);</span>
+<span class="pc bpc" id="L617" title="1 of 2 branches missed.">                if (compositeValueNode.getOperator() == Operator.SPACE) {</span>
+<span class="fc" id="L618">                    replacementNodes = compositeValueNode.getValues();</span>
+                }
+            }
+
+<span class="fc" id="L622">            super.replaceCurrentBlockChildWith(</span>
+                    replacementNodes, visitTheReplacementNodes);
+<span class="fc" id="L624">        }</span>
+
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L629" title="All 4 branches covered.">            if (visitedChildren || !shouldVisitChildren) {</span>
+<span class="fc" id="L630">                stateStack.pop();</span>
+<span class="fc" id="L631">                return;</span>
+            }
+
+<span class="fc bfc" id="L634" title="All 2 branches covered.">            if (!doNotIncreaseIndex) {</span>
+<span class="fc" id="L635">                currentIndex++;</span>
+            } else {
+<span class="fc" id="L637">                doNotIncreaseIndex = false;</span>
+            }
+
+<span class="fc" id="L640">            final int parametersCount = node.getParameters().size();</span>
+<span class="fc bfc" id="L641" title="All 2 branches covered.">            if (currentIndex &lt; parametersCount) {</span>
+<span class="fc bfc" id="L642" title="All 2 branches covered.">                if (currentIndex &lt; parametersCount - 1) {</span>
+<span class="fc" id="L643">                    stateStack.push(new VisitMediaTypeListDelimiterState(node));</span>
+                }
+<span class="fc" id="L645">                stateStack.push(getVisitState(node.getParameters().get(currentIndex)));</span>
+            } else {
+<span class="pc bpc" id="L647" title="1 of 2 branches missed.">                if (node.getType().hasBlock()) {</span>
+<span class="fc" id="L648">                    stateStack.push(new VisitUnknownAtRuleBlockState(node.getBlock()));</span>
+                }
+<span class="fc" id="L650">                visitedChildren = true;</span>
+            }
+<span class="fc" id="L652">        }</span>
+
+        public VisitState&lt;? extends CssNode&gt; getVisitState(CssValueNode node) {
+<span class="fc bfc" id="L655" title="All 2 branches covered.">            if (node instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L656">                return new VisitCompositeValueState((CssCompositeValueNode) node);</span>
+            } else {
+<span class="fc" id="L658">                return new VisitValueNodeState(node);</span>
+            }
+        }
+    }
+
+    private class VisitMediaTypeListDelimiterState
+            extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssNodesListNode&lt;? extends CssNode&gt; node;
+
+        public VisitMediaTypeListDelimiterState(
+<span class="fc" id="L669">                CssNodesListNode&lt;? extends CssNode&gt; node) {</span>
+<span class="fc" id="L670">            this.node = node;</span>
+<span class="fc" id="L671">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L675">            visitor.enterMediaTypeListDelimiter(node);</span>
+<span class="fc" id="L676">            visitor.leaveMediaTypeListDelimiter(node);</span>
+<span class="fc" id="L677">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L681">            stateStack.pop();</span>
+<span class="fc" id="L682">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitPageRuleState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssPageRuleNode node;
+
+<span class="fc" id="L690">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L692">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L694">        VisitPageRuleState(CssPageRuleNode node) {</span>
+<span class="fc" id="L695">            this.node = node;</span>
+<span class="fc" id="L696">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L700" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L701">                shouldVisitChildren = visitor.enterPageRule(node);</span>
+            } else {
+<span class="fc" id="L703">                visitor.leavePageRule(node);</span>
+            }
+<span class="fc" id="L705">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L709" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L710">                stateStack.push(new VisitUnknownAtRuleBlockState(node.getBlock()));</span>
+<span class="fc" id="L711">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L713">                stateStack.pop();</span>
+            }
+<span class="fc" id="L715">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitPageSelectorState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssPageSelectorNode node;
+
+<span class="fc" id="L723">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L725">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L727">        VisitPageSelectorState(CssPageSelectorNode node) {</span>
+<span class="fc" id="L728">            this.node = node;</span>
+<span class="fc" id="L729">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L733" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L734">                shouldVisitChildren = visitor.enterPageSelector(node);</span>
+            } else {
+<span class="fc" id="L736">                visitor.leavePageSelector(node);</span>
+            }
+<span class="fc" id="L738">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L742" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L743">                stateStack.push(new VisitUnknownAtRuleBlockState(node.getBlock()));</span>
+<span class="fc" id="L744">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L746">                stateStack.pop();</span>
+            }
+<span class="fc" id="L748">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitFontFaceState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssFontFaceNode node;
+
+<span class="fc" id="L756">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L758">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L760">        VisitFontFaceState(CssFontFaceNode node) {</span>
+<span class="fc" id="L761">            this.node = node;</span>
+<span class="fc" id="L762">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L766" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L767">                shouldVisitChildren = visitor.enterFontFace(node);</span>
+            } else {
+<span class="fc" id="L769">                visitor.leaveFontFace(node);</span>
+            }
+<span class="fc" id="L771">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L775" title="All 4 branches covered.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L776">                stateStack.push(new VisitUnknownAtRuleBlockState(node.getBlock()));</span>
+<span class="fc" id="L777">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L779">                stateStack.pop();</span>
+            }
+<span class="fc" id="L781">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitCharSetState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssCharSetNode node;
+
+<span class="fc" id="L789">        VisitCharSetState(CssCharSetNode node) {</span>
+<span class="fc" id="L790">            this.node = node;</span>
+<span class="fc" id="L791">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="pc bpc" id="L795" title="1 of 2 branches missed.">            if (visitor.enterCharSet(node)) {</span>
+<span class="fc" id="L796">                visitor.leaveCharSet(node);</span>
+            }
+<span class="fc" id="L798">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L802">            stateStack.pop();</span>
+<span class="fc" id="L803">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitConditionalBlockState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssConditionalBlockNode block;
+
+<span class="fc" id="L811">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L813">        VisitConditionalBlockState(CssConditionalBlockNode block) {</span>
+<span class="fc" id="L814">            this.block = block;</span>
+<span class="fc" id="L815">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L819" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L820">                visitor.enterConditionalBlock(block);</span>
+            } else {
+<span class="fc" id="L822">                visitor.leaveConditionalBlock(block);</span>
+            }
+<span class="fc" id="L824">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L828" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L829">                stateStack.push(</span>
+                        new VisitConditionalBlockChildrenState(block));
+<span class="fc" id="L831">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L833">                stateStack.pop();</span>
+            }
+<span class="fc" id="L835">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitConditionalBlockChildrenState
+            extends VisitChildrenState&lt;CssConditionalRuleNode&gt; {
+
+<span class="fc" id="L842">        VisitConditionalBlockChildrenState(CssConditionalBlockNode block) {</span>
+<span class="fc" id="L843">            super(block);</span>
+<span class="fc" id="L844">        }</span>
+
+        @Override
+        VisitState&lt;CssNode&gt; getVisitState(CssConditionalRuleNode node) {
+<span class="fc" id="L848">            return new VisitConditionalRuleState(node);</span>
+        }
+    }
+
+    @VisibleForTesting
+    class VisitConditionalRuleState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssConditionalRuleNode node;
+
+<span class="fc" id="L857">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L859">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L861">        VisitConditionalRuleState(CssConditionalRuleNode node) {</span>
+<span class="fc" id="L862">            this.node = node;</span>
+<span class="fc" id="L863">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L867" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L868">                shouldVisitChildren = visitor.enterConditionalRule(node);</span>
+            } else {
+<span class="fc" id="L870">                visitor.leaveConditionalRule(node);</span>
+            }
+<span class="fc" id="L872">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L876" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L877">                stateStack.push(</span>
+<span class="fc" id="L878">                        new VisitConditionalRuleChildrenState(node.getBlock()));</span>
+<span class="fc" id="L879">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L881">                stateStack.pop();</span>
+            }
+<span class="fc" id="L883">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitConditionalRuleChildrenState extends VisitReplaceChildrenState&lt;CssNode&gt; {
+
+<span class="fc" id="L889">        VisitConditionalRuleChildrenState(CssAbstractBlockNode block) {</span>
+<span class="fc" id="L890">            super(block);</span>
+<span class="fc" id="L891">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitRulesetState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssRulesetNode node;
+
+<span class="fc" id="L899">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L901">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L903">        VisitRulesetState(CssRulesetNode node) {</span>
+<span class="fc" id="L904">            this.node = node;</span>
+<span class="fc" id="L905">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L909" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L910">                shouldVisitChildren = visitor.enterRuleset(node);</span>
+            } else {
+<span class="fc" id="L912">                visitor.leaveRuleset(node);</span>
+            }
+<span class="fc" id="L914">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L918" title="All 4 branches covered.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L919">                stateStack.push(new VisitSelectorBlockState(node, node.getSelectors()));</span>
+<span class="fc" id="L920">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L922">                stateStack.pop();</span>
+            }
+<span class="fc" id="L924">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitKeyframeRulesetState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssKeyframeRulesetNode node;
+
+<span class="fc" id="L932">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L934">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L936">        VisitKeyframeRulesetState(CssKeyframeRulesetNode node) {</span>
+<span class="fc" id="L937">            this.node = node;</span>
+<span class="fc" id="L938">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L942" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L943">                shouldVisitChildren = visitor.enterKeyframeRuleset(node);</span>
+            } else {
+<span class="fc" id="L945">                visitor.leaveKeyframeRuleset(node);</span>
+            }
+<span class="fc" id="L947">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L951" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L952">                stateStack.push(new VisitKeyBlockState(node, node.getKeys()));</span>
+<span class="fc" id="L953">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L955">                stateStack.pop();</span>
+            }
+<span class="fc" id="L957">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitSelectorBlockState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssSelectorListNode block;
+
+        private final CssRulesetNode ruleset;
+
+<span class="fc" id="L967">        private boolean visitedChildren = false;</span>
+
+        VisitSelectorBlockState(CssRulesetNode ruleset,
+<span class="fc" id="L970">                                CssSelectorListNode block) {</span>
+<span class="fc" id="L971">            this.ruleset = ruleset;</span>
+<span class="fc" id="L972">            this.block = block;</span>
+<span class="fc" id="L973">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L977" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L978">                visitor.enterSelectorBlock(block);</span>
+            } else {
+<span class="fc" id="L980">                visitor.leaveSelectorBlock(block);</span>
+            }
+<span class="fc" id="L982">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L986" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L987">                stateStack.push(</span>
+                        new VisitSelectorBlockChildrenState(block));
+<span class="fc" id="L989">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L991">                stateStack.transitionTo(</span>
+<span class="fc" id="L992">                        new VisitDeclarationBlockState(ruleset.getDeclarations()));</span>
+            }
+<span class="fc" id="L994">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitSelectorBlockChildrenState
+            extends VisitChildrenState&lt;CssSelectorNode&gt; {
+
+<span class="fc" id="L1001">        VisitSelectorBlockChildrenState(CssSelectorListNode block) {</span>
+<span class="fc" id="L1002">            super(block);</span>
+<span class="fc" id="L1003">        }</span>
+
+        @Override
+        VisitState&lt;CssNode&gt; getVisitState(CssSelectorNode node) {
+<span class="fc" id="L1007">            return new VisitSelectorState(node);</span>
+        }
+    }
+
+    @VisibleForTesting
+    class VisitKeyBlockState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssKeyListNode block;
+
+        private final CssKeyframeRulesetNode ruleset;
+
+<span class="fc" id="L1018">        private boolean visitedChildren = false;</span>
+
+        VisitKeyBlockState(CssKeyframeRulesetNode ruleset,
+<span class="fc" id="L1021">                           CssKeyListNode block) {</span>
+<span class="fc" id="L1022">            this.ruleset = ruleset;</span>
+<span class="fc" id="L1023">            this.block = block;</span>
+<span class="fc" id="L1024">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1028" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1029">                visitor.enterKeyBlock(block);</span>
+            } else {
+<span class="fc" id="L1031">                visitor.leaveKeyBlock(block);</span>
+            }
+<span class="fc" id="L1033">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1037" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1038">                stateStack.push(</span>
+                        new VisitKeyBlockChildrenState(block));
+<span class="fc" id="L1040">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1042">                stateStack.transitionTo(</span>
+<span class="fc" id="L1043">                        new VisitDeclarationBlockState(ruleset.getDeclarations()));</span>
+            }
+<span class="fc" id="L1045">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitKeyBlockChildrenState
+            extends VisitChildrenState&lt;CssKeyNode&gt; {
+
+<span class="fc" id="L1052">        VisitKeyBlockChildrenState(CssKeyListNode block) {</span>
+<span class="fc" id="L1053">            super(block);</span>
+<span class="fc" id="L1054">        }</span>
+
+        @Override
+        VisitState&lt;CssNode&gt; getVisitState(CssKeyNode node) {
+<span class="fc" id="L1058">            return new VisitKeyState(node);</span>
+        }
+    }
+
+    @VisibleForTesting
+    class VisitSelectorState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssSelectorNode node;
+
+<span class="fc" id="L1067">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1069">        VisitSelectorState(CssSelectorNode node) {</span>
+<span class="fc" id="L1070">            this.node = node;</span>
+<span class="fc" id="L1071">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1075" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1076">                visitor.enterSelector(node);</span>
+            } else {
+<span class="fc" id="L1078">                visitor.leaveSelector(node);</span>
+            }
+<span class="fc" id="L1080">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1084" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+                // We need to prepare the stack such that the refiners are visited first
+                // and then the combinator if there is one.
+<span class="fc bfc" id="L1087" title="All 2 branches covered.">                if (node.getCombinator() != null) {</span>
+<span class="fc" id="L1088">                    stateStack.push(new VisitCombinatorState(node.getCombinator()));</span>
+                }
+<span class="fc" id="L1090">                stateStack.push(new VisitRefinerListState(node.getRefiners()));</span>
+<span class="fc" id="L1091">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1093">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1095">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitKeyState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssKeyNode node;
+
+<span class="fc" id="L1103">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1105">        VisitKeyState(CssKeyNode node) {</span>
+<span class="fc" id="L1106">            this.node = node;</span>
+<span class="fc" id="L1107">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1111" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1112">                visitor.enterKey(node);</span>
+            } else {
+<span class="fc" id="L1114">                visitor.leaveKey(node);</span>
+            }
+<span class="fc" id="L1116">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1120" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1121">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1123">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1125">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitRefinerListState extends VisitReplaceChildrenState&lt;CssRefinerNode&gt; {
+
+<span class="fc" id="L1131">        VisitRefinerListState(CssRefinerListNode node) {</span>
+<span class="fc" id="L1132">            super(node);</span>
+<span class="fc" id="L1133">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitRefinerNodeState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssRefinerNode node;
+
+<span class="fc" id="L1141">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1143">        VisitRefinerNodeState(CssRefinerNode node) {</span>
+<span class="fc" id="L1144">            this.node = node;</span>
+<span class="fc" id="L1145">        }</span>
+
+        @Override
+        public void doVisit() {
+            // TODO(fbenz): Actually each of these nodes should have its own state
+            // here but this adds a bunch of similar code that is not really
+            // necessary. The problem is the design of the visit controller. I'm
+            // going to refactor it so that it doesn't make sense to add all the
+            // states.
+<span class="fc bfc" id="L1154" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc bfc" id="L1155" title="All 2 branches covered.">                if (node instanceof CssClassSelectorNode) {</span>
+<span class="fc" id="L1156">                    visitor.enterClassSelector((CssClassSelectorNode) node);</span>
+<span class="fc bfc" id="L1157" title="All 2 branches covered.">                } else if (node instanceof CssIdSelectorNode) {</span>
+<span class="fc" id="L1158">                    visitor.enterIdSelector((CssIdSelectorNode) node);</span>
+<span class="fc bfc" id="L1159" title="All 2 branches covered.">                } else if (node instanceof CssPseudoClassNode) {</span>
+<span class="fc" id="L1160">                    visitor.enterPseudoClass((CssPseudoClassNode) node);</span>
+<span class="fc bfc" id="L1161" title="All 2 branches covered.">                } else if (node instanceof CssPseudoElementNode) {</span>
+<span class="fc" id="L1162">                    visitor.enterPseudoElement((CssPseudoElementNode) node);</span>
+<span class="pc bpc" id="L1163" title="1 of 2 branches missed.">                } else if (node instanceof CssAttributeSelectorNode) {</span>
+<span class="fc" id="L1164">                    visitor.enterAttributeSelector((CssAttributeSelectorNode) node);</span>
+                }
+            } else {
+<span class="fc bfc" id="L1167" title="All 2 branches covered.">                if (node instanceof CssClassSelectorNode) {</span>
+<span class="fc" id="L1168">                    visitor.leaveClassSelector((CssClassSelectorNode) node);</span>
+<span class="fc bfc" id="L1169" title="All 2 branches covered.">                } else if (node instanceof CssIdSelectorNode) {</span>
+<span class="fc" id="L1170">                    visitor.leaveIdSelector((CssIdSelectorNode) node);</span>
+<span class="fc bfc" id="L1171" title="All 2 branches covered.">                } else if (node instanceof CssPseudoClassNode) {</span>
+<span class="fc" id="L1172">                    visitor.leavePseudoClass((CssPseudoClassNode) node);</span>
+<span class="fc bfc" id="L1173" title="All 2 branches covered.">                } else if (node instanceof CssPseudoElementNode) {</span>
+<span class="fc" id="L1174">                    visitor.leavePseudoElement((CssPseudoElementNode) node);</span>
+<span class="pc bpc" id="L1175" title="1 of 2 branches missed.">                } else if (node instanceof CssAttributeSelectorNode) {</span>
+<span class="fc" id="L1176">                    visitor.leaveAttributeSelector((CssAttributeSelectorNode) node);</span>
+                }
+            }
+<span class="fc" id="L1179">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1183" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc bfc" id="L1184" title="All 2 branches covered.">                if (node instanceof CssPseudoClassNode) {</span>
+<span class="fc" id="L1185">                    CssPseudoClassNode pseudoClass = (CssPseudoClassNode) node;</span>
+<span class="fc bfc" id="L1186" title="All 2 branches covered.">                    if (pseudoClass.getNotSelector() != null) {</span>
+<span class="fc" id="L1187">                        stateStack.push(new VisitSelectorState(</span>
+<span class="fc" id="L1188">                                pseudoClass.getNotSelector()));</span>
+                    }
+                }
+<span class="fc" id="L1191">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1193">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1195">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitCombinatorState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssCombinatorNode node;
+
+<span class="fc" id="L1203">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1205">        VisitCombinatorState(CssCombinatorNode node) {</span>
+<span class="fc" id="L1206">            this.node = node;</span>
+<span class="fc" id="L1207">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1211" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1212">                visitor.enterCombinator(node);</span>
+            } else {
+<span class="fc" id="L1214">                visitor.leaveCombinator(node);</span>
+            }
+<span class="fc" id="L1216">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1220" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1221">                stateStack.push(new VisitSelectorState(node.getSelector()));</span>
+<span class="fc" id="L1222">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1224">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1226">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitDeclarationBlockState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssDeclarationBlockNode node;
+
+<span class="fc" id="L1234">        private boolean startedVisitingChildren = false;</span>
+<span class="fc" id="L1235">        private boolean finishedVisitingChildren = false;</span>
+
+<span class="fc" id="L1237">        @VisibleForTesting</span>
+        int currentIndex = -1;
+<span class="fc" id="L1239">        private boolean doNotIncreaseIndex = false;</span>
+
+<span class="fc" id="L1241">        VisitDeclarationBlockState(CssDeclarationBlockNode block) {</span>
+<span class="fc" id="L1242">            this.node = block;</span>
+<span class="fc" id="L1243">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1247" title="All 2 branches covered.">            if (!startedVisitingChildren) {</span>
+<span class="fc" id="L1248">                visitor.enterDeclarationBlock(node);</span>
+<span class="fc" id="L1249">                startedVisitingChildren = true;</span>
+<span class="fc bfc" id="L1250" title="All 2 branches covered.">            } else if (finishedVisitingChildren) {</span>
+<span class="fc" id="L1251">                visitor.leaveDeclarationBlock(node);</span>
+            }
+<span class="fc" id="L1253">        }</span>
+
+        @Override
+        public void removeCurrentChild() {
+<span class="fc" id="L1257">            node.removeChildAt(currentIndex);</span>
+<span class="fc" id="L1258">            doNotIncreaseIndex = true;</span>
+<span class="fc" id="L1259">        }</span>
+
+        @Override
+        public void replaceCurrentBlockChildWith(
+                List&lt;CssNode&gt; replacementNodes,
+                boolean visitTheReplacementNodes) {
+<span class="fc" id="L1265">            node.replaceChildAt(currentIndex, replacementNodes);</span>
+<span class="fc bfc" id="L1266" title="All 2 branches covered.">            if (visitTheReplacementNodes) {</span>
+<span class="fc" id="L1267">                doNotIncreaseIndex = true;</span>
+            } else {
+<span class="fc" id="L1269">                currentIndex += replacementNodes.size() - 1;</span>
+            }
+<span class="fc" id="L1271">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1275" title="All 2 branches covered.">            if (finishedVisitingChildren) {</span>
+<span class="fc" id="L1276">                stateStack.pop();</span>
+<span class="fc" id="L1277">                return;</span>
+            }
+            // We finish visiting this state if we are on the last child and we are
+            // allowed to increment the index, which means we arrived here with no
+            // special case, or we have just removed the last element.
+<span class="fc bfc" id="L1282" title="All 4 branches covered.">            if ((currentIndex == node.numChildren() - 1 &amp;&amp; !doNotIncreaseIndex)</span>
+<span class="fc bfc" id="L1283" title="All 2 branches covered.">                    || currentIndex == node.numChildren()) {</span>
+<span class="fc" id="L1284">                finishedVisitingChildren = true;</span>
+<span class="fc" id="L1285">                return;</span>
+            }
+            // Remain in this state to finish visiting all the children.
+<span class="fc bfc" id="L1288" title="All 2 branches covered.">            if (!doNotIncreaseIndex) {</span>
+<span class="fc" id="L1289">                currentIndex++;</span>
+            } else {
+<span class="fc" id="L1291">                doNotIncreaseIndex = false;</span>
+            }
+<span class="fc" id="L1293">            VisitState&lt;? extends CssNode&gt; state =</span>
+<span class="fc" id="L1294">                    createVisitState(node.getChildAt(currentIndex), this);</span>
+<span class="pc bpc" id="L1295" title="1 of 2 branches missed.">            if (state != null) {</span>
+<span class="fc" id="L1296">                stateStack.push(state);</span>
+            }
+<span class="fc" id="L1298">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitDeclarationState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssDeclarationNode node;
+
+<span class="fc" id="L1306">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1308">        VisitDeclarationState(CssDeclarationNode node) {</span>
+<span class="fc" id="L1309">            this.node = node;</span>
+<span class="fc" id="L1310">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1314" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1315">                visitor.enterDeclaration(node);</span>
+            } else {
+<span class="fc" id="L1317">                visitor.leaveDeclaration(node);</span>
+            }
+<span class="fc" id="L1319">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1323" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1324">                stateStack.push(new VisitPropertyValueState(node.getPropertyValue()));</span>
+<span class="fc" id="L1325">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1327">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1329">        }</span>
+
+        @Override
+        public void removeCurrentChild() {
+<span class="fc" id="L1333">            stateStack.pop();</span>
+<span class="fc" id="L1334">            stateStack.getTop().removeCurrentChild();</span>
+<span class="fc" id="L1335">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitMixinState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssMixinNode node;
+
+<span class="fc" id="L1343">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1345">        VisitMixinState(CssMixinNode node) {</span>
+<span class="fc" id="L1346">            this.node = node;</span>
+<span class="fc" id="L1347">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1351" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1352">                visitor.enterMixin(node);</span>
+            } else {
+<span class="fc" id="L1354">                visitor.leaveMixin(node);</span>
+            }
+<span class="fc" id="L1356">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1360" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1361">                stateStack.push(</span>
+<span class="fc" id="L1362">                        new VisitFunctionArgumentsNodeState(node.getArguments()));</span>
+<span class="fc" id="L1363">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1365">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1367">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitPropertyValueState extends BaseVisitState&lt;CssValueNode&gt; {
+
+        private final CssPropertyValueNode node;
+
+<span class="fc" id="L1375">        private boolean visitedChildren = false;</span>
+<span class="fc" id="L1376">        private boolean visitingChildren = false;</span>
+
+<span class="fc" id="L1378">        private int currentIndex = -1;</span>
+<span class="fc" id="L1379">        private boolean doNotIncreaseIndex = false;</span>
+
+<span class="fc" id="L1381">        VisitPropertyValueState(CssPropertyValueNode node) {</span>
+<span class="fc" id="L1382">            this.node = node;</span>
+<span class="fc" id="L1383">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1387" title="All 2 branches covered.">            if (!visitingChildren) {</span>
+<span class="fc bfc" id="L1388" title="All 2 branches covered.">                if (!visitedChildren) {</span>
+<span class="fc" id="L1389">                    visitor.enterPropertyValue(node);</span>
+                } else {
+<span class="fc" id="L1391">                    visitor.leavePropertyValue(node);</span>
+                }
+            }
+<span class="fc" id="L1394">        }</span>
+
+        @Override
+        public void removeCurrentChild() {
+<span class="fc" id="L1398">            node.removeChildAt(currentIndex);</span>
+<span class="fc" id="L1399">            doNotIncreaseIndex = true;</span>
+<span class="fc" id="L1400">        }</span>
+
+        @Override
+        public void replaceCurrentBlockChildWith(
+                List&lt;CssValueNode&gt; replacementNodes, boolean visitTheReplacementNodes) {
+            // If we're replacing the current property with a composite value
+            // separated by spaces, we really just want to graft those nodes at the
+            // current child's location.
+<span class="fc bfc" id="L1408" title="All 2 branches covered.">            if (replacementNodes.size() == 1</span>
+<span class="fc bfc" id="L1409" title="All 2 branches covered.">                    &amp;&amp; replacementNodes.get(0) instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L1410">                CssCompositeValueNode compositeValueNode =</span>
+<span class="fc" id="L1411">                        (CssCompositeValueNode) replacementNodes.get(0);</span>
+<span class="fc bfc" id="L1412" title="All 2 branches covered.">                if (compositeValueNode.getOperator() == Operator.SPACE) {</span>
+<span class="fc" id="L1413">                    replacementNodes = compositeValueNode.getValues();</span>
+                }
+            }
+<span class="fc" id="L1416">            node.replaceChildAt(currentIndex, replacementNodes);</span>
+<span class="fc bfc" id="L1417" title="All 2 branches covered.">            if (visitTheReplacementNodes) {</span>
+<span class="fc" id="L1418">                doNotIncreaseIndex = true;</span>
+            } else {
+<span class="fc" id="L1420">                currentIndex += replacementNodes.size() - 1;</span>
+            }
+<span class="fc" id="L1422">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+            // We get out of this state if we are on the last child and we are allowed
+            // to increment the index, which means we arrived here with no special
+            // case, or we have just removed the last element.
+<span class="fc bfc" id="L1429" title="All 4 branches covered.">            if ((currentIndex == node.numChildren() - 1 &amp;&amp; !doNotIncreaseIndex)</span>
+<span class="fc bfc" id="L1430" title="All 2 branches covered.">                    || currentIndex == node.numChildren()) {</span>
+<span class="fc bfc" id="L1431" title="All 2 branches covered.">                if (visitedChildren) {</span>
+<span class="fc" id="L1432">                    stateStack.pop();</span>
+                } else {
+<span class="fc" id="L1434">                    visitingChildren = false;</span>
+<span class="fc" id="L1435">                    visitedChildren = true;</span>
+                }
+<span class="fc" id="L1437">                return;</span>
+            }
+            // Remain in this state to finish visiting all the children.
+<span class="fc" id="L1440">            visitingChildren = true;</span>
+<span class="fc bfc" id="L1441" title="All 2 branches covered.">            if (!doNotIncreaseIndex) {</span>
+<span class="fc" id="L1442">                currentIndex++;</span>
+            } else {
+<span class="fc" id="L1444">                doNotIncreaseIndex = false;</span>
+            }
+<span class="fc" id="L1446">            VisitState&lt;? extends CssNode&gt; state =</span>
+<span class="fc" id="L1447">                    createVisitState(node.getChildAt(currentIndex), this);</span>
+<span class="pc bpc" id="L1448" title="1 of 2 branches missed.">            if (state != null) {</span>
+<span class="fc" id="L1449">                stateStack.push(state);</span>
+            }
+<span class="fc" id="L1451">        }</span>
+
+        @Override
+        public VisitState&lt;? extends CssNode&gt; createFallbackState(CssValueNode child) {
+<span class="fc" id="L1455">            return new VisitValueNodeState(child);</span>
+        }
+    }
+
+    @VisibleForTesting
+    class VisitValueNodeState extends BaseVisitState&lt;CssValueNode&gt; {
+
+        private final CssValueNode node;
+
+<span class="fc" id="L1464">        VisitValueNodeState(CssValueNode node) {</span>
+<span class="fc" id="L1465">            this.node = node;</span>
+<span class="fc" id="L1466">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L1470">            visitor.enterValueNode(node);</span>
+<span class="fc" id="L1471">            visitor.leaveValueNode(node);</span>
+<span class="fc" id="L1472">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L1476">            stateStack.pop();</span>
+<span class="fc" id="L1477">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitCompositeValueState extends BaseVisitState&lt;CssValueNode&gt; {
+
+        private final CssCompositeValueNode node;
+        private final List&lt;CssValueNode&gt; children;
+<span class="fc" id="L1485">        private int currentIndex = -1;</span>
+<span class="fc" id="L1486">        private boolean doNotIncreaseIndex = false;</span>
+<span class="fc" id="L1487">        private boolean visitChildren = true;</span>
+<span class="fc" id="L1488">        private boolean intervalueStateIsNext = false;</span>
+
+<span class="fc" id="L1490">        VisitCompositeValueState(CssCompositeValueNode node) {</span>
+<span class="fc" id="L1491">            this.node = node;</span>
+<span class="fc" id="L1492">            this.children = node.getValues();</span>
+<span class="fc" id="L1493">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1497" title="All 2 branches covered.">            if (currentIndex == children.size() - 1) {</span>
+<span class="fc" id="L1498">                stateStack.pop();</span>
+<span class="fc" id="L1499">                return;</span>
+            }
+
+<span class="pc bpc" id="L1502" title="1 of 2 branches missed.">            if (visitChildren == false) {</span>
+<span class="nc" id="L1503">                currentIndex = children.size() - 1;</span>
+<span class="nc" id="L1504">                return;</span>
+            }
+
+            // Remain in this state to finish visiting all the children
+<span class="fc bfc" id="L1508" title="All 2 branches covered.">            if (intervalueStateIsNext) {</span>
+<span class="fc" id="L1509">                stateStack.push(new IntervalueState(node));</span>
+<span class="fc" id="L1510">                intervalueStateIsNext = false;</span>
+<span class="fc" id="L1511">                return;</span>
+            }
+<span class="fc bfc" id="L1513" title="All 2 branches covered.">            if (!doNotIncreaseIndex) {</span>
+<span class="fc" id="L1514">                currentIndex++;</span>
+            } else {
+<span class="fc" id="L1516">                doNotIncreaseIndex = false;</span>
+            }
+<span class="fc" id="L1518">            stateStack.push(createVisitState(children.get(currentIndex), this));</span>
+<span class="fc" id="L1519">            intervalueStateIsNext = true;</span>
+<span class="fc" id="L1520">            return;</span>
+        }
+
+        @Override
+        public void removeCurrentChild() {
+<span class="fc" id="L1525">            children.remove(currentIndex);</span>
+<span class="fc" id="L1526">            intervalueStateIsNext = false;</span>
+<span class="fc" id="L1527">            doNotIncreaseIndex = true;</span>
+<span class="fc bfc" id="L1528" title="All 2 branches covered.">            if (currentIndex == children.size()) {</span>
+<span class="fc" id="L1529">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1531">        }</span>
+
+        @Override
+        public VisitState&lt;CssValueNode&gt; createFallbackState(CssValueNode child) {
+<span class="fc" id="L1535">            return new VisitValueNodeState(child);</span>
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1543" title="All 2 branches covered.">            if (currentIndex &lt; 0) {</span>
+<span class="fc" id="L1544">                visitChildren = visitor.enterCompositeValueNode(node);</span>
+<span class="fc bfc" id="L1545" title="All 2 branches covered.">            } else if (currentIndex == children.size() - 1) {</span>
+<span class="fc" id="L1546">                visitor.leaveCompositeValueNode(node);</span>
+            }
+<span class="fc" id="L1548">        }</span>
+
+        @Override
+        public void replaceCurrentBlockChildWith(
+                List&lt;CssValueNode&gt; replacementNodes,
+                boolean visitTheReplacementNodes) {
+<span class="fc" id="L1554">            children.remove(currentIndex);</span>
+
+            // If we're replacing the current property with a composite value
+            // separated by the same operator, we really just want to graft those
+            // nodes at the current child's location.
+<span class="pc bpc" id="L1559" title="1 of 2 branches missed.">            if (replacementNodes.size() == 1</span>
+<span class="fc bfc" id="L1560" title="All 2 branches covered.">                    &amp;&amp; replacementNodes.get(0) instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L1561">                CssCompositeValueNode compositeValueNode =</span>
+<span class="fc" id="L1562">                        (CssCompositeValueNode) replacementNodes.get(0);</span>
+<span class="fc bfc" id="L1563" title="All 2 branches covered.">                if (compositeValueNode.getOperator() == node.getOperator()) {</span>
+<span class="fc" id="L1564">                    replacementNodes = compositeValueNode.getValues();</span>
+                }
+            }
+
+<span class="fc" id="L1568">            children.addAll(currentIndex, replacementNodes);</span>
+<span class="fc" id="L1569">            node.becomeParentForNodes(replacementNodes);</span>
+<span class="fc bfc" id="L1570" title="All 2 branches covered.">            if (!visitTheReplacementNodes) {</span>
+<span class="fc" id="L1571">                currentIndex += replacementNodes.size() - 1;</span>
+            } else {
+<span class="fc" id="L1573">                doNotIncreaseIndex = true;</span>
+            }
+<span class="fc" id="L1575">        }</span>
+    }
+
+    class IntervalueState extends BaseVisitState&lt;CssNode&gt; {
+        private final CssCompositeValueNode parent;
+
+<span class="fc" id="L1581">        IntervalueState(CssCompositeValueNode parent) {</span>
+<span class="fc" id="L1582">            this.parent = parent;</span>
+<span class="fc" id="L1583">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L1587">            visitor.enterCompositeValueNodeOperator(parent);</span>
+<span class="fc" id="L1588">            visitor.leaveCompositeValueNodeOperator(parent);</span>
+<span class="fc" id="L1589">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L1593">            stateStack.pop();</span>
+<span class="fc" id="L1594">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitFunctionNodeState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssFunctionNode node;
+
+<span class="fc" id="L1602">        private boolean shouldVisitChildren = true;</span>
+<span class="fc" id="L1603">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1605">        VisitFunctionNodeState(CssFunctionNode node) {</span>
+<span class="fc" id="L1606">            this.node = node;</span>
+<span class="fc" id="L1607">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1611" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1612">                shouldVisitChildren = visitor.enterFunctionNode(node);</span>
+            } else {
+<span class="fc" id="L1614">                visitor.leaveFunctionNode(node);</span>
+            }
+<span class="fc" id="L1616">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1620" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc bfc" id="L1621" title="All 2 branches covered.">                if (shouldVisitChildren) {</span>
+<span class="fc" id="L1622">                    stateStack.push(new VisitFunctionArgumentsNodeState(node.getArguments()));</span>
+                }
+<span class="fc" id="L1624">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1626">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1628">        }</span>
+
+        @Override
+        public void removeCurrentChild() {
+<span class="nc" id="L1632">            node.setArguments(new CssFunctionArgumentsNode());</span>
+<span class="nc" id="L1633">        }</span>
+
+        @Override
+        @SuppressWarnings(&quot;unchecked&quot;)
+        public void removeCurrentNodeCalled() {
+            // If the function is a singleton, remove the nearest declaration that
+            // contains it.
+<span class="fc" id="L1640">            popToNonDegenerateState();</span>
+<span class="fc" id="L1641">            stateStack.getTop().removeCurrentChild();</span>
+<span class="fc" id="L1642">        }</span>
+
+        /**
+         * Exit states until we reach the nearest ancestor that will not
+         * be made degenerate by the removal of its current child.
+         *
+         * &lt;p&gt;E.g., if this node's parent's role is to represent a collection of
+         * children, and this node has no siblings, then we want to remove
+         * the parent, and the transitive closure. So for example if we have
+         * div {
+         * background: url('http://google.com/logo')
+         * }
+         * and we remove the url function node, then we should not leave
+         * div {
+         * background:
+         * }
+         * but rather should remove background as well.
+         */
+        private void popToNonDegenerateState() {
+<span class="fc" id="L1661">            for (CssNode child = node; true; child = child.getParent()) {</span>
+                // will removing the child leave the tree in a bad state?
+                boolean otherSiblingsExist;
+<span class="fc bfc" id="L1664" title="All 2 branches covered.">                if (child instanceof CssDeclarationNode) {</span>
+                    // it's just too hard, so stop removing ancestors if we
+                    // get this high.
+<span class="fc" id="L1667">                    otherSiblingsExist = true;</span>
+<span class="fc bfc" id="L1668" title="All 2 branches covered.">                } else if (child instanceof CssNodesListNode) {</span>
+<span class="pc bpc" id="L1669" title="1 of 2 branches missed.">                    otherSiblingsExist = ((CssNodesListNode) child).numChildren() &gt; 1;</span>
+<span class="fc bfc" id="L1670" title="All 2 branches covered.">                } else if (child instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L1671">                    otherSiblingsExist =</span>
+<span class="pc bpc" id="L1672" title="1 of 2 branches missed.">                            ((CssCompositeValueNode) child).getValues().size() &gt; 1;</span>
+<span class="pc bpc" id="L1673" title="1 of 2 branches missed.">                } else if (child instanceof CssFunctionNode) {</span>
+<span class="fc" id="L1674">                    otherSiblingsExist = false;</span>
+                } else {
+                    break;
+                }
+<span class="fc bfc" id="L1678" title="All 2 branches covered.">                if (otherSiblingsExist) {</span>
+<span class="fc" id="L1679">                    break;</span>
+                }
+                // TODO(user): refactor the preceding giant conditional branch to
+                // use dynamic dispatch. Maybe each node state should just have a
+                // locally-sane predicate to verify that its own properties are in
+                // good shape. Then we could just remove and pop our way up to
+                // sanity.
+                // TODO(user): verify that the stateStack.getTop() corresponds to
+                // node. I think the only VisitState implementation whose ctor does
+                // not demand a corresponding CssNode is the IntervalueState, so we
+                // can add a method to get the node and then bail on this loop if
+                // the result is either null or inconsistent with the current child.
+<span class="fc" id="L1691">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1693">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitFunctionArgumentsNodeState
+            extends VisitReplaceChildrenState&lt;CssValueNode&gt; {
+
+<span class="fc" id="L1700">        VisitFunctionArgumentsNodeState(CssFunctionArgumentsNode node) {</span>
+<span class="fc" id="L1701">            super(node);</span>
+<span class="fc" id="L1702">        }</span>
+
+        @Override
+        public void replaceCurrentBlockChildWith(
+                List&lt;CssValueNode&gt; replacementNodes, boolean visitTheReplacementNodes) {
+            // If we're replacing the current property with a composite value
+            // separated by the space, we really just want to graft those nodes at
+            // the current child's location.
+<span class="fc bfc" id="L1710" title="All 2 branches covered.">            if (replacementNodes.size() == 1</span>
+<span class="fc bfc" id="L1711" title="All 2 branches covered.">                    &amp;&amp; replacementNodes.get(0) instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L1712">                CssCompositeValueNode compositeValueNode =</span>
+<span class="fc" id="L1713">                        (CssCompositeValueNode) replacementNodes.get(0);</span>
+<span class="pc bpc" id="L1714" title="1 of 2 branches missed.">                if (compositeValueNode.getOperator() == Operator.SPACE) {</span>
+<span class="fc" id="L1715">                    replacementNodes = compositeValueNode.getValues();</span>
+                }
+            }
+
+<span class="fc" id="L1719">            super.replaceCurrentBlockChildWith(</span>
+                    replacementNodes, visitTheReplacementNodes);
+<span class="fc" id="L1721">        }</span>
+
+        @Override
+        public VisitState&lt;CssNode&gt; createFallbackState(CssValueNode child) {
+<span class="fc" id="L1725">            return new VisitFunctionArgumentNodeState(child);</span>
+        }
+
+    }
+
+    @VisibleForTesting
+    class VisitFunctionArgumentNodeState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssValueNode node;
+
+<span class="fc" id="L1735">        VisitFunctionArgumentNodeState(CssValueNode node) {</span>
+<span class="fc" id="L1736">            this.node = node;</span>
+<span class="fc" id="L1737">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc" id="L1741">            visitor.enterArgumentNode(node);</span>
+<span class="fc" id="L1742">            visitor.leaveArgumentNode(node);</span>
+<span class="fc" id="L1743">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc" id="L1747">            stateStack.pop();</span>
+<span class="fc" id="L1748">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitComponentState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssComponentNode node;
+
+<span class="fc" id="L1756">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1758">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L1760">        VisitComponentState(CssComponentNode node) {</span>
+<span class="fc" id="L1761">            this.node = node;</span>
+<span class="fc" id="L1762">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1766" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1767">                shouldVisitChildren = visitor.enterComponent(node);</span>
+            } else {
+<span class="fc" id="L1769">                visitor.leaveComponent(node);</span>
+            }
+<span class="fc" id="L1771">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L1775" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L1776">                stateStack.push(new VisitComponentChildrenState(node.getBlock()));</span>
+<span class="fc" id="L1777">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1779">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1781">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitComponentChildrenState extends VisitReplaceChildrenState&lt;CssNode&gt; {
+
+<span class="fc" id="L1787">        VisitComponentChildrenState(CssBlockNode block) {</span>
+<span class="fc" id="L1788">            super(block);</span>
+<span class="fc" id="L1789">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitForLoopRuleState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssForLoopRuleNode node;
+
+<span class="fc" id="L1797">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1799">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L1801">        VisitForLoopRuleState(CssForLoopRuleNode node) {</span>
+<span class="fc" id="L1802">            this.node = node;</span>
+<span class="fc" id="L1803">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1807" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1808">                shouldVisitChildren = visitor.enterForLoop(node);</span>
+            } else {
+<span class="fc" id="L1810">                visitor.leaveForLoop(node);</span>
+            }
+<span class="fc" id="L1812">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L1816" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc" id="L1817">                stateStack.push(new VisitBlockChildrenState(node.getBlock()));</span>
+<span class="fc" id="L1818">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1820">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1822">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitUnknownAtRuleState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssUnknownAtRuleNode node;
+<span class="fc" id="L1829">        private boolean visitedChildren = false;</span>
+<span class="fc" id="L1830">        private boolean shouldVisitChildren = true;</span>
+<span class="fc" id="L1831">        private int currentIndex = -1;</span>
+
+<span class="fc" id="L1833">        VisitUnknownAtRuleState(CssUnknownAtRuleNode node) {</span>
+<span class="fc" id="L1834">            this.node = node;</span>
+<span class="fc" id="L1835">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1839" title="All 4 branches covered.">            if (!visitedChildren &amp;&amp; currentIndex == -1) {</span>
+<span class="fc" id="L1840">                shouldVisitChildren = visitor.enterUnknownAtRule(node);</span>
+<span class="fc bfc" id="L1841" title="All 2 branches covered.">            } else if (visitedChildren) {</span>
+<span class="fc" id="L1842">                visitor.leaveUnknownAtRule(node);</span>
+            }
+<span class="fc" id="L1844">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L1848" title="1 of 4 branches missed.">            if (visitedChildren || !shouldVisitChildren) {</span>
+<span class="fc" id="L1849">                stateStack.pop();</span>
+<span class="fc" id="L1850">                return;</span>
+            }
+<span class="fc" id="L1852">            ++currentIndex;</span>
+<span class="fc" id="L1853">            final int parametersCount = node.getParameters().size();</span>
+<span class="fc bfc" id="L1854" title="All 2 branches covered.">            if (currentIndex &lt; parametersCount) {</span>
+<span class="fc bfc" id="L1855" title="All 2 branches covered.">                if (currentIndex &lt; parametersCount - 1) {</span>
+<span class="fc" id="L1856">                    stateStack.push(new VisitMediaTypeListDelimiterState(node));</span>
+                }
+<span class="fc" id="L1858">                stateStack.push(getVisitState(node.getParameters().get(currentIndex)));</span>
+            } else {
+<span class="fc bfc" id="L1860" title="All 2 branches covered.">                if (node.getType().hasBlock()) {</span>
+<span class="fc" id="L1861">                    stateStack.push(new VisitUnknownAtRuleBlockState(node.getBlock()));</span>
+                }
+<span class="fc" id="L1863">                visitedChildren = true;</span>
+            }
+<span class="fc" id="L1865">        }</span>
+
+        /**
+         * Returns a visit state for a given child node.
+         *
+         * @param node child node for which to create visit state
+         * @return new visit state
+         */
+        public VisitState&lt;? extends CssNode&gt; getVisitState(CssValueNode node) {
+<span class="fc bfc" id="L1874" title="All 2 branches covered.">            if (node instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L1875">                return new VisitCompositeValueState((CssCompositeValueNode) node);</span>
+            } else {
+<span class="fc" id="L1877">                return new VisitValueNodeState(node);</span>
+            }
+        }
+    }
+
+    @VisibleForTesting
+    class VisitUnknownAtRuleBlockState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssAbstractBlockNode body;
+
+<span class="fc" id="L1887">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1889">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L1891">        VisitUnknownAtRuleBlockState(CssAbstractBlockNode body) {</span>
+<span class="fc" id="L1892">            this.body = body;</span>
+<span class="fc" id="L1893">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1897" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc bfc" id="L1898" title="All 2 branches covered.">                if (body instanceof CssBlockNode) {</span>
+<span class="fc" id="L1899">                    shouldVisitChildren = visitor.enterBlock((CssBlockNode) body);</span>
+                }
+            } else {
+<span class="fc bfc" id="L1902" title="All 2 branches covered.">                if (body instanceof CssBlockNode) {</span>
+<span class="fc" id="L1903">                    visitor.leaveBlock((CssBlockNode) body);</span>
+                }
+            }
+<span class="fc" id="L1906">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="pc bpc" id="L1910" title="1 of 4 branches missed.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="fc bfc" id="L1911" title="All 2 branches covered.">                if (body instanceof CssBlockNode) {</span>
+<span class="fc" id="L1912">                    stateStack.push(new VisitBlockChildrenState((CssBlockNode) body));</span>
+<span class="pc bpc" id="L1913" title="1 of 2 branches missed.">                } else if (body instanceof CssDeclarationBlockNode) {</span>
+<span class="fc" id="L1914">                    stateStack.push(</span>
+                            new VisitDeclarationBlockState((CssDeclarationBlockNode) body));
+                }
+<span class="fc" id="L1917">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1919">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1921">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitWebkitKeyframesState extends VisitChildrenOptionalState&lt;CssNode&gt; {
+
+        private final CssKeyframesNode node;
+
+<span class="fc" id="L1929">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1931">        private boolean shouldVisitChildren = true;</span>
+
+<span class="fc" id="L1933">        VisitWebkitKeyframesState(CssKeyframesNode node) {</span>
+<span class="fc" id="L1934">            this.node = node;</span>
+<span class="fc" id="L1935">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1939" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1940">                shouldVisitChildren = visitor.enterKeyframesRule(node);</span>
+            } else {
+<span class="fc" id="L1942">                visitor.leaveKeyframesRule(node);</span>
+            }
+<span class="fc" id="L1944">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1948" title="All 4 branches covered.">            if (!visitedChildren &amp;&amp; shouldVisitChildren) {</span>
+<span class="pc bpc" id="L1949" title="1 of 2 branches missed.">                if (node.getType().hasBlock()) {</span>
+<span class="fc" id="L1950">                    stateStack.push(new VisitUnknownAtRuleBlockState(node.getBlock()));</span>
+                }
+<span class="fc" id="L1952">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1954">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1956">        }</span>
+    }
+
+    @VisibleForTesting
+    class VisitMixinDefinitionState extends BaseVisitState&lt;CssNode&gt; {
+
+        private final CssMixinDefinitionNode node;
+
+<span class="fc" id="L1964">        private boolean visitedChildren = false;</span>
+
+<span class="fc" id="L1966">        VisitMixinDefinitionState(CssMixinDefinitionNode node) {</span>
+<span class="fc" id="L1967">            this.node = node;</span>
+<span class="fc" id="L1968">        }</span>
+
+        @Override
+        public void doVisit() {
+<span class="fc bfc" id="L1972" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1973">                visitor.enterMixinDefinition(node);</span>
+            } else {
+<span class="fc" id="L1975">                visitor.leaveMixinDefinition(node);</span>
+            }
+<span class="fc" id="L1977">        }</span>
+
+        @Override
+        public void transitionToNextState() {
+<span class="fc bfc" id="L1981" title="All 2 branches covered.">            if (!visitedChildren) {</span>
+<span class="fc" id="L1982">                stateStack.push(new VisitDeclarationBlockState(node.getBlock()));</span>
+<span class="fc" id="L1983">                visitedChildren = true;</span>
+            } else {
+<span class="fc" id="L1985">                stateStack.pop();</span>
+            }
+<span class="fc" id="L1987">        }</span>
+    }
+
+    // TODO(oana): Maybe add a generic utility class for Stack than can be used in
+    // CssTreeBuilder too.
+    @VisibleForTesting
+<span class="fc" id="L1993">    static class StateStack {</span>
+<span class="fc" id="L1994">        Deque&lt;VisitState&lt;? extends CssNode&gt;&gt; stack = Queues.newArrayDeque();</span>
+
+        VisitState&lt;? extends CssNode&gt; getTop() {
+<span class="fc" id="L1997">            return stack.peek();</span>
+        }
+
+        void push(VisitState&lt;? extends CssNode&gt; state) {
+<span class="fc" id="L2001">            Preconditions.checkNotNull(state);</span>
+<span class="fc" id="L2002">            stack.addFirst(state);</span>
+<span class="fc" id="L2003">        }</span>
+
+        void pop() {
+<span class="fc" id="L2006">            stack.removeFirst();</span>
+<span class="fc" id="L2007">        }</span>
+
+        void transitionTo(VisitState&lt;? extends CssNode&gt; state) {
+<span class="fc" id="L2010">            pop();</span>
+<span class="fc" id="L2011">            push(state);</span>
+<span class="fc" id="L2012">        }</span>
+
+        int size() {
+<span class="fc" id="L2015">            return stack.size();</span>
+        }
+
+        boolean isEmpty() {
+<span class="fc" id="L2019">            return stack.isEmpty();</span>
+        }
+    }
+
+<span class="fc" id="L2023">    public DefaultVisitController(CssNode subtree, boolean allowMutating) {</span>
+<span class="fc" id="L2024">        Preconditions.checkNotNull(subtree);</span>
+<span class="fc" id="L2025">        this.subtree = subtree;</span>
+<span class="fc" id="L2026">        this.allowMutating = allowMutating;</span>
+<span class="fc" id="L2027">    }</span>
+
+    public DefaultVisitController(CssTree tree, boolean allowMutating) {
+<span class="fc" id="L2030">        this(tree.getRoot(), allowMutating);</span>
+<span class="fc" id="L2031">    }</span>
+
+    public StateStack getStateStack() {
+<span class="fc" id="L2034">        return stateStack;</span>
+    }
+
+    @Override
+    public void removeCurrentNode() {
+<span class="fc" id="L2039">        Preconditions.checkState(allowMutating);</span>
+<span class="fc" id="L2040">        stateStack.getTop().removeCurrentNodeCalled();</span>
+<span class="fc" id="L2041">    }</span>
+
+    @Override
+    public &lt;T extends CssNode&gt; void replaceCurrentBlockChildWith(
+            List&lt;T&gt; replacementNodes,
+            boolean visitTheReplacementNodes) {
+<span class="fc" id="L2047">        Preconditions.checkState(allowMutating);</span>
+        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L2049">        VisitState&lt;T&gt; stackTop = (VisitState&lt;T&gt;) stateStack.getTop();</span>
+<span class="fc" id="L2050">        stackTop.replaceCurrentBlockChildWithCalled(</span>
+                replacementNodes, visitTheReplacementNodes);
+<span class="fc" id="L2052">    }</span>
+
+    @Override
+    public void startVisit(CssTreeVisitor treeVisitor) {
+<span class="fc" id="L2056">        Preconditions.checkNotNull(treeVisitor);</span>
+<span class="fc" id="L2057">        this.visitor = treeVisitor;</span>
+
+<span class="fc" id="L2059">        stateStack.push(createVisitStateInternal(subtree));</span>
+
+<span class="fc bfc" id="L2061" title="All 2 branches covered.">        while (!stateStack.isEmpty()) {</span>
+            try {
+<span class="fc" id="L2063">                stateStack.getTop().doVisit();</span>
+<span class="fc" id="L2064">                stateStack.getTop().transitionToNextState();</span>
+<span class="fc" id="L2065">            } catch (StopVisitRequestedException e) {</span>
+                // We stop visiting.
+                // assert stopVisitCalled;
+<span class="fc" id="L2068">                break;</span>
+<span class="fc" id="L2069">            }</span>
+        }
+<span class="fc" id="L2071">    }</span>
+
+    @Override
+    public void stopVisit() {
+<span class="fc" id="L2075">        stateStack.getTop().stopVisitCalled();</span>
+<span class="fc" id="L2076">        throw new StopVisitRequestedException();</span>
+    }
+
+    /**
+     * Factory method to create visit state for a child node. Class of the visit
+     * state depends on the child node class.
+     *
+     * @param &lt;T&gt;                 child node type
+     * @param child               node for which the visit state is created
+     * @param fallbackStateSource object which will create the fallback visit
+     *                            state if the factory cannot create the state for a given child node
+     * @return created visit state or {@code null} if state cannot be created by
+     * the factory or the fallback factory
+     */
+    private &lt;T extends CssNode&gt; VisitState&lt;? extends CssNode&gt; createVisitState(
+            T child, BaseVisitState&lt;T&gt; fallbackStateSource) {
+<span class="fc" id="L2092">        VisitState&lt;? extends CssNode&gt; state = createVisitStateInternal(child);</span>
+<span class="fc bfc" id="L2093" title="All 2 branches covered.">        return (state == null) ?</span>
+<span class="fc" id="L2094">                fallbackStateSource.createFallbackState(child) : state;</span>
+    }
+
+    private VisitState&lt;? extends CssNode&gt; createVisitStateInternal(CssNode child) {
+        // VisitProvideState
+<span class="fc bfc" id="L2099" title="All 2 branches covered.">        if (child instanceof CssProvideNode) {</span>
+<span class="fc" id="L2100">            return new VisitProvideState((CssProvideNode) child);</span>
+        }
+
+        // VisitRequireState
+<span class="fc bfc" id="L2104" title="All 2 branches covered.">        if (child instanceof CssRequireNode) {</span>
+<span class="fc" id="L2105">            return new VisitRequireState((CssRequireNode) child);</span>
+        }
+
+        // VisitUnknownAtRuleBlockState
+<span class="fc bfc" id="L2109" title="All 2 branches covered.">        if (child instanceof CssMediaRuleNode) {</span>
+<span class="fc" id="L2110">            return new VisitMediaRuleState((CssMediaRuleNode) child);</span>
+        }
+
+        // VisitUnknownAtRuleBlockState
+<span class="fc bfc" id="L2114" title="All 2 branches covered.">        if (child instanceof CssPageRuleNode) {</span>
+<span class="fc" id="L2115">            return new VisitPageRuleState((CssPageRuleNode) child);</span>
+        }
+
+        // VisitUnknownAtRuleBlockState
+<span class="fc bfc" id="L2119" title="All 2 branches covered.">        if (child instanceof CssPageSelectorNode) {</span>
+<span class="fc" id="L2120">            return new VisitPageSelectorState((CssPageSelectorNode) child);</span>
+        }
+
+        // VisitUnknownAtRuleBlockState
+<span class="fc bfc" id="L2124" title="All 2 branches covered.">        if (child instanceof CssFontFaceNode) {</span>
+<span class="fc" id="L2125">            return new VisitFontFaceState((CssFontFaceNode) child);</span>
+        }
+
+<span class="fc bfc" id="L2128" title="All 2 branches covered.">        if (child instanceof CssCharSetNode) {</span>
+<span class="fc" id="L2129">            return new VisitCharSetState((CssCharSetNode) child);</span>
+        }
+
+        // VisitUnknownAtRuleBlockState
+<span class="fc bfc" id="L2133" title="All 2 branches covered.">        if (child instanceof CssImportRuleNode) {</span>
+<span class="fc" id="L2134">            return new VisitImportRuleState((CssImportRuleNode) child);</span>
+        }
+
+<span class="fc bfc" id="L2137" title="All 2 branches covered.">        if (child instanceof CssComponentNode) {</span>
+<span class="fc" id="L2138">            return new VisitComponentState((CssComponentNode) child);</span>
+        }
+
+        // VisitRefinerListState
+<span class="fc bfc" id="L2142" title="All 2 branches covered.">        if (child instanceof CssRefinerNode) {</span>
+<span class="fc" id="L2143">            return new VisitRefinerNodeState((CssRefinerNode) child);</span>
+        }
+
+        // VisitDeclarationBlockState
+<span class="fc bfc" id="L2147" title="All 2 branches covered.">        if (child instanceof CssDeclarationNode) {</span>
+<span class="fc" id="L2148">            return new VisitDeclarationState((CssDeclarationNode) child);</span>
+        }
+
+        // VisitDeclarationBlockState
+<span class="fc bfc" id="L2152" title="All 2 branches covered.">        if (child instanceof CssMixinNode) {</span>
+<span class="fc" id="L2153">            return new VisitMixinState((CssMixinNode) child);</span>
+        }
+
+<span class="fc bfc" id="L2156" title="All 2 branches covered.">        if (child instanceof CssForLoopRuleNode) {</span>
+<span class="fc" id="L2157">            return new VisitForLoopRuleState((CssForLoopRuleNode) child);</span>
+        }
+
+        // VisitBlockChildrenState
+        // VisitComponentChildrenState, VisitUnknownAtRuleChildrenState
+<span class="fc bfc" id="L2162" title="All 2 branches covered.">        if (child instanceof CssUnknownAtRuleNode) {</span>
+<span class="fc" id="L2163">            return new VisitUnknownAtRuleState((CssUnknownAtRuleNode) child);</span>
+        }
+
+        // VisitUnknownAtRuleBlockState
+<span class="fc bfc" id="L2167" title="All 2 branches covered.">        if (child instanceof CssKeyframesNode) {</span>
+<span class="fc" id="L2168">            return new VisitWebkitKeyframesState((CssKeyframesNode) child);</span>
+        }
+
+        // VisitKeyBlockState
+<span class="fc bfc" id="L2172" title="All 2 branches covered.">        if (child instanceof CssKeyframeRulesetNode) {</span>
+<span class="fc" id="L2173">            return new VisitKeyframeRulesetState((CssKeyframeRulesetNode) child);</span>
+        }
+
+        // VisitComponentChildrenState, VisitUnknownAtRuleChildrenState
+        // VisitBlockChildrenState, VisitConditionalRuleChildrenState
+<span class="fc bfc" id="L2178" title="All 2 branches covered.">        if (child instanceof CssConditionalBlockNode) {</span>
+<span class="fc" id="L2179">            return new VisitConditionalBlockState((CssConditionalBlockNode) child);</span>
+        }
+<span class="fc bfc" id="L2181" title="All 2 branches covered.">        if (child instanceof CssRulesetNode) {</span>
+<span class="fc" id="L2182">            return new VisitRulesetState((CssRulesetNode) child);</span>
+        }
+<span class="fc bfc" id="L2184" title="All 2 branches covered.">        if (child instanceof CssDefinitionNode) {</span>
+<span class="fc" id="L2185">            return new VisitDefinitionState((CssDefinitionNode) child);</span>
+        }
+
+        // VisitDefinitionParametersState, VisitPropertyValueState, VisitFunctionArgumentsNodeState
+<span class="fc bfc" id="L2189" title="All 2 branches covered.">        if (child instanceof CssFunctionNode) {</span>
+<span class="fc" id="L2190">            return new VisitFunctionNodeState((CssFunctionNode) child);</span>
+        }
+
+<span class="fc bfc" id="L2193" title="All 2 branches covered.">        if (child instanceof CssMixinDefinitionNode) {</span>
+<span class="fc" id="L2194">            return new VisitMixinDefinitionState((CssMixinDefinitionNode) child);</span>
+        }
+
+<span class="fc bfc" id="L2197" title="All 2 branches covered.">        if (child instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L2198">            return new VisitCompositeValueState((CssCompositeValueNode) child);</span>
+        }
+
+<span class="pc bpc" id="L2201" title="1 of 2 branches missed.">        if (child instanceof CssPropertyValueNode) {</span>
+<span class="nc" id="L2202">            return new VisitPropertyValueState((CssPropertyValueNode) child);</span>
+        }
+
+<span class="fc bfc" id="L2205" title="All 2 branches covered.">        if (child instanceof CssRootNode) {</span>
+<span class="fc" id="L2206">            return new RootVisitBeforeChildrenState((CssRootNode) child);</span>
+        }
+
+<span class="fc" id="L2209">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

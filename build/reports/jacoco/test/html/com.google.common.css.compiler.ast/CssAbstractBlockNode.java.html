@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssAbstractBlockNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssAbstractBlockNode.java</span></div><h1>CssAbstractBlockNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/**
+ * An abstract representation of a list of nodes that are enclosed inside
+ * braces.
+ *
+ * &lt;p&gt;Subclasses have to define a list of classes that are valid children.
+ * The list of valid classes can contain the classes itself or superclasses
+ * because all instances of the provided classes are accepted as valid.
+ * If invalid children are added, an {@link IllegalStateException} is thrown.
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+public abstract class CssAbstractBlockNode
+        extends CssNodesListNode&lt;CssNode&gt; {
+    private final ImmutableList&lt;Class&lt;? extends CssNode&gt;&gt; validNodeClasses;
+
+    public CssAbstractBlockNode(boolean isEnclosedWithBraces,
+                                List&lt;Class&lt;? extends CssNode&gt;&gt; validNodeClasses) {
+<span class="fc" id="L42">        super(isEnclosedWithBraces, null /* comments */);</span>
+<span class="fc" id="L43">        this.validNodeClasses = ImmutableList.copyOf(validNodeClasses);</span>
+<span class="fc" id="L44">    }</span>
+
+    public CssAbstractBlockNode(boolean isEnclosedWithBraces,
+                                List&lt;CssNode&gt; childrenList, @Nullable List&lt;CssCommentNode&gt; comments,
+                                ImmutableList&lt;Class&lt;? extends CssNode&gt;&gt; validSuperclasses) {
+<span class="fc" id="L49">        super(isEnclosedWithBraces, comments);</span>
+        // The valid superclasses have to be set before children are added.
+<span class="fc" id="L51">        this.validNodeClasses = validSuperclasses;</span>
+<span class="fc" id="L52">        setChildren(childrenList);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Copy constructor.
+     */
+    public CssAbstractBlockNode(CssAbstractBlockNode node) {
+<span class="fc" id="L59">        super(node.isEnclosedWithBraces(), node.getComments());</span>
+<span class="fc" id="L60">        this.setParent(node.getParent());</span>
+<span class="fc" id="L61">        this.setSourceCodeLocation(node.getSourceCodeLocation());</span>
+        // The valid superclasses have to be set before children are added.
+<span class="fc" id="L63">        this.validNodeClasses = node.validNodeClasses;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        for (CssNode child : node.childIterable()) {</span>
+<span class="fc" id="L65">            CssNode childCopy = child.deepCopy();</span>
+<span class="fc" id="L66">            addChildToBack(childCopy);</span>
+<span class="fc" id="L67">        }</span>
+<span class="fc" id="L68">    }</span>
+
+    @Override
+    public abstract CssAbstractBlockNode deepCopy();
+
+    @Override
+    public void addChildToBack(CssNode child) {
+<span class="fc" id="L75">        checkChild(child);</span>
+<span class="fc" id="L76">        super.addChildToBack(child);</span>
+<span class="fc" id="L77">    }</span>
+
+    @Override
+    void setChildren(List&lt;CssNode&gt; children) {
+<span class="fc" id="L81">        checkChildren(children);</span>
+<span class="fc" id="L82">        super.setChildren(children);</span>
+<span class="fc" id="L83">    }</span>
+
+    @Override
+    public void replaceChildAt(int index, List&lt;? extends CssNode&gt; newChildren) {
+<span class="fc" id="L87">        checkChildren(newChildren);</span>
+<span class="fc" id="L88">        super.replaceChildAt(index, newChildren);</span>
+<span class="fc" id="L89">    }</span>
+
+    private void checkChildren(List&lt;? extends CssNode&gt; children) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        for (CssNode child : children) {</span>
+<span class="fc" id="L93">            checkChild(child);</span>
+<span class="fc" id="L94">        }</span>
+<span class="fc" id="L95">    }</span>
+
+    /**
+     * Ensures that only valid children are added. This method is called for
+     * every child that is added.
+     */
+    private void checkChild(CssNode node) {
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        for (Class&lt;? extends CssNode&gt; allowedClass : validNodeClasses) {</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">            if (allowedClass.isInstance(node)) {</span>
+<span class="fc" id="L104">                return;</span>
+            }
+<span class="fc" id="L106">        }</span>
+<span class="pc" id="L107">        Preconditions.checkState(false,</span>
+                &quot;Trying to add an instance of the class %s (\&quot;%s\&quot;), which is not a &quot;
+                        + &quot;valid child for a block of class %s.&quot;,
+<span class="fc" id="L110">                node.getClass().getName(), node.toString(), this.getClass().getName());</span>
+<span class="nc" id="L111">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.ProcessKeyframesTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.011">
+  <properties/>
+  <testcase name="testPercentageBad1" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <testcase name="testPercentageBad2" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.0"/>
+  <testcase name="testPercentageSimplified1" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <testcase name="testPercentageSimplified2" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <testcase name="testMozFromTo" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.0"/>
+  <testcase name="testCompactRepresentation" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <testcase name="testPercentage1" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.0"/>
+  <testcase name="testPercentage2" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <testcase name="testFromTo" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.0"/>
+  <testcase name="testFromToBad1" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <testcase name="testFromToBad2" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.0"/>
+  <testcase name="testFromToBad3" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.002"/>
+  <testcase name="testFromToBad4" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.0"/>
+  <testcase name="testFromToSimplified" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <testcase name="testDeactivated" classname="com.google.common.css.compiler.passes.ProcessKeyframesTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

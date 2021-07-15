@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConstantDefinitions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">ConstantDefinitions.java</span></div><h1>ConstantDefinitions.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.css.compiler.ast.CssDefinitionNode;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A container for GSS constant definitions, since a constant could be
+ * defined multiple times in the tree, this class has two set of interfaces
+ * that can be used to get either all definitions of a constant or only last
+ * definition of a constant.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+<span class="fc" id="L36">public class ConstantDefinitions {</span>
+<span class="fc" id="L37">    private final Map&lt;String, CssDefinitionNode&gt; constants = Maps.newHashMap();</span>
+
+<span class="fc" id="L39">    private final ListMultimap&lt;String, CssDefinitionNode&gt; constantsMultimap =</span>
+<span class="fc" id="L40">            LinkedListMultimap.create();</span>
+
+    Map&lt;String, CssDefinitionNode&gt; getConstants() {
+<span class="fc" id="L43">        return constants;</span>
+    }
+
+    public Multimap&lt;String, CssDefinitionNode&gt; getConstantMultimap() {
+<span class="nc" id="L47">        return constantsMultimap;</span>
+    }
+
+    /**
+     * Returns the last definition of a constant. Callers should not attempt to
+     * modify the returned value.
+     *
+     * @return definition node or {@code null} if the constant is not defined
+     */
+    public CssDefinitionNode getConstantDefinition(String constant) {
+<span class="fc" id="L57">        return constants.get(constant);</span>
+    }
+
+    /**
+     * Returns all definitions of a constant.
+     *
+     * @return collection of definition node or empty collection if the
+     * constant is not defined
+     */
+    public List&lt;CssDefinitionNode&gt; getConstantDefinitions(String constant) {
+<span class="nc" id="L67">        return constantsMultimap.get(constant);</span>
+    }
+
+    /**
+     * Adds a constant definition to this css tree.
+     * &lt;p&gt;
+     * Note that a constant may be defined multiple times in the tree. For the
+     * compact representation of the tree, all references to a constant will be
+     * replaced with the same value: the last one specified in the stylesheet
+     * (to ignore the definitions in inactive condition blocks the
+     * {@code EliminateConditionalNodes} compiler pass needs to be run first).
+     */
+    public void addConstantDefinition(CssDefinitionNode definition) {
+<span class="fc" id="L80">        constants.put(definition.getName().getValue(), definition);</span>
+<span class="fc" id="L81">        constantsMultimap.put(definition.getName().getValue(), definition);</span>
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * @return the iterable of names of all defined constants
+     */
+    public Iterable&lt;String&gt; getConstantsNames() {
+<span class="fc" id="L88">        return constants.keySet();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

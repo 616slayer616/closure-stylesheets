@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.ColorValueOptimizerTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:45" hostname="Patrick-MBP.fritz.box" time="2.208">
+  <properties/>
+  <testcase name="testParseRgbArguments" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.004"/>
+  <testcase name="testEnterFunctionNode1" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.002"/>
+  <testcase name="testEnterValueNode1" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.001"/>
+  <testcase name="testEnterValueNode2" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.0"/>
+  <testcase name="testParseRgbArgumentsOutOfRange" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.026"/>
+  <testcase name="testShortenHex" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.001"/>
+  <testcase name="testRunPass" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="2.173"/>
+  <testcase name="testCanShortenHex" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.0"/>
+  <testcase name="testParseRgbArgumentsBadArgs" classname="com.google.common.css.compiler.passes.ColorValueOptimizerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Jul 14, 2021 3:58:45 PM com.google.common.css.compiler.passes.ColorValueOptimizer parseRgbArguments
+INFO: Out of range argument to rgb(): 300
+Jul 14, 2021 3:58:45 PM com.google.common.css.compiler.passes.ColorValueOptimizer parseRgbArguments
+INFO: Out of range argument to rgb(): -10
+]]></system-err>
+</testsuite>

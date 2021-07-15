@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CreateComponentNodes.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">CreateComponentNodes.java</span></div><h1>CreateComponentNodes.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.css.compiler.ast.*;
+import com.google.common.css.compiler.ast.CssComponentNode.PrefixStyle;
+
+import java.util.List;
+
+/**
+ * A compiler pass that transforms each well-formed {@code @component} or
+ * {@code @abstract_component} {@link CssUnknownAtRuleNode} into a {@link CssComponentNode}.
+ * &lt;p&gt;
+ * The syntax for components is as follows:
+ * &lt;code&gt;
+ * {@literal @}(abstract_)?component LITERAL (extends LITERAL)? { ... }
+ * &lt;/code&gt;
+ */
+public class CreateComponentNodes extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+<span class="fc" id="L38">    private static final String componentName = CssAtRuleNode.Type.COMPONENT.getCanonicalName();</span>
+<span class="fc" id="L39">    private static final String abstractComponentName =</span>
+<span class="fc" id="L40">            CssAtRuleNode.Type.ABSTRACT_COMPONENT.getCanonicalName();</span>
+
+    private final MutatingVisitController visitController;
+    private final ErrorManager errorManager;
+
+<span class="fc" id="L45">    public CreateComponentNodes(MutatingVisitController visitController, ErrorManager errorManager) {</span>
+<span class="fc" id="L46">        this.visitController = visitController;</span>
+<span class="fc" id="L47">        this.errorManager = errorManager;</span>
+<span class="fc" id="L48">    }</span>
+
+    @Override
+    public void leaveUnknownAtRule(CssUnknownAtRuleNode node) {
+<span class="fc" id="L52">        String name = node.getName().getValue();</span>
+<span class="fc bfc" id="L53" title="All 4 branches covered.">        if (name.equals(componentName) || name.equals(abstractComponentName)) {</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">            if (!node.getType().hasBlock()) {</span>
+<span class="fc" id="L55">                reportError(&quot;@&quot; + name + &quot; without block&quot;, node);</span>
+<span class="fc" id="L56">                return;</span>
+            }
+<span class="fc" id="L58">            List&lt;CssValueNode&gt; params = node.getParameters();</span>
+            CssNode nameNode;
+<span class="fc" id="L60">            CssLiteralNode parentNode = null;</span>
+<span class="fc" id="L61">            int paramSize = params.size();</span>
+<span class="fc" id="L62">            CssComponentNode.PrefixStyle prefixStyle = PrefixStyle.LITERAL;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            if (paramSize == 0) {</span>
+                // Use a sentinel value in the name field to indicate that the component name
+                // is implicit, and should be derived from the package name.
+<span class="fc" id="L66">                prefixStyle = PrefixStyle.CASE_CONVERT;</span>
+<span class="fc" id="L67">                nameNode = new CssLiteralNode(</span>
+<span class="fc" id="L68">                        CssComponentNode.IMPLICIT_NODE_NAME, node.getSourceCodeLocation());</span>
+            } else {
+<span class="fc" id="L70">                nameNode = params.get(0);</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                if (nameNode instanceof CssStringNode) {</span>
+                    // CssValueNodes require that the name be a literal node, so if it's a
+                    // string convert it into a literal.
+<span class="fc" id="L74">                    prefixStyle = PrefixStyle.CASE_CONVERT;</span>
+<span class="fc" id="L75">                    nameNode = new CssLiteralNode(((CssStringNode) nameNode).getValue(),</span>
+<span class="fc" id="L76">                            nameNode.getSourceCodeLocation());</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">                } else if (!(nameNode instanceof CssLiteralNode)) {</span>
+<span class="fc" id="L78">                    reportError(&quot;@&quot; + name + &quot; without a valid literal as name&quot;, node);</span>
+<span class="fc" id="L79">                    return;</span>
+                }
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                if (paramSize == 1) {</span>
+                    // OK
+<span class="fc bfc" id="L83" title="All 2 branches covered.">                } else if (paramSize == 3) {</span>
+<span class="fc" id="L84">                    CssNode extendNode = params.get(1);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                    if (!(extendNode instanceof CssLiteralNode)</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                            || !((CssLiteralNode) extendNode).getValue().equals(&quot;extends&quot;)) {</span>
+<span class="fc" id="L87">                        reportError(&quot;@&quot; + name + &quot; with invalid second parameter (expects 'extends')&quot;, node);</span>
+<span class="fc" id="L88">                        return;</span>
+                    }
+<span class="fc" id="L90">                    CssNode parentCssNode = params.get(2);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">                    if (!(parentCssNode instanceof CssLiteralNode)) {</span>
+<span class="fc" id="L92">                        reportError(&quot;@&quot; + name + &quot; with invalid literal as parent name&quot;, node);</span>
+<span class="fc" id="L93">                        return;</span>
+                    }
+<span class="fc" id="L95">                    parentNode = (CssLiteralNode) parentCssNode;</span>
+<span class="fc" id="L96">                } else {</span>
+<span class="fc" id="L97">                    reportError(&quot;@&quot; + name + &quot; with invalid number of parameters&quot;, node);</span>
+<span class="fc" id="L98">                    return;</span>
+                }
+            }
+<span class="fc" id="L101">            Preconditions.checkState(node.getBlock() instanceof CssBlockNode);</span>
+<span class="fc" id="L102">            CssComponentNode comp = new CssComponentNode(</span>
+                    (CssLiteralNode) nameNode,
+                    parentNode,
+<span class="fc" id="L105">                    name.equals(abstractComponentName),</span>
+                    prefixStyle,
+<span class="fc" id="L107">                    (CssBlockNode) node.getBlock());</span>
+<span class="fc" id="L108">            comp.setComments(node.getComments());</span>
+<span class="fc" id="L109">            comp.setSourceCodeLocation(node.getSourceCodeLocation());</span>
+<span class="fc" id="L110">            visitController.replaceCurrentBlockChildWith(Lists.newArrayList((CssNode) comp), false);</span>
+        }
+<span class="fc" id="L112">    }</span>
+
+    private void reportError(String message, CssNode node) {
+<span class="fc" id="L115">        errorManager.report(new GssError(message, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L116">        visitController.removeCurrentNode();</span>
+<span class="fc" id="L117">    }</span>
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L121">        visitController.startVisit(this);</span>
+<span class="fc" id="L122">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

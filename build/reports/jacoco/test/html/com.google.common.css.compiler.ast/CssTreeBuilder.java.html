@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssTreeBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssTreeBuilder.java</span></div><h1>CssTreeBuilder.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.css.SourceCode;
+import com.google.common.css.compiler.ast.CssBooleanExpressionNode.Type;
+import com.google.common.css.compiler.ast.CssCompositeValueNode.Operator;
+import com.google.common.css.compiler.ast.CssFunctionNode.Function;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Use this to build one {@link CssTree} object.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssTreeBuilder implements
+        CssParserEventHandler,
+        CssParserEventHandler.ImportHandler,
+        CssParserEventHandler.MediaHandler,
+        CssParserEventHandler.ExpressionHandler,
+        CssParserEventHandler.BooleanExpressionHandler {
+
+<span class="nc" id="L42">    enum State {</span>
+<span class="nc" id="L43">        BEFORE_DOCUMENT_START,</span>
+<span class="nc" id="L44">        BEFORE_MAIN_BODY,</span>
+<span class="nc" id="L45">        INSIDE_IMPORT_RULE,</span>
+<span class="nc" id="L46">        INSIDE_MAIN_BODY,</span>
+<span class="nc" id="L47">        INSIDE_MEDIA_RULE,</span>
+<span class="nc" id="L48">        INSIDE_BLOCK,</span>
+<span class="nc" id="L49">        INSIDE_DECLARATION_BLOCK,</span>
+<span class="nc" id="L50">        INSIDE_PROPERTY_EXPRESSION,</span>
+<span class="nc" id="L51">        INSIDE_EXPRESSION_AFTER_OPERATOR,</span>
+<span class="nc" id="L52">        INSIDE_CONDITIONAL_BLOCK,</span>
+<span class="nc" id="L53">        BEFORE_BOOLEAN_EXPRESSION,</span>
+<span class="nc" id="L54">        INSIDE_BOOLEAN_EXPRESSION,</span>
+<span class="nc" id="L55">        INSIDE_DEFINITION,</span>
+<span class="nc" id="L56">        INSIDE_COMMENT,</span>
+<span class="nc" id="L57">        DONE_BUILDING;</span>
+    }
+
+<span class="nc" id="L60">    private CssTree tree = null;</span>
+<span class="nc" id="L61">    private boolean treeIsConstructed = false;</span>
+
+    // TODO(user): Use Collections.asLifoQueue(new ArrayDeque()) for openBlocks
+<span class="nc" id="L64">    private List&lt;CssAbstractBlockNode&gt; openBlocks = null;</span>
+<span class="nc" id="L65">    private List&lt;CssConditionalBlockNode&gt; openConditionalBlocks = null;</span>
+<span class="nc" id="L66">    private CssDeclarationBlockNode declarationBlock = null;</span>
+<span class="nc" id="L67">    private CssDeclarationNode declaration = null;</span>
+<span class="nc" id="L68">    private CssDefinitionNode definition = null;</span>
+<span class="nc" id="L69">    private List&lt;CssCommentNode&gt; comments = null;</span>
+<span class="nc" id="L70">    private CssRulesetNode ruleset = null;</span>
+<span class="nc" id="L71">    private CssImportRuleNode importRule = null;</span>
+<span class="nc" id="L72">    private CssMediaRuleNode mediaRule = null;</span>
+<span class="nc" id="L73">    private StateStack stateStack = new StateStack(State.BEFORE_DOCUMENT_START);</span>
+
+<span class="nc" id="L75">    public CssTreeBuilder() {</span>
+<span class="nc" id="L76">    }</span>
+
+    //TODO(oana): Maybe add a generic utility class for Stack than can be used in
+    // DefaultVisitController too.
+    @VisibleForTesting
+    static class StateStack {
+        private List&lt;State&gt; stack;
+
+<span class="nc" id="L84">        StateStack(State initialState) {</span>
+<span class="nc" id="L85">            stack = Lists.newArrayList(initialState);</span>
+<span class="nc" id="L86">        }</span>
+
+        void push(State state) {
+<span class="nc" id="L89">            stack.add(state);</span>
+<span class="nc" id="L90">        }</span>
+
+        void pop() {
+<span class="nc" id="L93">            stack.remove(stack.size() - 1);</span>
+<span class="nc" id="L94">        }</span>
+
+        void transitionTo(State newState) {
+<span class="nc" id="L97">            pop();</span>
+<span class="nc" id="L98">            push(newState);</span>
+<span class="nc" id="L99">        }</span>
+
+        boolean isIn(State... states) {
+<span class="nc" id="L102">            return Arrays.asList(states).contains(</span>
+<span class="nc" id="L103">                    stack.get(stack.size() - 1));</span>
+        }
+
+        int size() {
+<span class="nc" id="L107">            return stack.size();</span>
+        }
+    }
+
+    private void startMainBody() {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (stateStack.isIn(State.BEFORE_MAIN_BODY)) {</span>
+<span class="nc" id="L113">            stateStack.transitionTo(State.INSIDE_MAIN_BODY);</span>
+        }
+<span class="nc" id="L115">    }</span>
+
+    private CssAbstractBlockNode getEnclosingBlock() {
+<span class="nc" id="L118">        return openBlocks.get(openBlocks.size() - 1);</span>
+    }
+
+    private void pushEnclosingBlock(CssAbstractBlockNode block) {
+<span class="nc" id="L122">        openBlocks.add(block);</span>
+<span class="nc" id="L123">    }</span>
+
+    private void popEnclosingBlock() {
+<span class="nc" id="L126">        openBlocks.remove(openBlocks.size() - 1);</span>
+<span class="nc" id="L127">    }</span>
+
+    private void endConditionalRuleChain() {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (!stateStack.isIn(State.INSIDE_CONDITIONAL_BLOCK)) {</span>
+<span class="nc" id="L131">            return;</span>
+        }
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        Preconditions.checkState(!openConditionalBlocks.isEmpty());</span>
+
+<span class="nc" id="L135">        CssConditionalBlockNode conditionalBlock = openConditionalBlocks.remove(</span>
+<span class="nc" id="L136">                openConditionalBlocks.size() - 1);</span>
+
+<span class="nc" id="L138">        stateStack.pop();</span>
+
+<span class="nc" id="L140">        Preconditions.checkState(stateStack.isIn(</span>
+                State.INSIDE_BLOCK,
+                State.INSIDE_MAIN_BODY,
+                State.INSIDE_MEDIA_RULE,
+                State.INSIDE_CONDITIONAL_BLOCK));
+
+<span class="nc" id="L146">        getEnclosingBlock().addChildToBack(conditionalBlock);</span>
+<span class="nc" id="L147">    }</span>
+
+    private CssConditionalBlockNode getEnclosingConditonalBlock() {
+<span class="nc" id="L150">        return openConditionalBlocks.get(openConditionalBlocks.size() - 1);</span>
+    }
+
+    private void appendToCurrentExpression(CssValueNode node) {
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (stateStack.isIn(State.INSIDE_DEFINITION)) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            Preconditions.checkState(definition != null);</span>
+
+<span class="nc" id="L157">            definition.addChildToBack(node);</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        } else if (stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION)) {</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            Preconditions.checkState(declaration != null);</span>
+
+<span class="nc" id="L161">            declaration.getPropertyValue().addChildToBack(node);</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        } else if (stateStack.isIn(State.INSIDE_EXPRESSION_AFTER_OPERATOR)) {</span>
+<span class="nc" id="L163">            stateStack.pop();</span>
+
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (stateStack.isIn(State.INSIDE_DEFINITION)) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                Preconditions.checkState(definition != null);</span>
+
+<span class="nc" id="L168">                CssCompositeValueNode compositeNode =</span>
+<span class="nc" id="L169">                        (CssCompositeValueNode) definition.getLastChild();</span>
+<span class="nc" id="L170">                compositeNode.addValue(node);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            } else if (stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION)) {</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">                Preconditions.checkState(declaration != null);</span>
+
+<span class="nc" id="L174">                CssCompositeValueNode compositeNode =</span>
+<span class="nc" id="L175">                        (CssCompositeValueNode) declaration.getPropertyValue()</span>
+<span class="nc" id="L176">                                .getLastChild();</span>
+<span class="nc" id="L177">                compositeNode.addValue(node);</span>
+            }
+        }
+<span class="nc" id="L180">    }</span>
+
+    private CssFunctionNode getFunctionFromCurrentExpression() {
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (stateStack.isIn(State.INSIDE_DEFINITION)) {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            Preconditions.checkState(definition != null);</span>
+<span class="nc" id="L185">            return (CssFunctionNode) definition.getLastChild();</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        } else if (stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION)) {</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            Preconditions.checkState(declaration != null);</span>
+<span class="nc" id="L188">            int size = declaration.getPropertyValue().numChildren();</span>
+<span class="nc" id="L189">            return ((CssFunctionNode) declaration.getPropertyValue()</span>
+<span class="nc" id="L190">                    .getChildAt(size - 1));</span>
+        } else {
+<span class="nc" id="L192">            return null;</span>
+        }
+    }
+
+    @Override
+    public void onDocumentStart(SourceCode sourceCode) {
+<span class="nc" id="L198">        Preconditions.checkState(stateStack.isIn(State.BEFORE_DOCUMENT_START));</span>
+
+<span class="nc" id="L200">        Preconditions.checkNotNull(sourceCode);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        Preconditions.checkState(tree == null);</span>
+<span class="nc" id="L202">        tree = new CssTree(sourceCode);</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">        Preconditions.checkState(openBlocks == null);</span>
+<span class="nc" id="L204">        openBlocks = Lists.newArrayList();</span>
+<span class="nc" id="L205">        openBlocks.add(tree.getRoot().getBody());</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        Preconditions.checkState(openConditionalBlocks == null);</span>
+<span class="nc" id="L207">        openConditionalBlocks = Lists.newArrayList();</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        Preconditions.checkState(comments == null);</span>
+<span class="nc" id="L209">        comments = Lists.newArrayList();</span>
+
+<span class="nc" id="L211">        stateStack.transitionTo(State.BEFORE_MAIN_BODY);</span>
+<span class="nc" id="L212">    }</span>
+
+    @Override
+    public void onDocumentEnd() {
+<span class="nc" id="L216">        startMainBody();</span>
+<span class="nc" id="L217">        endConditionalRuleChain();</span>
+<span class="nc" id="L218">        Preconditions.checkState(stateStack.isIn(State.INSIDE_MAIN_BODY));</span>
+
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        Preconditions.checkState(openBlocks.size() == 1);</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        Preconditions.checkState(openBlocks.get(0) == tree.getRoot().getBody());</span>
+<span class="nc" id="L222">        openBlocks = null;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        Preconditions.checkState(openConditionalBlocks.size() == 0);</span>
+<span class="nc" id="L224">        openConditionalBlocks = null;</span>
+
+<span class="nc" id="L226">        treeIsConstructed = true;</span>
+
+<span class="nc" id="L228">        stateStack.transitionTo(State.DONE_BUILDING);</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">        Preconditions.checkState(stateStack.size() == 1);</span>
+<span class="nc" id="L230">    }</span>
+
+    @VisibleForTesting
+    public CssTree getTree() {
+<span class="nc" id="L234">        Preconditions.checkState(stateStack.isIn(State.DONE_BUILDING));</span>
+
+<span class="nc" id="L236">        Preconditions.checkState(treeIsConstructed);</span>
+<span class="nc" id="L237">        return tree;</span>
+    }
+
+    @Override
+    public ImportHandler onImportRuleStart() {
+<span class="nc" id="L242">        Preconditions.checkState(stateStack.isIn(State.BEFORE_MAIN_BODY));</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">        Preconditions.checkState(importRule == null);</span>
+
+<span class="nc" id="L245">        stateStack.push(State.INSIDE_IMPORT_RULE);</span>
+
+<span class="nc" id="L247">        importRule = new CssImportRuleNode(comments);</span>
+<span class="nc" id="L248">        comments.clear();</span>
+
+<span class="nc" id="L250">        return this;</span>
+    }
+
+    @Override
+    public void appendImportParameter(ParserToken parameter) {
+<span class="nc" id="L255">        Preconditions.checkState(stateStack.isIn(State.INSIDE_IMPORT_RULE));</span>
+
+<span class="nc" id="L257">        CssValueNode importParameter = new CssLiteralNode(</span>
+<span class="nc" id="L258">                parameter.getToken(), parameter.getSourceCodeLocation());</span>
+<span class="nc" id="L259">        importRule.addChildToBack(importParameter);</span>
+<span class="nc" id="L260">    }</span>
+
+    @Override
+    public void onImportRuleEnd() {
+<span class="nc" id="L264">        Preconditions.checkState(stateStack.isIn(State.INSIDE_IMPORT_RULE));</span>
+<span class="nc" id="L265">        stateStack.pop();</span>
+
+<span class="nc" id="L267">        tree.getRoot().getImportRules().addChildToBack(importRule);</span>
+
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        Preconditions.checkState(importRule != null);</span>
+<span class="nc" id="L270">        importRule = null;</span>
+<span class="nc" id="L271">    }</span>
+
+    @Override
+    public MediaHandler onMediaRuleStart() {
+<span class="nc" id="L275">        startMainBody();</span>
+<span class="nc" id="L276">        endConditionalRuleChain();</span>
+
+<span class="nc" id="L278">        Preconditions.checkState(stateStack.isIn(State.INSIDE_MAIN_BODY));</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">        Preconditions.checkState(mediaRule == null);</span>
+
+<span class="nc" id="L281">        stateStack.push(State.INSIDE_MEDIA_RULE);</span>
+
+<span class="nc" id="L283">        mediaRule = new CssMediaRuleNode(comments);</span>
+<span class="nc" id="L284">        comments.clear();</span>
+
+<span class="nc" id="L286">        pushEnclosingBlock(mediaRule.getBlock());</span>
+
+<span class="nc" id="L288">        return this;</span>
+    }
+
+    @Override
+    public void appendMediaParameter(ParserToken parameter) {
+<span class="nc" id="L293">        Preconditions.checkState(stateStack.isIn(State.INSIDE_MEDIA_RULE));</span>
+
+<span class="nc" id="L295">        CssValueNode mediaParameter = new CssLiteralNode(</span>
+<span class="nc" id="L296">                parameter.getToken(), parameter.getSourceCodeLocation());</span>
+<span class="nc" id="L297">        mediaRule.addChildToBack(mediaParameter);</span>
+<span class="nc" id="L298">    }</span>
+
+    @Override
+    public void onMediaRuleEnd() {
+<span class="nc" id="L302">        Preconditions.checkState(stateStack.isIn(State.INSIDE_MEDIA_RULE));</span>
+<span class="nc" id="L303">        stateStack.pop();</span>
+
+<span class="nc" id="L305">        mediaRule.setBlock(getEnclosingBlock());</span>
+<span class="nc" id="L306">        popEnclosingBlock();</span>
+<span class="nc" id="L307">        getEnclosingBlock().addChildToBack(mediaRule);</span>
+
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        Preconditions.checkState(mediaRule != null);</span>
+<span class="nc" id="L310">        mediaRule = null;</span>
+<span class="nc" id="L311">    }</span>
+
+    @Override
+    public ExpressionHandler onDefinitionStart(ParserToken definitionName) {
+<span class="nc" id="L315">        startMainBody();</span>
+<span class="nc" id="L316">        endConditionalRuleChain();</span>
+<span class="nc" id="L317">        Preconditions.checkState(</span>
+<span class="nc" id="L318">                stateStack.isIn(</span>
+                        State.INSIDE_MAIN_BODY,
+                        State.INSIDE_MEDIA_RULE,
+                        State.INSIDE_BLOCK));
+<span class="nc bnc" id="L322" title="All 2 branches missed.">        Preconditions.checkState(definition == null);</span>
+
+<span class="nc" id="L324">        stateStack.push(State.INSIDE_DEFINITION);</span>
+
+<span class="nc" id="L326">        CssLiteralNode name = new CssLiteralNode(</span>
+<span class="nc" id="L327">                definitionName.getToken(), definitionName.getSourceCodeLocation());</span>
+<span class="nc" id="L328">        definition = new CssDefinitionNode(name, comments);</span>
+<span class="nc" id="L329">        comments.clear();</span>
+
+<span class="nc" id="L331">        return this;</span>
+    }
+
+    @Override
+    public void onDefinitionEnd() {
+<span class="nc" id="L336">        Preconditions.checkState(stateStack.isIn(State.INSIDE_DEFINITION));</span>
+<span class="nc" id="L337">        stateStack.pop();</span>
+
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        Preconditions.checkState(definition != null);</span>
+<span class="nc" id="L340">        getEnclosingBlock().addChildToBack(definition);</span>
+<span class="nc" id="L341">        definition = null;</span>
+<span class="nc" id="L342">    }</span>
+
+    @Override
+    public void onCommentStart(ParserToken commentToken) {
+        // Comments can be anywhere in the file, so there is not requirement for the
+        // state.
+<span class="nc" id="L348">        stateStack.push(State.INSIDE_COMMENT);</span>
+
+<span class="nc" id="L350">        comments.add(new CssCommentNode(commentToken.getToken(),</span>
+<span class="nc" id="L351">                commentToken.getSourceCodeLocation()));</span>
+<span class="nc" id="L352">    }</span>
+
+    @Override
+    public void onCommentEnd() {
+<span class="nc" id="L356">        Preconditions.checkState(stateStack.isIn(State.INSIDE_COMMENT));</span>
+<span class="nc" id="L357">        stateStack.pop();</span>
+<span class="nc" id="L358">    }</span>
+
+    @Override
+    public void onRulesetStart(CssSelectorListNode selectorList) {
+<span class="nc" id="L362">        startMainBody();</span>
+<span class="nc" id="L363">        endConditionalRuleChain();</span>
+<span class="nc" id="L364">        Preconditions.checkState(</span>
+<span class="nc" id="L365">                stateStack.isIn(State.INSIDE_MAIN_BODY, State.INSIDE_BLOCK,</span>
+                        State.INSIDE_MEDIA_RULE));
+
+<span class="nc bnc" id="L368" title="All 2 branches missed.">        Preconditions.checkState(ruleset == null);</span>
+<span class="nc" id="L369">        ruleset = new CssRulesetNode(comments);</span>
+<span class="nc" id="L370">        ruleset.setSourceCodeLocation(selectorList.getSourceCodeLocation());</span>
+<span class="nc" id="L371">        ruleset.setSelectors(selectorList);</span>
+<span class="nc" id="L372">        comments.clear();</span>
+
+<span class="nc bnc" id="L374" title="All 2 branches missed.">        Preconditions.checkState(declarationBlock == null);</span>
+<span class="nc" id="L375">        declarationBlock = ruleset.getDeclarations();</span>
+
+<span class="nc" id="L377">        stateStack.push(State.INSIDE_DECLARATION_BLOCK);</span>
+<span class="nc" id="L378">    }</span>
+
+    @Override
+    public void onRulesetEnd() {
+<span class="nc" id="L382">        Preconditions.checkState(stateStack.isIn(State.INSIDE_DECLARATION_BLOCK));</span>
+
+<span class="nc bnc" id="L384" title="All 2 branches missed.">        Preconditions.checkState(declarationBlock != null);</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">        Preconditions.checkState(ruleset != null);</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        Preconditions.checkState(declarationBlock == ruleset.getDeclarations());</span>
+
+<span class="nc" id="L388">        declarationBlock = null;</span>
+
+<span class="nc" id="L390">        stateStack.pop();</span>
+
+<span class="nc" id="L392">        Preconditions.checkState(stateStack.isIn(</span>
+                State.INSIDE_DECLARATION_BLOCK,
+                State.INSIDE_MAIN_BODY,
+                State.INSIDE_BLOCK,
+                State.INSIDE_MEDIA_RULE));
+
+<span class="nc" id="L398">        getEnclosingBlock().addChildToBack(ruleset);</span>
+<span class="nc" id="L399">        ruleset = null;</span>
+<span class="nc" id="L400">    }</span>
+
+    @Override
+    public ExpressionHandler onDeclarationStart(ParserToken propertyName, boolean hasStarHack) {
+<span class="nc" id="L404">        Preconditions.checkState(stateStack.isIn(State.INSIDE_DECLARATION_BLOCK));</span>
+
+<span class="nc" id="L406">        CssPropertyNode name = new CssPropertyNode(</span>
+<span class="nc" id="L407">                propertyName.getToken(),</span>
+<span class="nc" id="L408">                propertyName.getSourceCodeLocation());</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        Preconditions.checkState(declaration == null);</span>
+<span class="nc" id="L410">        declaration = new CssDeclarationNode(name, comments);</span>
+<span class="nc" id="L411">        declaration.setStarHack(hasStarHack);</span>
+<span class="nc" id="L412">        comments.clear();</span>
+
+<span class="nc" id="L414">        stateStack.push(State.INSIDE_PROPERTY_EXPRESSION);</span>
+<span class="nc" id="L415">        return this;</span>
+    }
+
+    @Override
+    public void onDeclarationEnd() {
+<span class="nc" id="L420">        stateStack.pop();</span>
+
+<span class="nc" id="L422">        Preconditions.checkState(stateStack.isIn(State.INSIDE_DECLARATION_BLOCK));</span>
+
+<span class="nc bnc" id="L424" title="All 2 branches missed.">        Preconditions.checkState(declaration != null);</span>
+<span class="nc" id="L425">        declarationBlock.addChildToBack(declaration);</span>
+<span class="nc" id="L426">        declaration = null;</span>
+<span class="nc" id="L427">    }</span>
+
+    @Override
+    public void onLiteral(ParserToken expressionToken) {
+<span class="nc" id="L431">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L434">        CssLiteralNode expression = new CssLiteralNode(</span>
+<span class="nc" id="L435">                expressionToken.getToken(), expressionToken.getSourceCodeLocation());</span>
+
+<span class="nc" id="L437">        appendToCurrentExpression(expression);</span>
+<span class="nc" id="L438">    }</span>
+
+    @Override
+    public void onOperator(ParserToken expressionToken) {
+<span class="nc" id="L442">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+        // Make sure that the string we are passing as operator actually has one char
+<span class="nc bnc" id="L446" title="All 2 branches missed.">        Preconditions.checkArgument(expressionToken.getToken().length() == 1);</span>
+
+        // We are going to change the state unless it's a space operator
+<span class="nc bnc" id="L449" title="All 2 branches missed.">        if (!&quot; &quot;.equals(expressionToken.getToken())) {</span>
+            // We may need to construct the corresponding composite node if the last
+            // one in the list is not a composite node or if it is not based on the
+            // same operator
+<span class="nc" id="L453">            CssValueNode lastChild = null;</span>
+<span class="nc bnc" id="L454" title="All 2 branches missed.">            if (stateStack.isIn(State.INSIDE_DEFINITION)) {</span>
+<span class="nc bnc" id="L455" title="All 2 branches missed.">                Preconditions.checkState(definition != null);</span>
+<span class="nc" id="L456">                lastChild = definition.removeLastChild();</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">            } else if (stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION)) {</span>
+<span class="nc bnc" id="L458" title="All 2 branches missed.">                Preconditions.checkState(declaration != null);</span>
+<span class="nc" id="L459">                lastChild = declaration.getPropertyValue().removeLastChild();</span>
+            }
+
+<span class="nc bnc" id="L462" title="All 2 branches missed.">            if (!(lastChild instanceof CssCompositeValueNode)</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">                    || ((CssCompositeValueNode) lastChild).getOperator().toString().equals(</span>
+<span class="nc" id="L464">                    expressionToken.getToken())) {</span>
+<span class="nc" id="L465">                CssCompositeValueNode node = new CssCompositeValueNode(</span>
+<span class="nc" id="L466">                        Lists.newArrayList(lastChild),</span>
+<span class="nc" id="L467">                        Operator.valueOf(expressionToken.getToken().charAt(0)),</span>
+                        null);
+<span class="nc" id="L469">                appendToCurrentExpression(node);</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">            } else if (lastChild != null) {</span>
+<span class="nc" id="L471">                appendToCurrentExpression(lastChild);</span>
+            }
+
+<span class="nc" id="L474">            stateStack.push(State.INSIDE_EXPRESSION_AFTER_OPERATOR);</span>
+        }
+<span class="nc" id="L476">    }</span>
+
+    @Override
+    public void onPriority(ParserToken priority) {
+<span class="nc" id="L480">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L483">        CssPriorityNode expressionPriority = new CssPriorityNode(</span>
+                CssPriorityNode.PriorityType.IMPORTANT,
+<span class="nc" id="L485">                priority.getSourceCodeLocation());</span>
+
+<span class="nc" id="L487">        appendToCurrentExpression(expressionPriority);</span>
+<span class="nc" id="L488">    }</span>
+
+    @Override
+    public void onColor(ParserToken color) {
+<span class="nc" id="L492">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L495">        CssHexColorNode expression = new CssHexColorNode(</span>
+<span class="nc" id="L496">                color.getToken(), color.getSourceCodeLocation());</span>
+
+<span class="nc" id="L498">        appendToCurrentExpression(expression);</span>
+<span class="nc" id="L499">    }</span>
+
+    @Override
+    public void onNumericValue(ParserToken numericValue, ParserToken unit) {
+<span class="nc" id="L503">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L506">        CssValueNode expression = new CssNumericNode(</span>
+<span class="nc" id="L507">                numericValue.getToken(),</span>
+<span class="nc bnc" id="L508" title="All 2 branches missed.">                unit != null ? unit.getToken() : CssNumericNode.NO_UNITS,</span>
+<span class="nc" id="L509">                numericValue.getSourceCodeLocation());</span>
+
+<span class="nc" id="L511">        appendToCurrentExpression(expression);</span>
+<span class="nc" id="L512">    }</span>
+
+    @Override
+    public void onReference(ParserToken reference) {
+<span class="nc" id="L516">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L519">        CssConstantReferenceNode expression = new CssConstantReferenceNode(</span>
+<span class="nc" id="L520">                reference.getToken(), reference.getSourceCodeLocation());</span>
+
+<span class="nc" id="L522">        appendToCurrentExpression(expression);</span>
+<span class="nc" id="L523">    }</span>
+
+    @Override
+    public void onFunction(ParserToken constant) {
+<span class="nc" id="L527">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L530">        Function f = Function.byName(constant.getToken());</span>
+        CssFunctionNode expression;
+<span class="nc bnc" id="L532" title="All 2 branches missed.">        if (f != null) {</span>
+<span class="nc" id="L533">            expression = new CssFunctionNode(f, constant.getSourceCodeLocation());</span>
+        } else {
+<span class="nc" id="L535">            expression = new CssCustomFunctionNode(</span>
+<span class="nc" id="L536">                    constant.getToken() /* gssFunctionName */,</span>
+<span class="nc" id="L537">                    constant.getSourceCodeLocation());</span>
+        }
+<span class="nc" id="L539">        appendToCurrentExpression(expression);</span>
+<span class="nc" id="L540">    }</span>
+
+    @Override
+    public void onFunctionArgument(ParserToken term) {
+<span class="nc" id="L544">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L547">        CssValueNode expression = new CssLiteralNode(</span>
+<span class="nc" id="L548">                term.getToken(), term.getSourceCodeLocation());</span>
+
+<span class="nc" id="L550">        CssFunctionNode functionFromCurrentExpression = getFunctionFromCurrentExpression();</span>
+<span class="nc bnc" id="L551" title="All 2 branches missed.">        Preconditions.checkArgument(functionFromCurrentExpression != null);</span>
+<span class="nc" id="L552">        functionFromCurrentExpression.getArguments().addChildToBack(expression);</span>
+<span class="nc" id="L553">    }</span>
+
+
+    @Override
+    public void onReferenceFunctionArgument(ParserToken term) {
+<span class="nc" id="L558">        Preconditions.checkState(stateStack.isIn(State.INSIDE_PROPERTY_EXPRESSION,</span>
+                State.INSIDE_DEFINITION, State.INSIDE_EXPRESSION_AFTER_OPERATOR));
+
+<span class="nc" id="L561">        CssConstantReferenceNode expression = new CssConstantReferenceNode(</span>
+<span class="nc" id="L562">                term.getToken(), term.getSourceCodeLocation());</span>
+
+<span class="nc" id="L564">        CssFunctionNode functionFromCurrentExpression = getFunctionFromCurrentExpression();</span>
+<span class="nc bnc" id="L565" title="All 2 branches missed.">        Preconditions.checkArgument(functionFromCurrentExpression != null);</span>
+<span class="nc" id="L566">        functionFromCurrentExpression.getArguments().addChildToBack(expression);</span>
+<span class="nc" id="L567">    }</span>
+
+    @Override
+    public BooleanExpressionHandler onConditionalRuleStart(
+            CssAtRuleNode.Type type, ParserToken ruleName) {
+<span class="nc" id="L572">        startMainBody();</span>
+<span class="nc bnc" id="L573" title="All 2 branches missed.">        if (type == CssAtRuleNode.Type.IF) {</span>
+<span class="nc" id="L574">            endConditionalRuleChain();</span>
+<span class="nc" id="L575">            Preconditions.checkState(stateStack.isIn(</span>
+                    State.INSIDE_MEDIA_RULE,
+                    State.INSIDE_MAIN_BODY,
+                    State.INSIDE_BLOCK));
+        } else {
+<span class="nc" id="L580">            Preconditions.checkState(stateStack.isIn(</span>
+                    State.INSIDE_MEDIA_RULE,
+                    State.INSIDE_MAIN_BODY,
+                    State.INSIDE_BLOCK,
+                    State.INSIDE_CONDITIONAL_BLOCK));
+        }
+
+<span class="nc bnc" id="L587" title="All 2 branches missed.">        if (stateStack.isIn(State.INSIDE_CONDITIONAL_BLOCK)) {</span>
+<span class="nc bnc" id="L588" title="All 2 branches missed.">            Preconditions.checkState(!openConditionalBlocks.isEmpty());</span>
+        } else {
+<span class="nc" id="L590">            CssConditionalBlockNode conditionalBlock =</span>
+                    new CssConditionalBlockNode(comments);
+<span class="nc" id="L592">            comments.clear();</span>
+<span class="nc" id="L593">            openConditionalBlocks.add(conditionalBlock);</span>
+<span class="nc" id="L594">            stateStack.push(State.INSIDE_CONDITIONAL_BLOCK);</span>
+        }
+
+<span class="nc" id="L597">        CssLiteralNode name = new CssLiteralNode(</span>
+<span class="nc" id="L598">                ruleName.getToken(), ruleName.getSourceCodeLocation());</span>
+<span class="nc" id="L599">        CssConditionalRuleNode conditionalRule =</span>
+                new CssConditionalRuleNode(type, name);
+<span class="nc" id="L601">        pushEnclosingBlock(conditionalRule.getBlock());</span>
+
+<span class="nc bnc" id="L603" title="All 2 branches missed.">        if (type != CssAtRuleNode.Type.ELSE) {</span>
+<span class="nc" id="L604">            stateStack.push(State.BEFORE_BOOLEAN_EXPRESSION);</span>
+<span class="nc" id="L605">            return this;</span>
+        } else {
+<span class="nc" id="L607">            stateStack.push(State.INSIDE_BLOCK);</span>
+<span class="nc" id="L608">            return null;</span>
+        }
+    }
+
+    @Override
+    public void onConditionalRuleEnd() {
+<span class="nc" id="L614">        endConditionalRuleChain();</span>
+<span class="nc" id="L615">        Preconditions.checkState(stateStack.isIn(State.INSIDE_BLOCK));</span>
+
+<span class="nc" id="L617">        CssConditionalRuleNode conditionalRule =</span>
+<span class="nc" id="L618">                (CssConditionalRuleNode) getEnclosingBlock().getParent();</span>
+<span class="nc" id="L619">        getEnclosingConditonalBlock().addChildToBack(conditionalRule);</span>
+<span class="nc" id="L620">        CssAtRuleNode.Type type = conditionalRule.getType();</span>
+<span class="nc" id="L621">        popEnclosingBlock();</span>
+
+<span class="nc" id="L623">        stateStack.pop();</span>
+
+<span class="nc bnc" id="L625" title="All 2 branches missed.">        if (type == CssAtRuleNode.Type.ELSE) {</span>
+<span class="nc" id="L626">            endConditionalRuleChain();</span>
+        }
+<span class="nc" id="L628">        Preconditions.checkState(stateStack.isIn(</span>
+                State.INSIDE_BLOCK,
+                State.INSIDE_MAIN_BODY,
+                State.INSIDE_MEDIA_RULE,
+                State.INSIDE_CONDITIONAL_BLOCK));
+<span class="nc" id="L633">    }</span>
+
+    @Override
+    public void onBooleanExpressionStart() {
+<span class="nc" id="L637">        Preconditions.checkState(stateStack.isIn(State.BEFORE_BOOLEAN_EXPRESSION));</span>
+<span class="nc" id="L638">        stateStack.transitionTo(State.INSIDE_BOOLEAN_EXPRESSION);</span>
+<span class="nc" id="L639">    }</span>
+
+    @Override
+    public Object onConstant(ParserToken constantName) {
+<span class="nc" id="L643">        Preconditions.checkState(stateStack.isIn(State.INSIDE_BOOLEAN_EXPRESSION));</span>
+
+<span class="nc" id="L645">        return new CssBooleanExpressionNode(CssBooleanExpressionNode.Type.CONSTANT,</span>
+<span class="nc" id="L646">                constantName.getToken(), constantName.getSourceCodeLocation());</span>
+    }
+
+    @Override
+    public Object onUnaryOperator(Type operator, ParserToken operatorToken,
+                                  Object operand) {
+<span class="nc" id="L652">        Preconditions.checkState(stateStack.isIn(State.INSIDE_BOOLEAN_EXPRESSION));</span>
+
+<span class="nc" id="L654">        return new CssBooleanExpressionNode(operator, operatorToken.getToken(),</span>
+                (CssBooleanExpressionNode) operand,
+<span class="nc" id="L656">                operatorToken.getSourceCodeLocation());</span>
+    }
+
+    @Override
+    public Object onBinaryOperator(Type operator, ParserToken operatorToken,
+                                   Object leftOperand, Object rightOperand) {
+<span class="nc" id="L662">        Preconditions.checkState(stateStack.isIn(State.INSIDE_BOOLEAN_EXPRESSION));</span>
+
+<span class="nc" id="L664">        return new CssBooleanExpressionNode(operator, operatorToken.getToken(),</span>
+                (CssBooleanExpressionNode) leftOperand,
+                (CssBooleanExpressionNode) rightOperand,
+<span class="nc" id="L667">                operatorToken.getSourceCodeLocation());</span>
+    }
+
+    @Override
+    public void onBooleanExpressionEnd(Object topOperand) {
+<span class="nc" id="L672">        Preconditions.checkState(stateStack.isIn(State.INSIDE_BOOLEAN_EXPRESSION));</span>
+
+<span class="nc" id="L674">        CssConditionalRuleNode conditionalRule =</span>
+<span class="nc" id="L675">                (CssConditionalRuleNode) getEnclosingBlock().getParent();</span>
+<span class="nc" id="L676">        conditionalRule.setCondition((CssBooleanExpressionNode) topOperand);</span>
+
+<span class="nc" id="L678">        stateStack.transitionTo(State.INSIDE_BLOCK);</span>
+<span class="nc" id="L679">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

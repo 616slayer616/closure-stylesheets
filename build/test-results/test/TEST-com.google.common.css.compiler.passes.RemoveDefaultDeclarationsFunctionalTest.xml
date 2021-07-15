@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.025">
+  <properties/>
+  <testcase name="testRemoveDeclarations10" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.005"/>
+  <testcase name="testRemoveDeclarations11" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.002"/>
+  <testcase name="testRemoveDeclarations12" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.001"/>
+  <testcase name="testRemoveDeclarations1" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.001"/>
+  <testcase name="testRemoveDeclarations2" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.002"/>
+  <testcase name="testRemoveDeclarations3" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.001"/>
+  <testcase name="testRemoveDeclarations4" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.003"/>
+  <testcase name="testRemoveDeclarations5" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.002"/>
+  <testcase name="testRemoveDeclarations6" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.001"/>
+  <testcase name="testRemoveDeclarations7" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.002"/>
+  <testcase name="testRemoveDeclarations8" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.003"/>
+  <testcase name="testRemoveDeclarations9" classname="com.google.common.css.compiler.passes.RemoveDefaultDeclarationsFunctionalTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

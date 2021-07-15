@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PrettyPrintingVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">PrettyPrintingVisitor.java</span></div><h1>PrettyPrintingVisitor.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.base.Preconditions;
+import com.google.common.css.compiler.ast.CssAtRuleNode.Type;
+import com.google.common.css.compiler.ast.*;
+import com.google.common.css.compiler.ast.CssPseudoClassNode.FunctionType;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
+/**
+ * A pretty-printer for {@link CssTree} instances. This is work in progress. Look at
+ * PrettyPrinterTest to see what's supported.
+ *
+ * @author mkretzschmar@google.com (Martin Kretzschmar)
+ * @author oana@google.com (Oana Florescu)
+ * @author fbenz@google.com (Florian Benz)
+ */
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">public class PrettyPrintingVisitor extends DefaultTreeVisitor {</span>
+
+    private final CodeBuffer buffer;
+    private final boolean stripQuotes;
+    private final boolean preserveComments;
+
+<span class="fc" id="L43">    private String indent = &quot;&quot;;</span>
+
+    public PrettyPrintingVisitor(
+<span class="fc" id="L46">            @Nullable CodeBuffer buffer, boolean stripQuotes, boolean preserveComments) {</span>
+<span class="fc" id="L47">        this.buffer = Preconditions.checkNotNull(buffer);</span>
+<span class="fc" id="L48">        this.stripQuotes = stripQuotes;</span>
+<span class="fc" id="L49">        this.preserveComments = preserveComments;</span>
+<span class="fc" id="L50">    }</span>
+
+    @Override
+    public boolean enterImportRule(CssImportRuleNode node) {
+<span class="nc" id="L54">        maybeAppendComments(node);</span>
+<span class="nc" id="L55">        buffer.append(node.getType().toString());</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (CssValueNode param : node.getParameters()) {</span>
+<span class="nc" id="L57">            buffer.append(' ');</span>
+            // TODO(user): teach visit controllers to explore this subtree
+            // rather than leaving it to each pass to figure things out.
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            if (param instanceof CssStringNode) {</span>
+<span class="nc" id="L61">                CssStringNode n = (CssStringNode) param;</span>
+<span class="nc" id="L62">                buffer.append(n.toString(CssStringNode.SHORT_ESCAPER));</span>
+<span class="nc" id="L63">            } else {</span>
+<span class="nc" id="L64">                buffer.append(param.getValue());</span>
+            }
+<span class="nc" id="L66">        }</span>
+<span class="nc" id="L67">        return true;</span>
+    }
+
+    @Override
+    public void leaveImportRule(CssImportRuleNode node) {
+<span class="nc" id="L72">        buffer.append(';').startNewLine();</span>
+<span class="nc" id="L73">    }</span>
+
+    @Override
+    public boolean enterMediaRule(CssMediaRuleNode node) {
+<span class="nc" id="L77">        maybeAppendComments(node);</span>
+<span class="nc" id="L78">        buffer.append(node.getType().toString());</span>
+<span class="nc bnc" id="L79" title="All 6 branches missed.">        if (node.getParameters().size() &gt; 0 || (node.getType().hasBlock() &amp;&amp; node.getBlock() != null)) {</span>
+<span class="nc" id="L80">            buffer.append(' ');</span>
+        }
+<span class="nc" id="L82">        return true;</span>
+    }
+
+    @Override
+    public void leaveMediaRule(CssMediaRuleNode node) {
+<span class="nc" id="L87">    }</span>
+
+    @Override
+    public boolean enterPageRule(CssPageRuleNode node) {
+<span class="nc" id="L91">        maybeAppendComments(node);</span>
+<span class="nc" id="L92">        buffer.append(node.getType().toString());</span>
+<span class="nc" id="L93">        buffer.append(' ');</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (CssValueNode param : node.getParameters()) {</span>
+<span class="nc" id="L95">            buffer.append(param.getValue());</span>
+<span class="nc" id="L96">        }</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (node.getParametersCount() &gt; 0) {</span>
+<span class="nc" id="L98">            buffer.append(' ');</span>
+        }
+<span class="nc" id="L100">        return true;</span>
+    }
+
+    @Override
+    public boolean enterPageSelector(CssPageSelectorNode node) {
+<span class="nc" id="L105">        maybeAppendComments(node);</span>
+<span class="nc" id="L106">        buffer.append(node.getType().toString());</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (CssValueNode param : node.getParameters()) {</span>
+<span class="nc" id="L108">            buffer.append(' ');</span>
+<span class="nc" id="L109">            buffer.append(param.getValue());</span>
+<span class="nc" id="L110">        }</span>
+<span class="nc" id="L111">        return true;</span>
+    }
+
+    @Override
+    public boolean enterFontFace(CssFontFaceNode node) {
+<span class="nc" id="L116">        maybeAppendComments(node);</span>
+<span class="nc" id="L117">        buffer.append(node.getType().toString());</span>
+<span class="nc" id="L118">        return true;</span>
+    }
+
+    @Override
+    public boolean enterCharSet(CssCharSetNode node) {
+<span class="nc" id="L123">        maybeAppendComments(node);</span>
+<span class="nc" id="L124">        buffer.append(node.getType().toString());</span>
+<span class="nc" id="L125">        buffer.append(' ');</span>
+<span class="nc" id="L126">        List&lt;CssValueNode&gt; parameters = node.getParameters();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (!parameters.isEmpty()) {</span>
+<span class="nc" id="L128">            buffer.append(parameters.get(0));</span>
+        }
+<span class="nc" id="L130">        return true;</span>
+    }
+
+    @Override
+    public void leaveCharSet(CssCharSetNode node) {
+<span class="nc" id="L135">        buffer.append(';');</span>
+<span class="nc" id="L136">    }</span>
+
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+<span class="nc" id="L140">        maybeAppendComments(node);</span>
+<span class="nc" id="L141">        buffer.append(indent);</span>
+<span class="nc" id="L142">        buffer.append(node.getType());</span>
+<span class="nc" id="L143">        buffer.append(' ');</span>
+<span class="nc" id="L144">        buffer.append(node.getName());</span>
+        // Add a space to separate it from next value.
+<span class="nc" id="L146">        buffer.append(' ');</span>
+<span class="nc" id="L147">        return true;</span>
+    }
+
+    @Override
+    public void leaveDefinition(CssDefinitionNode node) {
+        // Remove trailing space after last value.
+<span class="nc" id="L153">        buffer.deleteLastCharIfCharIs(' ');</span>
+<span class="nc" id="L154">        buffer.append(';').startNewLine();</span>
+<span class="nc" id="L155">    }</span>
+
+    @Override
+    public boolean enterRuleset(CssRulesetNode ruleset) {
+<span class="fc" id="L159">        maybeAppendComments(ruleset);</span>
+<span class="fc" id="L160">        buffer.append(indent);</span>
+<span class="fc" id="L161">        return true;</span>
+    }
+
+    @Override
+    public boolean enterKeyframeRuleset(CssKeyframeRulesetNode ruleset) {
+<span class="nc" id="L166">        maybeAppendComments(ruleset);</span>
+<span class="nc" id="L167">        buffer.append(indent);</span>
+<span class="nc" id="L168">        return true;</span>
+    }
+
+    // TODO(mkretzschmar): make DeclarationBlock subclass of Block and eliminate
+    //     this.
+    @Override
+    public boolean enterDeclarationBlock(CssDeclarationBlockNode block) {
+<span class="fc" id="L175">        maybeAppendComments(block);</span>
+<span class="fc" id="L176">        buffer.deleteLastCharIfCharIs(' ');</span>
+<span class="fc" id="L177">        buffer.append(&quot; {&quot;).startNewLine();</span>
+<span class="fc" id="L178">        indent += &quot;  &quot;;</span>
+<span class="fc" id="L179">        return true;</span>
+    }
+
+    @Override
+    public void leaveDeclarationBlock(CssDeclarationBlockNode block) {
+<span class="fc" id="L184">        indent = indent.substring(0, indent.length() - 2);</span>
+<span class="fc" id="L185">        buffer.append(indent);</span>
+<span class="fc" id="L186">        buffer.append('}').startNewLine();</span>
+<span class="fc" id="L187">    }</span>
+
+    @Override
+    public boolean enterBlock(CssBlockNode block) {
+<span class="fc" id="L191">        maybeAppendComments(block);</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        if (block.getParent() instanceof CssUnknownAtRuleNode</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">                || block.getParent() instanceof CssMediaRuleNode) {</span>
+<span class="fc" id="L194">            buffer.append('{').startNewLine();</span>
+<span class="fc" id="L195">            indent += &quot;  &quot;;</span>
+        }
+<span class="fc" id="L197">        return true;</span>
+    }
+
+    @Override
+    public void leaveBlock(CssBlockNode block) {
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">        if (block.getParent() instanceof CssMediaRuleNode) {</span>
+<span class="nc" id="L203">            buffer.append('}').startNewLine();</span>
+<span class="nc" id="L204">            indent = indent.substring(0, indent.length() - 2);</span>
+        }
+<span class="fc" id="L206">    }</span>
+
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode declaration) {
+<span class="fc" id="L210">        maybeAppendComments(declaration);</span>
+<span class="fc" id="L211">        buffer.append(indent);</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        if (declaration.hasStarHack()) {</span>
+<span class="nc" id="L213">            buffer.append('*');</span>
+        }
+<span class="fc" id="L215">        buffer.append(declaration.getPropertyName().getValue());</span>
+<span class="fc" id="L216">        buffer.append(&quot;: &quot;);</span>
+<span class="fc" id="L217">        return true;</span>
+    }
+
+    @Override
+    public void leaveDeclaration(CssDeclarationNode declaration) {
+<span class="fc" id="L222">        buffer.deleteLastCharIfCharIs(' ');</span>
+<span class="fc" id="L223">        buffer.append(';').startNewLine();</span>
+<span class="fc" id="L224">    }</span>
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="fc" id="L228">        maybeAppendComments(node);</span>
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">        checkArgument(!(node instanceof CssCompositeValueNode));</span>
+
+<span class="fc" id="L231">        String v = node.toString();</span>
+<span class="pc bpc" id="L232" title="3 of 4 branches missed.">        if (stripQuotes &amp;&amp; node.getParent() instanceof CssDefinitionNode) {</span>
+<span class="nc" id="L233">            v = maybeStripQuotes(v);</span>
+        }
+<span class="fc" id="L235">        buffer.append(v);</span>
+
+        // NOTE(flan): When visiting function arguments, we don't want to add extra
+        // spaces because they are already in the arguments list if they are
+        // required. Yes, this sucks.
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">        if (!node.inFunArgs()) {</span>
+<span class="fc" id="L241">            buffer.append(' ');</span>
+        }
+<span class="fc" id="L243">        return true;</span>
+    }
+
+    @Override
+    public boolean enterCompositeValueNodeOperator(CssCompositeValueNode parent) {
+<span class="nc" id="L248">        maybeAppendComments(parent);</span>
+<span class="nc" id="L249">        buffer.append(parent.getOperator().getOperatorName());</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        if (!parent.inFunArgs()) {</span>
+<span class="nc" id="L251">            buffer.append(' ');</span>
+        }
+<span class="nc" id="L253">        return true;</span>
+    }
+
+    @Override
+    public boolean enterFunctionNode(CssFunctionNode node) {
+<span class="fc" id="L258">        maybeAppendComments(node);</span>
+<span class="fc" id="L259">        buffer.append(node.getFunctionName());</span>
+<span class="fc" id="L260">        buffer.append('(');</span>
+<span class="fc" id="L261">        return true;</span>
+    }
+
+    @Override
+    public void leaveFunctionNode(CssFunctionNode node) {
+<span class="fc" id="L266">        buffer.deleteLastCharIfCharIs(' ');</span>
+<span class="fc" id="L267">        buffer.append(&quot;) &quot;);</span>
+<span class="fc" id="L268">    }</span>
+
+    @Override
+    public boolean enterArgumentNode(CssValueNode node) {
+<span class="fc" id="L272">        maybeAppendComments(node);</span>
+<span class="fc" id="L273">        String v = node.toString();</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (stripQuotes</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">                &amp;&amp; node.getParent().getParent() instanceof CssFunctionNode</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">                &amp;&amp; ((CssFunctionNode) node.getParent().getParent()).getFunctionName().equals(&quot;url&quot;)) {</span>
+<span class="nc" id="L277">            v = maybeStripQuotes(v);</span>
+        }
+<span class="fc" id="L279">        buffer.append(v);</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">        return !(node instanceof CssCompositeValueNode);</span>
+    }
+
+    @Override
+    public boolean enterSelector(CssSelectorNode selector) {
+<span class="fc" id="L285">        maybeAppendComments(selector);</span>
+<span class="fc" id="L286">        String name = selector.getSelectorName();</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">        if (name != null) {</span>
+<span class="fc" id="L288">            buffer.append(name);</span>
+        }
+<span class="fc" id="L290">        return true;</span>
+    }
+
+    @Override
+    public void leaveSelector(CssSelectorNode selector) {
+<span class="fc" id="L295">        buffer.append(&quot;, &quot;);</span>
+<span class="fc" id="L296">    }</span>
+
+    @Override
+    public boolean enterClassSelector(CssClassSelectorNode node) {
+<span class="fc" id="L300">        maybeAppendComments(node);</span>
+<span class="fc" id="L301">        appendRefiner(node);</span>
+<span class="fc" id="L302">        return true;</span>
+    }
+
+    @Override
+    public boolean enterIdSelector(CssIdSelectorNode node) {
+<span class="nc" id="L307">        maybeAppendComments(node);</span>
+<span class="nc" id="L308">        appendRefiner(node);</span>
+<span class="nc" id="L309">        return true;</span>
+    }
+
+    @Override
+    public boolean enterPseudoClass(CssPseudoClassNode node) {
+<span class="nc" id="L314">        maybeAppendComments(node);</span>
+<span class="nc" id="L315">        buffer.append(node.getPrefix());</span>
+<span class="nc" id="L316">        buffer.append(node.getRefinerName());</span>
+<span class="nc bnc" id="L317" title="All 3 branches missed.">        switch (node.getFunctionType()) {</span>
+            case NTH:
+<span class="nc" id="L319">                buffer.append(node.getArgument().replace(&quot; &quot;, &quot;&quot;));</span>
+<span class="nc" id="L320">                buffer.append(')');</span>
+<span class="nc" id="L321">                break;</span>
+            case LANG:
+<span class="nc" id="L323">                buffer.append(node.getArgument());</span>
+<span class="nc" id="L324">                buffer.append(')');</span>
+                break;
+        }
+<span class="nc" id="L327">        return true;</span>
+    }
+
+    @Override
+    public void leavePseudoClass(CssPseudoClassNode node) {
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        if (node.getFunctionType() == FunctionType.NOT) {</span>
+<span class="nc" id="L333">            buffer.deleteEndingIfEndingIs(&quot;, &quot;);</span>
+<span class="nc" id="L334">            buffer.append(')');</span>
+        }
+<span class="nc" id="L336">    }</span>
+
+    @Override
+    public boolean enterPseudoElement(CssPseudoElementNode node) {
+<span class="nc" id="L340">        maybeAppendComments(node);</span>
+<span class="nc" id="L341">        appendRefiner(node);</span>
+<span class="nc" id="L342">        return true;</span>
+    }
+
+    @Override
+    public boolean enterAttributeSelector(CssAttributeSelectorNode node) {
+<span class="nc" id="L347">        maybeAppendComments(node);</span>
+<span class="nc" id="L348">        buffer.append(node.getPrefix());</span>
+<span class="nc" id="L349">        buffer.append(node.getAttributeName());</span>
+<span class="nc" id="L350">        buffer.append(node.getMatchSymbol());</span>
+<span class="nc" id="L351">        buffer.append(node.getValue());</span>
+<span class="nc" id="L352">        buffer.append(node.getSuffix());</span>
+<span class="nc" id="L353">        return true;</span>
+    }
+
+    /**
+     * Appends the representation of a class selector, an id selector, or a pseudo-element.
+     */
+    private void appendRefiner(CssRefinerNode node) {
+<span class="fc" id="L360">        buffer.append(node.getPrefix());</span>
+<span class="fc" id="L361">        buffer.append(node.getRefinerName());</span>
+<span class="fc" id="L362">    }</span>
+
+    @Override
+    public boolean enterCombinator(CssCombinatorNode combinator) {
+<span class="nc bnc" id="L366" title="All 2 branches missed.">        if (combinator != null) {</span>
+<span class="nc" id="L367">            maybeAppendComments(combinator);</span>
+<span class="nc" id="L368">            buffer.append(combinator.getCombinatorType().getCanonicalName());</span>
+        }
+<span class="nc" id="L370">        return true;</span>
+    }
+
+    @Override
+    public void leaveCombinator(CssCombinatorNode combinator) {
+<span class="nc" id="L375">        buffer.deleteEndingIfEndingIs(&quot;, &quot;);</span>
+<span class="nc" id="L376">    }</span>
+
+    @Override
+    public void leaveSelectorBlock(CssSelectorListNode node) {
+<span class="fc" id="L380">        buffer.deleteEndingIfEndingIs(&quot;, &quot;);</span>
+<span class="fc" id="L381">    }</span>
+
+    @Override
+    public void leaveConditionalBlock(CssConditionalBlockNode block) {
+<span class="nc" id="L385">        buffer.startNewLine();</span>
+<span class="nc" id="L386">    }</span>
+
+    @Override
+    public boolean enterConditionalRule(CssConditionalRuleNode node) {
+<span class="nc" id="L390">        maybeAppendComments(node);</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">        if (node.getType() != Type.IF) {</span>
+<span class="nc" id="L392">            buffer.append(' ');</span>
+        } else {
+<span class="nc" id="L394">            buffer.append(indent);</span>
+        }
+<span class="nc" id="L396">        buffer.append(node.getType());</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">        if (node.getParametersCount() &gt; 0) {</span>
+<span class="nc" id="L398">            buffer.append(' ');</span>
+<span class="nc" id="L399">            boolean firstParameter = true;</span>
+<span class="nc bnc" id="L400" title="All 2 branches missed.">            for (CssValueNode value : node.getParameters()) {</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">                if (!firstParameter) {</span>
+<span class="nc" id="L402">                    buffer.append(' ');</span>
+                }
+<span class="nc" id="L404">                firstParameter = false;</span>
+<span class="nc" id="L405">                buffer.append(value.toString());</span>
+<span class="nc" id="L406">            }</span>
+        }
+<span class="nc" id="L408">        buffer.append(&quot; {&quot;).startNewLine();</span>
+<span class="nc" id="L409">        indent += &quot;  &quot;;</span>
+<span class="nc" id="L410">        return true;</span>
+    }
+
+    @Override
+    public void leaveConditionalRule(CssConditionalRuleNode node) {
+<span class="nc" id="L415">        indent = indent.substring(0, indent.length() - 2);</span>
+<span class="nc" id="L416">        buffer.append(indent);</span>
+<span class="nc" id="L417">        buffer.append('}');</span>
+<span class="nc" id="L418">    }</span>
+
+    @Override
+    public boolean enterUnknownAtRule(CssUnknownAtRuleNode node) {
+<span class="fc" id="L422">        maybeAppendComments(node);</span>
+<span class="fc" id="L423">        buffer.append(indent);</span>
+<span class="fc" id="L424">        buffer.append('@').append(node.getName().toString());</span>
+<span class="pc bpc" id="L425" title="2 of 6 branches missed.">        if (node.getParameters().size() &gt; 0 || (node.getType().hasBlock() &amp;&amp; node.getBlock() != null)) {</span>
+<span class="fc" id="L426">            buffer.append(' ');</span>
+        }
+<span class="fc" id="L428">        return true;</span>
+    }
+
+    @Override
+    public void leaveUnknownAtRule(CssUnknownAtRuleNode node) {
+<span class="fc bfc" id="L433" title="All 2 branches covered.">        if (node.getType().hasBlock()) {</span>
+<span class="pc bpc" id="L434" title="1 of 2 branches missed.">            if (!(node.getBlock() instanceof CssDeclarationBlockNode)) {</span>
+<span class="fc" id="L435">                indent = indent.substring(0, indent.length() - 2);</span>
+<span class="fc" id="L436">                buffer.append(indent);</span>
+<span class="fc" id="L437">                buffer.append('}').startNewLine();</span>
+            }
+        } else {
+<span class="fc" id="L440">            buffer.deleteLastCharIfCharIs(' ');</span>
+<span class="fc" id="L441">            buffer.append(';').startNewLine();</span>
+        }
+<span class="fc" id="L443">    }</span>
+
+    @Override
+    public boolean enterKeyframesRule(CssKeyframesNode node) {
+<span class="nc" id="L447">        maybeAppendComments(node);</span>
+<span class="nc" id="L448">        buffer.append(indent);</span>
+<span class="nc" id="L449">        buffer.append('@').append(node.getName().toString());</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">        for (CssValueNode param : node.getParameters()) {</span>
+<span class="nc" id="L451">            buffer.append(' ');</span>
+<span class="nc" id="L452">            buffer.append(param.getValue());</span>
+<span class="nc" id="L453">        }</span>
+<span class="nc bnc" id="L454" title="All 2 branches missed.">        if (node.getType().hasBlock()) {</span>
+<span class="nc" id="L455">            buffer.append(&quot; {&quot;).startNewLine();</span>
+<span class="nc" id="L456">            indent += &quot;  &quot;;</span>
+        }
+<span class="nc" id="L458">        return true;</span>
+    }
+
+    @Override
+    public void leaveKeyframesRule(CssKeyframesNode node) {
+<span class="nc bnc" id="L463" title="All 2 branches missed.">        if (node.getType().hasBlock()) {</span>
+<span class="nc" id="L464">            indent = indent.substring(0, indent.length() - 2);</span>
+<span class="nc" id="L465">            buffer.append(indent);</span>
+<span class="nc" id="L466">            buffer.append('}').startNewLine();</span>
+        } else {
+<span class="nc" id="L468">            buffer.append(';').startNewLine();</span>
+        }
+<span class="nc" id="L470">    }</span>
+
+    @Override
+    public boolean enterKey(CssKeyNode key) {
+<span class="nc" id="L474">        maybeAppendComments(key);</span>
+<span class="nc" id="L475">        String value = key.getKeyValue();</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        if (value != null) {</span>
+<span class="nc" id="L477">            buffer.append(value);</span>
+        }
+<span class="nc" id="L479">        return true;</span>
+    }
+
+    @Override
+    public void leaveKey(CssKeyNode key) {
+<span class="nc" id="L484">        buffer.append(&quot;, &quot;);</span>
+<span class="nc" id="L485">    }</span>
+
+    @Override
+    public void leaveKeyBlock(CssKeyListNode node) {
+<span class="nc" id="L489">        buffer.deleteEndingIfEndingIs(&quot;, &quot;);</span>
+<span class="nc" id="L490">    }</span>
+
+    @Override
+    public boolean enterProvideNode(CssProvideNode node) {
+<span class="nc" id="L494">        maybeAppendComments(node);</span>
+<span class="nc" id="L495">        return true;</span>
+    }
+
+    @Override
+    public boolean enterRequireNode(CssRequireNode node) {
+<span class="nc" id="L500">        maybeAppendComments(node);</span>
+<span class="nc" id="L501">        return true;</span>
+    }
+
+    @Override
+    public boolean enterComponent(CssComponentNode node) {
+<span class="nc" id="L506">        maybeAppendComments(node);</span>
+<span class="nc" id="L507">        return true;</span>
+    }
+
+    @Override
+    public boolean enterMixin(CssMixinNode node) {
+<span class="nc" id="L512">        maybeAppendComments(node);</span>
+<span class="nc" id="L513">        return true;</span>
+    }
+
+    @Override
+    public boolean enterConditionalBlock(CssConditionalBlockNode block) {
+<span class="nc" id="L518">        maybeAppendComments(block);</span>
+<span class="nc" id="L519">        return true;</span>
+    }
+
+    @Override
+    public boolean enterMixinDefinition(CssMixinDefinitionNode node) {
+<span class="nc" id="L524">        maybeAppendComments(node);</span>
+<span class="nc" id="L525">        return true;</span>
+    }
+
+    @Override
+    public boolean enterCompositeValueNode(CssCompositeValueNode value) {
+<span class="nc" id="L530">        maybeAppendComments(value);</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">        if (value.hasParenthesis()) {</span>
+<span class="nc" id="L532">            buffer.append('(');</span>
+        }
+<span class="nc" id="L534">        return true;</span>
+    }
+
+    @Override
+    public void leaveCompositeValueNode(CssCompositeValueNode value) {
+<span class="nc bnc" id="L539" title="All 2 branches missed.">        if (value.hasParenthesis()) {</span>
+<span class="nc" id="L540">            buffer.append(')');</span>
+        }
+<span class="nc" id="L542">    }</span>
+
+    @Override
+    public boolean enterPropertyValue(CssPropertyValueNode propertyValue) {
+<span class="fc" id="L546">        maybeAppendComments(propertyValue);</span>
+<span class="fc" id="L547">        return true;</span>
+    }
+
+    @Override
+    public boolean enterTree(CssRootNode root) {
+<span class="fc" id="L552">        maybeAppendComments(root);</span>
+<span class="fc" id="L553">        return true;</span>
+    }
+
+    private void maybeAppendComments(CssNode node) {
+<span class="pc bpc" id="L557" title="3 of 4 branches missed.">        if (preserveComments &amp;&amp; !node.getComments().isEmpty()) {</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">            for (CssCommentNode c : node.getComments()) {</span>
+<span class="nc" id="L559">                buffer.append(indent);</span>
+<span class="nc" id="L560">                buffer.append(c.getValue());</span>
+<span class="nc" id="L561">                buffer.startNewLine();</span>
+<span class="nc" id="L562">            }</span>
+        }
+<span class="fc" id="L564">    }</span>
+
+    private String maybeStripQuotes(String v) {
+<span class="nc bnc" id="L567" title="All 4 branches missed.">        if (v.startsWith(&quot;'&quot;) || v.startsWith(&quot;\&quot;&quot;)) {</span>
+<span class="nc bnc" id="L568" title="All 4 branches missed.">            assert (v.endsWith(v.substring(0, 1)));</span>
+<span class="nc" id="L569">            v = v.substring(1, v.length() - 1);</span>
+        }
+<span class="nc" id="L571">        return v;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -57,7 +57,7 @@ public class CssConditionalRuleNode extends CssAtRuleNode {
     /**
      * Copy constructor.
      *
-     * @param node
+     * @param node node
      */
     public CssConditionalRuleNode(CssConditionalRuleNode node) {
         super(node);
@@ -80,6 +80,8 @@ public class CssConditionalRuleNode extends CssAtRuleNode {
     /**
      * Can only be called after the node is completely built (meaning it has
      * the condition set).
+     *
+     * @return condiiton
      */
     public CssBooleanExpressionNode getCondition() {
         if (getType() == Type.ELSE) {

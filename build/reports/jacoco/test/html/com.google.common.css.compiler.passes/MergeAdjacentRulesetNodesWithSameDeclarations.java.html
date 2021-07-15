@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MergeAdjacentRulesetNodesWithSameDeclarations.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">MergeAdjacentRulesetNodesWithSameDeclarations.java</span></div><h1>MergeAdjacentRulesetNodesWithSameDeclarations.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.css.compiler.ast.*;
+
+import java.util.Iterator;
+
+/**
+ * Compiler pass that merges adjacent ruleset nodes that have the same selector.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class MergeAdjacentRulesetNodesWithSameDeclarations
+        extends SkippingTreeVisitor
+        implements CssCompilerPass {
+
+    private final CssTree tree;
+    private final MutatingVisitController visitController;
+
+    public MergeAdjacentRulesetNodesWithSameDeclarations(CssTree tree) {
+<span class="fc" id="L36">        this(tree, false);</span>
+<span class="fc" id="L37">    }</span>
+
+    public MergeAdjacentRulesetNodesWithSameDeclarations(CssTree tree,
+                                                         boolean skipping) {
+<span class="fc" id="L41">        super(skipping);</span>
+<span class="fc" id="L42">        this.tree = tree;</span>
+<span class="fc" id="L43">        this.visitController = tree.getMutatingVisitController();</span>
+<span class="fc" id="L44">    }</span>
+
+    @Override
+    public boolean enterTree(CssRootNode root) {
+<span class="fc" id="L48">        tree.resetRulesetNodesToRemove();</span>
+<span class="fc" id="L49">        return true;</span>
+    }
+
+    @Override
+    public boolean enterBlock(CssBlockNode block) {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (block.numChildren() &lt;= 1) {</span>
+<span class="fc" id="L55">            return true; // There is nothing to merge</span>
+        }
+
+<span class="fc" id="L58">        Iterator&lt;CssNode&gt; iterator = block.getChildIterator();</span>
+        CssNode node;
+<span class="fc" id="L60">        CssRulesetNode ruleToMergeTo = null;</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        while (iterator.hasNext()) {</span>
+<span class="fc" id="L63">            node = iterator.next();</span>
+
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            if (!(node instanceof CssRulesetNode) ||</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">                    hasProblematicSelectors((CssRulesetNode) node) ||</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">                    !canModifyRuleset((CssRulesetNode) node)) {</span>
+                // Node is unmergeable. Skip the current node and make it act as a barrier to merging by
+                // clearing the current merge candidate.
+<span class="fc" id="L70">                ruleToMergeTo = null;</span>
+<span class="fc" id="L71">                continue;</span>
+            }
+
+<span class="fc" id="L74">            CssRulesetNode currentRule = (CssRulesetNode) node;</span>
+
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            if (ruleToMergeTo != null &amp;&amp;</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">                    ruleToMergeTo.getDeclarations().toString().equals(</span>
+<span class="fc" id="L78">                            currentRule.getDeclarations().toString())) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                for (CssSelectorNode decl : currentRule.getSelectors().childIterable()) {</span>
+<span class="fc" id="L80">                    ruleToMergeTo.addSelector(decl);</span>
+<span class="fc" id="L81">                }</span>
+<span class="fc" id="L82">                tree.getRulesetNodesToRemove().addRulesetNode(currentRule);</span>
+            } else {
+<span class="fc" id="L84">                ruleToMergeTo = currentRule;</span>
+            }
+<span class="fc" id="L86">        }</span>
+
+<span class="fc" id="L88">        return true;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L93">        visitController.startVisit(this);</span>
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * Determines if the rule has selectors that not all browsers understand and
+     * may cause issues when merging.
+     *
+     * &lt;p&gt;For example, the ::-ms-clear pseudo element can invalid an entire ruleset.  Browsers other
+     * than IE10+ will ignore this entire rule:
+     * &lt;pre&gt;
+     * #foo,input::-ms-clear{display:none}
+     * &lt;/pre&gt;
+     *
+     * &lt;p&gt;Note that this issue occurs with any unrecognized pseudo element. For example, ::foo
+     * will break the rest of the selectors, whereas ::before will not (since it is recognized).
+     */
+    private boolean hasProblematicSelectors(CssRulesetNode rule) {
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        for (CssSelectorNode selector : rule.getSelectors().childIterable()) {</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            for (CssRefinerNode refiner : selector.getRefiners().childIterable()) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">                if (refiner.getRefinerType() == CssRefinerNode.Refiner.PSEUDO_ELEMENT) {</span>
+                    // Unrecognized names in pseudo selectors can invalidate the whole rule.
+<span class="fc" id="L114">                    return true;</span>
+                }
+<span class="fc" id="L116">            }</span>
+<span class="fc" id="L117">        }</span>
+<span class="fc" id="L118">        return false;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

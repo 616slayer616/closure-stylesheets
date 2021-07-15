@@ -1,0 +1,11 @@
+
+c
+java:S2789N"FEnsure this "Optional" could never be null and remove this null-check.(ÿ‹ŒÐ8§„º©ª/
+>
+java:S4738'"!Use "java.util.Optional" instead.(¨ñÛÆ8ïäº©ª/
+>
+java:S4738("!Use "java.util.Optional" instead.(Í¾½î8òäº©ª/
+N
+java:S4738/",Use "java.util.Optional.ofNullable" instead.(Ô§Ÿýÿÿÿÿÿ8ùäº©ª/
+I
+java:S47380",Use "java.util.Optional.ofNullable" instead.(ø´”•8ûäº©ª/

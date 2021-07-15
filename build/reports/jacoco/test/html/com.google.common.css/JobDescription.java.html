@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JobDescription.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css</a> &gt; <span class="el_source">JobDescription.java</span></div><h1>JobDescription.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+
+/**
+ * Provides inputs and options to Closure Stylesheets.
+ * To construct an instance, use a {@link JobDescriptionBuilder}.
+ *
+ * &lt;p&gt;Instances of this class are immutable.
+ */
+public class JobDescription {
+    public final List&lt;SourceCode&gt; inputs;
+    public final String copyrightNotice;
+    public final OutputFormat outputFormat;
+    public final InputOrientation inputOrientation;
+    public final OutputOrientation outputOrientation;
+    public final OptimizeStrategy optimize;
+    public final List&lt;String&gt; trueConditionNames;
+    public final boolean useInternalBidiFlipper;
+    public final boolean swapLtrRtlInUrl;
+    public final boolean swapLeftRightInUrl;
+    public final boolean simplifyCss;
+    public final boolean eliminateDeadStyles;
+    public final boolean allowDefPropagation;
+    public final boolean allowUnrecognizedFunctions;
+    public final Set&lt;String&gt; allowedNonStandardFunctions;
+    public final boolean allowUnrecognizedProperties;
+    public final Set&lt;String&gt; allowedUnrecognizedProperties;
+    public final boolean allowUndefinedConstants;
+    public final boolean allowMozDocument;
+    public final Vendor vendor;
+    public final boolean allowKeyframes;
+    public final boolean allowWebkitKeyframes;
+    public final boolean processDependencies;
+    public final ImmutableSet&lt;String&gt; allowedAtRules;
+    public final String cssRenamingPrefix;
+    public final List&lt;String&gt; excludedClassesFromRenaming;
+    public final GssFunctionMapProvider gssFunctionMapProvider;
+    public final SubstitutionMapProvider cssSubstitutionMapProvider;
+    public final OutputRenamingMapFormat outputRenamingMapFormat;
+    public final Map&lt;String, String&gt; inputRenamingMap;
+    public final boolean preserveComments;
+    public final boolean suppressDependencyCheck;
+    public final Map&lt;String, Integer&gt; compileConstants;
+    public final boolean createSourceMap;
+    public final SourceMapDetailLevel sourceMapLevel;
+    public final boolean preserveImportantComments;
+
+    static final String CONDITION_FOR_LTR = &quot;GSS_LTR&quot;;
+    static final String CONDITION_FOR_RTL = &quot;GSS_RTL&quot;;
+
+    /**
+     * The output format.
+     */
+<span class="fc" id="L79">    public enum OutputFormat {</span>
+        /**
+         * Pretty-prints the initial parse tree built from the input.
+         */
+<span class="fc" id="L83">        DEBUG,</span>
+
+        /**
+         * Prints a compact representation of the compiled CSS.
+         */
+<span class="fc" id="L88">        COMPRESSED,</span>
+
+        /**
+         * Pretty-prints the compiled CSS.
+         */
+<span class="fc" id="L93">        PRETTY_PRINTED,</span>
+    }
+
+    /**
+     * The input orientation.
+     */
+<span class="fc" id="L99">    public enum InputOrientation {</span>
+<span class="fc" id="L100">        LTR,</span>
+<span class="fc" id="L101">        RTL</span>
+    }
+
+    /**
+     * The output orientation.
+     */
+<span class="fc" id="L107">    public enum OutputOrientation {</span>
+<span class="fc" id="L108">        LTR,</span>
+<span class="fc" id="L109">        RTL,</span>
+<span class="fc" id="L110">        NOCHANGE</span>
+    }
+
+    /**
+     * The optimization strategy.
+     */
+<span class="fc" id="L116">    public enum OptimizeStrategy {</span>
+<span class="fc" id="L117">        NONE,</span>
+<span class="fc" id="L118">        SAFE,</span>
+<span class="fc" id="L119">        MAXIMUM</span>
+    }
+
+    /**
+     * The source map generation levels.
+     */
+<span class="fc" id="L125">    public enum SourceMapDetailLevel {ALL, DEFAULT}</span>
+
+    JobDescription(List&lt;SourceCode&gt; inputs,
+                   String copyrightNotice, OutputFormat outputFormat,
+                   InputOrientation inputOrientation, OutputOrientation outputOrientation,
+                   OptimizeStrategy optimize, List&lt;String&gt; trueConditionNames,
+                   boolean useInternalBidiFlipper, boolean swapLtrRtlInUrl,
+                   boolean swapLeftRightInUrl, boolean simplifyCss,
+                   boolean eliminateDeadStyles, boolean allowDefPropagation,
+                   boolean allowUnrecognizedFunctions,
+                   Set&lt;String&gt; allowedNonStandardFunctions,
+                   boolean allowUnrecognizedProperties,
+                   Set&lt;String&gt; allowedUnrecognizedProperties, boolean allowUndefinedConstants,
+                   boolean allowMozDocument,
+                   Vendor vendor, boolean allowKeyframes, boolean allowWebkitKeyframes,
+                   boolean processDependencies, Set&lt;String&gt; allowedAtRules,
+                   String cssRenamingPrefix, List&lt;String&gt; excludedClassesFromRenaming,
+                   GssFunctionMapProvider gssFunctionMapProvider,
+                   SubstitutionMapProvider cssSubstitutionMapProvider,
+                   OutputRenamingMapFormat outputRenamingMapFormat,
+                   Map&lt;String, String&gt; inputRenamingMap,
+                   boolean preserveComments,
+                   boolean suppressDependencyCheck, Map&lt;String, Integer&gt; compileConstants,
+                   boolean createSourceMap,
+                   SourceMapDetailLevel sourceMapLevel,
+<span class="fc" id="L150">                   boolean preserveImportantComments) {</span>
+<span class="fc" id="L151">        this.allowUndefinedConstants = allowUndefinedConstants;</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">        Preconditions.checkArgument(!inputs.contains(null));</span>
+<span class="fc" id="L153">        Preconditions.checkNotNull(outputFormat);</span>
+<span class="fc" id="L154">        Preconditions.checkNotNull(inputOrientation);</span>
+<span class="fc" id="L155">        Preconditions.checkNotNull(outputOrientation);</span>
+<span class="fc" id="L156">        Preconditions.checkNotNull(optimize);</span>
+<span class="fc" id="L157">        Preconditions.checkNotNull(trueConditionNames);</span>
+<span class="fc" id="L158">        Preconditions.checkNotNull(allowedAtRules);</span>
+<span class="fc" id="L159">        Preconditions.checkNotNull(excludedClassesFromRenaming);</span>
+<span class="fc" id="L160">        Preconditions.checkNotNull(compileConstants);</span>
+<span class="fc" id="L161">        this.inputs = ImmutableList.copyOf(inputs);</span>
+<span class="fc" id="L162">        this.copyrightNotice = copyrightNotice;</span>
+<span class="fc" id="L163">        this.outputFormat = outputFormat;</span>
+<span class="fc" id="L164">        this.inputOrientation = inputOrientation;</span>
+<span class="fc" id="L165">        this.outputOrientation = outputOrientation;</span>
+<span class="fc" id="L166">        this.optimize = optimize;</span>
+<span class="fc" id="L167">        this.trueConditionNames = ImmutableList.copyOf(trueConditionNames);</span>
+<span class="fc" id="L168">        this.useInternalBidiFlipper = useInternalBidiFlipper;</span>
+<span class="fc" id="L169">        this.swapLtrRtlInUrl = swapLtrRtlInUrl;</span>
+<span class="fc" id="L170">        this.swapLeftRightInUrl = swapLeftRightInUrl;</span>
+<span class="fc" id="L171">        this.simplifyCss = simplifyCss;</span>
+<span class="fc" id="L172">        this.eliminateDeadStyles = eliminateDeadStyles;</span>
+<span class="fc" id="L173">        this.allowDefPropagation = allowDefPropagation;</span>
+<span class="fc" id="L174">        this.allowUnrecognizedFunctions = allowUnrecognizedFunctions;</span>
+<span class="fc" id="L175">        this.allowedNonStandardFunctions = ImmutableSet.copyOf(</span>
+                allowedNonStandardFunctions);
+<span class="fc" id="L177">        this.allowUnrecognizedProperties = allowUnrecognizedProperties;</span>
+<span class="fc" id="L178">        this.allowedUnrecognizedProperties = ImmutableSet.copyOf(</span>
+                allowedUnrecognizedProperties);
+<span class="fc" id="L180">        this.allowMozDocument = allowMozDocument;</span>
+<span class="fc" id="L181">        this.vendor = vendor;</span>
+<span class="fc" id="L182">        this.allowKeyframes = allowKeyframes;</span>
+<span class="fc" id="L183">        this.allowWebkitKeyframes = allowWebkitKeyframes;</span>
+<span class="fc" id="L184">        this.processDependencies = processDependencies;</span>
+<span class="fc" id="L185">        this.allowedAtRules = ImmutableSet.copyOf(allowedAtRules);</span>
+<span class="fc" id="L186">        this.cssRenamingPrefix = cssRenamingPrefix;</span>
+<span class="fc" id="L187">        this.excludedClassesFromRenaming =</span>
+<span class="fc" id="L188">                ImmutableList.copyOf(excludedClassesFromRenaming);</span>
+<span class="fc" id="L189">        this.gssFunctionMapProvider = gssFunctionMapProvider;</span>
+<span class="fc" id="L190">        this.cssSubstitutionMapProvider = cssSubstitutionMapProvider;</span>
+<span class="fc" id="L191">        this.outputRenamingMapFormat = outputRenamingMapFormat;</span>
+<span class="fc" id="L192">        this.inputRenamingMap = inputRenamingMap;</span>
+<span class="fc" id="L193">        this.preserveComments = preserveComments;</span>
+<span class="fc" id="L194">        this.suppressDependencyCheck = suppressDependencyCheck;</span>
+<span class="fc" id="L195">        this.compileConstants = ImmutableMap.copyOf(compileConstants);</span>
+<span class="fc" id="L196">        this.createSourceMap = createSourceMap;</span>
+<span class="fc" id="L197">        this.sourceMapLevel = sourceMapLevel;</span>
+<span class="fc" id="L198">        this.preserveImportantComments = preserveImportantComments;</span>
+<span class="fc" id="L199">    }</span>
+
+    /**
+     * @return the total length of all the inputs' contents
+     */
+    public int getAllInputsLength() {
+<span class="fc" id="L205">        int totalLength = 0;</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">        for (SourceCode input : inputs) {</span>
+<span class="fc" id="L207">            totalLength += input.getFileContentsLength();</span>
+<span class="fc" id="L208">        }</span>
+<span class="fc" id="L209">        return totalLength;</span>
+    }
+
+    /**
+     * Whether an input orientation is the same as an output orientation, meaning
+     * that no flipping is required.
+     */
+    static boolean orientationsAreTheSame(InputOrientation inputOrientation,
+                                          OutputOrientation outputOrientation) {
+<span class="fc" id="L218">        return inputOrientation.toString().equals(outputOrientation.toString());</span>
+    }
+
+    /**
+     * Whether the job requires that the output orientation be different
+     * from the input orientation.
+     */
+    public boolean needsBiDiFlipping() {
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        return !(outputOrientation == OutputOrientation.NOCHANGE ||</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">                JobDescription.orientationsAreTheSame(</span>
+                        inputOrientation, outputOrientation));
+    }
+
+    /**
+     * Returns a new {@code JobDescriptionBuilder} based on this job.
+     */
+    public JobDescriptionBuilder toBuilder() {
+<span class="fc" id="L235">        return new JobDescriptionBuilder().copyFrom(this);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

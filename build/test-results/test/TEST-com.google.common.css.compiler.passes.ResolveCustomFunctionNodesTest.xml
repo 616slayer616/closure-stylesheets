@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:48" hostname="Patrick-MBP.fritz.box" time="0.019">
+  <properties/>
+  <testcase name="testAcceptBuiltInFunction" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.002"/>
+  <testcase name="testMax" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.002"/>
+  <testcase name="testMinus" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.001"/>
+  <testcase name="testPlus" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.001"/>
+  <testcase name="testUnknownFunctionAllowed" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.003"/>
+  <testcase name="testFunctionWithinFunction" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.002"/>
+  <testcase name="testUnknownFunctionError" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.001"/>
+  <testcase name="testWrongArgumentError1" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.001"/>
+  <testcase name="testWrongNumberOfArgsError" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.001"/>
+  <testcase name="testMultiply" classname="com.google.common.css.compiler.passes.ResolveCustomFunctionNodesTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

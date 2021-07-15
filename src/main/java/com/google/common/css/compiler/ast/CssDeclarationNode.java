@@ -52,6 +52,9 @@ public class CssDeclarationNode extends CssNode {
 
     /**
      * Constructor of a node representing a CSS declaration.
+     *
+     * @param propertyName       propertyName
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssDeclarationNode(
             CssPropertyNode propertyName, @Nullable SourceCodeLocation sourceCodeLocation) {
@@ -60,6 +63,9 @@ public class CssDeclarationNode extends CssNode {
 
     /**
      * Constructor of a node representing a CSS declaration.
+     *
+     * @param propertyName propertyName
+     * @param comments     comments
      */
     public CssDeclarationNode(CssPropertyNode propertyName, List<CssCommentNode> comments) {
         this(propertyName, comments, null /* sourceCodeLocation */);
@@ -67,6 +73,10 @@ public class CssDeclarationNode extends CssNode {
 
     /**
      * Constructor of a node representing a CSS declaration.
+     *
+     * @param propertyName       propertyName
+     * @param comments           comments
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssDeclarationNode(
             CssPropertyNode propertyName,
@@ -77,6 +87,10 @@ public class CssDeclarationNode extends CssNode {
 
     /**
      * Constructor of a node representing a CSS declaration.
+     *
+     * @param propertyName
+     * @param propertyValue
+     * @param sourceCodeLocation
      */
     public CssDeclarationNode(
             CssPropertyNode propertyName,
@@ -87,6 +101,11 @@ public class CssDeclarationNode extends CssNode {
 
     /**
      * Constructor of a node representing a CSS declaration.
+     *
+     * @param propertyName       propertyName
+     * @param propertyValue      propertyValue
+     * @param comments           comments
+     * @param sourceCodeLocation sourceCodeLocation
      */
     public CssDeclarationNode(
             CssPropertyNode propertyName,

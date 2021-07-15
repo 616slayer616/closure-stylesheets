@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.002">
+  <properties/>
+  <testcase name="testWithSimpleTrue" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.001"/>
+  <testcase name="testNotWithTrueValue" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testAndWithTrueValues" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testAndWithTwoUnknowns" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testAndWithOneUnknown" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testNotWithUnknown" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.001"/>
+  <testcase name="testOrWithTrueValues" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testNested1" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testNested2" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testNested3" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <testcase name="testNested4" classname="com.google.common.css.compiler.passes.BooleanExpressionEvaluatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

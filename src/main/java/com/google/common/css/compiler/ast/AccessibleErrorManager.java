@@ -19,7 +19,7 @@ package com.google.common.css.compiler.ast;
 import java.util.SortedSet;
 
 /**
- * A {@see BasicErrorManager} that makes its errors and warnings
+ * A {@link BasicErrorManager} that makes its errors and warnings
  * accessible to clients.
  */
 public final class AccessibleErrorManager extends BasicErrorManager {

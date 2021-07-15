@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StrictCss3.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">StrictCss3.java</span></div><h1>StrictCss3.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.google.common.css.compiler.ast.*;
+import com.google.common.css.compiler.ast.CssCombinatorNode.Combinator;
+
+import java.util.Set;
+
+/**
+ * This compiler pass enforces that only correct CSS level 3 is used. Be aware
+ * that there is no final specification yet and that the draft is distributed
+ * over several documents.
+ *
+ * &lt;p&gt;The official W3C drafts used here:
+ * &lt;a href=&quot;http://www.w3.org/TR/css3-selectors/&quot;&gt;Selectors Level 3&lt;/a&gt;,
+ * &lt;a href=&quot;http://www.w3.org/TR/css3-ui/&quot;&gt;CSS3 Basic User Interface Module&lt;/a&gt;
+ *
+ * &lt;p&gt;Wikipedia gives a good overview:
+ * &lt;a href=&quot;http://en.wikipedia.org/wiki/Comparison_of_layout_engines_(Cascading_Style_Sheets)#Selectors&quot;&gt;
+ * Comparison of layout engines (Cascading Style Sheets)&lt;/a&gt;
+ *
+ * &lt;p&gt;TODO(fbenz): The ProcessRefiners and ProcessKeyframes passes should
+ * run before.
+ *
+ * @author fbenz@google.com (Florian Benz)
+ */
+public class StrictCss3 extends StrictCssBase {
+    private static final ImmutableSet&lt;Combinator&gt;
+<span class="fc" id="L47">            ALLOWED_COMBINATORS = ImmutableSet.of(Combinator.DESCENDANT,</span>
+            Combinator.CHILD, Combinator.ADJACENT_SIBLING, Combinator.GENERAL_SIBLING);
+<span class="fc" id="L49">    private static final ImmutableSet&lt;String&gt; PSEUDO_CLASSES = ImmutableSet.of(</span>
+            &quot;root&quot;, &quot;first-child&quot;, &quot;last-child&quot;, &quot;first-of-type&quot;, &quot;last-of-type&quot;,
+            &quot;only-child&quot;, &quot;only-of-type&quot;, &quot;empty&quot;, &quot;link&quot;, &quot;visited&quot;, &quot;active&quot;,
+            &quot;hover&quot;, &quot;focus&quot;, &quot;target&quot;, &quot;enabled&quot;, &quot;disabled&quot;, &quot;checked&quot;,
+            &quot;indeterminate&quot;, &quot;default&quot;, &quot;valid&quot;, &quot;invalid&quot;, &quot;in-range&quot;,
+            &quot;out-of-range&quot;, &quot;required&quot;, &quot;optional&quot;, &quot;read-only&quot;, &quot;read-write&quot;);
+<span class="fc" id="L55">    private static final ImmutableSet&lt;String&gt; PSEUDO_CLASSES_NTH =</span>
+<span class="fc" id="L56">            ImmutableSet.of(&quot;nth-child&quot;, &quot;nth-last-child&quot;, &quot;nth-of-type&quot;,</span>
+                    &quot;nth-last-of-type&quot;);
+<span class="fc" id="L58">    private static final ImmutableSet&lt;String&gt; PSEUDO_ELEMENTS = ImmutableSet.of(</span>
+            &quot;first-line&quot;, &quot;first-letter&quot;, &quot;before&quot;, &quot;after&quot;, &quot;value&quot;, &quot;choices&quot;,
+            &quot;repeat-item&quot;, &quot;repeat-index&quot;);
+
+    /**
+     * Length units.
+     * See Section 5 of
+     * http://www.w3.org/TR/css3-values/#lengths
+     */
+<span class="fc" id="L67">    private static final Set&lt;String&gt; UNITS = Sets.newHashSet(</span>
+            &quot;&quot;,
+
+            // Relative measures
+            &quot;em&quot;,
+            &quot;ex&quot;,
+            &quot;%&quot;,
+            &quot;ch&quot;,
+            &quot;rem&quot;,
+            &quot;vw&quot;,
+            &quot;vh&quot;,
+            &quot;vm&quot;,
+
+            // Absolute measures
+            &quot;in&quot;,
+            &quot;cm&quot;,
+            &quot;mm&quot;,
+            &quot;pt&quot;,
+            &quot;pc&quot;,
+            &quot;px&quot;,
+
+            // angles
+            &quot;deg&quot;,
+            &quot;grad&quot;,
+            &quot;rad&quot;,
+            &quot;turn&quot;,
+
+            // time
+            &quot;s&quot;,
+            &quot;ms&quot;,
+
+            // frequency
+            &quot;hz&quot;,
+            &quot;khz&quot;);
+
+    @VisibleForTesting
+    static final String UNSUPPORTED_COMBINATOR_ERROR_MESSAGE =
+            &quot;An unsupported combinator is used.&quot;;
+    @VisibleForTesting
+    static final String UNSUPPORTED_PESUDO_CLASS_ERROR_MESSAGE =
+            &quot;An unsupported pseudo-class is used.&quot;;
+    @VisibleForTesting
+    static final String UNSUPPORTED_PESUDO_CLASS_NTH_ERROR_MESSAGE =
+            &quot;An unsupported pseudo-class for the nth-pattern is used.&quot;;
+    @VisibleForTesting
+    static final String UNSUPPORTED_PESUDO_ELEMENT_ERROR_MESSAGE =
+            &quot;An unsupported pseudo-element is used.&quot;;
+    @VisibleForTesting
+    static final String MISSING_FUNCTION_PESUDO_CLASS_NTH_ERROR_MESSAGE =
+            &quot;A pseudo-class for the nth-pattern is used without an argument.&quot;;
+
+    public StrictCss3(VisitController visitController,
+                      ErrorManager errorManager) {
+<span class="fc" id="L120">        super(visitController, errorManager);</span>
+<span class="fc" id="L121">    }</span>
+
+    /**
+     * Idenitifies valid units of 'width', 'height', etc.
+     */
+    @Override
+    Set&lt;String&gt; getValidCssUnits() {
+<span class="fc" id="L128">        return UNITS;</span>
+    }
+
+    /**
+     * Ensures that the combinator '/deep/' (not strict CSS 3) is not used.
+     */
+    @Override
+    public boolean enterCombinator(CssCombinatorNode combinator) {
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (!ALLOWED_COMBINATORS.contains(combinator.getCombinatorType())) {</span>
+<span class="nc" id="L137">            errorManager.report(new GssError(UNSUPPORTED_COMBINATOR_ERROR_MESSAGE,</span>
+<span class="nc" id="L138">                    combinator.getSourceCodeLocation()));</span>
+<span class="nc" id="L139">            return false;</span>
+        }
+<span class="fc" id="L141">        return true;</span>
+    }
+
+    @Override
+    public boolean enterPseudoClass(CssPseudoClassNode node) {
+<span class="pc bpc" id="L146" title="1 of 3 branches missed.">        switch (node.getFunctionType()) {</span>
+            case NONE:
+<span class="fc" id="L148">                return checkNonFunctionPseudoClass(node);</span>
+            case NTH:
+<span class="fc" id="L150">                return checkNthFunctionPseudoClass(node);</span>
+        }
+<span class="nc" id="L152">        return true;</span>
+    }
+
+    /**
+     * Checks whether the pseudo-class is in the list of standard pseudo-classes
+     * for CSS level 3. Note that this means that pseudo-elements, like
+     * {@code after}, that are normally accepted using the pseudo-class style for
+     * backwards compatibility are rejected.
+     */
+    private boolean checkNonFunctionPseudoClass(CssRefinerNode refiner) {
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        if (PSEUDO_CLASSES_NTH.contains(refiner.getRefinerName())) {</span>
+<span class="fc" id="L163">            errorManager.report(new GssError(</span>
+                    MISSING_FUNCTION_PESUDO_CLASS_NTH_ERROR_MESSAGE,
+<span class="fc" id="L165">                    refiner.getSourceCodeLocation()));</span>
+<span class="fc" id="L166">            return false;</span>
+        }
+
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (!PSEUDO_CLASSES.contains(refiner.getRefinerName())) {</span>
+<span class="fc" id="L170">            reportUnsupported(refiner, UNSUPPORTED_PESUDO_CLASS_ERROR_MESSAGE,</span>
+                    PSEUDO_CLASSES);
+<span class="fc" id="L172">            return false;</span>
+        }
+<span class="fc" id="L174">        return true;</span>
+    }
+
+    private boolean checkNthFunctionPseudoClass(CssRefinerNode refiner) {
+        // If name is an nth function pseudo class, then it should be of the form:
+        // &quot;nth-child(&quot;.
+<span class="fc" id="L180">        String name = refiner.getRefinerName();</span>
+
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">        if (!name.endsWith(&quot;(&quot;)</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                || !PSEUDO_CLASSES_NTH.contains(name.substring(0, name.length() - 1))) {</span>
+<span class="fc" id="L184">            reportUnsupported(refiner, UNSUPPORTED_PESUDO_CLASS_NTH_ERROR_MESSAGE,</span>
+                    PSEUDO_CLASSES_NTH);
+<span class="fc" id="L186">            return false;</span>
+        }
+<span class="fc" id="L188">        return true;</span>
+    }
+
+    /**
+     * Ensures that only pseudo-elements valid in CSS 3 are used.
+     */
+    @Override
+    public boolean enterPseudoElement(CssPseudoElementNode node) {
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        if (!PSEUDO_ELEMENTS.contains(node.getRefinerName())) {</span>
+<span class="fc" id="L197">            reportUnsupported(node, UNSUPPORTED_PESUDO_ELEMENT_ERROR_MESSAGE,</span>
+                    PSEUDO_ELEMENTS);
+<span class="fc" id="L199">            return false;</span>
+        }
+<span class="fc" id="L201">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

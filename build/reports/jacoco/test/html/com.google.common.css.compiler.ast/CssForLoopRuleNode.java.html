@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssForLoopRuleNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssForLoopRuleNode.java</span></div><h1>CssForLoopRuleNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/**
+ * A node representing a {@code @for} loop rule.
+ */
+public class CssForLoopRuleNode extends CssAtRuleNode {
+
+    public static final String VARIABLE_PREFIX = &quot;$&quot;;
+
+    private CssValueNode from;
+    private CssValueNode to;
+    private CssValueNode step;
+    private final String variableName;
+    private final int loopId;
+
+    public CssForLoopRuleNode(CssLiteralNode name,
+                              CssAbstractBlockNode block,
+                              @Nullable List&lt;CssCommentNode&gt; comments,
+                              CssValueNode from,
+                              CssValueNode to,
+                              CssValueNode step,
+                              String variableName,
+                              int loopId,
+                              @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L46">        super(CssAtRuleNode.Type.FOR, name, block, comments);</span>
+<span class="fc" id="L47">        this.from = from;</span>
+<span class="fc" id="L48">        this.to = to;</span>
+<span class="fc" id="L49">        this.step = step;</span>
+<span class="fc" id="L50">        this.variableName = variableName;</span>
+<span class="fc" id="L51">        this.loopId = loopId;</span>
+<span class="fc" id="L52">        setSourceCodeLocation(sourceCodeLocation);</span>
+<span class="fc" id="L53">    }</span>
+
+    public CssForLoopRuleNode(CssForLoopRuleNode node) {
+<span class="fc" id="L56">        super(node);</span>
+<span class="fc" id="L57">        this.from = node.from.deepCopy();</span>
+<span class="fc" id="L58">        this.to = node.to.deepCopy();</span>
+<span class="fc" id="L59">        this.step = node.step.deepCopy();</span>
+<span class="fc" id="L60">        this.variableName = node.variableName;</span>
+<span class="fc" id="L61">        this.loopId = node.loopId;</span>
+<span class="fc" id="L62">    }</span>
+
+    public CssValueNode getFrom() {
+<span class="fc" id="L65">        return from;</span>
+    }
+
+    public CssValueNode getTo() {
+<span class="fc" id="L69">        return to;</span>
+    }
+
+    public CssValueNode getStep() {
+<span class="fc" id="L73">        return step;</span>
+    }
+
+    public void setFrom(CssValueNode value) {
+<span class="fc" id="L77">        from = value;</span>
+<span class="fc" id="L78">    }</span>
+
+    public void setTo(CssValueNode value) {
+<span class="fc" id="L81">        to = value;</span>
+<span class="fc" id="L82">    }</span>
+
+    public void setStep(CssValueNode value) {
+<span class="fc" id="L85">        step = value;</span>
+<span class="fc" id="L86">    }</span>
+
+    public String getVariableName() {
+<span class="fc" id="L89">        return variableName;</span>
+    }
+
+    public int getLoopId() {
+<span class="fc" id="L93">        return loopId;</span>
+    }
+
+    @Override
+    public CssBlockNode getBlock() {
+<span class="fc" id="L98">        return (CssBlockNode) super.getBlock();</span>
+    }
+
+    @Override
+    public CssNode deepCopy() {
+<span class="fc" id="L103">        return new CssForLoopRuleNode(this);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

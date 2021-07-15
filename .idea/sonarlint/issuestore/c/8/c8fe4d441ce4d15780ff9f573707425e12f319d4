@@ -1,0 +1,8 @@
+
+o
+java:S1450"VRemove the "cssTree" field and declare it as a local variable in the relevant methods.(µ Îÿÿÿÿÿ
+
+java:S5803"vRemove this usage of "super", it is annotated with @VisibleForTesting and should not be accessed from production code.(šõå“üÿÿÿÿ
+S	java:S106"9Replace this use of System.out or System.err by a logger.(©ä†ğ8Êğ±¤ª/
+S	java:S106"9Replace this use of System.out or System.err by a logger.(æËæ8Îğ±¤ª/
+X	java:S106"9Replace this use of System.out or System.err by a logger.(…È¿’ÿÿÿÿÿ8Ùğ±¤ª/

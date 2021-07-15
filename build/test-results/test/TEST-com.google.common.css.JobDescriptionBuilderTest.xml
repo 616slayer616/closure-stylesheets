@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.JobDescriptionBuilderTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:42" hostname="Patrick-MBP.fritz.box" time="0.435">
+  <properties/>
+  <testcase name="testSettingConditions1" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.103"/>
+  <testcase name="testSettingConditions2" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.027"/>
+  <testcase name="testSettingConditions3" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.015"/>
+  <testcase name="testSetCopyrightNotice1" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.001"/>
+  <testcase name="testSetCopyrightNotice2" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.005"/>
+  <testcase name="testSettingInputs1" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.034"/>
+  <testcase name="testSettingInputs2" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.002"/>
+  <testcase name="testSettingInputs3" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.005"/>
+  <testcase name="testCssRenamingPrefix" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.001"/>
+  <testcase name="testExcludedClasses" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.068"/>
+  <testcase name="testSetAllowUnrecognizedProperties" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.008"/>
+  <testcase name="testSetCheckUnrecognizedProperties1" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.014"/>
+  <testcase name="testSetCheckUnrecognizedProperties2" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.001"/>
+  <testcase name="testSetCheckUnrecognizedProperties3" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.005"/>
+  <testcase name="testAllowUndefinedConstants" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.058"/>
+  <testcase name="testCopyJobDescription" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.012"/>
+  <testcase name="testSimpleCreation" classname="com.google.common.css.JobDescriptionBuilderTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

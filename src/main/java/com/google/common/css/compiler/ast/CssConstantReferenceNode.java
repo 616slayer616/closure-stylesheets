@@ -55,6 +55,8 @@ public class CssConstantReferenceNode extends CssValueNode {
     /**
      * Creates a new constant reference node that is a deep copy of the
      * given node.
+     *
+     * @param node node
      */
     public CssConstantReferenceNode(CssConstantReferenceNode node) {
         super(node);
@@ -70,6 +72,8 @@ public class CssConstantReferenceNode extends CssValueNode {
      * Returns the scope of the reference. If the reference belongs to a global
      * definition, the scope is the 'global scope'. If the reference belongs to
      * an argument of a mixin definition, the scope is the mixin definition.
+     *
+     * @return scope
      */
     public CssNode getScope() {
         return scope;
@@ -81,6 +85,8 @@ public class CssConstantReferenceNode extends CssValueNode {
 
     /**
      * Returns if the given identifier matches the pattern of a constant.
+     *
+     * @param ident identifier
      */
     public static boolean isDefinitionReference(String ident) {
         return PATTERN.matcher(ident).matches();

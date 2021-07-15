@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssSelectorNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssSelectorNode.java</span></div><h1>CssSelectorNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+
+/**
+ * A node representing a selector in the AST.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssSelectorNode extends CssNode implements ChunkAware {
+    /**
+     * Reference to a list of refiners.
+     */
+    private CssRefinerListNode refiners;
+    /**
+     * Reference to a combinator of selectors.
+     */
+<span class="fc" id="L38">    private CssCombinatorNode combinator = null;</span>
+    /**
+     * Name of the selector held by this node.
+     */
+    private String selectorName;
+    /**
+     * The chunk this selector belongs to.
+     */
+    private Object chunk;
+
+    /**
+     * Constructor of a selector node.
+     *
+     * @param selectorName
+     * @param sourceCodeLocation
+     */
+    public CssSelectorNode(@Nullable String selectorName,
+                           @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L56">        super(sourceCodeLocation);</span>
+<span class="fc" id="L57">        this.selectorName = selectorName;</span>
+<span class="fc" id="L58">        this.refiners = new CssRefinerListNode();</span>
+<span class="fc" id="L59">        becomeParentForNode(this.refiners);</span>
+<span class="fc" id="L60">    }</span>
+
+    /**
+     * Constructor of a selector node.
+     *
+     * @param selectorName
+     */
+    public CssSelectorNode(String selectorName) {
+<span class="fc" id="L68">        this(selectorName, null);</span>
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * Copy-constructor of a selector node.
+     *
+     * @param node
+     */
+    public CssSelectorNode(CssSelectorNode node) {
+<span class="fc" id="L77">        this(node.getSelectorName(), node.getSourceCodeLocation());</span>
+<span class="fc" id="L78">        this.chunk = node.getChunk();</span>
+<span class="fc" id="L79">        this.refiners = node.getRefiners().deepCopy();</span>
+<span class="fc" id="L80">        becomeParentForNode(this.refiners);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (node.getCombinator() != null) {</span>
+<span class="fc" id="L82">            this.combinator = node.getCombinator().deepCopy();</span>
+<span class="fc" id="L83">            becomeParentForNode(this.combinator);</span>
+        }
+<span class="fc" id="L85">    }</span>
+
+    @Override
+    public CssSelectorNode deepCopy() {
+<span class="fc" id="L89">        return new CssSelectorNode(this);</span>
+    }
+
+    public CssRefinerListNode getRefiners() {
+<span class="fc" id="L93">        return refiners;</span>
+    }
+
+    public void setRefiners(CssRefinerListNode refiners) {
+<span class="fc" id="L97">        removeAsParentOfNode(this.refiners);</span>
+<span class="fc" id="L98">        this.refiners = refiners;</span>
+<span class="fc" id="L99">        becomeParentForNode(this.refiners);</span>
+<span class="fc" id="L100">    }</span>
+
+    public CssCombinatorNode getCombinator() {
+<span class="fc" id="L103">        return combinator;</span>
+    }
+
+    public void setCombinator(CssCombinatorNode combinator) {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if (this.combinator != null) {</span>
+<span class="nc" id="L108">            removeAsParentOfNode(this.combinator);</span>
+        }
+<span class="fc" id="L110">        this.combinator = combinator;</span>
+<span class="fc" id="L111">        becomeParentForNode(this.combinator);</span>
+<span class="fc" id="L112">    }</span>
+
+    public void setSelectorName(String selectorName) {
+<span class="nc" id="L115">        this.selectorName = selectorName;</span>
+<span class="nc" id="L116">    }</span>
+
+    public String getSelectorName() {
+<span class="fc" id="L119">        return selectorName;</span>
+    }
+
+    public Specificity getSpecificity() {
+<span class="fc" id="L123">        return Specificity.of(this);</span>
+    }
+
+    @Override
+    public void setChunk(Object chunk) {
+<span class="fc" id="L128">        this.chunk = chunk;</span>
+<span class="fc" id="L129">    }</span>
+
+    @Override
+    public Object getChunk() {
+<span class="fc" id="L133">        return chunk;</span>
+    }
+
+    /**
+     * For debugging only.
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L141">        StringBuilder sb = new StringBuilder();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (selectorName != null) {</span>
+<span class="fc" id="L143">            sb.append(selectorName);</span>
+        }
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (!refiners.isEmpty()) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            for (CssRefinerNode node : refiners.childIterable()) {</span>
+<span class="fc" id="L147">                sb.append(node.toString());</span>
+<span class="fc" id="L148">            }</span>
+        }
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">        if (combinator != null) {</span>
+<span class="nc" id="L151">            sb.append(combinator.toString());</span>
+        }
+<span class="fc" id="L153">        return sb.toString();</span>
+    }
+
+    /**
+     * The specifity of a selector is used to select among rules with the same
+     * importance and origin. It is calculated as specified at
+     * http://www.w3.org/TR/CSS2/cascade.html#specificity.
+     */
+    public static class Specificity implements Comparable&lt;Specificity&gt; {
+        /**
+         * Counts 1 if the declaration is from is a 'style' attribute rather than
+         * a rule with a selector, 0 otherwise
+         */
+        // a omitted as always 0
+
+        /**
+         * Counts the number of ID attributes in the selector.
+         */
+        private final int b;
+
+        /**
+         * Counts the number of other attributes and pseudo-classes in the selector.
+         */
+        private final int c;
+
+        /**
+         * Counts the number of element names and pseudo-elements in the selector.
+         */
+        private final int d;
+
+<span class="fc" id="L183">        Specificity(int b, int c, int d) {</span>
+<span class="fc" id="L184">            this.b = b;</span>
+<span class="fc" id="L185">            this.c = c;</span>
+<span class="fc" id="L186">            this.d = d;</span>
+<span class="fc" id="L187">        }</span>
+
+        private static Specificity of(CssSelectorNode s) {
+<span class="fc" id="L190">            int b = 0;</span>
+<span class="fc" id="L191">            int c = 0;</span>
+<span class="fc" id="L192">            int d = 0;</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">            if (s.selectorName != null</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">                    &amp;&amp; !s.selectorName.isEmpty()</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">                    &amp;&amp; !s.selectorName.equals(&quot;*&quot;)) {</span>
+<span class="fc" id="L196">                d++;</span>
+            }
+
+<span class="fc bfc" id="L199" title="All 2 branches covered.">            for (CssRefinerNode refiner : s.refiners.childIterable()) {</span>
+<span class="fc" id="L200">                Specificity refinerSecificity = refiner.getSpecificity();</span>
+<span class="fc" id="L201">                b += refinerSecificity.b;</span>
+<span class="fc" id="L202">                c += refinerSecificity.c;</span>
+<span class="fc" id="L203">                d += refinerSecificity.d;</span>
+<span class="fc" id="L204">            }</span>
+
+<span class="fc bfc" id="L206" title="All 2 branches covered.">            if (s.combinator != null) {</span>
+<span class="fc" id="L207">                Specificity o = s.combinator.getSelector().getSpecificity();</span>
+<span class="fc" id="L208">                b += o.b;</span>
+<span class="fc" id="L209">                c += o.c;</span>
+<span class="fc" id="L210">                d += o.d;</span>
+            }
+
+<span class="fc" id="L213">            return new Specificity(b, c, d);</span>
+        }
+
+        @Override
+        public int compareTo(Specificity other) {
+<span class="nc" id="L218">            return ComparisonChain.start()</span>
+<span class="nc" id="L219">                    .compare(b, other.b)</span>
+<span class="nc" id="L220">                    .compare(c, other.c)</span>
+<span class="nc" id="L221">                    .compare(d, other.d)</span>
+<span class="nc" id="L222">                    .result();</span>
+        }
+
+        @Override
+        public boolean equals(@Nullable Object object) {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (object instanceof Specificity) {</span>
+<span class="nc" id="L228">                Specificity that = (Specificity) object;</span>
+<span class="nc bnc" id="L229" title="All 6 branches missed.">                return this.b == that.b &amp;&amp; this.c == that.c &amp;&amp; this.d == that.d;</span>
+            }
+<span class="nc" id="L231">            return false;</span>
+        }
+
+        @Override
+        public int hashCode() {
+<span class="nc" id="L236">            return Objects.hashCode(b, c, d);</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="fc" id="L241">            return &quot;0,&quot; + b + &quot;,&quot; + c + &quot;,&quot; + d;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

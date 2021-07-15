@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CheckMissingRequire.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">CheckMissingRequire.java</span></div><h1>CheckMissingRequire.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Sets;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.util.regex.Pattern.MULTILINE;
+
+/**
+ * A compiler pass that checks for missing {@code @require} lines for def constant references
+ * and mixins. This pass is used in conjunction with CollectProvideNamespaces, which provides
+ * namespaces for constant definitions and mixins.
+ * Example for def references:
+ * file foo/gss/button.gss provides namespace {@code @provide 'foo.gss.button';} and has
+ * the def: {@code @def FONT_SIZE 10px;}.
+ * File foo/gss/item.gss references the above def as follows:
+ * {@code @def ITEM_FONT_SIZE FONT_SIZE;}
+ * This pass enforces that file foo/gss/item.gss contains {@code @require 'foo.gss.button';}
+ */
+public final class CheckMissingRequire extends DefaultTreeVisitor implements CssCompilerPass {
+<span class="fc" id="L44">    private static final Logger logger = Logger.getLogger(CheckMissingRequire.class.getName());</span>
+
+<span class="fc" id="L46">    private static final Pattern OVERRIDE_SELECTOR_REGEX = Pattern.compile(</span>
+            &quot;^\\s*(?:/\\*?)?\\*\\s+@overrideSelector\\s+\\{(.*)\\}\\s*(?:\\*/)?$&quot;, MULTILINE);
+
+<span class="fc" id="L49">    private static final Pattern OVERRIDE_DEF_REGEX = Pattern.compile(</span>
+            &quot;^\\s*(?:/\\*?)?\\*\\s+@overrideDef\\s+\\{(.*)\\}\\s*(?:\\*/)?$&quot;, MULTILINE);
+
+    private final VisitController visitController;
+    private final ErrorManager errorManager;
+
+    // Key: filename; Value: provide namespace
+    private final Map&lt;String, String&gt; filenameProvideMap;
+    // Key: filename; Value: require namespace
+    private final ListMultimap&lt;String, String&gt; filenameRequireMap;
+
+    // Multiple namespaces can contain the same defs due to duplicate defs (or mods).
+    // Key: def name; Value: provide namespace
+    private final ListMultimap&lt;String, String&gt; defProvideMap;
+    // Key: defmixin name; Value: provide namespace
+    private final ListMultimap&lt;String, String&gt; defmixinProvideMap;
+
+    public CheckMissingRequire(VisitController visitController,
+                               ErrorManager errorManager,
+                               Map&lt;String, String&gt; filenameProvideMap,
+                               ListMultimap&lt;String, String&gt; filenameRequireMap,
+                               ListMultimap&lt;String, String&gt; defProvideMap,
+<span class="fc" id="L71">                               ListMultimap&lt;String, String&gt; defmixinProvideMap) {</span>
+<span class="fc" id="L72">        this.visitController = visitController;</span>
+<span class="fc" id="L73">        this.errorManager = errorManager;</span>
+<span class="fc" id="L74">        this.filenameProvideMap = filenameProvideMap;</span>
+<span class="fc" id="L75">        this.filenameRequireMap = filenameRequireMap;</span>
+<span class="fc" id="L76">        this.defProvideMap = defProvideMap;</span>
+<span class="fc" id="L77">        this.defmixinProvideMap = defmixinProvideMap;</span>
+<span class="fc" id="L78">    }</span>
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (node instanceof CssConstantReferenceNode) {</span>
+<span class="fc" id="L83">            CssConstantReferenceNode reference = (CssConstantReferenceNode) node;</span>
+<span class="fc" id="L84">            String filename = reference.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc" id="L85">            List&lt;String&gt; provides = defProvideMap.get(reference.getValue());</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if (hasMissingRequire(provides, filenameProvideMap.get(filename),</span>
+<span class="fc" id="L87">                    filenameRequireMap.get(filename))) {</span>
+<span class="fc" id="L88">                StringBuilder error = new StringBuilder(&quot;Missing @require for constant &quot; +</span>
+<span class="fc" id="L89">                        reference.getValue() + &quot;. Please @require namespace from:\n&quot;);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">                for (String namespace : defProvideMap.get(reference.getValue())) {</span>
+<span class="fc" id="L91">                    error.append(&quot;\t&quot;);</span>
+<span class="fc" id="L92">                    error.append(namespace);</span>
+<span class="fc" id="L93">                    error.append(&quot;\n&quot;);</span>
+<span class="fc" id="L94">                }</span>
+<span class="fc" id="L95">                errorManager.report(new GssError(error.toString(), reference.getSourceCodeLocation()));</span>
+            }
+        }
+<span class="fc" id="L98">        return true;</span>
+    }
+
+    @Override
+    public boolean enterMixin(CssMixinNode node) {
+<span class="fc" id="L103">        String filename = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc" id="L104">        List&lt;String&gt; provides = defmixinProvideMap.get(node.getDefinitionName());</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (hasMissingRequire(provides, filenameProvideMap.get(filename),</span>
+<span class="fc" id="L106">                filenameRequireMap.get(filename))) {</span>
+<span class="fc" id="L107">            StringBuilder error = new StringBuilder(&quot;Missing @require for mixin &quot; +</span>
+<span class="fc" id="L108">                    node.getDefinitionName() + &quot;. Please @require namespace from:\n&quot;);</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">            for (String namespace : defmixinProvideMap.get(node.getDefinitionName())) {</span>
+<span class="nc" id="L110">                error.append(&quot;\t&quot;);</span>
+<span class="nc" id="L111">                error.append(namespace);</span>
+<span class="nc" id="L112">                error.append(&quot;\n&quot;);</span>
+<span class="nc" id="L113">            }</span>
+<span class="fc" id="L114">            errorManager.report(new GssError(error.toString(), node.getSourceCodeLocation()));</span>
+        }
+<span class="fc" id="L116">        return true;</span>
+    }
+
+    private boolean hasMissingRequire(List&lt;String&gt; provides, String currentNamespace,
+                                      List&lt;String&gt; requires) {
+        // Either the namespace should be provided in this very file or it should be @require'd here.
+<span class="fc" id="L122">        Set&lt;String&gt; defNamespaceSet = Sets.newHashSet(provides);</span>
+<span class="fc" id="L123">        Set&lt;String&gt; requireNamespaceSet = Sets.newHashSet(requires);</span>
+<span class="fc" id="L124">        requireNamespaceSet.retainAll(defNamespaceSet);</span>
+<span class="fc bfc" id="L125" title="All 4 branches covered.">        if (requireNamespaceSet.size() &gt; 0 || defNamespaceSet.contains(currentNamespace)) {</span>
+<span class="fc" id="L126">            return false;</span>
+        }
+<span class="fc" id="L128">        return true;</span>
+    }
+
+    /*
+     * Check whether @overrideSelector namespaces are @require'd.
+     */
+    @Override
+    public boolean enterSelector(CssSelectorNode node) {
+<span class="fc" id="L136">        String filename = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        for (CssRefinerNode refiner : node.getRefiners().getChildren()) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">            for (CssCommentNode comment : refiner.getComments()) {</span>
+<span class="fc" id="L139">                Matcher matcher = OVERRIDE_SELECTOR_REGEX.matcher(comment.getValue());</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">                if (matcher.find()) {</span>
+<span class="fc" id="L141">                    String overrideNamespace = matcher.group(1);</span>
+<span class="fc" id="L142">                    List&lt;String&gt; requires = filenameRequireMap.get(filename);</span>
+<span class="fc" id="L143">                    Set&lt;String&gt; requireNamespaceSet = Sets.newHashSet(requires);</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">                    if (!requireNamespaceSet.contains(overrideNamespace)) {</span>
+<span class="fc" id="L145">                        String error = &quot;Missing @require for @overrideSelector {&quot; +</span>
+                                overrideNamespace + &quot;}. Please @require this namespace in file: &quot; +
+                                filename + &quot;.\n&quot;;
+<span class="fc" id="L148">                        errorManager.report(new GssError(error, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L149">                        return true;</span>
+                    }
+                }
+<span class="nc" id="L152">            }</span>
+<span class="fc" id="L153">        }</span>
+<span class="fc" id="L154">        return true;</span>
+    }
+
+    /*
+     * Check whether @overrideDef namespaces are @require'd.
+     */
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+<span class="fc" id="L162">        String filename = node.getSourceCodeLocation().getSourceCode().getFileName();</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        for (CssCommentNode comment : node.getComments()) {</span>
+<span class="fc" id="L164">            Matcher matcher = OVERRIDE_DEF_REGEX.matcher(comment.getValue());</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">            if (matcher.find()) {</span>
+<span class="fc" id="L166">                String overrideNamespace = matcher.group(1);</span>
+<span class="fc" id="L167">                List&lt;String&gt; requires = filenameRequireMap.get(filename);</span>
+<span class="fc" id="L168">                Set&lt;String&gt; requireNamespaceSet = Sets.newHashSet(requires);</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">                if (!requireNamespaceSet.contains(overrideNamespace)) {</span>
+<span class="fc" id="L170">                    String error = &quot;Missing @require for @overrideDef {&quot;</span>
+                            + overrideNamespace + &quot;}. Please @require this namespace in file: &quot;
+                            + filename + &quot;.\n&quot;;
+<span class="fc" id="L173">                    errorManager.report(new GssError(error, node.getSourceCodeLocation()));</span>
+<span class="fc" id="L174">                    return true;</span>
+                }
+            }
+<span class="nc" id="L177">        }</span>
+<span class="fc" id="L178">        return true;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L183">        visitController.startVisit(this);</span>
+<span class="fc" id="L184">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

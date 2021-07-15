@@ -109,8 +109,6 @@ public class CssStringNode extends CssValueNode {
      *
      * @param type     CSS provides multiple syntax alternatives for strings;
      *                 which was used for this term?
-     * @param value    the Java String representation of this string (not its
-     *                 concrete CSS syntax)
      * @param location The location in source code corresponding to this node
      */
     public CssStringNode(Type type, SourceCodeLocation location) {

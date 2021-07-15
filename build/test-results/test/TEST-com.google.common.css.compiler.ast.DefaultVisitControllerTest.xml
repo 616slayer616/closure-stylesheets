@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.ast.DefaultVisitControllerTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:50" hostname="Patrick-MBP.fritz.box" time="0.628">
+  <properties/>
+  <testcase name="testVisitBlockChildrenState1" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.278"/>
+  <testcase name="testVisitBlockChildrenState2" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.014"/>
+  <testcase name="testVisitBlockChildrenState3" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.014"/>
+  <testcase name="testVisitFunctionNode_dontVisitChildren" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.02"/>
+  <testcase name="testVisitForLoop" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.019"/>
+  <testcase name="testVisitValueNodes" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.013"/>
+  <testcase name="testVisitImportBlockChildrenState" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.014"/>
+  <testcase name="testStateStack" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.013"/>
+  <testcase name="testVisitCompositeValueNodeWithFunction" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.016"/>
+  <testcase name="testVisitImportRuleState" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.018"/>
+  <testcase name="testVisitSimpleUnknownAtRule" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.028"/>
+  <testcase name="testRemoveCompositePropertyValueElementMiddle" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.012"/>
+  <testcase name="testVisitComponent" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.017"/>
+  <testcase name="testVisitComplexUnknownAtRule" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.024"/>
+  <testcase name="testVisitProperties" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.026"/>
+  <testcase name="testRemoveCompositePropertyValueElementEnd" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.011"/>
+  <testcase name="testVisitFunctionNode" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.012"/>
+  <testcase name="testRemoveCompositePropertyValueElement" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.007"/>
+  <testcase name="testCssCompositeValueNodeBecomesParentForNewChildren" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.012"/>
+  <testcase name="testRootVisitBodyState" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.008"/>
+  <testcase name="testRootVisitImportBlockState" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.008"/>
+  <testcase name="testVisitBlock" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.015"/>
+  <testcase name="testRootVisitCharsetState" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.006"/>
+  <testcase name="testRootVisitBeforeChildrenState" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.012"/>
+  <testcase name="testConstructor" classname="com.google.common.css.compiler.ast.DefaultVisitControllerTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[com.google.common.css.compiler.ast.CssCompositeValueNode
+com.google.common.css.compiler.ast.CssCompositeValueNode
+com.google.common.css.compiler.ast.CssCompositeValueNode
+]]></system-err>
+</testsuite>

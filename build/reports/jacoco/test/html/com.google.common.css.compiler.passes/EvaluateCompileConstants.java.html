@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EvaluateCompileConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">EvaluateCompileConstants.java</span></div><h1>EvaluateCompileConstants.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+import java.util.Map;
+
+/**
+ * Evaluates integer constants provided typically through command line. These constants were
+ * introduced to specify for loop range, but they can also be used as value nodes.
+ */
+public class EvaluateCompileConstants extends DefaultTreeVisitor implements CssCompilerPass {
+
+    private final MutatingVisitController visitController;
+    private final Map&lt;String, Integer&gt; compileConstants;
+
+    public EvaluateCompileConstants(
+<span class="fc" id="L35">            MutatingVisitController visitController, Map&lt;String, Integer&gt; compileConstants) {</span>
+<span class="fc" id="L36">        this.visitController = visitController;</span>
+<span class="fc" id="L37">        this.compileConstants = compileConstants;</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="fc" id="L42">        CssNumericNode newNode = updateValueNode(node);</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (newNode != null) {</span>
+<span class="fc" id="L44">            visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), false);</span>
+        }
+<span class="fc" id="L46">        return true;</span>
+    }
+
+    @Override
+    public boolean enterArgumentNode(CssValueNode node) {
+<span class="fc" id="L51">        return enterValueNode(node);</span>
+    }
+
+    @Override
+    public boolean enterForLoop(CssForLoopRuleNode node) {
+<span class="fc" id="L56">        CssNumericNode from = updateValueNode(node.getFrom());</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (from != null) {</span>
+<span class="fc" id="L58">            node.setFrom(from);</span>
+        }
+<span class="fc" id="L60">        CssNumericNode to = updateValueNode(node.getTo());</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (to != null) {</span>
+<span class="fc" id="L62">            node.setTo(to);</span>
+        }
+<span class="fc" id="L64">        CssNumericNode step = updateValueNode(node.getStep());</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (step != null) {</span>
+<span class="fc" id="L66">            node.setStep(step);</span>
+        }
+<span class="fc" id="L68">        return true;</span>
+    }
+
+    /**
+     * Check if the value node refers to a compile constant and if so returns a numeric node with the
+     * replaced value.
+     */
+    @Nullable
+    private CssNumericNode updateValueNode(CssValueNode node) {
+<span class="fc" id="L77">        Integer value = compileConstants.get(node.getValue());</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (value != null) {</span>
+<span class="fc" id="L79">            return new CssNumericNode(</span>
+<span class="fc" id="L80">                    String.valueOf(value), CssNumericNode.NO_UNITS, node.getSourceCodeLocation());</span>
+        }
+<span class="fc" id="L82">        return null;</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L87">        visitController.startVisit(this);</span>
+<span class="fc" id="L88">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

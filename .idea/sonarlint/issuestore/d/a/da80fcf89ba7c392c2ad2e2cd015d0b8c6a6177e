@@ -1,0 +1,39 @@
+
+x	java:S135"YReduce the total number of break and continue statements in this loop to use at most one.(ôãĞÀşÿÿÿÿ8ì˜À¢ª/
+[	java:S125"<This block of commented-out lines of code should be removed.(©‰Ô®şÿÿÿÿ8’™À¢ª/
+A
+java:S1452"&Remove usage of generic wildcard type.(¯Òşî8’™À¢ª/
+G
+java:S1172",Remove this unused method parameter "child".(¯Òşî8“™À¢ª/
+6
+java:S3626"Remove this redundant jump.(ûÁİ…8•™À¢ª/
+6
+java:S2326"T is not used in the class.(çß·¢8š™À¢ª/
+R
+java:S1135"2Complete the task associated to this TODO comment.(œÏ›Îÿÿÿÿÿ8›™À¢ª/
+V	java:S125"<This block of commented-out lines of code should be removed.(ŞÚºÁ8™À¢ª/
+6
+java:S3626"Remove this redundant jump.(ûÁİ…8Ÿ™À¢ª/
+]
+java:S2387"="node" is the name of a field in "VisitReplaceChildrenState".(×¾Ìÿÿÿÿÿ8µ™À¢ª/
+A
+java:S1452"&Remove usage of generic wildcard type.(À ºù8¾™À¢ª/
+M
+java:S1135"2Complete the task associated to this TODO comment.(®È‘ç8ô™À¢ª/
+6
+java:S3626"Remove this redundant jump.(ûÁİ…8šÀ¢ª/
+B
+java:S1125"'Remove the unnecessary boolean literal.(ÊØø±8šÀ¢ª/
+R
+java:S1135"2Complete the task associated to this TODO comment.(áÌ‘áøÿÿÿÿ8œšÀ¢ª/
+R
+java:S1135"2Complete the task associated to this TODO comment.(î‹†Øúÿÿÿÿ8œšÀ¢ª/
+A
+java:S1452"&Remove usage of generic wildcard type.(À ºù8©šÀ¢ª/
+M
+java:S1135"2Complete the task associated to this TODO comment.(èĞæ»8²šÀ¢ª/
+F
+java:S1452"&Remove usage of generic wildcard type.(Â÷ƒûÿÿÿÿ8³šÀ¢ª/
+V	java:S125"<This block of commented-out lines of code should be removed.(›êÿ8»šÀ¢ª/
+m
+java:S3776"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(²êÑ°8¾šÀ¢ª/

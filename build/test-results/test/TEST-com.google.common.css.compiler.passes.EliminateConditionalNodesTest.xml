@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:49" hostname="Patrick-MBP.fritz.box" time="0.035">
+  <properties/>
+  <testcase name="testComplex1" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.007"/>
+  <testcase name="testComplex2" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <testcase name="testComplex3" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.003"/>
+  <testcase name="testComplex4" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <testcase name="testComplex5" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.003"/>
+  <testcase name="testSimple1" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.003"/>
+  <testcase name="testSimple2" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <testcase name="testSimple3" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <testcase name="testSimple4" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <testcase name="testSimple5" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <testcase name="testSimple6" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <testcase name="testSimple7" classname="com.google.common.css.compiler.passes.EliminateConditionalNodesTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

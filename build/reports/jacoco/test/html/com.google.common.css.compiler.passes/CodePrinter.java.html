@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CodePrinter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">CodePrinter.java</span></div><h1>CodePrinter.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.css.SourceCodeLocation;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+/**
+ * An abstract code-printer for {@link CssTree} instances that provides read/write access to the
+ * output buffer and performs common tasks during code generation, like creating sourcemaps.
+ *
+ * @author steveyang@google.com (Chenyun Yang)
+ */
+public abstract class CodePrinter implements CssCompilerPass {
+
+    /**
+     * The visit controller for the (sub)tree being printed.
+     */
+    private final VisitController visitController;
+
+    /**
+     * Holds the output of the printing visitor.
+     */
+    private final CodeBuffer buffer;
+
+    /**
+     * The source map generator used by CodePrinter and subclasses.
+     */
+    private final GssSourceMapGenerator generator;
+
+    /**
+     * Whether or not to preserve special comments in the output.
+     */
+    private boolean preserveMarkedComments;
+
+    /**
+     * Initializes this instance from the given {@link VisitController}, could optionally accept
+     * {@link CodeBuffer} and {@link GssSourceMapGenerator} to use.
+     */
+    protected CodePrinter(
+            VisitController visitController,
+            @Nullable CodeBuffer buffer,
+<span class="fc" id="L62">            @Nullable GssSourceMapGenerator generator) {</span>
+<span class="fc" id="L63">        this.visitController = visitController;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        this.buffer = buffer != null ? buffer : new CodeBuffer();</span>
+<span class="fc" id="L65">        this.generator = generator;</span>
+<span class="fc" id="L66">    }</span>
+
+    /**
+     * Constructs the visitor required by the subclass. This visitor's {@code enter*} methods will be
+     * called after the source map generator's {@code startSourceMapping} method and before its {@code
+     * endSourceMapping} method.
+     */
+    protected abstract CssTreeVisitor createVisitor(
+            VisitController visitController, CodeBuffer codeBuffer);
+
+    protected final void visit() {
+<span class="fc" id="L77">        List&lt;CssTreeVisitor&gt; visitors = new LinkedList&lt;&gt;();</span>
+        /*
+         * NOTE(flan): This order is important. We need the SourceMapVisitor to be called first because
+         * it keeps track of the extent of the node. Next, we need to print any comments that need
+         * preserving. Finally, we actually visit the node itself.
+         */
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (generator != null) {</span>
+<span class="fc" id="L84">            visitors.add(UniformVisitor.Adapters.asVisitor(new SourceMapVisitor()));</span>
+        }
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (preserveMarkedComments) {</span>
+<span class="fc" id="L87">            visitors.add(UniformVisitor.Adapters.asVisitor(new CommentPrintingVisitor()));</span>
+        }
+<span class="fc" id="L89">        visitors.add(createVisitor(visitController, buffer));</span>
+<span class="fc" id="L90">        visitController.startVisit(DelegatingVisitor.from(visitors));</span>
+<span class="fc" id="L91">    }</span>
+
+    // Proxy method for external usage.
+    protected final void resetBuffer() {
+<span class="fc" id="L95">        buffer.reset();</span>
+<span class="fc" id="L96">    }</span>
+
+    protected final String getOutputBuffer() {
+<span class="fc" id="L99">        return buffer.getOutput();</span>
+    }
+
+    /**
+     * Whether special comments in the CSS nodes are preserved in the printed
+     * output. Currently supported special comments are annotated with one of the following:
+     * &lt;ul&gt;
+     *   &lt;li&gt;@preserve&lt;/li&gt;
+     *   &lt;li&gt;@license&lt;/li&gt;
+     *   &lt;li&gt;/*! (start of comment)&lt;/li&gt;
+     * &lt;/ul&gt;
+     * Comments marked with @license will cause a special &quot;END OF LICENSED CSS FILE&quot;
+     * comment to be inserted when the parser moves on to a new source file. Note that
+     * some optimizations may move pieces around, so there's no guarantees the licensed
+     * file will remain entirely intact.
+     *
+     * &lt;p&gt;Note: Comments layout is not guaranteed, since detailed position
+     * information in the input files is not preserved by the parser.
+     */
+    public void setPreserveMarkedComments(boolean preserveMarkedComments) {
+<span class="fc" id="L119">        this.preserveMarkedComments = preserveMarkedComments;</span>
+<span class="fc" id="L120">    }</span>
+
+<span class="fc" id="L122">    private class SourceMapVisitor implements UniformVisitor {</span>
+
+        @Override
+        public void enter(CssNode node) {
+<span class="fc" id="L126">            generator.startSourceMapping(node, buffer.getNextLineIndex(), buffer.getNextCharIndex());</span>
+<span class="fc" id="L127">        }</span>
+
+        @Override
+        public void leave(CssNode node) {
+<span class="fc" id="L131">            generator.endSourceMapping(node, buffer.getLastLineIndex(), buffer.getLastCharIndex());</span>
+<span class="fc" id="L132">        }</span>
+    }
+
+
+<span class="fc" id="L136">    private static final Pattern LICENSE_ANNOTATION_PATTERN =</span>
+<span class="fc" id="L137">            Pattern.compile(&quot;.*@license\\b.*&quot;, Pattern.DOTALL);</span>
+<span class="fc" id="L138">    private static final Pattern PRESERVE_ANNOTATION_PATTERN =</span>
+<span class="fc" id="L139">            Pattern.compile(&quot;.*@preserve\\b.*&quot;, Pattern.DOTALL);</span>
+<span class="fc" id="L140">    private static final Pattern IMPORTANT_ANNOTATION_PATTERN =</span>
+<span class="fc" id="L141">            Pattern.compile(&quot;/\\*!.*&quot;, Pattern.DOTALL);</span>
+    private static final String END_OF_LICENSED_CSS_FILE = &quot;/* END OF LICENSED CSS FILE */\n&quot;;
+
+    private static class LastLicenseData {
+        private String source;
+        private String content;
+    }
+
+<span class="fc" id="L149">    private class CommentPrintingVisitor implements UniformVisitor {</span>
+
+<span class="fc" id="L151">        private LastLicenseData lastLicenseData = new LastLicenseData();</span>
+
+        @Override
+        public void enter(CssNode node) {
+<span class="fc" id="L155">            String newSourceLocation = fileNameForSourceCodeLocation(node.getSourceCodeLocation());</span>
+            // If we previously printed out a comment with a license and we're transitioning
+            // source files, print a END OF LICENSED CSS FILE comment.
+<span class="fc bfc" id="L158" title="All 4 branches covered.">            if (lastLicenseData.source != null</span>
+                    &amp;&amp; newSourceLocation != null
+<span class="fc bfc" id="L160" title="All 2 branches covered.">                    &amp;&amp; !lastLicenseData.source.equals(newSourceLocation)) {</span>
+<span class="fc" id="L161">                buffer.append(&quot;/* END OF LICENSED CSS FILE */\n&quot;);</span>
+<span class="fc" id="L162">                lastLicenseData.source = null;</span>
+            }
+<span class="fc bfc" id="L164" title="All 2 branches covered.">            if (!node.getComments().isEmpty()) {</span>
+<span class="fc" id="L165">                boolean hasLicense = false;</span>
+<span class="fc" id="L166">                StringBuilder commentBuffer = new StringBuilder();</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">                for (CssCommentNode c : node.getComments()) {</span>
+<span class="fc" id="L168">                    boolean currentHasLicense = LICENSE_ANNOTATION_PATTERN.matcher(c.getValue()).matches();</span>
+<span class="fc" id="L169">                    hasLicense |= currentHasLicense;</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">                    if (currentHasLicense</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">                            || PRESERVE_ANNOTATION_PATTERN.matcher(c.getValue()).matches()</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">                            || IMPORTANT_ANNOTATION_PATTERN.matcher(c.getValue()).matches()) {</span>
+<span class="fc" id="L173">                        commentBuffer.append(c.getValue());</span>
+                    }
+<span class="fc" id="L175">                }</span>
+<span class="fc" id="L176">                String comment = commentBuffer.toString();</span>
+
+<span class="fc bfc" id="L178" title="All 2 branches covered.">                if (!comment.isEmpty()) {</span>
+<span class="pc bpc" id="L179" title="1 of 4 branches missed.">                    if (hasLicense &amp;&amp; comment.equals(lastLicenseData.content)) {</span>
+                        // If the last license matches the current, lump the two files together to safe space.
+<span class="nc" id="L181">                        buffer.deleteEndingIfEndingIs(END_OF_LICENSED_CSS_FILE);</span>
+                    } else {
+<span class="fc" id="L183">                        buffer.startNewLine();</span>
+<span class="fc" id="L184">                        buffer.append(comment);</span>
+<span class="fc" id="L185">                        buffer.startNewLine();</span>
+<span class="fc" id="L186">                        lastLicenseData.content = null;</span>
+                    }
+
+<span class="fc bfc" id="L189" title="All 2 branches covered.">                    if (hasLicense) {</span>
+<span class="fc" id="L190">                        lastLicenseData.source = newSourceLocation;</span>
+<span class="fc" id="L191">                        lastLicenseData.content = comment;</span>
+                    }
+                }
+            }
+<span class="fc" id="L195">        }</span>
+
+        @Override
+        public void leave(CssNode node) {
+
+<span class="fc" id="L200">        }</span>
+
+        private String fileNameForSourceCodeLocation(SourceCodeLocation location) {
+<span class="pc bpc" id="L203" title="1 of 4 branches missed.">            if (location == null || location.getSourceCode() == null) {</span>
+<span class="fc" id="L204">                return null;</span>
+            }
+<span class="fc" id="L206">            return location.getSourceCode().getFileName();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

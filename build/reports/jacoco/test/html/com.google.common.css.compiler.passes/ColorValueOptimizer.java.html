@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ColorValueOptimizer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">ColorValueOptimizer.java</span></div><h1>ColorValueOptimizer.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.css.compiler.ast.*;
+import com.google.common.css.compiler.ast.CssFunctionNode.Function;
+
+import java.util.List;
+import java.util.logging.Logger;
+
+/**
+ * Compiler pass that optimizes color values. It shrinks 6-digit hex values to
+ * 3-digit where possible, and converts rgb(r, g, b) to hex.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class ColorValueOptimizer extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+<span class="fc" id="L37">    private static final Logger logger = Logger.getLogger(</span>
+<span class="fc" id="L38">            ColorValueOptimizer.class.getName());</span>
+
+<span class="fc" id="L40">    private static final Function RGB = Function.byName(&quot;rgb&quot;);</span>
+
+    private MutatingVisitController visitController;
+
+<span class="fc" id="L44">    public ColorValueOptimizer(MutatingVisitController visitController) {</span>
+<span class="fc" id="L45">        this.visitController = visitController;</span>
+<span class="fc" id="L46">    }</span>
+
+    @Override
+    public boolean enterFunctionNode(CssFunctionNode function) {
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (function.getFunction() == RGB) {</span>
+            try {
+<span class="fc" id="L52">                String hexValue = parseRgbArguments(function);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">                if (canShortenHexString(hexValue)) {</span>
+<span class="fc" id="L54">                    hexValue = shortenHexString(hexValue);</span>
+                }
+<span class="fc" id="L56">                CssValueNode optimizedColor = new CssHexColorNode(</span>
+                        hexValue,
+<span class="fc" id="L58">                        function.getSourceCodeLocation());</span>
+<span class="fc" id="L59">                List&lt;CssNode&gt; temp = Lists.newArrayList();</span>
+<span class="fc" id="L60">                temp.add(optimizedColor);</span>
+<span class="fc" id="L61">                visitController.replaceCurrentBlockChildWith(temp, true);</span>
+<span class="nc" id="L62">            } catch (NumberFormatException nfe) {</span>
+<span class="nc" id="L63">                logger.info(&quot;Error parsing rgb() function: &quot; + nfe.toString());</span>
+<span class="fc" id="L64">            }</span>
+        }
+<span class="fc" id="L66">        return true;</span>
+    }
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if (node instanceof CssHexColorNode) {</span>
+<span class="fc" id="L72">            CssHexColorNode color = (CssHexColorNode) node;</span>
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if (canShortenHexString(color.getValue())) {</span>
+<span class="fc" id="L75">                String hexValue = shortenHexString(color.getValue());</span>
+
+<span class="fc" id="L77">                CssValueNode optimizedColor = new CssHexColorNode(</span>
+                        hexValue,
+<span class="fc" id="L79">                        node.getSourceCodeLocation());</span>
+<span class="fc" id="L80">                List&lt;CssNode&gt; temp = Lists.newArrayList();</span>
+<span class="fc" id="L81">                temp.add(optimizedColor);</span>
+<span class="fc" id="L82">                visitController.replaceCurrentBlockChildWith(temp, true);</span>
+            }
+        }
+<span class="fc" id="L85">        return true;</span>
+    }
+
+    /**
+     * Extract the rgb function arguments and convert them to a standard RGB
+     * hex value.
+     *
+     * @param function A function node.
+     * @return The 6-digit hex value, including leading # sign.
+     * @throws NumberFormatException when input is invalid.
+     */
+    @VisibleForTesting
+    static String parseRgbArguments(CssFunctionNode function)
+            throws NumberFormatException {
+<span class="fc" id="L99">        CssFunctionArgumentsNode args = function.getArguments();</span>
+
+<span class="fc" id="L101">        int numArgs = 0;</span>
+<span class="fc" id="L102">        StringBuilder hexValue = new StringBuilder(&quot;#&quot;);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        for (CssValueNode rgbValue : args.getChildren()) {</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">            if (rgbValue instanceof CssNumericNode) {</span>
+<span class="fc" id="L105">                numArgs++;</span>
+<span class="fc" id="L106">                CssNumericNode numericValue = (CssNumericNode) rgbValue;</span>
+<span class="fc" id="L107">                int scalarValue = Integer.parseInt(numericValue.getNumericPart());</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">                if (&quot;%&quot;.equals(numericValue.getUnit())) {</span>
+<span class="fc" id="L109">                    scalarValue = (int) (255.0 * scalarValue / 100 + 0.5);</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                } else if (!CssNumericNode.NO_UNITS.equals(numericValue.getUnit())) {</span>
+<span class="nc" id="L111">                    throw new NumberFormatException(&quot;rgb arguments must be scalar or &quot; +</span>
+<span class="nc" id="L112">                            &quot;%. Bad value:&quot; + numericValue.toString());</span>
+                }
+                // According to W3C specs, out-of-range values are OK, but there's a
+                // good chance it's unintentional, so emit a warning.
+<span class="fc bfc" id="L116" title="All 2 branches covered.">                if (scalarValue &lt; 0) {</span>
+<span class="fc" id="L117">                    logger.info(&quot;Out of range argument to rgb(): &quot; + numericValue);</span>
+<span class="fc" id="L118">                    scalarValue = 0;</span>
+                }
+<span class="fc bfc" id="L120" title="All 2 branches covered.">                if (scalarValue &gt; 255) {</span>
+<span class="fc" id="L121">                    logger.info(&quot;Out of range argument to rgb(): &quot; + numericValue);</span>
+<span class="fc" id="L122">                    scalarValue = 255;</span>
+                }
+<span class="fc bfc" id="L124" title="All 2 branches covered.">                if (scalarValue &lt; 16) {</span>
+<span class="fc" id="L125">                    hexValue.append('0');</span>
+                }
+<span class="fc" id="L127">                hexValue.append(Integer.toHexString(scalarValue));</span>
+<span class="pc bnc" id="L128" title="All 2 branches missed.">            } else if (rgbValue instanceof CssLiteralNode &amp;&amp;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                    &quot;,&quot;.equals(rgbValue.getValue())) {</span>
+                // Sadly, the comma separators parse as function arguments, just
+                // ignore and skip over them.
+            } else {
+<span class="nc" id="L133">                throw new NumberFormatException(&quot;Expected numeric value:&quot; +</span>
+<span class="nc" id="L134">                        rgbValue.getValue());</span>
+            }
+<span class="fc" id="L136">        }</span>
+
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (numArgs != 3) {</span>
+<span class="fc" id="L139">            throw new NumberFormatException(&quot;Invalid number of arguments to rgb().&quot;);</span>
+        }
+
+<span class="fc" id="L142">        return hexValue.toString();</span>
+    }
+
+    /**
+     * Determine whether an RGB hex value can be abbreviated.
+     *
+     * @param hex An RGB hex value, such as &quot;#00ffcc&quot;.
+     * @return Whether the value can be abbreviated.
+     */
+    @VisibleForTesting
+    static boolean canShortenHexString(String hex) {
+<span class="fc" id="L153">        Preconditions.checkArgument(hex.startsWith(&quot;#&quot;));</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        return hex.length() == 7 &amp;&amp;</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">                hex.charAt(1) == hex.charAt(2) &amp;&amp;</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                hex.charAt(3) == hex.charAt(4) &amp;&amp;</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">                hex.charAt(5) == hex.charAt(6);</span>
+    }
+
+    /**
+     * Converts a 6-digit RGB hex value to its 3-digit equivalent.
+     * This method assumes that {@link #canShortenHexString} has returned true.
+     *
+     * @param hex Hex value, including leading &quot;#&quot;.
+     * @return 3-digit hex value, including leading &quot;#&quot;.
+     */
+    @VisibleForTesting
+    static String shortenHexString(String hex) {
+<span class="fc" id="L169">        StringBuilder optimizedHexValue = new StringBuilder(&quot;#&quot;);</span>
+<span class="fc" id="L170">        optimizedHexValue.append(hex.charAt(1));</span>
+<span class="fc" id="L171">        optimizedHexValue.append(hex.charAt(3));</span>
+<span class="fc" id="L172">        optimizedHexValue.append(hex.charAt(5));</span>
+
+<span class="fc" id="L174">        return optimizedHexValue.toString();</span>
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L179">        visitController.startVisit(this);</span>
+<span class="fc" id="L180">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FixupFontDeclarations.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">FixupFontDeclarations.java</span></div><h1>FixupFontDeclarations.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2012 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.*;
+import com.google.common.css.SourceCode;
+import com.google.common.css.SourceCodeLocation;
+import com.google.common.css.compiler.ast.*;
+
+import java.util.*;
+
+/**
+ * Compiler pass that replaces font and font-family declaration subtrees
+ * so that the tree structure resembles the (rather idiosyncratic) grammar
+ * of the corresponding CSS properties.
+ */
+public class FixupFontDeclarations extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    /**
+     * Specifies how the input tree should be interpreted.
+     */
+<span class="fc" id="L42">    public enum InputMode {</span>
+        /**
+         * Assume the input follows the grammar of CSS.
+         */
+<span class="fc" id="L46">        CSS,</span>
+        /**
+         * Perform a best-effort parse that allows unsubstituted definition uses.
+         */
+<span class="fc" id="L50">        GSS;</span>
+    }
+
+    /**
+     * Properties whose values may be specified in a {@code Font} declaration.
+     */
+<span class="fc" id="L56">    public enum FontProperty {</span>
+<span class="fc" id="L57">        STYLE, VARIANT, WEIGHT, SIZE, LINE_HEIGHT, FAMILY</span>
+    }
+
+    /**
+     * A simple predicate on {@code CssCompositeValueNode}.
+     */
+    private static class WithOperator
+            implements Predicate&lt;CssCompositeValueNode&gt; {
+        private final CssCompositeValueNode.Operator op;
+
+<span class="fc" id="L67">        public WithOperator(CssCompositeValueNode.Operator op) {</span>
+<span class="fc" id="L68">            this.op = op;</span>
+<span class="fc" id="L69">        }</span>
+
+        @Override
+        public boolean apply(CssCompositeValueNode n) {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            if (n.getOperator() != op) {</span>
+<span class="fc" id="L74">                return false;</span>
+            }
+<span class="fc" id="L76">            return true;</span>
+        }
+    }
+
+    private static WithOperator withOperator(CssCompositeValueNode.Operator op) {
+<span class="fc" id="L81">        return new WithOperator(op);</span>
+    }
+
+    private static final String FONT = &quot;font&quot;;
+    private static final String FONT_FAMILY = &quot;font-family&quot;;
+    private static final String NORMAL = &quot;normal&quot;;
+    private static final String INHERIT = &quot;inherit&quot;;
+<span class="fc" id="L88">    private static final ImmutableSet&lt;String&gt; SYSTEM_FONTS =</span>
+<span class="fc" id="L89">            ImmutableSet.of(&quot;caption&quot;, &quot;icon&quot;, &quot;menu&quot;, &quot;message-box&quot;, &quot;small-caption&quot;, &quot;status-bar&quot;);</span>
+<span class="fc" id="L90">    private static final ImmutableSet&lt;String&gt; FONT_ABSOLUTE_SIZES =</span>
+<span class="fc" id="L91">            ImmutableSet.of(&quot;xx-small&quot;, &quot;x-small&quot;, &quot;small&quot;, &quot;medium&quot;, &quot;large&quot;, &quot;x-large&quot;, &quot;xx-large&quot;);</span>
+<span class="fc" id="L92">    private static final ImmutableSet&lt;String&gt; FONT_RELATIVE_SIZES =</span>
+<span class="fc" id="L93">            ImmutableSet.of(&quot;larger&quot;, &quot;smaller&quot;);</span>
+<span class="fc" id="L94">    private static final ImmutableSet&lt;String&gt; DEFINITELY_STYLE = ImmutableSet.of(&quot;italic&quot;, &quot;oblique&quot;);</span>
+<span class="fc" id="L95">    private static final ImmutableSet&lt;String&gt; DEFINITELY_VARIANT = ImmutableSet.of(&quot;small-caps&quot;);</span>
+<span class="fc" id="L96">    private static final ImmutableSet&lt;String&gt; DEFINITELY_WEIGHT =</span>
+<span class="fc" id="L97">            ImmutableSet.of(&quot;bold&quot;, &quot;bolder&quot;, &quot;lighter&quot;);</span>
+<span class="fc" id="L98">    private static final ImmutableSet&lt;String&gt; NUMERIC_WEIGHTS =</span>
+<span class="fc" id="L99">            ImmutableSet.of(&quot;100&quot;, &quot;200&quot;, &quot;300&quot;, &quot;400&quot;, &quot;500&quot;, &quot;600&quot;, &quot;700&quot;, &quot;800&quot;, &quot;900&quot;);</span>
+
+    /**
+     * No point looking through lots of nodes for clues that are only allowed
+     * in a prefix. This limit is conservative, assuming we create as many
+     * top-level nodes as tokens. As we'll see shortly, we actually expect
+     * the parser to structure things slightly more elaborately, resulting
+     * in fewer top-level nodes.
+     */
+    private static final int PRE_FAMILY_LIMIT = 6;
+
+    /**
+     * Recognizes a simple size value represented by a node in the
+     * original AST of a font declaration value.
+     */
+<span class="fc" id="L114">    private static final Predicate&lt;CssValueNode&gt; IS_PLAIN_SIZE =</span>
+<span class="fc" id="L115">            new Predicate&lt;CssValueNode&gt;() {</span>
+                @Override
+                public boolean apply(CssValueNode n) {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                    return (n instanceof CssNumericNode</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">                            &amp;&amp; (!CssNumericNode.NO_UNITS.equals(</span>
+<span class="fc" id="L120">                            ((CssNumericNode) n).getUnit())))</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                            || FONT_ABSOLUTE_SIZES.contains(n.getValue())</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">                            || FONT_RELATIVE_SIZES.contains(n.getValue());</span>
+                }
+            };
+
+    /**
+     * Picks out the size from the original AST subtree representing
+     * size/line-height in a font declaration value.
+     */
+    private static final
+<span class="fc" id="L131">    Function&lt;CssCompositeValueNode, CssValueNode&gt; EXTRACT_SIZE =</span>
+<span class="fc" id="L132">            new Function&lt;CssCompositeValueNode, CssValueNode&gt;() {</span>
+                @Override
+                public CssValueNode apply(CssCompositeValueNode n) {
+<span class="fc" id="L135">                    return n.getValues().get(0);</span>
+                }
+            };
+
+    @VisibleForTesting
+    static final String SIZE_AND_FAMILY_REQUIRED =
+            &quot;Size and family are required in the absence of a system font or a &quot;
+                    + &quot;simple inherit&quot;;
+
+    @VisibleForTesting
+    static final ImmutableMap&lt;FontProperty, String&gt; TOO_MANY =
+<span class="fc" id="L146">            ImmutableMap.&lt;FontProperty, String&gt;builder()</span>
+<span class="fc" id="L147">                    .put(FontProperty.LINE_HEIGHT, &quot;The '/' can occur at most once in a font shorthand value&quot;)</span>
+<span class="fc" id="L148">                    .put(FontProperty.SIZE, &quot;Font size can occur at most once in a font shorthand value&quot;)</span>
+<span class="fc" id="L149">                    .put(FontProperty.STYLE, &quot;Font style can occur at most once in a font shorthand value&quot;)</span>
+<span class="fc" id="L150">                    .put(</span>
+                            FontProperty.VARIANT, &quot;Font variant can occur at most once in a font shorthand value&quot;)
+<span class="fc" id="L152">                    .put(FontProperty.WEIGHT, &quot;Font weight can occur at most once in a font shorthand value&quot;)</span>
+<span class="fc" id="L153">                    .build();</span>
+
+<span class="fc" id="L155">    private static final ImmutableSortedSet&lt;FontProperty&gt; SLOTTABLE_PROPERTIES =</span>
+<span class="fc" id="L156">            ImmutableSortedSet.of(</span>
+                    FontProperty.STYLE, FontProperty.VARIANT, FontProperty.WEIGHT);
+
+    @VisibleForTesting
+    static final String TOO_MANY_NORMALS =
+            &quot;The keyword normal can occur at most thrice in a font shorthand value&quot;;
+
+    @VisibleForTesting
+    static final String NORMAL_TOO_LATE =
+            &quot;The keyword normal is only allowed in the first three tokens of a &quot;
+                    + &quot;font shorthand&quot;;
+
+    @VisibleForTesting
+    static final String SIZE_AFTER_HEIGHT =
+            &quot;Font size must be specified before line-height&quot;;
+
+    @VisibleForTesting
+    static final String TOO_MANY_PRE_SIZE =
+            &quot;Too many font shorthand tokens before size&quot;;
+
+    @VisibleForTesting
+    static final String PRE_SIZE_INTERLOPER_SIZE =
+            &quot;Unrecognized tokens immediately preceding size&quot;;
+
+    /**
+     * Should the input be parsed strictly or do we assume gss variables
+     * might be substituted later?
+     */
+    private final InputMode mode;
+
+    private final ErrorManager errorManager;
+
+    private final MutatingVisitController visitController;
+
+    private CssTree tree;
+
+    public FixupFontDeclarations(
+<span class="fc" id="L193">            InputMode mode, ErrorManager errorManager, CssTree tree) {</span>
+<span class="fc" id="L194">        this.mode = mode;</span>
+<span class="fc" id="L195">        this.errorManager = errorManager;</span>
+<span class="fc" id="L196">        this.tree = tree;</span>
+<span class="fc" id="L197">        visitController = tree.getMutatingVisitController();</span>
+<span class="fc" id="L198">    }</span>
+
+    @Override
+    public boolean enterDeclaration(CssDeclarationNode decl) {
+<span class="fc" id="L202">        String propertyName = decl.getPropertyName().getProperty().getName();</span>
+<span class="fc bfc" id="L203" title="All 4 branches covered.">        if (!(FONT.equals(propertyName) || FONT_FAMILY.equals(propertyName))) {</span>
+<span class="fc" id="L204">            return false;</span>
+        }
+
+<span class="fc" id="L207">        CssDeclarationNode d = decl.deepCopy();</span>
+<span class="fc" id="L208">        List&lt;CssDeclarationNode&gt; replacement = ImmutableList.of(d);</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">        if (FONT.equals(propertyName)) {</span>
+<span class="fc" id="L210">            d.setPropertyValue(reparseFont(decl.getPropertyValue()));</span>
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">        } else if (FONT_FAMILY.equals(propertyName)) {</span>
+<span class="fc" id="L212">            d.setPropertyValue(reparseFontFamily(decl.getPropertyValue()));</span>
+        }
+<span class="fc" id="L214">        visitController.replaceCurrentBlockChildWith(replacement, false);</span>
+<span class="fc" id="L215">        return false;</span>
+    }
+
+    private CssPropertyValueNode reparseFont(CssPropertyValueNode n) {
+        // Preliminary easy cases
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">        if (n.numChildren() == 0) {</span>
+<span class="nc" id="L221">            return n.deepCopy();</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">        } else if (n.numChildren() == 1</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">                &amp;&amp; SYSTEM_FONTS.contains(n.getChildAt(0).getValue())</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">                || INHERIT.equals(n.getChildAt(0).getValue())) {</span>
+<span class="fc" id="L225">            return n.deepCopy();</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">        } else if (n.numChildren() &lt; 2) {</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">            if (mode == InputMode.CSS) {</span>
+<span class="fc" id="L228">                errorManager.report(</span>
+<span class="fc" id="L229">                        new GssError(SIZE_AND_FAMILY_REQUIRED, getSourceCodeLocation(n)));</span>
+            }
+<span class="fc" id="L231">            return n.deepCopy();</span>
+        }
+
+        // Some clients want to be able to whitelist typefaces or otherwise
+        // understand the font shorthand in detail. Unbound GSS variables make
+        // this pretty hopeless:
+        //   font: CLUELESS;
+        // but we can try:
+        //   font: italic bold SIZE/LEADING FAMILIES;
+        // and a best-effort parse tree for that might be useful.
+        //
+        // The best case for us is CSS, where we can rely on clues such as
+        // the keywords that can disambiguate some cases of style vs. variant
+        // and the slash token that tells us that the surrounding tokens are
+        // size and line-height and not e.g., size and a family name.
+        //
+        // Our strategy is to segment the property value and deal with each
+        // segment independently. Segmentation isn't straightforward because
+        // tokens can't always be understood independently:
+        //   font: normal italic 100 medium medium roman regular;
+        //         ^the next two tokens tell us this normal specifies a font-variant
+        //                       ^this is easily understood to be a font-weight
+        //                           ^obviously a font-size
+        //                                  ^because we're past size, this must
+        //                                   be a font-family name component
+
+        // Try to recognize things individually, then check for conflicts
+        // among our constraints, and finally rebuild our AST.
+
+<span class="fc" id="L260">        Iterable&lt;CssValueNode&gt; preFamilyCandidates =</span>
+<span class="fc" id="L261">                Iterables.limit(n.childIterable(), PRE_FAMILY_LIMIT);</span>
+
+<span class="fc" id="L263">        Iterable&lt;CssCompositeValueNode&gt; sizeLineHeights =</span>
+<span class="fc" id="L264">                Iterables.filter(</span>
+<span class="fc" id="L265">                        extractByType(CssCompositeValueNode.class, preFamilyCandidates),</span>
+<span class="fc" id="L266">                        withOperator(CssCompositeValueNode.Operator.SLASH));</span>
+<span class="fc" id="L267">        Iterable&lt;CssValueNode&gt; plainSizes =</span>
+<span class="fc" id="L268">                Iterables.filter(</span>
+                        preFamilyCandidates,
+                        IS_PLAIN_SIZE);
+<span class="fc" id="L271">        Iterable&lt;CssValueNode&gt; lhSizes =</span>
+<span class="fc" id="L272">                Iterables.transform(</span>
+                        sizeLineHeights,
+                        EXTRACT_SIZE);
+<span class="fc" id="L275">        final HashMap&lt;CssNode, Integer&gt; lexicalOrder =</span>
+<span class="fc" id="L276">                EnumeratingVisitor.enumerate(tree);</span>
+<span class="fc" id="L277">        Iterable&lt;CssValueNode&gt; sizes = Iterables.concat(plainSizes, lhSizes);</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        if (!validateSplitPoint(</span>
+<span class="fc" id="L279">                getSourceCodeLocation(n), lexicalOrder, sizeLineHeights, sizes)) {</span>
+<span class="fc" id="L280">            return n.deepCopy();</span>
+        }
+
+        // Now we can split on the one and only size node.
+<span class="fc" id="L284">        final CssValueNode splitPoint =</span>
+<span class="fc" id="L285">                Iterables.getOnlyElement(Iterables.concat(sizeLineHeights, plainSizes));</span>
+<span class="fc" id="L286">        Iterable&lt;CssValueNode&gt; prefix =</span>
+<span class="fc" id="L287">                takeWhile(n.childIterable(), new Predicate&lt;CssValueNode&gt;() {</span>
+                    @Override
+                    public boolean apply(CssValueNode n) {
+<span class="fc bfc" id="L290" title="All 2 branches covered.">                        return lexicalOrder.get(n).compareTo(</span>
+<span class="fc" id="L291">                                lexicalOrder.get(splitPoint)) &lt; 0;</span>
+                    }
+                });
+<span class="fc" id="L294">        final CssPriorityNode priority = getPriority(n);</span>
+<span class="fc" id="L295">        Iterable&lt;CssValueNode&gt; families =</span>
+<span class="fc" id="L296">                dropWhile(</span>
+<span class="fc" id="L297">                        takeUntil(n.childIterable(), priority),</span>
+<span class="fc" id="L298">                        new Predicate&lt;CssValueNode&gt;() {</span>
+                            @Override
+                            public boolean apply(CssValueNode n) {
+<span class="fc bfc" id="L301" title="All 2 branches covered.">                                return lexicalOrder.get(splitPoint).compareTo(</span>
+<span class="fc" id="L302">                                        lexicalOrder.get(n)) &lt; 0;</span>
+                            }
+                        });
+<span class="fc" id="L305">        final Map&lt;CssValueNode, FontProperty&gt; properties =</span>
+<span class="fc" id="L306">                classifyNodes(prefix, sizes, sizeLineHeights);</span>
+
+        // Validate analysis
+<span class="fc" id="L309">        validatePrefix(prefix);</span>
+<span class="fc" id="L310">        validateProperties(prefix, properties);</span>
+
+        // Build output
+<span class="fc" id="L313">        return rebuildFont(prefix, splitPoint, families, priority, properties, n);</span>
+    }
+
+    private CssPriorityNode getPriority(CssPropertyValueNode n) {
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">        if (n.numChildren() &lt; 1) return null;</span>
+
+<span class="fc" id="L319">        CssNode last = n.getChildAt(n.numChildren() - 1);</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        if (last instanceof CssPriorityNode) {</span>
+<span class="fc" id="L321">            return (CssPriorityNode) last;</span>
+        } else {
+<span class="fc" id="L323">            return null;</span>
+        }
+    }
+
+    private &lt;T&gt; Iterable&lt;T&gt; takeUntil(Iterable&lt;T&gt; xs, final T excludedEndpoint) {
+<span class="fc" id="L328">        return takeWhile(</span>
+                xs,
+<span class="fc" id="L330">                new Predicate&lt;T&gt;() {</span>
+                    @Override
+                    public boolean apply(T i) {
+<span class="fc bfc" id="L333" title="All 2 branches covered.">                        return excludedEndpoint != i;</span>
+                    }
+                });
+    }
+
+    private Map&lt;CssValueNode, FontProperty&gt; classifyNodes(
+            Iterable&lt;CssValueNode&gt; prefix,
+            Iterable&lt;CssValueNode&gt; sizes,
+            Iterable&lt;CssCompositeValueNode&gt; sizeLineHeights) {
+<span class="fc" id="L342">        final Map&lt;CssValueNode, FontProperty&gt; properties = Maps.newHashMap();</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        for (CssValueNode i : prefix) {</span>
+<span class="fc bfc" id="L344" title="All 2 branches covered.">            if (DEFINITELY_STYLE.contains(i.getValue())) {</span>
+<span class="fc" id="L345">                properties.put(i, FontProperty.STYLE);</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">            } else if (DEFINITELY_VARIANT.contains(i.getValue())) {</span>
+<span class="fc" id="L347">                properties.put(i, FontProperty.VARIANT);</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">            } else if (isWeight(i)) {</span>
+<span class="fc" id="L349">                properties.put(i, FontProperty.WEIGHT);</span>
+            }
+<span class="fc" id="L351">        }</span>
+<span class="fc" id="L352">        properties.put(Iterables.getOnlyElement(sizes), FontProperty.SIZE);</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">        if (!Iterables.isEmpty(sizeLineHeights)) {</span>
+<span class="fc" id="L354">            properties.put(</span>
+<span class="fc" id="L355">                    Iterables.getOnlyElement(sizeLineHeights).getValues().get(1),</span>
+                    FontProperty.LINE_HEIGHT);
+        }
+<span class="fc" id="L358">        return properties;</span>
+    }
+
+    private boolean isWeight(CssValueNode n) {
+<span class="fc bfc" id="L362" title="All 2 branches covered.">        if (DEFINITELY_WEIGHT.contains(n.getValue())) {</span>
+<span class="fc" id="L363">            return true;</span>
+        }
+<span class="fc bfc" id="L365" title="All 2 branches covered.">        if (!(n instanceof CssNumericNode)) {</span>
+<span class="fc" id="L366">            return false;</span>
+        }
+<span class="fc" id="L368">        CssNumericNode numeric = (CssNumericNode) n;</span>
+<span class="pc bpc" id="L369" title="1 of 2 branches missed.">        if (!CssNumericNode.NO_UNITS.equals(numeric.getUnit())) {</span>
+<span class="nc" id="L370">            return false;</span>
+        }
+<span class="fc" id="L372">        return (NUMERIC_WEIGHTS.contains(numeric.getNumericPart()));</span>
+    }
+
+    private void validateSizeLineHeight(CssCompositeValueNode composite) {
+<span class="nc bnc" id="L376" title="All 2 branches missed.">        if (composite.getValues().size() != 2) {</span>
+<span class="nc" id="L377">            reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),</span>
+<span class="nc" id="L378">                    getSourceCodeLocation(composite));</span>
+        }
+<span class="nc" id="L380">    }</span>
+
+    private void reportError(String message, SourceCodeLocation location) {
+<span class="fc" id="L383">        errorManager.report(new GssError(message, location));</span>
+<span class="fc" id="L384">    }</span>
+
+    private boolean validateSplitPoint(
+            SourceCodeLocation loc,
+            HashMap&lt;CssNode, Integer&gt; lexicalOrder,
+            Iterable&lt;CssCompositeValueNode&gt; sizeLineHeights,
+            Iterable&lt;CssValueNode&gt; sizes) {
+<span class="fc" id="L391">        CssCompositeValueNode secondSLH = Iterables.get(sizeLineHeights, 1, null);</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">        if (secondSLH != null) {</span>
+<span class="fc" id="L393">            reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),</span>
+<span class="fc" id="L394">                    getSourceCodeLocation(secondSLH));</span>
+<span class="fc" id="L395">            return false;</span>
+        }
+<span class="fc" id="L397">        CssCompositeValueNode slashy = Iterables.find(</span>
+                sizeLineHeights,
+<span class="fc" id="L399">                new Predicate&lt;CssCompositeValueNode&gt;() {</span>
+                    @Override
+                    public boolean apply(CssCompositeValueNode n) {
+<span class="fc bfc" id="L402" title="All 2 branches covered.">                        return n.getValues().size() != 2;</span>
+                    }
+                },
+                null);
+<span class="fc bfc" id="L406" title="All 2 branches covered.">        if (slashy != null) {</span>
+<span class="fc" id="L407">            reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),</span>
+<span class="fc" id="L408">                    getSourceCodeLocation(slashy));</span>
+        }
+<span class="fc bfc" id="L410" title="All 2 branches covered.">        if (Iterables.isEmpty(sizes)) {</span>
+<span class="pc bpc" id="L411" title="1 of 2 branches missed.">            if (mode == InputMode.CSS) {</span>
+<span class="nc" id="L412">                reportError(SIZE_AND_FAMILY_REQUIRED, loc);</span>
+            }
+<span class="fc" id="L414">            return false;</span>
+        }
+<span class="fc bfc" id="L416" title="All 2 branches covered.">        if (Iterables.get(sizes, 1, null) != null) {</span>
+<span class="fc" id="L417">            reportError(TOO_MANY.get(FontProperty.SIZE),</span>
+<span class="fc" id="L418">                    getSourceCodeLocation(</span>
+<span class="fc" id="L419">                            max(sizes, Functions.forMap(lexicalOrder))));</span>
+<span class="fc" id="L420">            return false;</span>
+        }
+<span class="fc" id="L422">        return true;</span>
+    }
+
+    private void validatePrefix(
+            Iterable&lt;CssValueNode&gt; prefix) {
+<span class="fc" id="L427">        CssValueNode tooMuch = Iterables.get(prefix, 3, null);</span>
+<span class="fc bfc" id="L428" title="All 2 branches covered.">        if (tooMuch != null) {</span>
+<span class="fc" id="L429">            reportError(TOO_MANY_PRE_SIZE, getSourceCodeLocation(tooMuch));</span>
+        }
+<span class="fc" id="L431">    }</span>
+
+    private void validateProperties(
+            Iterable&lt;CssValueNode&gt; prefix,
+            final Map&lt;CssValueNode, FontProperty&gt; classified) {
+<span class="fc" id="L436">        final List&lt;CssValueNode&gt; normals = Lists.newLinkedList();</span>
+<span class="fc bfc" id="L437" title="All 2 branches covered.">        for (CssValueNode i : prefix) {</span>
+<span class="fc bfc" id="L438" title="All 4 branches covered.">            if (!classified.containsKey(i) &amp;&amp; NORMAL.equals(i.getValue())) {</span>
+<span class="fc" id="L439">                normals.add(i);</span>
+            }
+<span class="fc" id="L441">        }</span>
+<span class="fc bfc" id="L442" title="All 2 branches covered.">        if (normals.size() &gt; 3) {</span>
+<span class="fc" id="L443">            errorManager.report(</span>
+                    new GssError(
+                            TOO_MANY_NORMALS,
+<span class="fc" id="L446">                            getSourceCodeLocation(normals.get(normals.size() - 1))));</span>
+        }
+<span class="fc" id="L448">        HashSet&lt;FontProperty&gt; properties = Sets.newHashSet();</span>
+<span class="fc bfc" id="L449" title="All 2 branches covered.">        for (Map.Entry&lt;CssValueNode, FontProperty&gt; p : classified.entrySet()) {</span>
+<span class="fc bfc" id="L450" title="All 2 branches covered.">            if (!properties.add(p.getValue())) {</span>
+<span class="fc" id="L451">                reportError(TOO_MANY.get(p.getValue()),</span>
+<span class="fc" id="L452">                        getSourceCodeLocation(p.getKey()));</span>
+            }
+<span class="fc" id="L454">        }</span>
+<span class="fc bfc" id="L455" title="All 2 branches covered.">        if (mode == InputMode.CSS) {</span>
+<span class="fc" id="L456">            CssValueNode interloper =</span>
+<span class="fc" id="L457">                    Iterables.find(</span>
+                            prefix,
+<span class="fc" id="L459">                            new Predicate&lt;CssValueNode&gt;() {</span>
+                                @Override
+                                public boolean apply(CssValueNode n) {
+<span class="fc bfc" id="L462" title="All 4 branches covered.">                                    return !classified.containsKey(n) &amp;&amp; !normals.contains(n);</span>
+                                }
+                            },
+                            null);
+<span class="fc bfc" id="L466" title="All 2 branches covered.">            if (interloper != null) {</span>
+<span class="fc" id="L467">                reportError(PRE_SIZE_INTERLOPER_SIZE,</span>
+<span class="fc" id="L468">                        getSourceCodeLocation(interloper));</span>
+            }
+        }
+<span class="fc" id="L471">    }</span>
+
+    private CssPropertyValueNode rebuildFont(
+            Iterable&lt;CssValueNode&gt; prefix,
+            CssValueNode splitPoint,
+            Iterable&lt;CssValueNode&gt; families,
+            CssPriorityNode priority,
+            final Map&lt;CssValueNode, FontProperty&gt; properties,
+            CssPropertyValueNode n) {
+        TreeMap&lt;FontProperty, CssValueNode&gt; parts =
+<span class="fc" id="L481">                Maps.newTreeMap();</span>
+<span class="fc bfc" id="L482" title="All 2 branches covered.">        for (Map.Entry&lt;CssValueNode, FontProperty&gt; p : properties.entrySet()) {</span>
+<span class="fc" id="L483">            parts.put(p.getValue(), p.getKey());</span>
+<span class="fc" id="L484">        }</span>
+<span class="fc" id="L485">        List&lt;CssValueNode&gt; preFamily = Lists.newArrayList();</span>
+<span class="fc" id="L486">        Iterables.addAll(preFamily, prefix);</span>
+<span class="pc bpc" id="L487" title="1 of 2 branches missed.">        if (parts.containsKey(FontProperty.SIZE)) {</span>
+<span class="fc" id="L488">            preFamily.add(parts.get(FontProperty.SIZE));</span>
+        }
+<span class="fc bfc" id="L490" title="All 2 branches covered.">        if (parts.containsKey(FontProperty.LINE_HEIGHT)) {</span>
+<span class="fc" id="L491">            CssValueNode lineHeight = parts.get(FontProperty.LINE_HEIGHT);</span>
+<span class="fc" id="L492">            preFamily.add(new CssLiteralNode(&quot;/&quot;, getSourceCodeLocation(lineHeight)));</span>
+<span class="fc" id="L493">            preFamily.add(lineHeight);</span>
+        }
+        List&lt;CssValueNode&gt; tail =
+<span class="pc bpc" id="L496" title="1 of 2 branches missed.">                Iterables.isEmpty(families)</span>
+<span class="nc" id="L497">                        ? ImmutableList.&lt;CssValueNode&gt;of()</span>
+<span class="fc" id="L498">                        : ImmutableList.&lt;CssValueNode&gt;of(reparseFamilies(</span>
+                        families,
+<span class="fc" id="L500">                        SourceCodeLocation.merge(families)));</span>
+<span class="fc" id="L501">        ImmutableList.Builder&lt;CssValueNode&gt; resultNodes = ImmutableList.builder();</span>
+<span class="fc" id="L502">        resultNodes.addAll(Iterables.concat(preFamily, tail));</span>
+<span class="fc bfc" id="L503" title="All 2 branches covered.">        if (priority != null) {</span>
+<span class="fc" id="L504">            resultNodes.add(priority);</span>
+        }
+<span class="fc" id="L506">        CssPropertyValueNode result = new CssPropertyValueNode(resultNodes.build());</span>
+<span class="fc" id="L507">        return result.deepCopy();</span>
+    }
+
+    private CssCompositeValueNode reparseFamilies(
+            Iterable&lt;CssValueNode&gt; families, SourceCodeLocation loc) {
+        // they will be a comma-delimited sequence of (strings | id-sequences)
+<span class="fc" id="L513">        List&lt;CssValueNode&gt; alternatives = Lists.newArrayList();</span>
+<span class="fc" id="L514">        List&lt;CssCommentNode&gt; commentsOnAlternatives = Lists.newArrayList();</span>
+<span class="fc bfc" id="L515" title="All 2 branches covered.">        for (CssValueNode i : families) {</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">            if (i instanceof CssCompositeValueNode) {</span>
+<span class="fc" id="L517">                CssCompositeValueNode segment = (CssCompositeValueNode) i;</span>
+<span class="pc bpc" id="L518" title="1 of 2 branches missed.">                if (segment.getValues().size() == 0) {</span>
+<span class="nc" id="L519">                    continue;</span>
+                }
+<span class="fc" id="L521">                CssValueNode first = Iterables.getFirst(segment.getValues(), null);</span>
+<span class="fc" id="L522">                collect(alternatives, first);</span>
+<span class="fc" id="L523">                Iterable&lt;CssValueNode&gt; rest = Iterables.skip(segment.getValues(), 1);</span>
+<span class="fc" id="L524">                Iterables.addAll(alternatives, rest);</span>
+<span class="fc bfc" id="L525" title="All 2 branches covered.">                for (CssNode j : rest) {</span>
+<span class="pc bpc" id="L526" title="1 of 2 branches missed.">                    for (CssCommentNode c : j.getComments()) {</span>
+<span class="nc" id="L527">                        commentsOnAlternatives.add(c);</span>
+<span class="nc" id="L528">                    }</span>
+<span class="fc" id="L529">                }</span>
+<span class="fc" id="L530">            } else {</span>
+<span class="fc" id="L531">                collect(alternatives, i);</span>
+            }
+<span class="fc" id="L533">        }</span>
+<span class="fc" id="L534">        CssCompositeValueNode result = new CssCompositeValueNode(</span>
+                alternatives, CssCompositeValueNode.Operator.COMMA, loc);
+<span class="pc bpc" id="L536" title="1 of 2 branches missed.">        for (CssCommentNode c : commentsOnAlternatives) {</span>
+<span class="nc" id="L537">            result.appendComment(c);</span>
+<span class="nc" id="L538">        }</span>
+<span class="fc" id="L539">        return result;</span>
+    }
+
+    private CssPropertyValueNode reparseFontFamily(CssPropertyValueNode n) {
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">        if (n.numChildren() == 0) {</span>
+<span class="nc" id="L544">            return n.deepCopy();</span>
+        }
+<span class="fc bfc" id="L546" title="All 2 branches covered.">        if (n.numChildren() == 1</span>
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">                &amp;&amp; INHERIT.equals(n.getChildAt(0).getValue())) {</span>
+<span class="fc" id="L548">            return n.deepCopy();</span>
+        }
+<span class="fc" id="L550">        CssPriorityNode priority = getPriority(n);</span>
+        // deal with alternatives
+<span class="fc" id="L552">        CssCompositeValueNode altNode = reparseFamilies(</span>
+<span class="fc" id="L553">                takeUntil(n.childIterable(), priority),</span>
+<span class="fc" id="L554">                getSourceCodeLocation(n));</span>
+<span class="fc" id="L555">        ImmutableList.Builder&lt;CssValueNode&gt; result = ImmutableList.builder();</span>
+<span class="fc" id="L556">        result.add(altNode);</span>
+<span class="fc bfc" id="L557" title="All 2 branches covered.">        if (priority != null) {</span>
+<span class="fc" id="L558">            result.add(priority);</span>
+        }
+<span class="fc" id="L560">        return new CssPropertyValueNode(result.build());</span>
+    }
+
+    /**
+     * Agglomerate each id sequence into a space-separated literal value,
+     * leaving strings as they were and fixing up comments and
+     * SourceCodeLocations as best we can.
+     */
+    private void collect(List&lt;CssValueNode&gt; alternatives, CssValueNode item) {
+<span class="fc bfc" id="L569" title="All 2 branches covered.">        if (isString(item)) {</span>
+<span class="fc" id="L570">            alternatives.add(item);</span>
+        } else {
+            CssValueNode stump;
+<span class="fc bfc" id="L573" title="All 2 branches covered.">            if (alternatives.size() &gt; 0</span>
+<span class="pc bpc" id="L574" title="1 of 2 branches missed.">                    &amp;&amp; !isString(alternatives.get(alternatives.size() - 1))) {</span>
+                // concatenate onto previous node
+<span class="fc" id="L576">                stump = alternatives.get(alternatives.size() - 1);</span>
+<span class="fc" id="L577">                stump.setValue(stump.getValue() + &quot; &quot;);</span>
+            } else {
+                // start a new node
+<span class="fc" id="L580">                stump = new CssLiteralNode(&quot;&quot;, getSourceCodeLocation(item));</span>
+<span class="fc" id="L581">                alternatives.add(stump);</span>
+            }
+<span class="fc" id="L583">            stump.setValue(stump.getValue() + item.getValue());</span>
+<span class="fc" id="L584">            stump.setSourceCodeLocation(</span>
+<span class="fc" id="L585">                    SourceCodeLocation.merge(stump.getSourceCodeLocation(), item.getSourceCodeLocation()));</span>
+<span class="pc bpc" id="L586" title="1 of 2 branches missed.">            for (CssCommentNode c : item.getComments()) {</span>
+<span class="nc" id="L587">                stump.appendComment(c);</span>
+<span class="nc" id="L588">            }</span>
+        }
+<span class="fc" id="L590">    }</span>
+
+    private boolean isString(CssValueNode n) {
+<span class="fc" id="L593">        return n instanceof CssStringNode;</span>
+    }
+
+    private static SourceCodeLocation getSourceCodeLocation(CssNode n) {
+<span class="fc" id="L597">        n = Iterables.find(n.ancestors(), new Predicate&lt;CssNode&gt;() {</span>
+            @Override
+            public boolean apply(CssNode n) {
+<span class="pc bpc" id="L600" title="1 of 2 branches missed.">                return n.getSourceCodeLocation() != null;</span>
+            }
+        }, null);
+<span class="pc bpc" id="L603" title="1 of 2 branches missed.">        return n != null</span>
+<span class="fc" id="L604">                ? n.getSourceCodeLocation()</span>
+<span class="nc" id="L605">                : new SourceCodeLocation(</span>
+                new SourceCode(null, &quot;x&quot;),
+                1, 1, 1, 1, 1, 1);
+    }
+
+    /**
+     * Computes the prefix of {@code xs} for which {@code p} holds.
+     */
+    private &lt;T&gt; Iterable&lt;T&gt; takeWhile(
+            final Iterable&lt;T&gt; xs, final Predicate&lt;? super T&gt; p) {
+<span class="fc" id="L615">        return new Iterable&lt;T&gt;() {</span>
+            @Override
+            public Iterator&lt;T&gt; iterator() {
+<span class="fc" id="L618">                return new UnmodifiableIterator&lt;T&gt;() {</span>
+<span class="fc" id="L619">                    Iterator&lt;T&gt; xsi = xs.iterator();</span>
+<span class="fc" id="L620">                    boolean validT = false;</span>
+                    T t;
+
+                    {
+<span class="fc" id="L624">                        next();</span>
+<span class="fc" id="L625">                    }</span>
+
+                    @Override
+                    public boolean hasNext() {
+<span class="fc" id="L629">                        return validT;</span>
+                    }
+
+                    @Override
+                    public T next() {
+<span class="fc" id="L634">                        T result = t;</span>
+<span class="fc bfc" id="L635" title="All 2 branches covered.">                        if (xsi.hasNext()) {</span>
+<span class="fc" id="L636">                            t = xsi.next();</span>
+<span class="fc" id="L637">                            validT = p.apply(t);</span>
+                        } else {
+<span class="fc" id="L639">                            validT = false;</span>
+                        }
+<span class="fc" id="L641">                        return result;</span>
+                    }
+                };
+            }
+        };
+    }
+
+    /**
+     * Computes the suffix of {@code xs} starting at the first node for which
+     * {@code p} fails.
+     * &lt;p&gt;
+     * {@code Iterables.concat(takeWhile(xs, p), dropWhile(xs, p)) = xs}
+     */
+    private &lt;T&gt; Iterable&lt;T&gt; dropWhile(
+            final Iterable&lt;T&gt; xs, final Predicate&lt;? super T&gt; p) {
+<span class="fc" id="L656">        return new Iterable&lt;T&gt;() {</span>
+            @Override
+            public Iterator&lt;T&gt; iterator() {
+<span class="fc" id="L659">                PeekingIterator&lt;T&gt; xsi = Iterators.peekingIterator(xs.iterator());</span>
+<span class="pc bpc" id="L660" title="1 of 2 branches missed.">                while (xsi.hasNext()) {</span>
+<span class="fc bfc" id="L661" title="All 2 branches covered.">                    if (p.apply(xsi.peek())) {</span>
+<span class="fc" id="L662">                        break;</span>
+                    }
+<span class="fc" id="L664">                    xsi.next();</span>
+                }
+<span class="fc" id="L666">                return xsi;</span>
+            }
+        };
+    }
+
+    /**
+     * Returns an element of {@code xs} whose image under {@code f} is
+     * maximal.
+     */
+    private &lt;T, U extends Comparable&lt;U&gt;&gt; T max(
+            Iterable&lt;T&gt; xs, Function&lt;? super T, U&gt; f) {
+<span class="fc" id="L677">        T result = Iterables.getFirst(xs, null);</span>
+<span class="fc" id="L678">        U extreme = f.apply(result);</span>
+<span class="fc bfc" id="L679" title="All 2 branches covered.">        for (T x : xs) {</span>
+<span class="fc" id="L680">            U u = f.apply(x);</span>
+<span class="fc bfc" id="L681" title="All 2 branches covered.">            if (extreme.compareTo(u) &lt; 0) {</span>
+<span class="fc" id="L682">                result = x;</span>
+<span class="fc" id="L683">                extreme = u;</span>
+            }
+<span class="fc" id="L685">        }</span>
+<span class="fc" id="L686">        return result;</span>
+    }
+
+    /**
+     * Filter to elements of type {@code T} designated by {@code ct}
+     * and cast the result.
+     */
+    private &lt;T&gt; Iterable&lt;T&gt; extractByType(
+            final Class&lt;T&gt; ct, Iterable&lt;? super T&gt; xs) {
+<span class="fc" id="L695">        return Iterables.transform(</span>
+<span class="fc" id="L696">                Iterables.filter(xs, Predicates.instanceOf(ct)),</span>
+<span class="fc" id="L697">                new Function&lt;Object, T&gt;() {</span>
+                    @Override
+                    public T apply(Object x) {
+<span class="fc" id="L700">                        return ct.cast(x);</span>
+                    }
+                });
+    }
+
+    @Override
+    public void runPass() {
+<span class="fc" id="L707">        visitController.startVisit(this);</span>
+<span class="fc" id="L708">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

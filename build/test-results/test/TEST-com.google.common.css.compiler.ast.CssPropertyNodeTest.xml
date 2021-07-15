@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.ast.CssPropertyNodeTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:51" hostname="Patrick-MBP.fritz.box" time="0.001">
+  <properties/>
+  <testcase name="testPropertyNodeCreation1" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.001"/>
+  <testcase name="testPropertyNodeCreation2" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.0"/>
+  <testcase name="testPropertyNodeCreation3" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.0"/>
+  <testcase name="testPropertyNodeShorthands" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.0"/>
+  <testcase name="testCustomPropertyNodeCreation" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.0"/>
+  <testcase name="testPropertyNodeCopy" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.0"/>
+  <testcase name="testPropertyNodePartition" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.0"/>
+  <testcase name="testPropertyNodePositionDependentValues" classname="com.google.common.css.compiler.ast.CssPropertyNodeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

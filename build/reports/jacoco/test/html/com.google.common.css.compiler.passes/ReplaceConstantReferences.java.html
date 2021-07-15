@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReplaceConstantReferences.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">ReplaceConstantReferences.java</span></div><h1>ReplaceConstantReferences.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.css.compiler.ast.*;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+/**
+ * Compiler pass that replaces the constant references with the right values.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class ReplaceConstantReferences extends DefaultTreeVisitor
+        implements CssCompilerPass {
+
+    private final MutatingVisitController visitController;
+    private final ConstantDefinitions constantDefinitions;
+    private final boolean removeDefs;
+    private final ErrorManager errorManager;
+    private final boolean allowUndefinedConstants;
+
+    /**
+     * This constructor is only used by other projects.
+     * It should not be used in new code.
+     */
+    public ReplaceConstantReferences(CssTree tree,
+                                     @Nullable ConstantDefinitions constantDefinitions) {
+<span class="nc" id="L48">        this(tree, constantDefinitions, true /* removeDefs */,</span>
+                null /* errorManager*/, true /* allowUndefinedConstants */);
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * This constructor is only used by other projects.
+     * It should not be used in new code.
+     */
+    public ReplaceConstantReferences(CssTree tree,
+                                     @Nullable ConstantDefinitions constantDefinitions, boolean removeDefs) {
+<span class="nc" id="L58">        this(tree, constantDefinitions, removeDefs, null /* errorManager*/,</span>
+                true /* allowUndefinedConstants */);
+<span class="nc" id="L60">    }</span>
+
+    public ReplaceConstantReferences(CssTree tree,
+                                     @Nullable ConstantDefinitions constantDefinitions, boolean removeDefs,
+<span class="fc" id="L64">                                     ErrorManager errorManager, boolean allowUndefinedConstants) {</span>
+<span class="pc bpc" id="L65" title="1 of 4 branches missed.">        Preconditions.checkArgument(allowUndefinedConstants</span>
+                || errorManager != null);
+<span class="fc" id="L67">        this.visitController = tree.getMutatingVisitController();</span>
+<span class="fc" id="L68">        this.constantDefinitions = constantDefinitions;</span>
+<span class="fc" id="L69">        this.removeDefs = removeDefs;</span>
+<span class="fc" id="L70">        this.errorManager = errorManager;</span>
+<span class="fc" id="L71">        this.allowUndefinedConstants = allowUndefinedConstants;</span>
+<span class="fc" id="L72">    }</span>
+
+    @Override
+    public boolean enterDefinition(CssDefinitionNode node) {
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        if (removeDefs) {</span>
+<span class="fc" id="L77">            visitController.removeCurrentNode();</span>
+        }
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        return !removeDefs;</span>
+    }
+
+    @Override
+    public boolean enterValueNode(CssValueNode node) {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (node instanceof CssConstantReferenceNode) {</span>
+<span class="fc" id="L85">            replaceConstantReference((CssConstantReferenceNode) node);</span>
+        }
+<span class="fc" id="L87">        return true;</span>
+    }
+
+    @Override
+    public boolean enterArgumentNode(CssValueNode node) {
+<span class="fc" id="L92">        return enterValueNode(node);</span>
+    }
+
+    @VisibleForTesting
+    void replaceConstantReference(CssConstantReferenceNode node) {
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (constantDefinitions == null) {</span>
+<span class="nc" id="L98">            return;</span>
+        }
+
+<span class="fc" id="L101">        CssDefinitionNode constantNode =</span>
+<span class="fc" id="L102">                constantDefinitions.getConstantDefinition(node.getValue());</span>
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (constantNode == null) {</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">            if (!allowUndefinedConstants) {</span>
+<span class="fc" id="L106">                errorManager.report(new GssError(&quot;GSS constant not defined: &quot;</span>
+<span class="fc" id="L107">                        + node.getValue(), node.getSourceCodeLocation()));</span>
+            }
+<span class="fc" id="L109">            return;</span>
+        }
+
+<span class="fc" id="L112">        List&lt;CssValueNode&gt; params = constantNode.getParameters();</span>
+<span class="fc" id="L113">        List&lt;CssValueNode&gt; temp = Lists.newArrayListWithCapacity(params.size());</span>
+<span class="fc" id="L114">        boolean inFunArgs = node.inFunArgs();</span>
+<span class="fc" id="L115">        boolean intermediate = false;</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        for (CssValueNode n : params) {</span>
+<span class="fc bfc" id="L117" title="All 4 branches covered.">            if (inFunArgs &amp;&amp; intermediate) {</span>
+                // Usually, the parser consumes whitespace and lets tree
+                // structure suffice to distinguish elements of the AST. But
+                // functions are different: the parser adds CssLiteralNode(&quot; &quot;)
+                // between function args. Here we are looking at a sequence
+                // of values parsed from a @def (where we do not represent
+                // whitespace explicitly) and a use/reference that occurs in a
+                // function (where we do represent whitespace explicitly). So,
+                // we need to reconstitute the whitespace nodes.
+                // TODO(user): change the parser to eliminate special cases
+                // for function args
+<span class="fc" id="L128">                temp.add(new CssLiteralNode(&quot; &quot;, n.getSourceCodeLocation()));</span>
+            }
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            if (n instanceof Proxiable) {</span>
+                @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L132">                Proxiable&lt;CssValueNode&gt; proxiable = (Proxiable&lt;CssValueNode&gt;) n;</span>
+<span class="fc" id="L133">                temp.add(proxiable.createProxy());</span>
+<span class="fc" id="L134">            } else {</span>
+<span class="fc" id="L135">                temp.add(n.deepCopy());</span>
+            }
+<span class="fc" id="L137">            intermediate = true;</span>
+<span class="fc" id="L138">        }</span>
+        // The composite value is used so that we can store nodes with different
+        // separators in one another. visitController.replaceCurrentBlockChildWith
+        // will unwrap the value if it can in the current context.
+<span class="fc" id="L142">        CssCompositeValueNode tempNode = new CssCompositeValueNode(</span>
+                temp, CssCompositeValueNode.Operator.SPACE,
+<span class="fc" id="L144">                node.getSourceCodeLocation());</span>
+<span class="fc" id="L145">        visitController.replaceCurrentBlockChildWith(</span>
+<span class="fc" id="L146">                Lists.newArrayList(tempNode), true);</span>
+<span class="fc" id="L147">    }</span>
+
+    @Override
+    public void runPass() {
+        // Replace the original custom function node with a proxy to stop
+        // propagation of changes of the original node to nodes that proxy it.
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (constantDefinitions != null) {</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">            for (String constantName : constantDefinitions.getConstantsNames()) {</span>
+<span class="fc" id="L155">                CssDefinitionNode node =</span>
+<span class="fc" id="L156">                        constantDefinitions.getConstantDefinition(constantName);</span>
+<span class="fc" id="L157">                List&lt;CssValueNode&gt; params = node.getParameters();</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">                for (int i = 0; i &lt; params.size(); i++) {</span>
+<span class="fc" id="L159">                    CssValueNode n = params.get(i);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">                    if (n instanceof Proxiable) {</span>
+                        @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L162">                        Proxiable&lt;CssValueNode&gt; proxiable = (Proxiable&lt;CssValueNode&gt;) n;</span>
+<span class="fc" id="L163">                        node.replaceChildAt(i, ImmutableList.of(proxiable.createProxy()));</span>
+                    }
+                }
+<span class="fc" id="L166">            }</span>
+        }
+<span class="fc" id="L168">        visitController.startVisit(this);</span>
+<span class="fc" id="L169">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

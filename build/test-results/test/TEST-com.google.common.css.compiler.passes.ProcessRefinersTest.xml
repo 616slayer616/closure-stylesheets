@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.passes.ProcessRefinersTest" tests="31" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:50" hostname="Patrick-MBP.fritz.box" time="0.018">
+  <properties/>
+  <testcase name="testNthCompact1" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.002"/>
+  <testcase name="testNthCompact2" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact3" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact4" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact5" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact6" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact7" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact8" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact9" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testLang" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testParseA" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testParseB" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact10" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact11" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact12" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact13" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact14" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact15" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact16" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact17" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthCompact18" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthCompact19" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNotBad1" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNotBad2" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNotBad3" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.002"/>
+  <testcase name="testNthBad1" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthBad2" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNthBad3" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthBad4" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <testcase name="testNthBad5" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.0"/>
+  <testcase name="testNotWithComment" classname="com.google.common.css.compiler.passes.ProcessRefinersTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

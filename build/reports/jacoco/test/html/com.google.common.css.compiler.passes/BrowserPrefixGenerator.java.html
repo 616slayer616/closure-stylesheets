@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrowserPrefixGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.passes</a> &gt; <span class="el_source">BrowserPrefixGenerator.java</span></div><h1>BrowserPrefixGenerator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2015 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.passes;
+
+import com.google.common.collect.ImmutableList;
+
+/**
+ * A utility for the AutoExpandBrowserPrefix pass, which provides a list of rules
+ * that govern automatic addition of browser specific property declarations.
+ *
+ * &lt;p&gt;Currently three most common cases are handled:
+ * #1 Matching and replacing only the property name. Eg. flex-grow: VALUE;
+ * #2 Matching property name and value, replacing the value. Eg. display: flex;
+ * #3 Matching property name and value where value is a function, replacing the function name.
+ * Eg. background-image: linear-gradient(ARGS);
+ */
+<span class="nc" id="L31">public final class BrowserPrefixGenerator {</span>
+
+<span class="fc" id="L33">    private static final ImmutableList&lt;BrowserPrefixRule&gt; EXPANSION_RULES = buildExpansionRules();</span>
+
+    /**
+     * Returns the rules for automatic expansion of mixins.
+     */
+    public static ImmutableList&lt;BrowserPrefixRule&gt; getExpansionRules() {
+<span class="fc" id="L39">        return EXPANSION_RULES;</span>
+    }
+
+    private static ImmutableList&lt;BrowserPrefixRule&gt; buildExpansionRules() {
+<span class="fc" id="L43">        ImmutableList.Builder&lt;BrowserPrefixRule&gt; builder = ImmutableList.builder();</span>
+<span class="fc" id="L44">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L45">                .matchPropertyName(&quot;display&quot;)</span>
+<span class="fc" id="L46">                .matchPropertyValue(&quot;flex&quot;)</span>
+<span class="fc" id="L47">                .isFunction(false)</span>
+<span class="fc" id="L48">                .addExpandPropertyValue(&quot;-webkit-box&quot;)</span>
+<span class="fc" id="L49">                .addExpandPropertyValue(&quot;-moz-box&quot;)</span>
+<span class="fc" id="L50">                .addExpandPropertyValue(&quot;-webkit-flex&quot;)</span>
+<span class="fc" id="L51">                .addExpandPropertyValue(&quot;-ms-flexbox&quot;)</span>
+<span class="fc" id="L52">                .addExpandPropertyValue(&quot;flex&quot;)</span>
+<span class="fc" id="L53">                .build());</span>
+
+<span class="fc" id="L55">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L56">                .matchPropertyName(&quot;display&quot;)</span>
+<span class="fc" id="L57">                .matchPropertyValue(&quot;inline-flex&quot;)</span>
+<span class="fc" id="L58">                .isFunction(false)</span>
+<span class="fc" id="L59">                .addExpandPropertyValue(&quot;-webkit-inline-box&quot;)</span>
+<span class="fc" id="L60">                .addExpandPropertyValue(&quot;-webkit-inline-flex&quot;)</span>
+<span class="fc" id="L61">                .addExpandPropertyValue(&quot;-ms-inline-flexbox&quot;)</span>
+<span class="fc" id="L62">                .addExpandPropertyValue(&quot;inline-flex&quot;)</span>
+<span class="fc" id="L63">                .build());</span>
+
+<span class="fc" id="L65">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L66">                .matchPropertyName(&quot;flex-flow&quot;)</span>
+<span class="fc" id="L67">                .isFunction(false)</span>
+<span class="fc" id="L68">                .addExpandPropertyName(&quot;-ms-flex-flow&quot;)</span>
+<span class="fc" id="L69">                .addExpandPropertyName(&quot;-webkit-flex-flow&quot;)</span>
+<span class="fc" id="L70">                .addExpandPropertyName(&quot;flex-flow&quot;)</span>
+<span class="fc" id="L71">                .build());</span>
+
+<span class="fc" id="L73">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L74">                .matchPropertyName(&quot;flex-direction&quot;)</span>
+<span class="fc" id="L75">                .isFunction(false)</span>
+<span class="fc" id="L76">                .addExpandPropertyName(&quot;-ms-flex-direction&quot;)</span>
+<span class="fc" id="L77">                .addExpandPropertyName(&quot;-webkit-flex-direction&quot;)</span>
+<span class="fc" id="L78">                .addExpandPropertyName(&quot;flex-direction&quot;)</span>
+<span class="fc" id="L79">                .build());</span>
+
+<span class="fc" id="L81">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L82">                .matchPropertyName(&quot;flex-wrap&quot;)</span>
+<span class="fc" id="L83">                .isFunction(false)</span>
+<span class="fc" id="L84">                .addExpandPropertyName(&quot;-moz-flex-wrap&quot;)</span>
+<span class="fc" id="L85">                .addExpandPropertyName(&quot;-ms-flex-wrap&quot;)</span>
+<span class="fc" id="L86">                .addExpandPropertyName(&quot;-webkit-flex-wrap&quot;)</span>
+<span class="fc" id="L87">                .addExpandPropertyName(&quot;flex-wrap&quot;)</span>
+<span class="fc" id="L88">                .build());</span>
+
+<span class="fc" id="L90">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L91">                .matchPropertyName(&quot;flex&quot;)</span>
+<span class="fc" id="L92">                .isFunction(false)</span>
+<span class="fc" id="L93">                .addExpandPropertyName(&quot;-webkit-box-flex&quot;)</span>
+<span class="fc" id="L94">                .addExpandPropertyName(&quot;-moz-box-flex&quot;)</span>
+<span class="fc" id="L95">                .addExpandPropertyName(&quot;-ms-flex&quot;)</span>
+<span class="fc" id="L96">                .addExpandPropertyName(&quot;-webkit-flex&quot;)</span>
+<span class="fc" id="L97">                .addExpandPropertyName(&quot;flex&quot;)</span>
+<span class="fc" id="L98">                .build());</span>
+
+        // Needed for Chrome 21, Safari 7, IE 10 or less
+<span class="fc" id="L101">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L102">                .matchPropertyName(&quot;order&quot;)</span>
+<span class="fc" id="L103">                .isFunction(false)</span>
+<span class="fc" id="L104">                .addExpandPropertyName(&quot;-webkit-box-ordinal-group&quot;)</span>
+<span class="fc" id="L105">                .addExpandPropertyName(&quot;-moz-box-ordinal-group&quot;)</span>
+<span class="fc" id="L106">                .addExpandPropertyName(&quot;-ms-flex-order&quot;)</span>
+<span class="fc" id="L107">                .addExpandPropertyName(&quot;-webkit-order&quot;)</span>
+<span class="fc" id="L108">                .addExpandPropertyName(&quot;order&quot;)</span>
+<span class="fc" id="L109">                .build());</span>
+
+        // Needed for Safari 7, Chrome 21 or less
+<span class="fc" id="L112">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L113">                .matchPropertyName(&quot;flex-basis&quot;)</span>
+<span class="fc" id="L114">                .isFunction(false)</span>
+<span class="fc" id="L115">                .addExpandPropertyName(&quot;-webkit-flex-basis&quot;)</span>
+<span class="fc" id="L116">                .addExpandPropertyName(&quot;-ms-flex-preferred-size&quot;)</span>
+<span class="fc" id="L117">                .addExpandPropertyName(&quot;flex-basis&quot;)</span>
+<span class="fc" id="L118">                .build());</span>
+
+<span class="fc" id="L120">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L121">                .matchPropertyName(&quot;flex-grow&quot;)</span>
+<span class="fc" id="L122">                .isFunction(false)</span>
+<span class="fc" id="L123">                .addExpandPropertyName(&quot;-webkit-box-flex&quot;)</span>
+<span class="fc" id="L124">                .addExpandPropertyName(&quot;box-flex&quot;)</span>
+<span class="fc" id="L125">                .addExpandPropertyName(&quot;-ms-flex-positive&quot;)</span>
+<span class="fc" id="L126">                .addExpandPropertyName(&quot;-webkit-flex-grow&quot;)</span>
+<span class="fc" id="L127">                .addExpandPropertyName(&quot;flex-grow&quot;)</span>
+<span class="fc" id="L128">                .build());</span>
+
+<span class="fc" id="L130">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L131">                .matchPropertyName(&quot;flex-shrink&quot;)</span>
+<span class="fc" id="L132">                .isFunction(false)</span>
+<span class="fc" id="L133">                .addExpandPropertyName(&quot;-ms-flex-negative&quot;)</span>
+<span class="fc" id="L134">                .addExpandPropertyName(&quot;-webkit-flex-shrink&quot;)</span>
+<span class="fc" id="L135">                .addExpandPropertyName(&quot;flex-shrink&quot;)</span>
+<span class="fc" id="L136">                .build());</span>
+
+<span class="fc" id="L138">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L139">                .matchPropertyName(&quot;align-content&quot;)</span>
+<span class="fc" id="L140">                .isFunction(false)</span>
+<span class="fc" id="L141">                .addExpandPropertyName(&quot;-webkit-align-content&quot;)</span>
+<span class="fc" id="L142">                .addExpandPropertyName(&quot;align-content&quot;)</span>
+<span class="fc" id="L143">                .build());</span>
+
+<span class="fc" id="L145">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L146">                .matchPropertyName(&quot;align-items&quot;)</span>
+<span class="fc" id="L147">                .isFunction(false)</span>
+<span class="fc" id="L148">                .addExpandPropertyName(&quot;-webkit-align-items&quot;)</span>
+<span class="fc" id="L149">                .addExpandPropertyName(&quot;align-items&quot;)</span>
+<span class="fc" id="L150">                .build());</span>
+
+<span class="fc" id="L152">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L153">                .matchPropertyName(&quot;align-self&quot;)</span>
+<span class="fc" id="L154">                .isFunction(false)</span>
+<span class="fc" id="L155">                .addExpandPropertyName(&quot;-webkit-align-self&quot;)</span>
+<span class="fc" id="L156">                .addExpandPropertyName(&quot;-ms-grid-row-align&quot;)</span>
+<span class="fc" id="L157">                .addExpandPropertyName(&quot;align-self&quot;)</span>
+<span class="fc" id="L158">                .build());</span>
+
+<span class="fc" id="L160">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L161">                .matchPropertyName(&quot;justify-content&quot;)</span>
+<span class="fc" id="L162">                .isFunction(false)</span>
+<span class="fc" id="L163">                .addExpandPropertyName(&quot;-webkit-justify-content&quot;)</span>
+<span class="fc" id="L164">                .addExpandPropertyName(&quot;justify-content&quot;)</span>
+<span class="fc" id="L165">                .build());</span>
+
+<span class="fc" id="L167">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L168">                .matchPropertyName(&quot;text-size-adjust&quot;)</span>
+<span class="fc" id="L169">                .isFunction(false)</span>
+<span class="fc" id="L170">                .addExpandPropertyName(&quot;-webkit-text-size-adjust&quot;)</span>
+<span class="fc" id="L171">                .addExpandPropertyName(&quot;-moz-text-size-adjust&quot;)</span>
+<span class="fc" id="L172">                .addExpandPropertyName(&quot;-ms-text-size-adjust&quot;)</span>
+<span class="fc" id="L173">                .addExpandPropertyName(&quot;text-size-adjust&quot;)</span>
+<span class="fc" id="L174">                .build());</span>
+
+<span class="fc" id="L176">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L177">                .matchPropertyName(&quot;animation&quot;)</span>
+<span class="fc" id="L178">                .isFunction(false)</span>
+<span class="fc" id="L179">                .addExpandPropertyName(&quot;-webkit-animation&quot;)</span>
+<span class="fc" id="L180">                .addExpandPropertyName(&quot;-o-animation&quot;)</span>
+<span class="fc" id="L181">                .addExpandPropertyName(&quot;animation&quot;)</span>
+<span class="fc" id="L182">                .build());</span>
+
+<span class="fc" id="L184">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L185">                .matchPropertyName(&quot;animation-delay&quot;)</span>
+<span class="fc" id="L186">                .isFunction(false)</span>
+<span class="fc" id="L187">                .addExpandPropertyName(&quot;-webkit-animation-delay&quot;)</span>
+<span class="fc" id="L188">                .addExpandPropertyName(&quot;-o-animation-delay&quot;)</span>
+<span class="fc" id="L189">                .addExpandPropertyName(&quot;animation-delay&quot;)</span>
+<span class="fc" id="L190">                .build());</span>
+
+<span class="fc" id="L192">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L193">                .matchPropertyName(&quot;animation-direction&quot;)</span>
+<span class="fc" id="L194">                .isFunction(false)</span>
+<span class="fc" id="L195">                .addExpandPropertyName(&quot;-webkit-animation-direction&quot;)</span>
+<span class="fc" id="L196">                .addExpandPropertyName(&quot;-o-animation-direction&quot;)</span>
+<span class="fc" id="L197">                .addExpandPropertyName(&quot;animation-direction&quot;)</span>
+<span class="fc" id="L198">                .build());</span>
+
+<span class="fc" id="L200">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L201">                .matchPropertyName(&quot;animation-duration&quot;)</span>
+<span class="fc" id="L202">                .isFunction(false)</span>
+<span class="fc" id="L203">                .addExpandPropertyName(&quot;-webkit-animation-duration&quot;)</span>
+<span class="fc" id="L204">                .addExpandPropertyName(&quot;-o-animation-duration&quot;)</span>
+<span class="fc" id="L205">                .addExpandPropertyName(&quot;animation-duration&quot;)</span>
+<span class="fc" id="L206">                .build());</span>
+
+<span class="fc" id="L208">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L209">                .matchPropertyName(&quot;animation-fill-mode&quot;)</span>
+<span class="fc" id="L210">                .isFunction(false)</span>
+<span class="fc" id="L211">                .addExpandPropertyName(&quot;-webkit-animation-fill-mode&quot;)</span>
+<span class="fc" id="L212">                .addExpandPropertyName(&quot;animation-fill-mode&quot;)</span>
+<span class="fc" id="L213">                .build());</span>
+
+<span class="fc" id="L215">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L216">                .matchPropertyName(&quot;animation-iteration-count&quot;)</span>
+<span class="fc" id="L217">                .isFunction(false)</span>
+<span class="fc" id="L218">                .addExpandPropertyName(&quot;-webkit-animation-iteration-count&quot;)</span>
+<span class="fc" id="L219">                .addExpandPropertyName(&quot;-o-animation-iteration-count&quot;)</span>
+<span class="fc" id="L220">                .addExpandPropertyName(&quot;animation-iteration-count&quot;)</span>
+<span class="fc" id="L221">                .build());</span>
+
+<span class="fc" id="L223">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L224">                .matchPropertyName(&quot;animation-name&quot;)</span>
+<span class="fc" id="L225">                .isFunction(false)</span>
+<span class="fc" id="L226">                .addExpandPropertyName(&quot;-webkit-animation-name&quot;)</span>
+<span class="fc" id="L227">                .addExpandPropertyName(&quot;-o-animation-name&quot;)</span>
+<span class="fc" id="L228">                .addExpandPropertyName(&quot;animation-name&quot;)</span>
+<span class="fc" id="L229">                .build());</span>
+
+<span class="fc" id="L231">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L232">                .matchPropertyName(&quot;animation-timing-function&quot;)</span>
+<span class="fc" id="L233">                .isFunction(false)</span>
+<span class="fc" id="L234">                .addExpandPropertyName(&quot;-webkit-animation-timing-function&quot;)</span>
+<span class="fc" id="L235">                .addExpandPropertyName(&quot;-o-animation-timing-function&quot;)</span>
+<span class="fc" id="L236">                .addExpandPropertyName(&quot;animation-timing-function&quot;)</span>
+<span class="fc" id="L237">                .build());</span>
+
+        // Useful for high resolution (retina) displays.
+<span class="fc" id="L240">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L241">                .matchPropertyName(&quot;background-size&quot;)</span>
+<span class="fc" id="L242">                .isFunction(false)</span>
+<span class="fc" id="L243">                .addExpandPropertyName(&quot;-webkit-background-size&quot;)</span>
+<span class="fc" id="L244">                .addExpandPropertyName(&quot;-o-background-size&quot;)</span>
+<span class="fc" id="L245">                .addExpandPropertyName(&quot;background-size&quot;)</span>
+<span class="fc" id="L246">                .build());</span>
+
+<span class="fc" id="L248">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L249">                .matchPropertyName(&quot;backface-visibility&quot;)</span>
+<span class="fc" id="L250">                .isFunction(false)</span>
+<span class="fc" id="L251">                .addExpandPropertyName(&quot;-webkit-backface-visibility&quot;)</span>
+<span class="fc" id="L252">                .addExpandPropertyName(&quot;-o-backface-visibility&quot;)</span>
+<span class="fc" id="L253">                .addExpandPropertyName(&quot;backface-visibility&quot;)</span>
+<span class="fc" id="L254">                .build());</span>
+
+<span class="fc" id="L256">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L257">                .matchPropertyName(&quot;border-radius&quot;)</span>
+<span class="fc" id="L258">                .isFunction(false)</span>
+<span class="fc" id="L259">                .addExpandPropertyName(&quot;-webkit-border-radius&quot;)</span>
+<span class="fc" id="L260">                .addExpandPropertyName(&quot;-moz-border-radius&quot;)</span>
+<span class="fc" id="L261">                .addExpandPropertyName(&quot;border-radius&quot;)</span>
+<span class="fc" id="L262">                .build());</span>
+
+<span class="fc" id="L264">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L265">                .matchPropertyName(&quot;box-shadow&quot;)</span>
+<span class="fc" id="L266">                .isFunction(false)</span>
+<span class="fc" id="L267">                .addExpandPropertyName(&quot;-webkit-box-shadow&quot;)</span>
+<span class="fc" id="L268">                .addExpandPropertyName(&quot;-moz-box-shadow&quot;)</span>
+<span class="fc" id="L269">                .addExpandPropertyName(&quot;box-shadow&quot;)</span>
+<span class="fc" id="L270">                .build());</span>
+
+<span class="fc" id="L272">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L273">                .matchPropertyName(&quot;box-sizing&quot;)</span>
+<span class="fc" id="L274">                .isFunction(false)</span>
+<span class="fc" id="L275">                .addExpandPropertyName(&quot;-webkit-box-sizing&quot;)</span>
+<span class="fc" id="L276">                .addExpandPropertyName(&quot;box-sizing&quot;)</span>
+<span class="fc" id="L277">                .build());</span>
+
+<span class="fc" id="L279">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L280">                .matchPropertyName(&quot;background-image&quot;)</span>
+<span class="fc" id="L281">                .matchPropertyValue(&quot;linear-gradient&quot;)</span>
+<span class="fc" id="L282">                .isFunction(true)</span>
+<span class="fc" id="L283">                .addExpandPropertyValue(&quot;-webkit-linear-gradient&quot;)</span>
+<span class="fc" id="L284">                .addExpandPropertyValue(&quot;-moz-linear-gradient&quot;)</span>
+<span class="fc" id="L285">                .addExpandPropertyValue(&quot;-ms-linear-gradient&quot;)</span>
+<span class="fc" id="L286">                .addExpandPropertyValue(&quot;-o-linear-gradient&quot;)</span>
+<span class="fc" id="L287">                .addExpandPropertyValue(&quot;linear-gradient&quot;)</span>
+<span class="fc" id="L288">                .build());</span>
+
+<span class="fc" id="L290">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L291">                .matchPropertyName(&quot;background-image&quot;)</span>
+<span class="fc" id="L292">                .matchPropertyValue(&quot;repeating-linear-gradient&quot;)</span>
+<span class="fc" id="L293">                .isFunction(true)</span>
+<span class="fc" id="L294">                .addExpandPropertyValue(&quot;-webkit-repeating-linear-gradient&quot;)</span>
+<span class="fc" id="L295">                .addExpandPropertyValue(&quot;repeating-linear-gradient&quot;)</span>
+<span class="fc" id="L296">                .build());</span>
+
+<span class="fc" id="L298">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L299">                .matchPropertyName(&quot;cursor&quot;)</span>
+<span class="fc" id="L300">                .matchPropertyValue(&quot;grab&quot;)</span>
+<span class="fc" id="L301">                .isFunction(false)</span>
+<span class="fc" id="L302">                .addExpandPropertyValue(&quot;-moz-grab&quot;)</span>
+<span class="fc" id="L303">                .addExpandPropertyValue(&quot;-webkit-grab&quot;)</span>
+<span class="fc" id="L304">                .addExpandPropertyValue(&quot;grab&quot;)</span>
+<span class="fc" id="L305">                .build());</span>
+
+<span class="fc" id="L307">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L308">                .matchPropertyName(&quot;cursor&quot;)</span>
+<span class="fc" id="L309">                .matchPropertyValue(&quot;grabbing&quot;)</span>
+<span class="fc" id="L310">                .isFunction(false)</span>
+<span class="fc" id="L311">                .addExpandPropertyValue(&quot;-moz-grabbing&quot;)</span>
+<span class="fc" id="L312">                .addExpandPropertyValue(&quot;-webkit-grabbing&quot;)</span>
+<span class="fc" id="L313">                .addExpandPropertyValue(&quot;grabbing&quot;)</span>
+<span class="fc" id="L314">                .build());</span>
+
+        // Needed for Firefox 15, Chrome 25, Safari 6, iOS Safari 6.1 or less
+<span class="fc" id="L317">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L318">                .matchPropertyValue(&quot;calc&quot;)</span>
+<span class="fc" id="L319">                .isFunction(true)</span>
+<span class="fc" id="L320">                .addExpandPropertyValue(&quot;-webkit-calc&quot;)</span>
+<span class="fc" id="L321">                .addExpandPropertyValue(&quot;-moz-calc&quot;)</span>
+<span class="fc" id="L322">                .addExpandPropertyValue(&quot;calc&quot;)</span>
+<span class="fc" id="L323">                .build());</span>
+
+<span class="fc" id="L325">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L326">                .matchPropertyName(&quot;column-count&quot;)</span>
+<span class="fc" id="L327">                .isFunction(false)</span>
+<span class="fc" id="L328">                .addExpandPropertyName(&quot;-webkit-column-count&quot;)</span>
+<span class="fc" id="L329">                .addExpandPropertyName(&quot;-moz-column-count&quot;)</span>
+<span class="fc" id="L330">                .addExpandPropertyName(&quot;column-count&quot;)</span>
+<span class="fc" id="L331">                .build());</span>
+
+<span class="fc" id="L333">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L334">                .matchPropertyName(&quot;column-gap&quot;)</span>
+<span class="fc" id="L335">                .isFunction(false)</span>
+<span class="fc" id="L336">                .addExpandPropertyName(&quot;-webkit-column-gap&quot;)</span>
+<span class="fc" id="L337">                .addExpandPropertyName(&quot;-moz-column-gap&quot;)</span>
+<span class="fc" id="L338">                .addExpandPropertyName(&quot;column-gap&quot;)</span>
+<span class="fc" id="L339">                .build());</span>
+
+<span class="fc" id="L341">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L342">                .matchPropertyName(&quot;perspective&quot;)</span>
+<span class="fc" id="L343">                .isFunction(false)</span>
+<span class="fc" id="L344">                .addExpandPropertyName(&quot;-webkit-perspective&quot;)</span>
+<span class="fc" id="L345">                .addExpandPropertyName(&quot;perspective&quot;)</span>
+<span class="fc" id="L346">                .build());</span>
+
+<span class="fc" id="L348">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L349">                .matchPropertyName(&quot;hyphens&quot;)</span>
+<span class="fc" id="L350">                .isFunction(false)</span>
+<span class="fc" id="L351">                .addExpandPropertyName(&quot;-webkit-hyphens&quot;)</span>
+<span class="fc" id="L352">                .addExpandPropertyName(&quot;-moz-hyphens&quot;)</span>
+<span class="fc" id="L353">                .addExpandPropertyName(&quot;-ms-hyphens&quot;)</span>
+<span class="fc" id="L354">                .addExpandPropertyName(&quot;hyphens&quot;)</span>
+<span class="fc" id="L355">                .build());</span>
+
+<span class="fc" id="L357">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L358">                .matchPropertyName(&quot;min-width&quot;)</span>
+<span class="fc" id="L359">                .matchPropertyValue(&quot;min-content&quot;)</span>
+<span class="fc" id="L360">                .isFunction(false)</span>
+<span class="fc" id="L361">                .addExpandPropertyValue(&quot;-webkit-min-content&quot;)</span>
+<span class="fc" id="L362">                .addExpandPropertyValue(&quot;-moz-min-content&quot;)</span>
+<span class="fc" id="L363">                .addExpandPropertyValue(&quot;min-content&quot;)</span>
+<span class="fc" id="L364">                .build());</span>
+
+<span class="fc" id="L366">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L367">                .matchPropertyName(&quot;perspective-origin&quot;)</span>
+<span class="fc" id="L368">                .isFunction(false)</span>
+<span class="fc" id="L369">                .addExpandPropertyName(&quot;-webkit-perspective-origin&quot;)</span>
+<span class="fc" id="L370">                .addExpandPropertyName(&quot;perspective-origin&quot;)</span>
+<span class="fc" id="L371">                .build());</span>
+
+<span class="fc" id="L373">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L374">                .matchPropertyName(&quot;background-image&quot;)</span>
+<span class="fc" id="L375">                .matchPropertyValue(&quot;radial-gradient&quot;)</span>
+<span class="fc" id="L376">                .isFunction(true)</span>
+<span class="fc" id="L377">                .addExpandPropertyValue(&quot;-webkit-radial-gradient&quot;)</span>
+<span class="fc" id="L378">                .addExpandPropertyValue(&quot;-moz-radial-gradient&quot;)</span>
+<span class="fc" id="L379">                .addExpandPropertyValue(&quot;-o-radial-gradient&quot;)</span>
+<span class="fc" id="L380">                .addExpandPropertyValue(&quot;radial-gradient&quot;)</span>
+<span class="fc" id="L381">                .build());</span>
+
+<span class="fc" id="L383">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L384">                .matchPropertyName(&quot;position&quot;)</span>
+<span class="fc" id="L385">                .matchPropertyValue(&quot;sticky&quot;)</span>
+<span class="fc" id="L386">                .isFunction(false)</span>
+<span class="fc" id="L387">                .addExpandPropertyValue(&quot;-webkit-sticky&quot;)</span>
+<span class="fc" id="L388">                .addExpandPropertyValue(&quot;sticky&quot;)</span>
+<span class="fc" id="L389">                .build());</span>
+
+<span class="fc" id="L391">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L392">                .matchPropertyName(&quot;transform&quot;)</span>
+<span class="fc" id="L393">                .isFunction(false)</span>
+<span class="fc" id="L394">                .addExpandPropertyName(&quot;-webkit-transform&quot;)</span>
+<span class="fc" id="L395">                .addExpandPropertyName(&quot;-ms-transform&quot;)</span>
+<span class="fc" id="L396">                .addExpandPropertyName(&quot;-o-transform&quot;)</span>
+<span class="fc" id="L397">                .addExpandPropertyName(&quot;transform&quot;)</span>
+<span class="fc" id="L398">                .build());</span>
+
+<span class="fc" id="L400">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L401">                .matchPropertyName(&quot;transform-origin&quot;)</span>
+<span class="fc" id="L402">                .isFunction(false)</span>
+<span class="fc" id="L403">                .addExpandPropertyName(&quot;-webkit-transform-origin&quot;)</span>
+<span class="fc" id="L404">                .addExpandPropertyName(&quot;-ms-transform-origin&quot;)</span>
+<span class="fc" id="L405">                .addExpandPropertyName(&quot;-o-transform-origin&quot;)</span>
+<span class="fc" id="L406">                .addExpandPropertyName(&quot;transform-origin&quot;)</span>
+<span class="fc" id="L407">                .build());</span>
+
+<span class="fc" id="L409">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L410">                .matchPropertyName(&quot;transform-style&quot;)</span>
+<span class="fc" id="L411">                .isFunction(false)</span>
+<span class="fc" id="L412">                .addExpandPropertyName(&quot;-webkit-transform-style&quot;)</span>
+<span class="fc" id="L413">                .addExpandPropertyName(&quot;transform-style&quot;)</span>
+<span class="fc" id="L414">                .build());</span>
+
+<span class="fc" id="L416">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L417">                .matchPropertyName(&quot;transition&quot;)</span>
+<span class="fc" id="L418">                .isFunction(false)</span>
+<span class="fc" id="L419">                .addExpandPropertyName(&quot;-webkit-transition&quot;)</span>
+<span class="fc" id="L420">                .addExpandPropertyName(&quot;-o-transition&quot;)</span>
+<span class="fc" id="L421">                .addExpandPropertyName(&quot;transition&quot;)</span>
+<span class="fc" id="L422">                .build());</span>
+
+<span class="fc" id="L424">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L425">                .matchPropertyName(&quot;transition-delay&quot;)</span>
+<span class="fc" id="L426">                .isFunction(false)</span>
+<span class="fc" id="L427">                .addExpandPropertyName(&quot;-webkit-transition-delay&quot;)</span>
+<span class="fc" id="L428">                .addExpandPropertyName(&quot;-o-transition-delay&quot;)</span>
+<span class="fc" id="L429">                .addExpandPropertyName(&quot;transition-delay&quot;)</span>
+<span class="fc" id="L430">                .build());</span>
+
+<span class="fc" id="L432">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L433">                .matchPropertyName(&quot;transition-duration&quot;)</span>
+<span class="fc" id="L434">                .isFunction(false)</span>
+<span class="fc" id="L435">                .addExpandPropertyName(&quot;-webkit-transition-duration&quot;)</span>
+<span class="fc" id="L436">                .addExpandPropertyName(&quot;-o-transition-duration&quot;)</span>
+<span class="fc" id="L437">                .addExpandPropertyName(&quot;transition-duration&quot;)</span>
+<span class="fc" id="L438">                .build());</span>
+
+<span class="fc" id="L440">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L441">                .matchPropertyName(&quot;transition-property&quot;)</span>
+<span class="fc" id="L442">                .isFunction(false)</span>
+<span class="fc" id="L443">                .addExpandPropertyName(&quot;-webkit-transition-property&quot;)</span>
+<span class="fc" id="L444">                .addExpandPropertyName(&quot;-o-transition-property&quot;)</span>
+<span class="fc" id="L445">                .addExpandPropertyName(&quot;transition-property&quot;)</span>
+<span class="fc" id="L446">                .build());</span>
+
+<span class="fc" id="L448">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L449">                .matchPropertyName(&quot;transition-timing-function&quot;)</span>
+<span class="fc" id="L450">                .isFunction(false)</span>
+<span class="fc" id="L451">                .addExpandPropertyName(&quot;-webkit-transition-timing-function&quot;)</span>
+<span class="fc" id="L452">                .addExpandPropertyName(&quot;-o-transition-timing-function&quot;)</span>
+<span class="fc" id="L453">                .addExpandPropertyName(&quot;transition-timing-function&quot;)</span>
+<span class="fc" id="L454">                .build());</span>
+
+<span class="fc" id="L456">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L457">                .matchPropertyName(&quot;user-select&quot;)</span>
+<span class="fc" id="L458">                .isFunction(false)</span>
+                // Don't add user-select to expansion list as it is non-standard.
+<span class="fc" id="L460">                .addExpandPropertyName(&quot;-webkit-user-select&quot;)</span>
+<span class="fc" id="L461">                .addExpandPropertyName(&quot;-moz-user-select&quot;)</span>
+<span class="fc" id="L462">                .addExpandPropertyName(&quot;-ms-user-select&quot;)</span>
+<span class="fc" id="L463">                .build());</span>
+
+        // Grid support for IE:
+        // https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/CSS_Grid_and_Progressive_Enhancement
+<span class="fc" id="L467">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L468">                .matchPropertyName(&quot;display&quot;)</span>
+<span class="fc" id="L469">                .matchPropertyValue(&quot;grid&quot;)</span>
+<span class="fc" id="L470">                .isFunction(false)</span>
+<span class="fc" id="L471">                .addExpandPropertyValue(&quot;-ms-grid&quot;)</span>
+<span class="fc" id="L472">                .addExpandPropertyValue(&quot;grid&quot;)</span>
+<span class="fc" id="L473">                .build());</span>
+
+<span class="fc" id="L475">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L476">                .matchPropertyName(&quot;grid-template-columns&quot;)</span>
+<span class="fc" id="L477">                .isFunction(false)</span>
+<span class="fc" id="L478">                .addExpandPropertyName(&quot;-ms-grid-columns&quot;)</span>
+<span class="fc" id="L479">                .addExpandPropertyName(&quot;grid-template-columns&quot;)</span>
+<span class="fc" id="L480">                .build());</span>
+<span class="fc" id="L481">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L482">                .matchPropertyName(&quot;grid-template-rows&quot;)</span>
+<span class="fc" id="L483">                .isFunction(false)</span>
+<span class="fc" id="L484">                .addExpandPropertyName(&quot;-ms-grid-rows&quot;)</span>
+<span class="fc" id="L485">                .addExpandPropertyName(&quot;grid-template-rows&quot;)</span>
+<span class="fc" id="L486">                .build());</span>
+
+<span class="fc" id="L488">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L489">                .matchPropertyName(&quot;grid-row-start&quot;)</span>
+<span class="fc" id="L490">                .isFunction(false)</span>
+<span class="fc" id="L491">                .addExpandPropertyName(&quot;-ms-grid-row&quot;)</span>
+<span class="fc" id="L492">                .addExpandPropertyName(&quot;grid-row-start&quot;)</span>
+<span class="fc" id="L493">                .build());</span>
+<span class="fc" id="L494">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L495">                .matchPropertyName(&quot;grid-column-start&quot;)</span>
+<span class="fc" id="L496">                .isFunction(false)</span>
+<span class="fc" id="L497">                .addExpandPropertyName(&quot;-ms-grid-column&quot;)</span>
+<span class="fc" id="L498">                .addExpandPropertyName(&quot;grid-column-start&quot;)</span>
+<span class="fc" id="L499">                .build());</span>
+
+<span class="fc" id="L501">        builder.add(new BrowserPrefixRule.Builder()</span>
+<span class="fc" id="L502">                .matchPropertyName(&quot;justify-self&quot;)</span>
+<span class="fc" id="L503">                .isFunction(false)</span>
+<span class="fc" id="L504">                .addExpandPropertyName(&quot;-grid-column-align&quot;)</span>
+<span class="fc" id="L505">                .addExpandPropertyName(&quot;justify-self&quot;)</span>
+<span class="fc" id="L506">                .build());</span>
+
+<span class="fc" id="L508">        return builder.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -237,13 +237,13 @@ public class GssFunctions {
 
     /**
      * Implementation of the blendColorsRgb GSS function. Returns a color half way
-     * between the two colors by averaging each of red, green & blue.
+     * between the two colors by averaging each of red, green and blue.
      */
     public static class BlendColorsRgb extends BaseBlendColors {
 
         /**
          * Returns the string representation in hex format for a color half way in
-         * between the two supplied colors by averaging each of red, green & blue.
+         * between the two supplied colors by averaging each of red, green and blue.
          *
          * @param startColorStr The start color in string form
          * @param endColorStr   The endcolor in string form
@@ -878,7 +878,7 @@ public class GssFunctions {
      * generate a muted flavor of a text or link color. Takes three arguments: the
      * background color over which this text or link will appear, and the text or
      * link color this should be a muted version of and optionally the loss of
-     * saturation for muted tone (0 <= loss <= 1).
+     * saturation for muted tone (0 &lt;= loss &lt;= 1).
      */
     public static class MakeMutedColor implements GssFunction {
 
@@ -1372,7 +1372,7 @@ public class GssFunctions {
      * The "makeContrastingColor" function generates a contrasting color with the
      * same hue as the input color.  The generated color passes (or almost
      * passes) the contrast test described in the W3C accessibility evaluation
-     * working draft {@link "http://www.w3.org/TR/AERT#color-contrast"}.
+     * working draft "http://www.w3.org/TR/AERT#color-contrast".
      *
      * <p>The function takes two parameters:
      * <ul>

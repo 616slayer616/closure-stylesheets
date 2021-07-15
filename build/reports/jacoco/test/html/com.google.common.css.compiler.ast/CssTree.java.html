@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssTree.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssTree.java</span></div><h1>CssTree.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.collect.Sets;
+import com.google.common.css.SourceCode;
+
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
+/**
+ * A mutable abstract syntax tree that corresponds to a CSS input file.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssTree {
+    /**
+     * The root of the tree.
+     */
+    private final CssRootNode root;
+    /**
+     * The source code corresponding to the tree.
+     */
+    private final SourceCode sourceCode;
+    /**
+     * A reference to the collection of ruleset nodes to remove.
+     */
+    private RulesetNodesToRemove rulesetNodesToRemove;
+
+    // TODO(oana): Maybe make this part of some generic information we want to
+    // store for the tree.
+<span class="fc" id="L47">    public static class RulesetNodesToRemove {</span>
+<span class="fc" id="L48">        private final LinkedHashSet&lt;CssRulesetNode&gt; rulesetNodes =</span>
+<span class="fc" id="L49">                Sets.newLinkedHashSet();</span>
+
+        public void addRulesetNode(CssRulesetNode node) {
+<span class="fc" id="L52">            rulesetNodes.add(node);</span>
+<span class="fc" id="L53">        }</span>
+
+        public Collection&lt;CssRulesetNode&gt; getRulesetNodes() {
+<span class="fc" id="L56">            return rulesetNodes;</span>
+        }
+    }
+
+    /**
+     * Constructor of a tree.
+     *
+     * @param sourceCode the source location associated with the tree (probably
+     *                   the start of the file)
+     * @param root       the root node of the tree
+     */
+<span class="fc" id="L67">    public CssTree(SourceCode sourceCode, CssRootNode root) {</span>
+<span class="fc" id="L68">        this.root = root;</span>
+<span class="fc" id="L69">        this.sourceCode = sourceCode;</span>
+<span class="fc" id="L70">        this.rulesetNodesToRemove = new RulesetNodesToRemove();</span>
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Constructor of a tree.
+     *
+     * @param sourceCode the source location associated with the tree (probably
+     *                   the start of the file). Can be {@code null}.
+     */
+    public CssTree(@Nullable SourceCode sourceCode) {
+<span class="fc" id="L80">        this(sourceCode, new CssRootNode());</span>
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * Copy constructor. This also copies the ruleset nodes to remove. The
+     * collection of ruleset node to remove can be cleared if it is not desired
+     * without affecting the original tree.
+     *
+     * @param tree the tree to copy. Must not be {@code null}.
+     */
+<span class="fc" id="L90">    public CssTree(CssTree tree) {</span>
+<span class="fc" id="L91">        root = tree.root.deepCopy();</span>
+<span class="fc" id="L92">        sourceCode = tree.sourceCode;</span>
+<span class="fc" id="L93">        rulesetNodesToRemove = new RulesetNodesToRemove();</span>
+<span class="fc" id="L94">        rulesetNodesToRemove.rulesetNodes.addAll(</span>
+<span class="fc" id="L95">                tree.rulesetNodesToRemove.rulesetNodes);</span>
+<span class="fc" id="L96">    }</span>
+
+    public CssRootNode getRoot() {
+<span class="fc" id="L99">        return root;</span>
+    }
+
+    public SourceCode getSourceCode() {
+<span class="fc" id="L103">        return sourceCode;</span>
+    }
+
+    public RulesetNodesToRemove getRulesetNodesToRemove() {
+<span class="fc" id="L107">        return rulesetNodesToRemove;</span>
+    }
+
+    public void resetRulesetNodesToRemove() {
+<span class="fc" id="L111">        this.rulesetNodesToRemove = new RulesetNodesToRemove();</span>
+<span class="fc" id="L112">    }</span>
+
+    public MutatingVisitController getMutatingVisitController() {
+<span class="fc" id="L115">        return new DefaultVisitController(this, true /* allowMutating */);</span>
+    }
+
+    public VisitController getVisitController() {
+<span class="fc" id="L119">        return new DefaultVisitController(this, false /* allowMutating */);</span>
+    }
+
+    // TODO(user): Add a method that merges two trees and produces a new one as
+    //     a result. This method might belong to a compiler pass.
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

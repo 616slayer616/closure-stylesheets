@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.ast.CssSelectorNodeTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:50" hostname="Patrick-MBP.fritz.box" time="0.006">
+  <properties/>
+  <testcase name="testSpecificity10" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.002"/>
+  <testcase name="testSpecificity11" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.001"/>
+  <testcase name="testSpecificity12" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity13" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity14" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity1" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.001"/>
+  <testcase name="testSpecificity2" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity3" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity4" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity5" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.001"/>
+  <testcase name="testSpecificity6" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity7" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity8" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <testcase name="testSpecificity9" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.001"/>
+  <testcase name="testDeepCopy" classname="com.google.common.css.compiler.ast.CssSelectorNodeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

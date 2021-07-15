@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CssPropertyNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">closure-stylesheets</a> &gt; <a href="index.source.html" class="el_package">com.google.common.css.compiler.ast</a> &gt; <span class="el_source">CssPropertyNode.java</span></div><h1>CssPropertyNode.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2008 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.common.css.compiler.ast;
+
+import com.google.common.css.SourceCodeLocation;
+
+import javax.annotation.Nullable;
+
+/**
+ * A node representing a CSS property, such as background or padding.
+ *
+ * @author oana@google.com (Oana Florescu)
+ */
+public class CssPropertyNode extends CssValueNode {
+    private final Property property;
+
+    /**
+     * Creates a property node with the specified value.
+     */
+    public CssPropertyNode(String value) {
+<span class="fc" id="L35">        this(value, null);</span>
+<span class="fc" id="L36">    }</span>
+
+    /**
+     * Creates a property node with the specified value and source code location.
+     */
+    public CssPropertyNode(
+            String value, @Nullable SourceCodeLocation sourceCodeLocation) {
+<span class="fc" id="L43">        super(value, sourceCodeLocation);</span>
+<span class="fc" id="L44">        this.property = Property.byName(value);</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * Creates a property node by deep-copying the specified property node.
+     */
+    public CssPropertyNode(CssPropertyNode node) {
+<span class="fc" id="L51">        super(node);</span>
+<span class="fc" id="L52">        this.property = node.property;</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    public CssPropertyNode deepCopy() {
+<span class="fc" id="L57">        return new CssPropertyNode(this);</span>
+    }
+
+    public Property getProperty() {
+<span class="fc" id="L61">        return property;</span>
+    }
+
+    public String getPropertyName() {
+<span class="fc" id="L65">        return property.getName();</span>
+    }
+
+    /**
+     * @return whether this is a CSS custom property.
+     */
+    public boolean isCustom() {
+<span class="fc" id="L72">        return property.isCustom();</span>
+    }
+
+    /**
+     * Gets the partition of this property. All properties with the same partition
+     * share a common shorthand. A non-standard property is its own single
+     * partition.
+     * &lt;p&gt;
+     * For example, {@code padding}, {@code padding-bottom}, {@code padding-left},
+     * {@code padding-right}, {@code padding-top} are all in the {@code padding}
+     * partition. As another example, {@code z-index} is its own single partition.
+     *
+     * @return a string representing the partition
+     */
+    public String getPartition() {
+<span class="fc" id="L87">        return property.getPartition();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L92">        return property.getName();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

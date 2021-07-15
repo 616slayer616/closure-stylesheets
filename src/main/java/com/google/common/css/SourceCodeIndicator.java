@@ -25,11 +25,11 @@ import javax.annotation.Nullable;
  * line. If the indicator line is displayed immediately after (or before) the
  * source code line it should have the effect of visually indicating a portion
  * of the source code line. Some examples:
- * <pre class="code>
+ * <pre class="code">
  * int i = 0.1;
  * ^^^     ^^^
  * </pre>
- * <pre class="code>
+ * <pre class="code">
  *     vvvvvvv
  * int i = 0.1;
  * </pre>
@@ -48,7 +48,7 @@ import javax.annotation.Nullable;
  * <p>The indicator line is not required to have the same length as the code
  * line. This means that trailing whitespace can be absent. However, uses such
  * as:
- * <pre class="code>
+ * <pre class="code">
  * int i = 0;
  * ____#####_
  * </pre>

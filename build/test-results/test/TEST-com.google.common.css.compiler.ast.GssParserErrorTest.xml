@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.google.common.css.compiler.ast.GssParserErrorTest" tests="27" skipped="0" failures="0" errors="0" timestamp="2021-07-14T13:58:51" hostname="Patrick-MBP.fritz.box" time="0.026">
+  <properties/>
+  <testcase name="testBadToken1" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.003"/>
+  <testcase name="testBadToken2" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="testBadToken3" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testAtRuleErrorHandling" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.003"/>
+  <testcase name="testBadPseudoNot1" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testBadPseudoNot2" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="testBadPseudoNth1" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testBadPseudoNth2" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testUnterminatedBlockCommentsWithErrorRecovery" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.005"/>
+  <testcase name="testInvalidSpaceInArgumentList" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="testMatchingBraces" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="testDeclarationErrorHandling" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="test1" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="test2" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="test3" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="test4" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="test5" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="test6" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="test7" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testUnterminatedBlockCommentsWithoutErrorRecovery" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.003"/>
+  <testcase name="testBadWebkitKeyframes1" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testBadWebkitKeyframes2" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="testBadWebkitKeyframes3" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testErrorRecoveryWithInvalidArgumentList" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="testSelectorErrorHandling" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <testcase name="testBadMixinDefinition" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.0"/>
+  <testcase name="testBadGradient" classname="com.google.common.css.compiler.ast.GssParserErrorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
