@@ -67,7 +67,6 @@ public class SourceCodeLocation implements Comparable<SourceCodeLocation> {
      *
      * <p>Instances of this class are immutable.
      */
-    @VisibleForTesting
     public static class SourceCodePoint implements Comparable<SourceCodePoint> {
 
         /**
@@ -304,7 +303,6 @@ public class SourceCodeLocation implements Comparable<SourceCodeLocation> {
                 "Beginning location must come before the end location.");
     }
 
-    @VisibleForTesting
     public SourceCodeLocation(
             SourceCode sourceCode,
             int beginCharacterIndex,

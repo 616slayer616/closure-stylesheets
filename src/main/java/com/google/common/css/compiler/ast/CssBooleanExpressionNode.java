@@ -237,7 +237,7 @@ public class CssBooleanExpressionNode extends CssValueNode {
         } else if (getType().isBinaryOperator()) {
             StringBuilder sb = new StringBuilder();
             appendChildExpression(sb, getLeft());
-            sb.append(" " + this.getType().getOperatorString() + " ");
+            sb.append(" ").append(this.getType().getOperatorString()).append(" ");
             appendChildExpression(sb, getRight());
             return sb.toString();
         } else if (getType().isUnaryOperator()) {
@@ -246,7 +246,6 @@ public class CssBooleanExpressionNode extends CssValueNode {
             appendChildExpression(sb, getLeft());
             return sb.toString();
         } else {
-            // assert false;
             return "";
         }
     }

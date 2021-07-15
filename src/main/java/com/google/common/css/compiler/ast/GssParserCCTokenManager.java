@@ -2177,7 +2177,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
         final int beginColumn;
         final int endColumn;
         String im = jjstrLiteralImages[jjmatchedKind];
-        curTokenImage = (im == null) ? input_stream.GetImage() : im;
+        curTokenImage = (im == null) ? input_stream.getImage() : im;
         beginLine = input_stream.getBeginLine();
         beginColumn = input_stream.getBeginColumn();
         endLine = input_stream.getEndLine();
@@ -2209,7 +2209,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
 
         for (; ; ) {
             try {
-                curChar = input_stream.BeginToken();
+                curChar = input_stream.beginToken();
             } catch (Exception e) {
                 jjmatchedKind = 0;
                 jjmatchedPos = -1;
@@ -2253,7 +2253,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
                 input_stream.backup(1);
             } catch (java.io.IOException e1) {
                 eofseen = true;
-                errorAfter = curPos <= 1 ? "" : input_stream.GetImage();
+                errorAfter = curPos <= 1 ? "" : input_stream.getImage();
                 if (curChar == '\n' || curChar == '\r') {
                     errorLine++;
                     errorColumn = 0;
@@ -2262,7 +2262,7 @@ public class GssParserCCTokenManager implements GssParserCCConstants {
             }
             if (!eofseen) {
                 input_stream.backup(1);
-                errorAfter = curPos <= 1 ? "" : input_stream.GetImage();
+                errorAfter = curPos <= 1 ? "" : input_stream.getImage();
             }
             throw new TokenMgrError(eofseen, curLexState, errorLine, errorColumn, errorAfter, curChar, TokenMgrError.LEXICAL_ERROR);
         }

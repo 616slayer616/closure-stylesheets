@@ -68,12 +68,7 @@ public class RecordingSubstitutionMap implements SubstitutionMap.Initializable {
             mappings.putAll(valueWithMappings.mappings);
             return valueWithMappings.value;
         } else {
-            String value = mappings.get(key);
-            if (value == null) {
-                value = delegate.get(key);
-                mappings.put(key, value);
-            }
-            return value;
+            return mappings.computeIfAbsent(key, delegate::get);
         }
     }
 
