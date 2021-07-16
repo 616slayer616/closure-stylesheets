@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CssDeclarationNode}
@@ -38,7 +38,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
 
         assertThat(node.getParent()).isNull();
         assertThat(node.getSourceCodeLocation()).isNull();
-        assertThat(node.getPropertyName().toString()).isEqualTo(propertyName.toString());
+        assertThat(node.getPropertyName()).hasToString(propertyName.toString());
         assertThat(node.getPropertyValue().isEmpty()).isTrue();
         assertThat(node.isCustomDeclaration()).isFalse();
     }
@@ -57,7 +57,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
         assertThat(node.getSourceCodeLocation()).isNull();
         assertThat(node.getPropertyValue()).isEqualTo(propertyValue);
         assertThat(node.isCustomDeclaration()).isFalse();
-        assertThat(node.toString()).isEqualTo("color:[red]");
+        assertThat(node).hasToString("color:[red]");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
         assertThat(node.getSourceCodeLocation()).isNull();
         assertThat(node.getPropertyValue()).isEqualTo(propertyValue);
         assertThat(node.isCustomDeclaration()).isTrue();
-        assertThat(node.toString()).isEqualTo("--theme-color:[BurlyWood]");
+        assertThat(node).hasToString("--theme-color:[BurlyWood]");
     }
 
     @Test

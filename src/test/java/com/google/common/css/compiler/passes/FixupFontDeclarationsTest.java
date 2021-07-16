@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link FixupFontDeclarations}.
@@ -50,7 +50,7 @@ public class FixupFontDeclarationsTest {
         assertThat(valueNode.numChildren()).isEqualTo(1);
         CssCompositeValueNode alternatives =
                 (CssCompositeValueNode) valueNode.getChildAt(0);
-        assertThat(alternatives.getValues()).hasSize(4);
+        assertThat(alternatives.getValues()).asList().hasSize(4);
         assertThat(alternatives.getValues().get(0).getValue()).isEqualTo("a");
         assertThat(alternatives.getValues().get(1).getValue()).isEqualTo("b c d");
         assertThat(alternatives.getValues().get(2).getValue()).isEqualTo("e f g h i");

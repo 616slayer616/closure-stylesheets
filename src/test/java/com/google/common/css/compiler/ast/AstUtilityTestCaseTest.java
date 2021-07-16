@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Unit tests for {@link AstUtilityTestCase}.
  *
@@ -38,7 +40,7 @@ public class AstUtilityTestCaseTest extends AstUtilityTestCase {
         CssLiteralNode node1 = new CssLiteralNode("");
         CssLiteralNode node2 = new CssLiteralNode("");
 
-        deepEquals(node1, node2);
+        assertThat(node1).isEqualToComparingFieldByFieldRecursively(node2);
     }
 
     @Test
@@ -46,7 +48,7 @@ public class AstUtilityTestCaseTest extends AstUtilityTestCase {
         CssLiteralNode node1 = new CssLiteralNode("node");
         CssLiteralNode node2 = new CssLiteralNode("node");
 
-        deepEquals(node1, node2);
+        assertThat(node1).isEqualToComparingFieldByFieldRecursively(node2);
     }
 
     @Test
@@ -55,7 +57,7 @@ public class AstUtilityTestCaseTest extends AstUtilityTestCase {
         CssLiteralNode node2 = new CssLiteralNode("node2");
 
         try {
-            deepEquals(node1, node2);
+            assertThat(node1).isEqualToComparingFieldByFieldRecursively(node2);
             Assert.fail("FAIL: Node1 and Node2 should not be equal.");
         } catch (AssertionError e) {
             if (e.getMessage().startsWith("FAIL")) {
@@ -80,7 +82,7 @@ public class AstUtilityTestCaseTest extends AstUtilityTestCase {
         BackDoorNodeMutation.setParent(node2, parent2);
 
         try {
-            deepEquals(parent1, parent2);
+            assertThat(parent1).isEqualToComparingFieldByFieldRecursively(parent2);
             Assert.fail("FAIL: Parent1 and Parent2 should not be equal.");
         } catch (AssertionError e) {
             if (e.getMessage().startsWith("FAIL")) {

@@ -26,8 +26,7 @@ import org.junit.Assert;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Base class for testing the passes which use an {@link ErrorManager}.
@@ -126,9 +125,9 @@ public class NewFunctionalTestBase extends FunctionalTestCommonBase {
         errorManager = new TestErrorManager(exactMatch, expectedMessages);
         runPass();
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(((TestErrorManager) errorManager).hasEncounteredAllErrors())
-                .isTrue();
+        assertThat(((TestErrorManager) errorManager).hasEncounteredAllErrors())
+                .isTrue()
+                .withFailMessage("Encountered all errors.");
         return tree;
     }
 
@@ -230,27 +229,26 @@ public class NewFunctionalTestBase extends FunctionalTestCommonBase {
         }
 
         public void print(GssError error) {
-            assertWithMessage("Unexpected extra error: " + error.format())
-                    .that(currentIndex)
+            assertThat(currentIndex)
+                    .withFailMessage("Unexpected extra error: " + error.format())
                     .isLessThan(expectedMessages.length);
             print(error.getMessage());
         }
 
         @Override
         public void print(String message) {
-            assertWithMessage("Unexpected extra error: " + message)
-                    .that(currentIndex)
+            assertThat(currentIndex)
+                    .withFailMessage("Unexpected extra error: " + message)
                     .isLessThan(expectedMessages.length);
             if (exactMatch) {
                 assertThat(message).isEqualTo(expectedMessages[currentIndex]);
             } else {
-                assertWithMessage(
-                        "Expected error '"
+                assertThat(message)
+                        .withFailMessage("Expected error '"
                                 + message
                                 + "' to contain '"
                                 + expectedMessages[currentIndex]
                                 + "'.")
-                        .that(message)
                         .contains(expectedMessages[currentIndex]);
             }
             currentIndex++;

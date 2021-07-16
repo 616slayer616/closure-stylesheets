@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for error handling of {@link GssParser}.
@@ -43,8 +43,7 @@ public class GssParserErrorTest {
             Assert.fail();
         } catch (GssParserException e) {
             assertThat(e)
-                    .hasMessageThat()
-                    .isEqualTo(
+                    .hasMessage(
                             "Parse error in test at line "
                                     + lineNumber
                                     + " column "
@@ -244,7 +243,7 @@ public class GssParserErrorTest {
         assertThat(tree).isNotNull();
         CssRootNode root = tree.getRoot();
         assertThat(root).isNotNull();
-        assertThat(errorMessages).containsExactly((Object[]) errors).inOrder();
+        assertThat(errorMessages).asList().containsExactly((Object[]) errors);
         assertThat(root.toString()).isEqualTo(expected);
     }
 

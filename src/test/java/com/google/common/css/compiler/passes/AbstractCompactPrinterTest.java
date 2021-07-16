@@ -21,7 +21,7 @@ import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.FunctionalTestBase;
 import org.junit.Before;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Base class for compact printer tests.

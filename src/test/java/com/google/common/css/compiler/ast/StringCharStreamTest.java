@@ -23,8 +23,8 @@ import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for a more efficient implementation of the CharStream which only expects to operate on

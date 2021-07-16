@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for {@link CssCustomFunctionNode}.
@@ -44,7 +44,7 @@ public class CssCustomFunctionNodeTest {
 
         assertThat(x.getValue()).isEqualTo("x");
         assertThat(y.getValue()).isEqualTo("y");
-        assertThat(fixedParameters).hasSize(1);
+        assertThat(fixedParameters).asList().hasSize(1);
         assertThat(fixedParameters.get(0).toString()).isEqualTo("x y");
     }
 
@@ -56,7 +56,7 @@ public class CssCustomFunctionNodeTest {
         ImmutableList<CssValueNode> parameters = ImmutableList.of(x, SPACE, y, COMMA, z);
         List<CssValueNode> fixedParameters = CssCustomFunctionNode.fixupFunctionArguments(parameters);
 
-        assertThat(fixedParameters).hasSize(2);
+        assertThat(fixedParameters).asList().hasSize(2);
         assertThat(fixedParameters.get(0).toString()).isEqualTo("x \"double quotes!\"");
         assertThat(fixedParameters.get(1).toString()).isEqualTo("'single quotes!'");
     }

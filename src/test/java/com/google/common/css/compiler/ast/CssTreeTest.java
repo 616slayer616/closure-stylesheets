@@ -17,11 +17,12 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.css.SourceCode;
+import com.google.common.truth.Truth;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CssTree}
@@ -54,6 +55,6 @@ public class CssTreeTest {
         assertThat(tree2.getSourceCode()).isEqualTo(tree1.getSourceCode());
 
         tree1.getRulesetNodesToRemove().addRulesetNode(new CssRulesetNode());
-        assertThat(tree2.getRulesetNodesToRemove().getRulesetNodes()).isEmpty();
+        Truth.assertThat(tree2.getRulesetNodesToRemove().getRulesetNodes()).isEmpty();
     }
 }

@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link CssCompositeValueNode}.
@@ -43,7 +43,7 @@ public class CssCompositeValueNodeTest {
         assertThat(clone.getValues()).isNotSameAs(node.getValues());
         // Operator is enum.
         assertThat(clone.getOperator()).isSameAs(node.getOperator());
-        assertThat(clone.getValues()).hasSize(2);
+        assertThat(clone.getValues()).asList().hasSize(2);
 
         CssValueNode clonedChild1 = clone.getValues().get(0);
         assertThat(clonedChild1).isNotSameAs(node.getValues().get(0));

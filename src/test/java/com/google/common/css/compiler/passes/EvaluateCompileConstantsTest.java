@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link EvaluateCompileConstants}.
@@ -58,7 +58,7 @@ public class EvaluateCompileConstantsTest extends PassesTestBase {
         parseAndRun("@def X FOO;");
         assertThat(getFirstActualNode()).isInstanceOf(CssDefinitionNode.class);
         CssDefinitionNode definition = (CssDefinitionNode) getFirstActualNode();
-        assertThat(definition.getChildren()).hasSize(1);
+        assertThat(definition.getChildren()).asList().hasSize(1);
         assertThat(definition.getChildAt(0).toString()).isEqualTo("2");
     }
 
@@ -67,7 +67,7 @@ public class EvaluateCompileConstantsTest extends PassesTestBase {
         parseAndRun("@def X f(BAR);");
         assertThat(getFirstActualNode()).isInstanceOf(CssDefinitionNode.class);
         CssDefinitionNode definition = (CssDefinitionNode) getFirstActualNode();
-        assertThat(definition.getChildren()).hasSize(1);
+        assertThat(definition.getChildren()).asList().hasSize(1);
         assertThat(definition.getChildAt(0).toString()).isEqualTo("f(7)");
     }
 }

@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Simple framework for creating a parser for testing.
@@ -123,6 +123,6 @@ public class TestParser {
                 "sourcemap") */
                         .start();
         process.waitFor();
-        assertThat(process.exitValue()).named("visualization exit code").isEqualTo(0);
+        assertThat(process.exitValue()).isEqualTo(0);
     }
 }

@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.Map;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for the {@link CollectMixinDefinitions} compiler pass.
@@ -49,7 +49,7 @@ public class CollectMixinDefinitionsTest extends PassesTestBase {
                 "@defmixin test2() {}",
                 "@defmixin test3(PAR1) { color: PAR1; }"));
         assertThat(definitions).isNotNull();
-        assertThat(definitions.keySet()).containsExactly("test1", "test2", "test3");
+        assertThat(definitions.keySet()).containsExactlyInAnyOrder("test1", "test2", "test3");
     }
 
     @Test

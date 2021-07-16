@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CssFunctionNode}.
@@ -40,7 +40,7 @@ public class CssFunctionNodeTest {
         assertThat(function.getFunction()).isNull();
         assertThat(function.getSourceCodeLocation()).isNull();
         assertThat(function.getArguments()).isNotNull();
-        assertThat(function.getArguments().getChildren()).isEmpty();
+        assertThat(function.getArguments().getChildren()).asList().isEmpty();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class CssFunctionNodeTest {
         assertThat(function.getFunctionName()).isEqualTo("rgb");
         assertThat(function.getSourceCodeLocation()).isNull();
         assertThat(function.getArguments()).isNotNull();
-        assertThat(function.getArguments().getChildren()).isEmpty();
+        assertThat(function.getArguments().getChildren()).asList().isEmpty();
     }
 
     @Test
@@ -65,7 +65,7 @@ public class CssFunctionNodeTest {
         assertThat(function.getFunctionName()).isEqualTo("rgb");
         assertThat(function.getSourceCodeLocation()).isNull();
         assertThat(function.getArguments()).isNotNull();
-        assertThat(function.getArguments().getChildren()).isNotEmpty();
+        assertThat(function.getArguments().getChildren()).asList().isNotEmpty();
         assertThat(function.toString()).isEqualTo("rgb(test)");
         assertThat(function.getValue()).isEqualTo("rgb(test)");
     }

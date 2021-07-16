@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CreateComponentNodes}.
@@ -65,7 +65,7 @@ public class CreateComponentNodesTest extends NewFunctionalTestBase {
         parseAndRun("@abstract_component CSS_X { @def X Y; }\n" +
                 "@component CSS_Y extends CSS_X { @def X Y; }");
         List<CssNode> children = tree.getRoot().getBody().getChildren();
-        assertThat(children).hasSize(2);
+        assertThat(children).asList().hasSize(2);
         assertThat(children.get(0)).isInstanceOf(CssComponentNode.class);
         assertThat(children.get(1)).isInstanceOf(CssComponentNode.class);
         CssComponentNode comp = (CssComponentNode) children.get(1);

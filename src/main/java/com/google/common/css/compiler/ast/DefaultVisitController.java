@@ -576,23 +576,23 @@ class DefaultVisitController implements MutatingVisitController {
     @VisibleForTesting
     class VisitMediaRuleState extends VisitReplaceChildrenState<CssValueNode> {
 
-        private final CssMediaRuleNode node;
+        private final CssMediaRuleNode mediaRuleNode;
 
         private boolean visitedChildren = false;
 
         private boolean shouldVisitChildren = true;
 
-        VisitMediaRuleState(CssMediaRuleNode node) {
-            super(node);
-            this.node = node;
+        VisitMediaRuleState(CssMediaRuleNode mediaRuleNode) {
+            super(mediaRuleNode);
+            this.mediaRuleNode = mediaRuleNode;
         }
 
         @Override
         public void doVisit() {
             if (!visitedChildren && currentIndex == -1) {
-                shouldVisitChildren = visitor.enterMediaRule(node);
+                shouldVisitChildren = visitor.enterMediaRule(mediaRuleNode);
             } else if (visitedChildren) {
-                visitor.leaveMediaRule(node);
+                visitor.leaveMediaRule(mediaRuleNode);
             }
         }
 
@@ -629,15 +629,15 @@ class DefaultVisitController implements MutatingVisitController {
                 doNotIncreaseIndex = false;
             }
 
-            final int parametersCount = node.getParameters().size();
+            final int parametersCount = mediaRuleNode.getParameters().size();
             if (currentIndex < parametersCount) {
                 if (currentIndex < parametersCount - 1) {
-                    stateStack.push(new VisitMediaTypeListDelimiterState(node));
+                    stateStack.push(new VisitMediaTypeListDelimiterState(mediaRuleNode));
                 }
-                stateStack.push(getVisitState(node.getParameters().get(currentIndex)));
+                stateStack.push(getVisitState(mediaRuleNode.getParameters().get(currentIndex)));
             } else {
-                if (node.getType().hasBlock()) {
-                    stateStack.push(new VisitUnknownAtRuleBlockState(node.getBlock()));
+                if (mediaRuleNode.getType().hasBlock()) {
+                    stateStack.push(new VisitUnknownAtRuleBlockState(mediaRuleNode.getBlock()));
                 }
                 visitedChildren = true;
             }

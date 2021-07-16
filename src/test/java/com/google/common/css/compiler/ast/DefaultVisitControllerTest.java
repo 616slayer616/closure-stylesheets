@@ -35,8 +35,8 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -656,12 +656,12 @@ public class DefaultVisitControllerTest {
         DefaultVisitController controller = new DefaultVisitController(t, true);
         controller.startVisit(testVisitor);
 
-        assertThat(evnNodes).hasSize(simpleValues.size());
+        assertThat(evnNodes).asList().hasSize(simpleValues.size());
         for (CssValueNode i : simpleValues) {
-            assertThat(evnNodes).contains(i);
+            assertThat(evnNodes).asList().contains(i);
         }
-        assertThat(cNodes).hasSize(1);
-        assertThat(cNodes).contains(parent);
+        assertThat(cNodes).asList().hasSize(1);
+        assertThat(cNodes).asList().contains(parent);
     }
 
     @Test
@@ -709,9 +709,9 @@ public class DefaultVisitControllerTest {
         DefaultVisitController controller = new DefaultVisitController(t, true);
         controller.startVisit(testVisitor);
 
-        assertThat(functionNodes).hasSize(2);
-        assertThat(compositeNode).hasSize(1);
-        assertThat(compositeNode).contains(parent);
+        assertThat(functionNodes).asList().hasSize(2);
+        assertThat(compositeNode).asList().hasSize(1);
+        assertThat(compositeNode).asList().contains(parent);
     }
 
     public void verifyRemoveablePropertyValueElement(String backgroundValue) {

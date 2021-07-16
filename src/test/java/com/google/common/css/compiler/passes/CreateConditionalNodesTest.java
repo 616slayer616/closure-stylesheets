@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CreateConditionalNodes}.
@@ -58,7 +58,7 @@ public class CreateConditionalNodesTest extends NewFunctionalTestBase {
         parseAndRun("@if X {a {b: c} } @else { @if (Y) {d {e: f} } }");
         assertThat(getFirstActualNode()).isInstanceOf(CssConditionalBlockNode.class);
         CssConditionalBlockNode condBlock = (CssConditionalBlockNode) getFirstActualNode();
-        assertThat(condBlock.getChildren()).hasSize(2);
+        assertThat(condBlock.getChildren()).asList().hasSize(2);
         CssConditionalRuleNode condRuleIf = condBlock.getChildren().get(0);
         CssConditionalRuleNode condRuleElse = condBlock.getChildren().get(1);
         assertThat(condRuleIf.getName().getValue()).isEqualTo("if");
@@ -66,11 +66,11 @@ public class CreateConditionalNodesTest extends NewFunctionalTestBase {
         assertThat(condRuleIf.getBlock().toString()).isEqualTo("[[a]{[b:[c]]}]");
         assertThat(condRuleElse.getName().getValue()).isEqualTo("else");
         assertThat(condRuleElse.getParametersCount()).isEqualTo(0);
-        assertThat(condRuleElse.getBlock().getChildren()).hasSize(1);
+        assertThat(condRuleElse.getBlock().getChildren()).asList().hasSize(1);
         CssNode child = condRuleElse.getBlock().getChildren().get(0);
         assertThat(child).isInstanceOf(CssConditionalBlockNode.class);
         CssConditionalBlockNode elseCondBlock = (CssConditionalBlockNode) child;
-        assertThat(elseCondBlock.getChildren()).hasSize(1);
+        assertThat(elseCondBlock.getChildren()).asList().hasSize(1);
         CssConditionalRuleNode elseCondRuleIf = elseCondBlock.getChildren().get(0);
         assertThat(elseCondRuleIf.getName().getValue()).isEqualTo("if");
         assertThat(elseCondRuleIf.getParametersCount()).isEqualTo(1);
@@ -84,10 +84,10 @@ public class CreateConditionalNodesTest extends NewFunctionalTestBase {
         CssRulesetNode ruleset = (CssRulesetNode) getFirstActualNode();
         assertThat(ruleset.toString()).isEqualTo("[a]{[[@if[X]{[b:[c]]}, @else[]{[d:[e]]}]]}");
         CssDeclarationBlockNode declarationBlock = ruleset.getDeclarations();
-        assertThat(declarationBlock.getChildren()).hasSize(1);
+        assertThat(declarationBlock.getChildren()).asList().hasSize(1);
         assertThat(declarationBlock.getChildAt(0)).isInstanceOf(CssConditionalBlockNode.class);
         CssConditionalBlockNode condBlock = (CssConditionalBlockNode) declarationBlock.getChildAt(0);
-        assertThat(condBlock.getChildren()).hasSize(2);
+        assertThat(condBlock.getChildren()).asList().hasSize(2);
         CssConditionalRuleNode condRuleIf = condBlock.getChildren().get(0);
         CssConditionalRuleNode condRuleElse = condBlock.getChildren().get(1);
         assertThat(condRuleIf.getName().getValue()).isEqualTo("if");

@@ -17,7 +17,6 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.css.*;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.ErrorManager;
@@ -31,8 +30,9 @@ import org.junit.runners.JUnit4;
 
 import java.util.Map;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.entry;
 
 /**
  * Test for RecordingSubstitutionMap.
@@ -77,16 +77,13 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
 
     @Test
     public void testGet() {
-        SubstitutionMap substitutionMap = new SubstitutionMap() {
-            @Override
-            public String get(String key) {
-                if ("CSS_FOO".equals(key)) {
-                    return "a";
-                } else if ("CSS_BAR".equals(key)) {
-                    return "b";
-                } else {
-                    return key;
-                }
+        SubstitutionMap substitutionMap = key -> {
+            if ("CSS_FOO".equals(key)) {
+                return "a";
+            } else if ("CSS_BAR".equals(key)) {
+                return "b";
+            } else {
+                return key;
             }
         };
         RecordingSubstitutionMap recordingMap =
@@ -103,9 +100,9 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
         assertWithMessage("Predicate for RecordingSubstitutionMap was not honored")
                 .that(mappings)
                 .doesNotContainKey("BIZ");
-        Map<String, String> expectedMap = ImmutableMap.of("CSS_FOO", "a", "CSS_BAR",
-                "b", "CSS_BAZ", "CSS_BAZ");
-        assertThat(mappings).containsExactlyEntriesIn(expectedMap).inOrder();
+        assertThat(mappings).containsExactly(entry("CSS_FOO", "a"),
+                entry("CSS_BAR", "b"),
+                entry("CSS_BAZ", "CSS_BAZ"));
     }
 
     @Test
@@ -142,8 +139,7 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
                         "six",
                         "seven",
                         "eight",
-                        "nine")
-                .inOrder();
+                        "nine");
     }
 
     private RecordingSubstitutionMap setupWithMap(RecordingSubstitutionMap map) {
@@ -160,7 +156,7 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
                         .shouldRecordMappingForCodeGeneration(predicate)
                         .build();
         setupWithMap(map);
-        assertThat(mappings).containsExactly("CSS_SPRITE", "CSS_SPRITE_");
+        assertThat(mappings).containsExactly(entry("CSS_SPRITE", "CSS_SPRITE_"));
     }
 
     @Test
@@ -172,6 +168,6 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
                         .build();
         setupWithMap(map);
         assertThat(mappings).hasSize(1);
-        assertThat(mappings.get("CSS_SPRITE").length()).isEqualTo(1);
+        assertThat(mappings.get("CSS_SPRITE")).hasSize(1);
     }
 }

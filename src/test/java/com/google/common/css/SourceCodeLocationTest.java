@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import static com.google.common.css.compiler.ast.testing.SourceCodeLocationSubject.assertThat;
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link SourceCodeLocation} and {@link SourceCodeLocation.SourceCodePoint}.
@@ -58,8 +58,7 @@ public class SourceCodeLocationTest {
             Assert.fail();
         } catch (IllegalArgumentException expected) {
             assertThat(expected)
-                    .hasMessageThat()
-                    .isEqualTo("Beginning location must come before the end location.");
+                    .hasMessage("Beginning location must come before the end location.");
         }
     }
 

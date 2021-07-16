@@ -17,16 +17,15 @@
 package com.google.common.css;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.math.BigInteger;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for MinimalSubstitutionMap.
@@ -94,7 +93,7 @@ public class MinimalSubstitutionMapTest {
     public void testToShortString() {
         map = createTestMap();
 
-        Set<String> classes = Sets.newHashSet();
+        List<String> classes = new ArrayList<>();
         int n = 0;
 
         BigInteger NUM_CHARS = BigInteger.valueOf(CHARS.length);
@@ -109,22 +108,23 @@ public class MinimalSubstitutionMapTest {
                 // Use blaze test --test_output=all to see this
                 System.out.println("RENAMED CLASS: " + renamedClass);
 
-                assertWithMessage("Already contains a class named: " + renamedClass)
-                        .that(classes)
+                assertThat(classes)
+                        .withFailMessage("Already contains a class named: " + renamedClass)
                         .doesNotContain(renamedClass);
-                assertWithMessage("Class name did not match expected length")
-                        .that(renamedClass)
-                        .hasLength(stringLength);
+                assertThat(renamedClass)
+                        .withFailMessage("Class name did not match expected length")
+                        .hasSize(stringLength);
                 classes.add(renamedClass);
                 ++n;
             }
-            assertWithMessage("Does not contain all possible CSS class names of length " + stringLength)
-                    .that(classes)
+            assertThat(classes)
+                    .withFailMessage("Does not contain all possible CSS class names of length " + stringLength)
                     .hasSize(NUM_CHARS.pow(power + 1).intValue() - 1);
+
         }
 
-        assertWithMessage("Does not contain all possible CSS class names of length " + (MAX_POWER + 1))
-                .that(classes)
+        assertThat(classes)
+                .withFailMessage("Does not contain all possible CSS class names of length " + (MAX_POWER + 1))
                 .hasSize(NUM_CHARS.pow(MAX_POWER + 1).intValue() - 1);
     }
 }

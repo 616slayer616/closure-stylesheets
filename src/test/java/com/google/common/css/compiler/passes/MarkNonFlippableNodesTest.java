@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link MarkNonFlippableNodes}.
@@ -58,7 +58,7 @@ public class MarkNonFlippableNodesTest extends PassesTestBase {
         assertThat(ruleset.getShouldBeFlipped()).isTrue();
 
         CssDeclarationBlockNode block = ruleset.getDeclarations();
-        assertThat(block.getChildren()).hasSize(2);
+        assertThat(block.getChildren()).asList().hasSize(2);
         // The first declaration has to be marked as not flippable.
         assertThat(block.getChildren().get(0).getShouldBeFlipped()).isFalse();
         // The second declaration has to be marked as flippable.
@@ -81,7 +81,7 @@ public class MarkNonFlippableNodesTest extends PassesTestBase {
 
         // All declaration in the ruleset have to be marked as flippable.
         CssDeclarationBlockNode block = ruleset.getDeclarations();
-        assertThat(block.getChildren()).hasSize(2);
+        assertThat(block.getChildren()).asList().hasSize(2);
         assertThat(block.getChildren().get(0).getShouldBeFlipped()).isFalse();
         assertThat(block.getChildren().get(1).getShouldBeFlipped()).isFalse();
     }

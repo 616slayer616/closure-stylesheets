@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.Locale;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Functional tests for {@link BiDiFlipper}.

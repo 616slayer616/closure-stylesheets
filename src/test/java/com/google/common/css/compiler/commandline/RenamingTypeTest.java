@@ -30,8 +30,8 @@ import org.junit.runners.JUnit4;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * {@link RenamingTypeTest} is a unit test for {@link RenamingType}.
@@ -123,7 +123,7 @@ public class RenamingTypeTest {
                         .build();
         Map<String, String> observedMappings = map.getMappings();
         // "content" wasn't observed, but it should still be in the output
-        assertThat(observedMappings).containsExactlyEntriesIn(expectedMappings);
+        assertThat(observedMappings).containsAllEntriesOf(expectedMappings);
     }
 
     private void testRenamingTypeThatWrapsASplittingSubstitutionMap(RenamingType

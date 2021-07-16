@@ -25,7 +25,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -150,7 +150,7 @@ public class ReplaceConstantReferencesTest {
 
         Mockito.verify(mockVisitController)
                 .replaceCurrentBlockChildWith(cssNodesCaptor.capture(), eq(true));
-        assertThat(cssNodesCaptor.getValue()).hasSize(1);
+        assertThat(cssNodesCaptor.getValue()).asList().hasSize(1);
         assertThat(cssNodesCaptor.getValue().get(0).getClass()).isEqualTo(CssCompositeValueNode.class);
     }
 

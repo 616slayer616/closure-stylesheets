@@ -27,6 +27,9 @@ import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+
 /**
  * Utility class for comparison of css nodes.
  *
@@ -43,7 +46,7 @@ public abstract class AstUtilityTestCase extends UtilityTestCase {
         Class<? extends CssNode> class1 = node1.getClass();
         Class<? extends CssNode> class2 = node2.getClass();
 
-        Truth.assertThat(class1).isEqualTo(class2);
+        assertThat(class1).isEqualTo(class2);
 
         Class<?> currentClass = class1;
         assertFieldsEqual(node1, node2, currentClass);

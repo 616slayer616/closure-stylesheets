@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link DelegatingVisitor}
@@ -45,9 +45,8 @@ public class DelegatingVisitorTest {
         delegatingVisitor.enterSelector(null /* selector */);
         delegatingVisitor.leaveSelector(null /* selector */);
 
-        assertThat(orderRecord)
-                .containsExactly("enter visitor1", "enter visitor2", "leave visitor2", "leave visitor1")
-                .inOrder();
+        assertThat(orderRecord).asList()
+                .containsExactly("enter visitor1", "enter visitor2", "leave visitor2", "leave visitor1");
     }
 
     private static class RecordingVisitor extends DefaultTreeVisitor {

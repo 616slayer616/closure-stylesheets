@@ -32,7 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.css.compiler.passes.ResolveCustomFunctionNodesForChunks.DEF_PREFIX;
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 
 /**
  * Unit tests for {@link ProcessComponents}.
@@ -553,7 +554,11 @@ public class ProcessComponentsTest extends PassesTestBase {
                 "CHILD__BASE_COLOR", FILE2,
                 "CHILD__SPECIFIC_COLOR", FILE2,
                 "CHILD__DERIVED_COLOR", FILE2);
-        assertThat(foundDefs.build()).containsExactlyEntriesIn(expectedDefs).inOrder();
+        assertThat(foundDefs.build()).containsExactly(
+                entry("PARENT__BASE_COLOR", FILE1),
+                entry("CHILD__BASE_COLOR", FILE2),
+                entry("CHILD__SPECIFIC_COLOR", FILE2),
+                entry("CHILD__DERIVED_COLOR", FILE2));
     }
 
     @Test
@@ -598,7 +603,7 @@ public class ProcessComponentsTest extends PassesTestBase {
                         });
         String someComment = "/** Some comment. */";
         String multilineComment = "/**\n" + "   * Multiline comment.\n" + "   */";
-        assertThat(foundComments).containsExactly(someComment, someComment, multilineComment).inOrder();
+        assertThat(foundComments).asList().containsExactly(someComment, someComment, multilineComment);
     }
 
     private String joinNl(Iterable<String> lines) {

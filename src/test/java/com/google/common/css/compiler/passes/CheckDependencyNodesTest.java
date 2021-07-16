@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link CheckDependencyNodes}.
@@ -48,7 +48,7 @@ public class CheckDependencyNodesTest extends NewFunctionalTestBase {
                 "first.css", "@provide 'foo.bar';",
                 "second.css", "@require 'foo.bar';");
         parseAndRun(fileNameToGss);
-        assertThat(processDependencyNodes.getProvidesInOrder()).containsExactly("foo.bar");
+        assertThat(processDependencyNodes.getProvidesInOrder()).asList().containsExactly("foo.bar");
     }
 
     @Test
@@ -73,8 +73,7 @@ public class CheckDependencyNodesTest extends NewFunctionalTestBase {
                 "fourth.css", "@provide 'buzz'; @require 'baz';",
                 "fifth.css", "@require 'buzz';");
         parseAndRun(fileNameToGss);
-        assertThat(processDependencyNodes.getProvidesInOrder())
-                .containsExactly("foo", "bar", "baz", "buzz")
-                .inOrder();
+        assertThat(processDependencyNodes.getProvidesInOrder()).asList()
+                .containsExactly("foo", "bar", "baz", "buzz");
     }
 }

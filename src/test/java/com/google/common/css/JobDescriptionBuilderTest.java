@@ -27,7 +27,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link JobDescriptionBuilder}.
@@ -60,7 +60,7 @@ public class JobDescriptionBuilderTest {
         SourceCode sourceCode = new SourceCode("tempfile", "filecontents");
         builder.addInput(sourceCode);
         job = builder.getJobDescription();
-        assertThat(job.inputs).hasSize(1);
+        assertThat(job.inputs).asList().hasSize(1);
         assertThat(job.inputs.get(0)).isSameAs(sourceCode);
     }
 
@@ -70,7 +70,7 @@ public class JobDescriptionBuilderTest {
         SourceCode sourceCode = new SourceCode("tempfile", "filecontents");
         builder.addInput(sourceCode);
         job = builder.getJobDescription();
-        assertThat(job.inputs).hasSize(1);
+        assertThat(job.inputs).asList().hasSize(1);
         assertThat(job.inputs.get(0)).isSameAs(sourceCode);
     }
 
@@ -79,7 +79,7 @@ public class JobDescriptionBuilderTest {
         SourceCode sourceCode = new SourceCode("tempfile", "filecontents");
         builder.setInputs(ImmutableList.of(sourceCode));
         job = builder.getJobDescription();
-        assertThat(job.inputs).hasSize(1);
+        assertThat(job.inputs).asList().hasSize(1);
         assertThat(job.inputs.get(0)).isSameAs(sourceCode);
     }
 
@@ -88,7 +88,7 @@ public class JobDescriptionBuilderTest {
         String conditionName = "cond";
         builder.addTrueConditionName(conditionName);
         job = builder.getJobDescription();
-        assertThat(job.trueConditionNames).hasSize(1);
+        assertThat(job.trueConditionNames).asList().hasSize(1);
         assertThat(job.trueConditionNames.get(0)).isSameAs(conditionName);
     }
 
@@ -98,7 +98,7 @@ public class JobDescriptionBuilderTest {
         String conditionName = "cond";
         builder.addTrueConditionName(conditionName);
         job = builder.getJobDescription();
-        assertThat(job.trueConditionNames).hasSize(1);
+        assertThat(job.trueConditionNames).asList().hasSize(1);
         assertThat(job.trueConditionNames.get(0)).isSameAs(conditionName);
     }
 
@@ -107,7 +107,7 @@ public class JobDescriptionBuilderTest {
         String conditionName = "cond";
         builder.setTrueConditionNames(ImmutableList.of(conditionName));
         job = builder.getJobDescription();
-        assertThat(job.trueConditionNames).hasSize(1);
+        assertThat(job.trueConditionNames).asList().hasSize(1);
         assertThat(job.trueConditionNames.get(0)).isSameAs(conditionName);
     }
 

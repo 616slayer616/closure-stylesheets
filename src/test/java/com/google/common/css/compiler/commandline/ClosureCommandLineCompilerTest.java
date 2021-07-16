@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4;
 
 import java.io.File;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 @RunWith(JUnit4.class)

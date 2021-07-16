@@ -22,9 +22,9 @@ import org.junit.runners.JUnit4;
 
 import java.util.function.Function;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@code CssStringNode}

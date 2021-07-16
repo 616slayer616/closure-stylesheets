@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CssPropertyNode}.
@@ -121,8 +121,7 @@ public class CssPropertyNodeTest {
                 .containsExactly("list-style");
 
         assertThat(new CssPropertyNode("border-left-style").getProperty().getShorthands())
-                .containsExactly("border", "border-left", "border-style")
-                .inOrder();
+                .containsExactly("border", "border-left", "border-style");
     }
 
     @Test

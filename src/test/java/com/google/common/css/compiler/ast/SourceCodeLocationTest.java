@@ -28,7 +28,7 @@ import java.util.List;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static com.google.common.css.compiler.ast.testing.SourceCodeLocationSubject.assertThat;
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests that {@link com.google.common.css.SourceCodeLocation}s are created properly.
@@ -230,7 +230,7 @@ public class SourceCodeLocationTest {
         assertThat(propertyValueNode.getSourceCodeLocation()).matches("12pt Times New Roman, serif");
 
         List<CssValueNode> valueNodes = propertyValueNode.getChildren();
-        assertThat(valueNodes).hasSize(2);
+        assertThat(valueNodes).asList().hasSize(2);
 
         CssNumericNode cssNumericNode = (CssNumericNode) valueNodes.get(0);
         assertThat(cssNumericNode.getSourceCodeLocation()).hasSpan(2, 9, 2, 13);
@@ -240,7 +240,7 @@ public class SourceCodeLocationTest {
         assertThat(cssCompositeValueNode.getSourceCodeLocation()).hasSpan(2, 14, 2, 36);
         assertThat(cssCompositeValueNode.getSourceCodeLocation()).matches("Times New Roman, serif");
 
-        assertThat(cssCompositeValueNode.getValues()).hasSize(2);
+        assertThat(cssCompositeValueNode.getValues()).asList().hasSize(2);
         assertThat(cssCompositeValueNode.getValues().get(0).getSourceCodeLocation())
                 .hasSpan(2, 14, 2, 29);
         assertThat(cssCompositeValueNode.getValues().get(0).getSourceCodeLocation())
