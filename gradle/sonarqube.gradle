@@ -1,5 +1,6 @@
 ext {
     sonarProjectName = rootProject.name
+    duplicateExclusions = '**/com/google/common/css/compiler/ast/GssParserCC**'
 }
 
 sonarqube {
@@ -8,6 +9,7 @@ sonarqube {
         property 'sonar.projectName', sonarProjectName
         property 'sonar.projectKey', "616slayer616_closure-stylesheets"
         property 'sonar.organization', "616slayer616-github"
+        property 'sonar.cpd.exclusions', duplicateExclusions
         property 'sonar.issue.ignore.multicriteria', 'j1,j2,j3'
         // Refactor this method to not always return the same value
         property 'sonar.issue.ignore.multicriteria.j1.ruleKey', 'java:S3516'
