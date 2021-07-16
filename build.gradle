@@ -6,6 +6,8 @@ plugins {
     id "org.sonarqube" version "3.3"
 }
 
+apply from: 'gradle/sonarqube.gradle'
+
 group = 'org.padler'
 version = '1.6.2'
 description = 'Closure Stylesheets'
@@ -36,15 +38,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:3.11.2")
     testImplementation("com.google.truth:truth:0.36")
-}
-
-sonarqube {
-    properties {
-        property("sonar.projectName", "Closure-stylesheets")
-        property("sonar.projectKey", "616slayer616_closure-stylesheets")
-        property("sonar.organization", "616slayer616-github")
-        property("sonar.host.url", "https://sonarcloud.io")
-    }
 }
 
 task sourcesJar(type: Jar) {
