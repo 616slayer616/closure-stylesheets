@@ -42,7 +42,7 @@ class CssCustomFunctionNodeTest {
         assertThat(x.getValue()).isEqualTo("x");
         assertThat(y.getValue()).isEqualTo("y");
         assertThat(fixedParameters).asList().hasSize(1);
-        assertThat(fixedParameters.get(0).toString()).isEqualTo("x y");
+        assertThat(fixedParameters.get(0)).hasToString("x y");
     }
 
     @Test
@@ -54,7 +54,7 @@ class CssCustomFunctionNodeTest {
         List<CssValueNode> fixedParameters = CssCustomFunctionNode.fixupFunctionArguments(parameters);
 
         assertThat(fixedParameters).asList().hasSize(2);
-        assertThat(fixedParameters.get(0).toString()).isEqualTo("x \"double quotes!\"");
-        assertThat(fixedParameters.get(1).toString()).isEqualTo("'single quotes!'");
+        assertThat(fixedParameters.get(0)).hasToString("x \"double quotes!\"");
+        assertThat(fixedParameters.get(1)).hasToString("'single quotes!'");
     }
 }

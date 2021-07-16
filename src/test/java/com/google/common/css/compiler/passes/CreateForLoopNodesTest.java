@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link CreateForLoopNodes}.
  */
+@SuppressWarnings("java:S2699")
 class CreateForLoopNodesTest extends NewFunctionalTestBase {
 
     @Override
@@ -41,9 +42,9 @@ class CreateForLoopNodesTest extends NewFunctionalTestBase {
         parseAndRun("@for $i from 1 to 3 step 2 {}");
         assertThat(getFirstActualNode()).isInstanceOf(CssForLoopRuleNode.class);
         CssForLoopRuleNode loop = (CssForLoopRuleNode) getFirstActualNode();
-        assertThat(loop.getFrom().toString()).isEqualTo("1");
-        assertThat(loop.getTo().toString()).isEqualTo("3");
-        assertThat(loop.getStep().toString()).isEqualTo("2");
+        assertThat(loop.getFrom()).hasToString("1");
+        assertThat(loop.getTo()).hasToString("3");
+        assertThat(loop.getStep()).hasToString("2");
     }
 
     @Test

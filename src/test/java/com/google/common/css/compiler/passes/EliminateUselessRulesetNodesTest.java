@@ -40,6 +40,7 @@ import static org.mockito.Mockito.when;
  * @author oana@google.com (Oana Florescu)
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("java:S2699")
 class EliminateUselessRulesetNodesTest {
 
     @Mock

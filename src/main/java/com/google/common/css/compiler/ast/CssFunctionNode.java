@@ -304,7 +304,7 @@ public class CssFunctionNode extends CssValueNode implements ChunkAware {
 
     @Override
     public String toString() {
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         if (function.getFunctionName() != null) {
             output.append(function.getFunctionName());
         }

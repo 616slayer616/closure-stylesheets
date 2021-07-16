@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link CreateDefinitionNodes}.
  */
+@SuppressWarnings("java:S2699")
 class CreateDefinitionNodesTest extends NewFunctionalTestBase {
 
     @Override

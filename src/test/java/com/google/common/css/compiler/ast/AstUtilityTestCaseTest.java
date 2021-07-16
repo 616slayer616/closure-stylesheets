@@ -99,5 +99,6 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
         BackDoorNodeMutation.addChildToBack(parent2, node2);
 
         deepEquals(parent1, parent2);
+        assertThat(parent1).isNotEqualTo(parent2);
     }
 }

@@ -182,13 +182,7 @@ public class SourceCodeLocation implements Comparable<SourceCodeLocation> {
     private static final SourceCode UNKNOWN_SOURCE_CODE =
             new SourceCode("unknown", "");
 
-    private static final Function<Locatable, SourceCodeLocation> LOCATABLE_TO_LOCATION =
-            new Function<Locatable, SourceCodeLocation>() {
-                @Override
-                public SourceCodeLocation apply(Locatable locatable) {
-                    return locatable.getSourceCodeLocation();
-                }
-            };
+    private static final Function<Locatable, SourceCodeLocation> LOCATABLE_TO_LOCATION = Locatable::getSourceCodeLocation;
 
     /**
      * Returns an unknown location.

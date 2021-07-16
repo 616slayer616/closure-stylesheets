@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author oana@google.com (Oana Florescu)
  */
+@SuppressWarnings("java:S2699")
 class CssClassRenamingTest {
 
     @Test

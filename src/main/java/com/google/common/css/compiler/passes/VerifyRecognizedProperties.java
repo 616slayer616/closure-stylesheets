@@ -80,7 +80,7 @@ public class VerifyRecognizedProperties extends DefaultTreeVisitor
             } else if (property.hasWarning()) {
                 errorManager.reportWarning(new GssError(
                         String.format(
-                                "WARNING for use of CSS property %s: %s\n",
+                                "WARNING for use of CSS property %s: %s%n",
                                 property.getName(), property.getWarning()),
                         propertyNode.getSourceCodeLocation()));
             }

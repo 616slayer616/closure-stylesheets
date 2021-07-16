@@ -27,6 +27,7 @@ import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
@@ -110,16 +111,11 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
      * original AST of a font declaration value.
      */
     private static final Predicate<CssValueNode> IS_PLAIN_SIZE =
-            new Predicate<CssValueNode>() {
-                @Override
-                public boolean apply(CssValueNode n) {
-                    return (n instanceof CssNumericNode
-                            && (!CssNumericNode.NO_UNITS.equals(
-                            ((CssNumericNode) n).getUnit())))
-                            || FONT_ABSOLUTE_SIZES.contains(n.getValue())
-                            || FONT_RELATIVE_SIZES.contains(n.getValue());
-                }
-            };
+            n -> (n instanceof CssNumericNode
+                    && (!CssNumericNode.NO_UNITS.equals(
+                    ((CssNumericNode) n).getUnit())))
+                    || FONT_ABSOLUTE_SIZES.contains(n.getValue())
+                    || FONT_RELATIVE_SIZES.contains(n.getValue());
 
     /**
      * Picks out the size from the original AST subtree representing
@@ -127,12 +123,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
      */
     private static final
     Function<CssCompositeValueNode, CssValueNode> EXTRACT_SIZE =
-            new Function<CssCompositeValueNode, CssValueNode>() {
-                @Override
-                public CssValueNode apply(CssCompositeValueNode n) {
-                    return n.getValues().get(0);
-                }
-            };
+            n -> n.getValues().get(0);
 
     @VisibleForTesting
     static final String SIZE_AND_FAMILY_REQUIRED =
@@ -319,13 +310,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
     private <T> Iterable<T> takeUntil(Iterable<T> xs, final T excludedEndpoint) {
         return takeWhile(
-                xs,
-                new Predicate<T>() {
-                    @Override
-                    public boolean apply(T i) {
-                        return excludedEndpoint != i;
-                    }
-                });
+                xs, i -> excludedEndpoint != i);
     }
 
     private Map<CssValueNode, FontProperty> classifyNodes(
@@ -438,20 +423,10 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
             }
         }
         if (mode == InputMode.CSS) {
-            CssValueNode interloper =
-                    Iterables.find(
-                            prefix,
-                            new Predicate<CssValueNode>() {
-                                @Override
-                                public boolean apply(CssValueNode n) {
-                                    return !classified.containsKey(n) && !normals.contains(n);
-                                }
-                            },
-                            null);
-            if (interloper != null) {
-                reportError(PRE_SIZE_INTERLOPER_SIZE,
-                        getSourceCodeLocation(interloper));
-            }
+            StreamSupport.stream(prefix.spliterator(), false)
+                    .filter(n -> !classified.containsKey(n) && !normals.contains(n))
+                    .findFirst()
+                    .ifPresent(interloper -> reportError(PRE_SIZE_INTERLOPER_SIZE, getSourceCodeLocation(interloper)));
         }
     }
 
@@ -553,7 +528,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
             alternatives.add(item);
         } else {
             CssValueNode stump;
-            if (alternatives.size() > 0
+            if (!alternatives.isEmpty()
                     && !isString(alternatives.get(alternatives.size() - 1))) {
                 // concatenate onto previous node
                 stump = alternatives.get(alternatives.size() - 1);
@@ -577,12 +552,9 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
     }
 
     private static SourceCodeLocation getSourceCodeLocation(CssNode n) {
-        n = Iterables.find(n.ancestors(), new Predicate<CssNode>() {
-            @Override
-            public boolean apply(CssNode n) {
-                return n.getSourceCodeLocation() != null;
-            }
-        }, null);
+        n = StreamSupport.stream(n.ancestors().spliterator(), false)
+                .filter(n1 -> n1.getSourceCodeLocation() != null)
+                .findFirst().orElse(null);
         return n != null
                 ? n.getSourceCodeLocation()
                 : new SourceCodeLocation(
@@ -595,35 +567,30 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
      */
     private <T> Iterable<T> takeWhile(
             final Iterable<T> xs, final Predicate<? super T> p) {
-        return new Iterable<T>() {
+        return () -> new UnmodifiableIterator<T>() {
+            final Iterator<T> xsi = xs.iterator();
+            boolean validT = false;
+            T t;
+
+            {
+                next();
+            }
+
             @Override
-            public Iterator<T> iterator() {
-                return new UnmodifiableIterator<T>() {
-                    final Iterator<T> xsi = xs.iterator();
-                    boolean validT = false;
-                    T t;
+            public boolean hasNext() {
+                return validT;
+            }
 
-                    {
-                        next();
-                    }
-
-                    @Override
-                    public boolean hasNext() {
-                        return validT;
-                    }
-
-                    @Override
-                    public T next() {
-                        T result = t;
-                        if (xsi.hasNext()) {
-                            t = xsi.next();
-                            validT = p.apply(t);
-                        } else {
-                            validT = false;
-                        }
-                        return result;
-                    }
-                };
+            @Override
+            public T next() {
+                T result = t;
+                if (xsi.hasNext()) {
+                    t = xsi.next();
+                    validT = p.apply(t);
+                } else {
+                    validT = false;
+                }
+                return result;
             }
         };
     }
@@ -673,13 +640,10 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
     private <T> Iterable<T> extractByType(
             final Class<T> ct, Iterable<? super T> xs) {
         return Iterables.transform(
-                Iterables.filter(xs, Predicates.instanceOf(ct)),
-                new Function<Object, T>() {
-                    @Override
-                    public T apply(Object x) {
-                        return ct.cast(x);
-                    }
-                });
+                StreamSupport.stream(xs.spliterator(), false)
+                        .filter(Predicates.instanceOf(ct)::apply)
+                        .collect(Collectors.toList()),
+                (Function<Object, T>) ct::cast);
     }
 
     @Override

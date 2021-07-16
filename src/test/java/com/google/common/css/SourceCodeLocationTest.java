@@ -17,11 +17,11 @@
 package com.google.common.css;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.css.compiler.ast.testing.SourceCodeLocationSubject.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Unit tests for {@link SourceCodeLocation} and {@link SourceCodeLocation.SourceCodePoint}.
@@ -52,7 +52,7 @@ class SourceCodeLocationTest {
         SourceCode sourceCode = new SourceCode("testfile", "abc\ndefg");
         try {
             new SourceCodeLocation(sourceCode, 7, 2, 4, 2, 1, 3);
-            Assert.fail();
+            fail("");
         } catch (IllegalArgumentException expected) {
             assertThat(expected)
                     .hasMessage("Beginning location must come before the end location.");
@@ -70,10 +70,10 @@ class SourceCodeLocationTest {
         assertThat(loc1.equals(loc2)).isTrue();
         assertThat(loc2.equals(loc1)).isTrue();
         assertThat(loc2.equals(loc2)).isTrue();
-        assertThat(loc1.compareTo(loc2)).isEqualTo(0);
-        assertThat(loc1.compareTo(loc1)).isEqualTo(0);
-        assertThat(loc2.compareTo(loc1)).isEqualTo(0);
-        assertThat(loc2.compareTo(loc2)).isEqualTo(0);
+        assertThat(loc1.compareTo(loc2)).isZero();
+        assertThat(loc1.compareTo(loc1)).isZero();
+        assertThat(loc2.compareTo(loc1)).isZero();
+        assertThat(loc2.compareTo(loc2)).isZero();
         assertThat(loc2.hashCode()).isEqualTo(loc1.hashCode());
     }
 
@@ -88,10 +88,10 @@ class SourceCodeLocationTest {
         assertThat(loc1.equals(loc2)).isTrue();
         assertThat(loc2.equals(loc1)).isTrue();
         assertThat(loc2.equals(loc2)).isTrue();
-        assertThat(loc1.compareTo(loc2)).isEqualTo(0);
-        assertThat(loc1.compareTo(loc1)).isEqualTo(0);
-        assertThat(loc2.compareTo(loc1)).isEqualTo(0);
-        assertThat(loc2.compareTo(loc2)).isEqualTo(0);
+        assertThat(loc1.compareTo(loc2)).isZero();
+        assertThat(loc1.compareTo(loc1)).isZero();
+        assertThat(loc2.compareTo(loc1)).isZero();
+        assertThat(loc2.compareTo(loc2)).isZero();
         assertThat(loc2.hashCode()).isEqualTo(loc1.hashCode());
     }
 
@@ -102,8 +102,8 @@ class SourceCodeLocationTest {
                 new SourceCodeLocation(sourceCode, -1, 0, 0, -1, 0, 0);
         SourceCodeLocation loc2 =
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
-        assertThat(loc1.equals(loc2)).isFalse();
-        assertThat(loc2.equals(loc1)).isFalse();
+        assertThat(loc1).isNotEqualTo(loc2);
+        assertThat(loc2).isNotEqualTo(loc1);
         assertThat(loc1.compareTo(loc2)).isEqualTo(-1);
         assertThat(loc2.compareTo(loc1)).isEqualTo(1);
     }
@@ -165,7 +165,7 @@ class SourceCodeLocationTest {
 
         try {
             SourceCodeLocation loc3 = SourceCodeLocation.merge(loc2, loc1);
-            Assert.fail("merge should have thrown an exception for out of order locations");
+            fail("merge should have thrown an exception for out of order locations");
         } catch (Exception expected) {
         }
     }
@@ -179,7 +179,7 @@ class SourceCodeLocationTest {
 
         try {
             SourceCodeLocation loc3 = SourceCodeLocation.merge(loc1, loc2);
-            Assert.fail("merge should have thrown an exception for locations in different files");
+            fail("merge should have thrown an exception for locations in different files");
         } catch (Exception expected) {
         }
     }

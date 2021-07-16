@@ -28,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * @author oana@google.com (Oana Florescu)
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("java:S2699")
 class EliminateEmptyRulesetNodesTest {
 
     @Mock

@@ -368,57 +368,55 @@ public class CssStringNode extends CssValueNode {
      * replaced character. This is a good choice for readability.
      */
     public static final Function<String, String> SHORT_ESCAPER =
-            new Function<String, String>() {
-                public String apply(String input) {
-                    StringBuffer sb = new StringBuffer();
-                    Matcher m = WIDE_NONASCII_PATTERN.matcher(input);
-                    while (m.find()) {
-                        String match = m.group(0);
-                        assert (
-                                // We don't insert characters from whole cloth
-                                match.length() > 0
-                                        // Our replacement accounts for the entire banned snippet,
-                                        // which is one codepoint but potentially multiple UTF-16
-                                        // Java Characters.
-                                        && match.length() == match.offsetByCodePoints(0, 1));
-                        /* Escape codes can have up to 6 digits. We are allowed to pad
-                         * with 0s on the left.
-                         * When the escaped character ends the string, we simply
-                         * substitute the escape code for the escaped character.
-                         * Otherwise, there are two cases in which we must insert a
-                         * whitespace after our escape sequence:
-                         *   (1) We have fewer than 6 digits and the escaped character
-                         *   appears immediately before a hexadecimal digit in the
-                         *   input.
-                         *   (2) The escaped character appears immediately before a
-                         *   whitespace in the input Adding the space never results in
-                         *   longer CSS than adding zero padding, and sometimes it
-                         *   shortens our output, so we never pad with zeroes.
-                         */
-                        String hexDigits = String.format("%x", match.codePointAt(0));
-                        String trailer;
-                        if (input.length() <= m.end()) {
-                            // simple: the end of the escape sequence is the end of the string.
-                            trailer = "";
-                        } else if (hexDigits.length() < 6 && HEX_PATTERN.matcher(
-                                input.subSequence(m.end(), m.end() + 1)).matches()) {
-                            // a hex digit after a short escape sequence requires
-                            // separation by an inserted whitespace.
-                            trailer = " ";
-                        } else if (CONSUMABLE_WHITESPACE.matches(input.charAt(m.end()))) {
-                            // a whitespace after an escaped character requires the
-                            // insertion of an additional whitespace between the
-                            // escape sequence and the original whitespace.
-                            trailer = " ";
-                        } else {
-                            trailer = "";
-                        }
-                        m.appendReplacement(
-                                sb, String.format("\\\\%s%s", hexDigits, trailer));
+            input -> {
+                StringBuffer sb = new StringBuffer();
+                Matcher m = WIDE_NONASCII_PATTERN.matcher(input);
+                while (m.find()) {
+                    String match = m.group(0);
+                    assert (
+                            // We don't insert characters from whole cloth
+                            match.length() > 0
+                                    // Our replacement accounts for the entire banned snippet,
+                                    // which is one codepoint but potentially multiple UTF-16
+                                    // Java Characters.
+                                    && match.length() == match.offsetByCodePoints(0, 1));
+                    /* Escape codes can have up to 6 digits. We are allowed to pad
+                     * with 0s on the left.
+                     * When the escaped character ends the string, we simply
+                     * substitute the escape code for the escaped character.
+                     * Otherwise, there are two cases in which we must insert a
+                     * whitespace after our escape sequence:
+                     *   (1) We have fewer than 6 digits and the escaped character
+                     *   appears immediately before a hexadecimal digit in the
+                     *   input.
+                     *   (2) The escaped character appears immediately before a
+                     *   whitespace in the input Adding the space never results in
+                     *   longer CSS than adding zero padding, and sometimes it
+                     *   shortens our output, so we never pad with zeroes.
+                     */
+                    String hexDigits = String.format("%x", match.codePointAt(0));
+                    String trailer;
+                    if (input.length() <= m.end()) {
+                        // simple: the end of the escape sequence is the end of the string.
+                        trailer = "";
+                    } else if (hexDigits.length() < 6 && HEX_PATTERN.matcher(
+                            input.subSequence(m.end(), m.end() + 1)).matches()) {
+                        // a hex digit after a short escape sequence requires
+                        // separation by an inserted whitespace.
+                        trailer = " ";
+                    } else if (CONSUMABLE_WHITESPACE.matches(input.charAt(m.end()))) {
+                        // a whitespace after an escaped character requires the
+                        // insertion of an additional whitespace between the
+                        // escape sequence and the original whitespace.
+                        trailer = " ";
+                    } else {
+                        trailer = "";
                     }
-                    m.appendTail(sb);
-                    return sb.toString();
+                    m.appendReplacement(
+                            sb, String.format("\\\\%s%s", hexDigits, trailer));
                 }
+                m.appendTail(sb);
+                return sb.toString();
             };
 
     /**

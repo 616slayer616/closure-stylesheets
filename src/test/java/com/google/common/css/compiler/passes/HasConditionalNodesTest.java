@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Unit tests for {@link HasConditionalNodes}.
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("java:S2699")
 class HasConditionalNodesTest {
     @Mock
     MutatingVisitController visitController;

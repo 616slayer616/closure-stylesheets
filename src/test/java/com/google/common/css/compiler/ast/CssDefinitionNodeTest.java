@@ -35,8 +35,8 @@ class CssDefinitionNodeTest {
 
         assertThat(definition.getParent()).isNull();
         assertThat(definition.getSourceCodeLocation()).isNull();
-        assertThat(definition.getType().toString()).isEqualTo("@def");
-        assertThat(definition.toString()).isEqualTo("@def COLOR []");
+        assertThat(definition.getType()).hasToString("@def");
+        assertThat(definition).hasToString("@def COLOR []");
     }
 
     @Test
@@ -52,11 +52,11 @@ class CssDefinitionNodeTest {
         assertThat(definition1.getSourceCodeLocation()).isNull();
         assertThat(definition2.getSourceCodeLocation()).isNull();
 
-        assertThat(definition1.getType().toString()).isEqualTo("@def");
-        assertThat(definition2.getType().toString()).isEqualTo("@def");
+        assertThat(definition1.getType()).hasToString("@def");
+        assertThat(definition2.getType()).hasToString("@def");
 
-        assertThat(definition1.toString()).isEqualTo("@def COLOR []");
-        assertThat(definition2.toString()).isEqualTo("@def COLOR []");
+        assertThat(definition1).hasToString("@def COLOR []");
+        assertThat(definition2).hasToString("@def COLOR []");
 
         assertThat(definition1.hasComment("/* foo */")).isTrue();
         assertThat(definition2.hasComment("/* foo */")).isTrue();

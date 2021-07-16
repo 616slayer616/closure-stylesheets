@@ -83,6 +83,7 @@ class CssDeclarationNodeTest extends AstUtilityTestCase {
         CssDeclarationNode node2 = new CssDeclarationNode(node1);
 
         deepEquals(node1, node2);
+        assertThat(node1).isNotEqualTo(node2);
     }
 
     @Test
@@ -94,6 +95,7 @@ class CssDeclarationNodeTest extends AstUtilityTestCase {
         CssDeclarationNode node2 = new CssDeclarationNode(node1);
 
         deepEquals(node1, node2);
+        assertThat(node1).isNotEqualTo(node2);
     }
 
     @Test
@@ -106,5 +108,6 @@ class CssDeclarationNodeTest extends AstUtilityTestCase {
         CssDeclarationNode node2 = new CssDeclarationNode(node1);
 
         deepEquals(node1, node2);
+        assertThat(node1).isNotEqualTo(node2);
     }
 }

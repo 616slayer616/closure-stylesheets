@@ -281,7 +281,7 @@ public class UnsafeMergeRulesetNodes implements CssCompilerPass {
     /**
      * A partition organizes pairs of declaration/selector.
      */
-    private static abstract class Partition {
+    private abstract static class Partition {
         @SuppressWarnings("unused")
         protected final String partition;
 
@@ -315,12 +315,7 @@ public class UnsafeMergeRulesetNodes implements CssCompilerPass {
         protected Set<CssSelectorNode> getSelectorsByDeclarations(
                 Collection<CssDeclarationNode> declarations,
                 Map<Collection<CssDeclarationNode>, Set<CssSelectorNode>> map) {
-            Set<CssSelectorNode> selectors = map.get(declarations);
-            if (selectors == null) {
-                selectors = Sets.newTreeSet(TO_STRING_COMPARATOR);
-                map.put(declarations, selectors);
-            }
-            return selectors;
+            return map.computeIfAbsent(declarations, k -> Sets.newTreeSet(TO_STRING_COMPARATOR));
         }
     }
 
@@ -374,12 +369,7 @@ public class UnsafeMergeRulesetNodes implements CssCompilerPass {
         }
 
         private List<CssDeclarationNode> getDeclarations(CssSelectorNode selector) {
-            List<CssDeclarationNode> declarations = inMap.get(selector);
-            if (declarations == null) {
-                declarations = Lists.newLinkedList();
-                inMap.put(selector, declarations);
-            }
-            return declarations;
+            return inMap.computeIfAbsent(selector, k -> Lists.newLinkedList());
         }
     }
 
@@ -421,12 +411,7 @@ public class UnsafeMergeRulesetNodes implements CssCompilerPass {
         }
 
         private Partition getPartition(String partitionName) {
-            Partition partition = partitions.get(partitionName);
-            if (partition == null) {
-                partition = Partition.newPartition(partitionName);
-                partitions.put(partitionName, partition);
-            }
-            return partition;
+            return partitions.computeIfAbsent(partitionName, Partition::newPartition);
         }
     }
 
@@ -442,23 +427,20 @@ public class UnsafeMergeRulesetNodes implements CssCompilerPass {
      */
     private static <T> Comparator<Iterable<? extends T>> createIterableComparator(
             final Comparator<T> elementComparator) {
-        return new Comparator<Iterable<? extends T>>() {
-            @Override
-            public int compare(Iterable<? extends T> o1, Iterable<? extends T> o2) {
-                Iterator<? extends T> i1 = o1.iterator();
-                Iterator<? extends T> i2 = o2.iterator();
-                while (true) {
-                    if (i1.hasNext() && !i2.hasNext()) {
-                        return 1;
-                    } else if (!i1.hasNext() && i2.hasNext()) {
-                        return -1;
-                    } else if (!i1.hasNext() && !i2.hasNext()) {
-                        return 0;
-                    } else {
-                        int c = elementComparator.compare(i1.next(), i2.next());
-                        if (c != 0) {
-                            return c;
-                        }
+        return (o1, o2) -> {
+            Iterator<? extends T> i1 = o1.iterator();
+            Iterator<? extends T> i2 = o2.iterator();
+            while (true) {
+                if (i1.hasNext() && !i2.hasNext()) {
+                    return 1;
+                } else if (!i1.hasNext() && i2.hasNext()) {
+                    return -1;
+                } else if (!i1.hasNext()) {
+                    return 0;
+                } else {
+                    int c = elementComparator.compare(i1.next(), i2.next());
+                    if (c != 0) {
+                        return c;
                     }
                 }
             }
@@ -478,18 +460,15 @@ public class UnsafeMergeRulesetNodes implements CssCompilerPass {
      */
     @VisibleForTesting
     static final Comparator<CssDeclarationNode> DECLARATION_COMPARATOR =
-            new Comparator<CssDeclarationNode>() {
-                @Override
-                public int compare(CssDeclarationNode o1, CssDeclarationNode o2) {
-                    Property property1 = o1.getPropertyName().getProperty();
-                    Property property2 = o2.getPropertyName().getProperty();
-                    if (property1.getShorthands().contains(property2.getName())) {
-                        return 1;
-                    } else if (property2.getShorthands().contains(property1.getName())) {
-                        return -1;
-                    } else {
-                        return TO_STRING_COMPARATOR.compare(o1, o2);
-                    }
+            (o1, o2) -> {
+                Property property1 = o1.getPropertyName().getProperty();
+                Property property2 = o2.getPropertyName().getProperty();
+                if (property1.getShorthands().contains(property2.getName())) {
+                    return 1;
+                } else if (property2.getShorthands().contains(property1.getName())) {
+                    return -1;
+                } else {
+                    return TO_STRING_COMPARATOR.compare(o1, o2);
                 }
             };
 }

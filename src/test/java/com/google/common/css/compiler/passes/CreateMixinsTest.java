@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author fbenz@google.com (Florian Benz)
  */
+@SuppressWarnings("java:S2699")
 class CreateMixinsTest extends PassesTestBase {
 
     @Override

@@ -25,6 +25,7 @@ import java.util.List;
  */
 public class CssMediaRuleNode extends CssAtRuleNode implements ChunkAware {
 
+    public static final String MEDIA = "media";
     /**
      * The chunk this selector belongs to.
      */
@@ -34,21 +35,21 @@ public class CssMediaRuleNode extends CssAtRuleNode implements ChunkAware {
      * Constructor of a media rule.
      */
     public CssMediaRuleNode() {
-        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"));
+        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode(MEDIA));
     }
 
     /**
      * Constructor of a media rule.
      */
     public CssMediaRuleNode(List<CssCommentNode> comments) {
-        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"), comments);
+        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode(MEDIA), comments);
     }
 
     /**
      * Constructor of a media rule.
      */
     public CssMediaRuleNode(List<CssCommentNode> comments, CssBlockNode block) {
-        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode("media"), block,
+        super(CssAtRuleNode.Type.MEDIA, new CssLiteralNode(MEDIA), block,
                 comments);
     }
 

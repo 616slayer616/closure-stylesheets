@@ -30,23 +30,15 @@ enum RenamingType {
     /**
      * No renaming is done.
      */
-    NONE(new SubstitutionMapProvider() {
-        @Override
-        public SubstitutionMap get() {
-            return new IdentitySubstitutionMap();
-        }
-    }),
+    NONE(IdentitySubstitutionMap::new),
 
     /**
      * A trailing underscore is added to each part of a CSS class.
      */
-    DEBUG(new SubstitutionMapProvider() {
-        @Override
-        public SubstitutionMap get() {
-            // This wraps the SimpleSubstitutionMap in a SplittingSubstitutionMap so
-            // that can be used with goog.getCssName().
-            return new SplittingSubstitutionMap(new SimpleSubstitutionMap());
-        }
+    DEBUG(() -> {
+        // This wraps the SimpleSubstitutionMap in a SplittingSubstitutionMap so
+        // that can be used with goog.getCssName().
+        return new SplittingSubstitutionMap(new SimpleSubstitutionMap());
     }),
 
 
@@ -54,11 +46,8 @@ enum RenamingType {
      * Each chunk of a CSS class as delimited by '-' is renamed using the
      * shortest available name.
      */
-    CLOSURE(new SubstitutionMapProvider() {
-        @Override
-        public SubstitutionMap get() {
-            return new SplittingSubstitutionMap(new MinimalSubstitutionMap());
-        }
+    CLOSURE(() -> {
+        return new SplittingSubstitutionMap(new MinimalSubstitutionMap());
     }),
     ;
 

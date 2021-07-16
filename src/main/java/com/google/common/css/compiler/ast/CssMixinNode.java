@@ -47,7 +47,7 @@ public class CssMixinNode extends CssAtRuleNode {
      */
     public CssMixinNode(CssMixinNode node) {
         super(node);
-        this.definitionName = new String(node.definitionName);
+        this.definitionName = node.definitionName;
         this.args = node.args.deepCopy();
     }
 

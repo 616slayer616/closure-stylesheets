@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link ValidatePropertyValues}.
  */
+@SuppressWarnings("java:S2699")
 class ValidatePropertyValuesTest extends NewFunctionalTestBase {
 
     @Override

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link WarnOnCustomProperty}.
  */
+@SuppressWarnings("java:S2699")
 class WarnOnCustomPropertyTest extends NewFunctionalTestBase {
 
     @Override

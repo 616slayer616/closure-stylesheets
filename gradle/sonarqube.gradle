@@ -8,9 +8,15 @@ sonarqube {
         property 'sonar.projectName', sonarProjectName
         property 'sonar.projectKey', "616slayer616_closure-stylesheets"
         property 'sonar.organization', "616slayer616-github"
-        property 'sonar.issue.ignore.multicriteria', 'j1'
+        property 'sonar.issue.ignore.multicriteria', 'j1,j2,j3'
         // Refactor this method to not always return the same value
         property 'sonar.issue.ignore.multicriteria.j1.ruleKey', 'java:S3516'
         property 'sonar.issue.ignore.multicriteria.j1.resourceKey', '**/*.java'
+        // Add at least one assertion to this test case
+        property 'sonar.issue.ignore.multicriteria.j2.ruleKey', 'java:S2699'
+        property 'sonar.issue.ignore.multicriteria.j2.resourceKey', '**/*.java'
+        // Remove usage of generic wildcard type
+        property 'sonar.issue.ignore.multicriteria.j3.ruleKey', 'java:S1452'
+        property 'sonar.issue.ignore.multicriteria.j3.resourceKey', '**/*.java'
     }
 }

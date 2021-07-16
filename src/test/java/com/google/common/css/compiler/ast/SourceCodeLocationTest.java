@@ -36,8 +36,7 @@ class SourceCodeLocationTest {
     private TestParser testParser = new TestParser();
 
     @Test
-    @Disabled
-        // The parser does not handle @charset.
+    @Disabled("The parser does not handle @charset.")
     void testCharset() throws Exception {
         CssTree tree = parse("@charset 'UTF-8';");
         CssAtRuleNode charsetRule = tree.getRoot().getCharsetRule();
@@ -48,8 +47,7 @@ class SourceCodeLocationTest {
     }
 
     @Test
-    @Disabled
-        // The parser does not handle @import.
+    @Disabled("The parser does not handle @import.")
     void testImport() throws Exception {
         CssTree tree = parse("@import ull('funky.css');");
         CssImportBlockNode importRules = tree.getRoot().getImportRules();

@@ -23,7 +23,6 @@ import com.google.common.css.Locatable;
 import com.google.common.css.SourceCodeLocation;
 
 import javax.annotation.Nullable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -54,49 +53,49 @@ public abstract class CssNode implements Locatable {
     /**
      * Constructor of a node.
      */
-    public CssNode() {
+    protected CssNode() {
         this(null, null);
     }
 
     /**
      * Constructor of a node.
      *
-     * @param sourceCodeLocation
+     * @param sourceCodeLocation sourceCodeLocation
      */
-    public CssNode(@Nullable SourceCodeLocation sourceCodeLocation) {
+    protected CssNode(@Nullable SourceCodeLocation sourceCodeLocation) {
         this(null, sourceCodeLocation);
     }
 
     /**
      * Constructor of a node.
      *
-     * @param parent
+     * @param parent parent
      */
-    public CssNode(@Nullable CssNode parent) {
+    protected CssNode(@Nullable CssNode parent) {
         this(parent, null);
     }
 
     /**
      * Constructor of a node.
      *
-     * @param parent
-     * @param sourceCodeLocation
+     * @param parent             parent
+     * @param sourceCodeLocation sourceCodeLocation
      */
-    public CssNode(@Nullable CssNode parent,
-                   @Nullable SourceCodeLocation sourceCodeLocation) {
+    protected CssNode(@Nullable CssNode parent,
+                      @Nullable SourceCodeLocation sourceCodeLocation) {
         this(parent, null, sourceCodeLocation);
     }
 
     /**
      * Constructor of a node.
      *
-     * @param parent
-     * @param comments
-     * @param sourceCodeLocation
+     * @param parent             parent
+     * @param comments           comments
+     * @param sourceCodeLocation sourceCodeLocation
      */
-    public CssNode(@Nullable CssNode parent,
-                   @Nullable List<CssCommentNode> comments,
-                   @Nullable SourceCodeLocation sourceCodeLocation) {
+    protected CssNode(@Nullable CssNode parent,
+                      @Nullable List<CssCommentNode> comments,
+                      @Nullable SourceCodeLocation sourceCodeLocation) {
         this.parent = parent;
         this.sourceCodeLocation = sourceCodeLocation;
         if (comments == null) {
@@ -139,7 +138,7 @@ public abstract class CssNode implements Locatable {
     /**
      * Removes the parent-child relation between this node and a child.
      *
-     * @param child
+     * @param child child
      */
     void removeAsParentOfNode(CssNode child) {
         if (child == null) {
@@ -153,7 +152,7 @@ public abstract class CssNode implements Locatable {
      * Removes the parent-children relations between this node and a list of
      * children.
      *
-     * @param children
+     * @param children children
      */
     void removeAsParentOfNodes(List<? extends CssNode> children) {
         if (children == null) {
@@ -167,7 +166,7 @@ public abstract class CssNode implements Locatable {
     /**
      * Makes this node the parent of a child.
      *
-     * @param child
+     * @param child child
      */
     final void becomeParentForNode(@Nullable CssNode child) {
         if (child == null) {
@@ -179,7 +178,7 @@ public abstract class CssNode implements Locatable {
     /**
      * Makes this node the parent of a list of children.
      *
-     * @param children
+     * @param children children
      */
     final void becomeParentForNodes(List<? extends CssNode> children) {
         Preconditions.checkNotNull(children);
@@ -213,6 +212,8 @@ public abstract class CssNode implements Locatable {
     /**
      * Returns whether one of the comments attached to this node exactly matches
      * the given string.
+     *
+     * @param comment comment
      */
     public boolean hasComment(String comment) {
         for (CssCommentNode c : comments) {
@@ -291,28 +292,23 @@ public abstract class CssNode implements Locatable {
      * This node and the transitive closure of its {@link #parent}s.
      */
     public Iterable<CssNode> ancestors() {
-        return new Iterable<CssNode>() {
+        return () -> new UnmodifiableIterator<CssNode>() {
+
+            private CssNode current = CssNode.this;
+
             @Override
-            public Iterator<CssNode> iterator() {
-                return new UnmodifiableIterator<CssNode>() {
+            public boolean hasNext() {
+                return current != null;
+            }
 
-                    private CssNode current = CssNode.this;
-
-                    @Override
-                    public boolean hasNext() {
-                        return current != null;
-                    }
-
-                    @Override
-                    public CssNode next() {
-                        if (!hasNext()) {
-                            throw new NoSuchElementException();
-                        }
-                        CssNode result = current;
-                        current = current.getParent();
-                        return result;
-                    }
-                };
+            @Override
+            public CssNode next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                CssNode result = current;
+                current = current.getParent();
+                return result;
             }
         };
     }

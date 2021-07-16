@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
+@SuppressWarnings("java:S2699")
 class CheckDependencyNodesTest extends NewFunctionalTestBase {
 
     private CheckDependencyNodes processDependencyNodes;

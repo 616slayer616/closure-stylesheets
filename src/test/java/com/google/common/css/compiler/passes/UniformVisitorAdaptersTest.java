@@ -64,7 +64,7 @@ class UniformVisitorAdaptersTest {
         CombinedVisitor combinedVisitor = mock(CombinedVisitor.class);
         CssTreeVisitor visitor = Adapters.asCombinedVisitor(combinedVisitor);
 
-        assertThat(visitor.toString()).isEqualTo(combinedVisitor.toString());
+        assertThat(visitor).hasToString(combinedVisitor.toString());
     }
 
     @Test
@@ -72,7 +72,7 @@ class UniformVisitorAdaptersTest {
         UniformVisitor uniformVisitor = mock(UniformVisitor.class);
         CssTreeVisitor visitor = Adapters.asVisitor(uniformVisitor);
 
-        assertThat(visitor.toString()).isEqualTo(uniformVisitor.toString());
+        assertThat(visitor).hasToString(uniformVisitor.toString());
     }
 
     private interface CombinedVisitor extends CssTreeVisitor, UniformVisitor {

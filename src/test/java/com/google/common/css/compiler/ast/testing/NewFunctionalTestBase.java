@@ -126,8 +126,8 @@ public class NewFunctionalTestBase extends FunctionalTestCommonBase {
         runPass();
         errorManager.generateReport();
         assertThat(((TestErrorManager) errorManager).hasEncounteredAllErrors())
-                .isTrue()
-                .withFailMessage("Encountered all errors.");
+                .withFailMessage("Encountered all errors.")
+                .isTrue();
         return tree;
     }
 

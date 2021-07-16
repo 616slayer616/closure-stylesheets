@@ -24,14 +24,15 @@ import javax.annotation.Nullable;
 /**
  * A node representing a boolean expression to evaluate.
  */
-// TODO(user): It might be better for each operator to have a list of
-//     operands, not just the left and right operand. Thus, A || B || C would be
-//     represented as a single operator node and a list of three constant nodes
-//     (similar to what the old tree structure does, but with explicit lists).
-//     This might make the code larger but has the potential of faster
-//     compilation (important for Gmail). This structure might also ease
-//     constructing a canonical form of the expression and simplifying
-//     expressions (such as EXPR || !EXPR).
+/* TODO(user): It might be better for each operator to have a list of
+    operands, not just the left and right operand. Thus, A || B || C would be
+    represented as a single operator node and a list of three constant nodes
+    (similar to what the old tree structure does, but with explicit lists).
+    This might make the code larger but has the potential of faster
+    compilation (important for Gmail). This structure might also ease
+    constructing a canonical form of the expression and simplifying
+    expressions (such as EXPR || !EXPR).
+ */
 public class CssBooleanExpressionNode extends CssValueNode {
     /**
      * Boolean expression node types. The types are given in the order of their

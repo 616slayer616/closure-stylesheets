@@ -123,6 +123,6 @@ public class TestParser {
                 "sourcemap") */
                         .start();
         process.waitFor();
-        assertThat(process.exitValue()).isEqualTo(0);
+        assertThat(process.exitValue()).isZero();
     }
 }

@@ -18,7 +18,6 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSet;
@@ -27,6 +26,7 @@ import com.google.common.collect.Table;
 import com.google.common.css.compiler.ast.*;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Compiler pass that marks the ruleset nodes that should be removed from the
@@ -281,13 +281,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
             Table<String, String, CssRulesetNode> rules,
             final CssRulesetNode ruleset) {
 
-        Supplier<Boolean> rulesetIsImportant = Suppliers.memoize(
-                new Supplier<Boolean>() {
-                    @Override
-                    public Boolean get() {
-                        return isImportantRule(ruleset);
-                    }
-                });
+        Supplier<Boolean> rulesetIsImportant = Suppliers.memoize(() -> isImportantRule(ruleset))::get;
 
         for (String shorthand : propertyNode.getProperty().getShorthands()) {
             CssRulesetNode shorthandRuleset = rules.get(selector, shorthand);

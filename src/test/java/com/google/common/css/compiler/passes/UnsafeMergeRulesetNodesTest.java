@@ -34,9 +34,9 @@ class UnsafeMergeRulesetNodesTest {
     @Test
     void testToStringComparator() {
         assertThat(TO_STRING_COMPARATOR.compare(
-                new CssSelectorNode("a"), new CssSelectorNode("a"))).isEqualTo(0);
+                new CssSelectorNode("a"), new CssSelectorNode("a"))).isZero();
         assertThat(TO_STRING_COMPARATOR.compare(
-                new CssSelectorNode("a"), new CssSelectorNode("b"))).isLessThan(0);
+                new CssSelectorNode("a"), new CssSelectorNode("b"))).isNegative();
     }
 
     /**
@@ -45,11 +45,11 @@ class UnsafeMergeRulesetNodesTest {
     @Test
     void testToStringIterableComparator() {
         assertThat(TO_STRING_ITERABLE_COMPARATOR.compare(
-                ImmutableList.of("a", "b"), ImmutableList.of("a", "b"))).isEqualTo(0);
+                ImmutableList.of("a", "b"), ImmutableList.of("a", "b"))).isZero();
         assertThat(TO_STRING_ITERABLE_COMPARATOR.compare(
-                ImmutableList.of("b", "a"), ImmutableList.of("a", "b"))).isGreaterThan(0);
+                ImmutableList.of("b", "a"), ImmutableList.of("a", "b"))).isPositive();
         assertThat(TO_STRING_ITERABLE_COMPARATOR.compare(
-                ImmutableList.of("a"), ImmutableList.of("a", "b"))).isLessThan(0);
+                ImmutableList.of("a"), ImmutableList.of("a", "b"))).isNegative();
     }
 
     /**
@@ -83,11 +83,11 @@ class UnsafeMergeRulesetNodesTest {
         CssDeclarationNode marginLeft1 =
                 new CssDeclarationNode(marginLeft.deepCopy(), v1.deepCopy());
 
-        assertThat(DECLARATION_COMPARATOR.compare(margin1, margin1.deepCopy())).isEqualTo(0);
-        assertThat(DECLARATION_COMPARATOR.compare(margin1, marginLeft1)).isLessThan(0);
-        assertThat(DECLARATION_COMPARATOR.compare(margin1, paddingLeft1)).isLessThan(0);
-        assertThat(DECLARATION_COMPARATOR.compare(padding1, padding2)).isLessThan(0);
-        assertThat(DECLARATION_COMPARATOR.compare(marginLeft1, padding2)).isLessThan(0);
-        assertThat(DECLARATION_COMPARATOR.compare(paddingLeft1, padding2)).isGreaterThan(0);
+        assertThat(DECLARATION_COMPARATOR.compare(margin1, margin1.deepCopy())).isZero();
+        assertThat(DECLARATION_COMPARATOR.compare(margin1, marginLeft1)).isNegative();
+        assertThat(DECLARATION_COMPARATOR.compare(margin1, paddingLeft1)).isNegative();
+        assertThat(DECLARATION_COMPARATOR.compare(padding1, padding2)).isNegative();
+        assertThat(DECLARATION_COMPARATOR.compare(marginLeft1, padding2)).isNegative();
+        assertThat(DECLARATION_COMPARATOR.compare(paddingLeft1, padding2)).isPositive();
     }
 }
