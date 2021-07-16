@@ -1978,9 +1978,6 @@ class DefaultVisitController implements MutatingVisitController {
         }
     }
 
-    // TODO(oana): Maybe add a generic utility class for Stack than can be used in
-    // CssTreeBuilder too.
-    @VisibleForTesting
     static class StateStack {
         Deque<VisitState<? extends CssNode>> stack = Queues.newArrayDeque();
 
