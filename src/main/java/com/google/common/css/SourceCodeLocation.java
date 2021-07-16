@@ -19,12 +19,13 @@ package com.google.common.css;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * A location in source code. A location is a sequence of adjacent characters
@@ -269,7 +270,7 @@ public class SourceCodeLocation implements Comparable<SourceCodeLocation> {
      * only the locations in the first {@code SourceCode} are used.
      */
     public static SourceCodeLocation merge(Iterable<? extends Locatable> locations) {
-        return mergeAll(Iterables.transform(locations, LOCATABLE_TO_LOCATION));
+        return mergeAll(StreamSupport.stream(locations.spliterator(), false).map(LOCATABLE_TO_LOCATION::apply).collect(Collectors.toList()));
     }
 
     private final SourceCode sourceCode;

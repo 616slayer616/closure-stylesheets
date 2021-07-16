@@ -122,7 +122,7 @@ public class ResolveCustomFunctionNodes extends DefaultTreeVisitor
 
             Integer expArgNumber = function.getNumExpectedArguments();
             int argNumber = arguments.size();
-            if (expArgNumber != null && expArgNumber.intValue() != argNumber) {
+            if (expArgNumber != null && expArgNumber != argNumber) {
                 errorManager.report(new GssError("Function expects " + expArgNumber
                         + " arguments but has " + argNumber,
                         node.getSourceCodeLocation()));

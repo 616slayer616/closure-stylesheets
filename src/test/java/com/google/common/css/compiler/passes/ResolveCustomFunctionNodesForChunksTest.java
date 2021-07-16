@@ -45,7 +45,7 @@ class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFunctionNodes
                 tree, ImmutableMap.of(TEST_FILENAME, TEST_CHUNK)).runPass();
 
         resolveForChunksPass =
-                new ResolveCustomFunctionNodesForChunks<String>(
+                new ResolveCustomFunctionNodesForChunks<>(
                         tree.getMutatingVisitController(),
                         errorManager,
                         createTestFunctionMap(),

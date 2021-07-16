@@ -254,13 +254,9 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
                         extractByType(CssCompositeValueNode.class, preFamilyCandidates),
                         withOperator(CssCompositeValueNode.Operator.SLASH));
         Iterable<CssValueNode> plainSizes =
-                Iterables.filter(
-                        preFamilyCandidates,
-                        IS_PLAIN_SIZE);
+                StreamSupport.stream(preFamilyCandidates.spliterator(), false).filter(IS_PLAIN_SIZE::apply).collect(Collectors.toList());
         Iterable<CssValueNode> lhSizes =
-                Iterables.transform(
-                        sizeLineHeights,
-                        EXTRACT_SIZE);
+                StreamSupport.stream(sizeLineHeights.spliterator(), false).map(EXTRACT_SIZE::apply).collect(Collectors.toList());
         final Map<CssNode, Integer> lexicalOrder =
                 EnumeratingVisitor.enumerate(tree);
         Iterable<CssValueNode> sizes = Iterables.concat(plainSizes, lhSizes);
@@ -273,13 +269,8 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         final CssValueNode splitPoint =
                 Iterables.getOnlyElement(Iterables.concat(sizeLineHeights, plainSizes));
         Iterable<CssValueNode> prefix =
-                takeWhile(n.childIterable(), new Predicate<CssValueNode>() {
-                    @Override
-                    public boolean apply(CssValueNode n) {
-                        return lexicalOrder.get(n).compareTo(
-                                lexicalOrder.get(splitPoint)) < 0;
-                    }
-                });
+                takeWhile(n.childIterable(), n12 -> lexicalOrder.get(n12).compareTo(
+                        lexicalOrder.get(splitPoint)) < 0);
         final CssPriorityNode priority = getPriority(n);
         Iterable<CssValueNode> families =
                 dropWhile(

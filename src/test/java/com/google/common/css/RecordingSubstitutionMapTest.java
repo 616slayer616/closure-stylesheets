@@ -62,8 +62,7 @@ public final class RecordingSubstitutionMapTest {
 
             // Reconstitute it.
             RecordingSubstitutionMap recordingFromString;
-            StringReader in = new StringReader(formatted);
-            try {
+            try (StringReader in = new StringReader(formatted)) {
                 recordingFromString =
                         new RecordingSubstitutionMap.Builder()
                                 .withSubstitutionMap(createDelegate())
@@ -79,8 +78,6 @@ public final class RecordingSubstitutionMapTest {
                                         + formatted
                                         + "\n```")
                                 .initCause(ex);
-            } finally {
-                in.close();
             }
 
             // Vary the order to check that we get stable values from the

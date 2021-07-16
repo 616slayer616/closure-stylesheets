@@ -20,7 +20,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.css.compiler.ast.*;
 
@@ -79,7 +78,7 @@ public class ResolveCustomFunctionNodesForChunks<T> extends ResolveCustomFunctio
 
         List<CssValueNode> functionResult;
 
-        if (Iterables.any(arguments, Predicates.instanceOf(CssConstantReferenceNode.class))) {
+        if (arguments.stream().anyMatch(Predicates.instanceOf(CssConstantReferenceNode.class)::apply)) {
             functionResult = replaceCallWithReference(node);
         } else {
             functionResult = super.evaluateFunction(

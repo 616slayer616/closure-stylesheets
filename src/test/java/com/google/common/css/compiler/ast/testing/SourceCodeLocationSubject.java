@@ -31,13 +31,7 @@ public class SourceCodeLocationSubject
         extends Subject<SourceCodeLocationSubject, SourceCodeLocation> {
 
     static final Subject.Factory<SourceCodeLocationSubject, SourceCodeLocation> LOCATION =
-            new Subject.Factory<SourceCodeLocationSubject, SourceCodeLocation>() {
-                @Override
-                public SourceCodeLocationSubject createSubject(
-                        FailureMetadata fm, SourceCodeLocation that) {
-                    return new SourceCodeLocationSubject(fm, that);
-                }
-            };
+            (fm, that) -> new SourceCodeLocationSubject(fm, that);
 
     @CheckReturnValue
     public static SourceCodeLocationSubject assertThat(SourceCodeLocation target) {

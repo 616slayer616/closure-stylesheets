@@ -153,7 +153,7 @@ class AutoExpandBrowserPrefixTest extends PassesTestBase {
 
         // These passes should run afterwards to produce the expected behavior.
         // They are needed for testMixinReplacementComponents.
-        new ProcessComponents<Object>(tree.getMutatingVisitController(),
+        new ProcessComponents<>(tree.getMutatingVisitController(),
                 errorManager).runPass();
         CollectConstantDefinitions collectConstantDefinitionsPass =
                 new CollectConstantDefinitions(tree);

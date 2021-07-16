@@ -104,7 +104,7 @@ class MarkRemovableRulesetNodesForChunkTest extends PassesTestBase {
             String source, List<String> chunks) {
         parseAndBuildTree(source);
         mapChunks(chunks);
-        new MarkRemovableRulesetNodesForChunk<String>("C1", tree, true).runPass();
+        new MarkRemovableRulesetNodesForChunk<>("C1", tree, true).runPass();
     }
 
     private void mapChunks(final List<String> chunks) {

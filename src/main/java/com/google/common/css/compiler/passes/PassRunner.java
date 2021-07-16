@@ -109,7 +109,7 @@ public class PassRunner {
         new ReplaceMixins(cssTree.getMutatingVisitController(), errorManager,
                 collectMixinDefinitions.getDefinitions()).runPass();
 
-        new ProcessComponents<Object>(cssTree.getMutatingVisitController(),
+        new ProcessComponents<>(cssTree.getMutatingVisitController(),
                 errorManager).runPass();
         // Collect constant definitions.
         CollectConstantDefinitions collectConstantDefinitionsPass =

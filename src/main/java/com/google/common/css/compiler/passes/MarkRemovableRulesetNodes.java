@@ -21,12 +21,12 @@ import com.google.common.base.Predicates;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import com.google.common.css.compiler.ast.*;
 
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 /**
  * Compiler pass that marks the ruleset nodes that should be removed from the
@@ -259,8 +259,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
                 (CssDeclarationNode) ruleset.getDeclarations().getChildAt(0);
         Iterable<CssValueNode> propertyValues =
                 decl.getPropertyValue().childIterable();
-        return Iterables.any(propertyValues,
-                Predicates.instanceOf(CssPriorityNode.class));
+        return StreamSupport.stream(propertyValues.spliterator(), false).anyMatch(Predicates.instanceOf(CssPriorityNode.class)::apply);
     }
 
     /**

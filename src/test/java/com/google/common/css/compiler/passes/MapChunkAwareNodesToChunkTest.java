@@ -175,7 +175,7 @@ class MapChunkAwareNodesToChunkTest {
     }
 
     protected MapChunkAwareNodesToChunk<String> getPass(Map<String, String> fileToChunk) {
-        return new MapChunkAwareNodesToChunk<String>(null, fileToChunk);
+        return new MapChunkAwareNodesToChunk<>(null, fileToChunk);
     }
 
     protected void checkEnterSelector() {

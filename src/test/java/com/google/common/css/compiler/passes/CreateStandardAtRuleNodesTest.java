@@ -17,10 +17,11 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
 import org.junit.jupiter.api.Test;
+
+import java.util.stream.StreamSupport;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +49,7 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
         assertThat(importRule.getParametersCount()).isEqualTo(1);
         assertWithMessage("Import rules should occur in the import block.")
                 .that(
-                        Iterables.any(importRule.ancestors(), Predicates.instanceOf(CssImportBlockNode.class)))
+                        StreamSupport.stream(importRule.ancestors().spliterator(), false).anyMatch(Predicates.instanceOf(CssImportBlockNode.class)::apply))
                 .isTrue();
     }
 

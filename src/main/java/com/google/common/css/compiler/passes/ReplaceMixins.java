@@ -74,7 +74,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
         this.visitController = visitController;
         this.errorManager = errorManager;
         this.definitions = definitions;
-        this.currentMixinStack = new Stack<StackFrame>();
+        this.currentMixinStack = new Stack<>();
     }
 
     @Override

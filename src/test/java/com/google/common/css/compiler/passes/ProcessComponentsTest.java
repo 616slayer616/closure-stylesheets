@@ -310,12 +310,12 @@ class ProcessComponentsTest extends PassesTestBase {
     @Override
     protected void runPass() {
         new CreateDefinitionNodes(tree.getMutatingVisitController(), errorManager).runPass();
-        new MapChunkAwareNodesToChunk<String>(tree, FILE_TO_CHUNK).runPass();
+        new MapChunkAwareNodesToChunk<>(tree, FILE_TO_CHUNK).runPass();
         new CreateConstantReferences(tree.getMutatingVisitController()).runPass();
         new CreateConditionalNodes(tree.getMutatingVisitController(), errorManager).runPass();
         new CheckDependencyNodes(tree.getMutatingVisitController(), errorManager).runPass();
         new CreateComponentNodes(tree.getMutatingVisitController(), errorManager).runPass();
-        ProcessComponents<String> processComponentsPass = new ProcessComponents<String>(
+        ProcessComponents<String> processComponentsPass = new ProcessComponents<>(
                 tree.getMutatingVisitController(), errorManager, FILE_TO_CHUNK);
         processComponentsPass.runPass();
     }
@@ -327,7 +327,7 @@ class ProcessComponentsTest extends PassesTestBase {
         parseAndBuildTree(fileNameToGss);
         runPass();
         ResolveCustomFunctionNodesForChunks<String> resolveFunctions =
-                new ResolveCustomFunctionNodesForChunks<String>(
+                new ResolveCustomFunctionNodesForChunks<>(
                         tree.getMutatingVisitController(), errorManager,
                         ImmutableMap.of("someColorFunction", SOME_COLOR_FUNCTION),
                         false /* allowUnknownFunctions */,

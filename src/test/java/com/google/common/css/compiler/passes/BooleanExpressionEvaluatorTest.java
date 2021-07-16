@@ -67,8 +67,8 @@ class BooleanExpressionEvaluatorTest extends UtilityTestCase {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.NOT, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"), null, null);
 
-        Set<String> truths = new HashSet<String>();
-        Set<String> falses = new HashSet<String>();
+        Set<String> truths = new HashSet<>();
+        Set<String> falses = new HashSet<>();
 
         BooleanExpressionEvaluator eval =
                 new BooleanExpressionEvaluator(input, truths, falses);
@@ -83,7 +83,7 @@ class BooleanExpressionEvaluatorTest extends UtilityTestCase {
         CssBooleanExpressionNode input =
                 new CssBooleanExpressionNode(Type.CONSTANT, "TRUE");
 
-        Set<String> truths = new HashSet<String>();
+        Set<String> truths = new HashSet<>();
 
         BooleanExpressionEvaluator eval =
                 new BooleanExpressionEvaluator(input, truths);
@@ -133,7 +133,7 @@ class BooleanExpressionEvaluatorTest extends UtilityTestCase {
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
 
-        Set<String> truths = new HashSet<String>();
+        Set<String> truths = new HashSet<>();
 
         BooleanExpressionEvaluator eval =
                 new BooleanExpressionEvaluator(input, truths);
@@ -156,7 +156,7 @@ class BooleanExpressionEvaluatorTest extends UtilityTestCase {
                 side1, side2, null);
 
         Set<String> truths = ImmutableSet.of("a");
-        Set<String> falses = new HashSet<String>();
+        Set<String> falses = new HashSet<>();
 
         BooleanExpressionEvaluator eval =
                 new BooleanExpressionEvaluator(input, truths, falses);
@@ -178,7 +178,7 @@ class BooleanExpressionEvaluatorTest extends UtilityTestCase {
                 side1, side2, null);
 
         Set<String> truths = ImmutableSet.of("b");
-        Set<String> falses = new HashSet<String>();
+        Set<String> falses = new HashSet<>();
 
         BooleanExpressionEvaluator eval =
                 new BooleanExpressionEvaluator(input, truths, falses);
@@ -200,7 +200,7 @@ class BooleanExpressionEvaluatorTest extends UtilityTestCase {
                 side1, side2, null);
 
         Set<String> truths = ImmutableSet.of("b");
-        Set<String> falses = new HashSet<String>();
+        Set<String> falses = new HashSet<>();
 
         BooleanExpressionEvaluator eval =
                 new BooleanExpressionEvaluator(input, truths, falses);
@@ -221,8 +221,8 @@ class BooleanExpressionEvaluatorTest extends UtilityTestCase {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.OR, "",
                 side1, side2, null);
 
-        Set<String> truths = new HashSet<String>();
-        Set<String> falses = new HashSet<String>();
+        Set<String> truths = new HashSet<>();
+        Set<String> falses = new HashSet<>();
 
         BooleanExpressionEvaluator eval =
                 new BooleanExpressionEvaluator(input, truths, falses);

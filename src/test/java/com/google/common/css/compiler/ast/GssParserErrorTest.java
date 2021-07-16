@@ -400,6 +400,6 @@ class GssParserErrorTest {
     }
 
     private CssTree parse(String gss) throws GssParserException {
-        return parse(gss, false, new ArrayList<GssParserException>());
+        return parse(gss, false, new ArrayList<>());
     }
 }

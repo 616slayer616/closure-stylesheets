@@ -42,7 +42,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         CollectMixinDefinitions collectMixins =
                 new CollectMixinDefinitions(tree.getMutatingVisitController(), errorMgr);
         l.add(collectMixins);
-        l.add(new ProcessComponents<Object>(tree.getMutatingVisitController(), errorMgr, null));
+        l.add(new ProcessComponents<>(tree.getMutatingVisitController(), errorMgr, null));
         for (CssCompilerPass pass : l) {
             pass.runPass();
         }

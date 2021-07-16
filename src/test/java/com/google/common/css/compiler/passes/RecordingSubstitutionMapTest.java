@@ -49,12 +49,7 @@ class RecordingSubstitutionMapTest extends UtilityTestCase {
                 ".CSS_SPRITE { background-image: url(\"foo.png\"); }",
                 ".sprite { background-image: url(\"bar.png\"); }"
         );
-        predicate = new Predicate<String>() {
-            @Override
-            public boolean apply(String key) {
-                return key.startsWith("CSS_");
-            }
-        };
+        predicate = key -> key.startsWith("CSS_");
     }
 
     private void parse(String styleSheet, RecordingSubstitutionMap map) {

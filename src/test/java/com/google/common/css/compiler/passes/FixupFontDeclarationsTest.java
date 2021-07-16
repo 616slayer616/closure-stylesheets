@@ -16,14 +16,13 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.css.SourceCode;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.testing.AstPrinter;
 import org.junit.jupiter.api.Test;
+
+import java.util.stream.Collectors;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -336,14 +335,7 @@ class FixupFontDeclarationsTest {
         assertWithMessage(
                 Joiner.on("\n")
                         .join(
-                                Iterables.transform(
-                                        errorManager.getErrors(),
-                                        new Function<GssError, String>() {
-                                            @Override
-                                            public String apply(GssError e) {
-                                                return e.format();
-                                            }
-                                        })))
+                                errorManager.getErrors().stream().map(e -> e.format()).collect(Collectors.toList())))
                 .that(errorManager.hasErrors())
                 .isFalse();
         return tree;
@@ -361,14 +353,7 @@ class FixupFontDeclarationsTest {
         assertThat(tree).isNotNull();
         assertThat(errorManager.hasErrors()).isTrue();
         assertThat(
-                Iterables.any(
-                        errorManager.getErrors(),
-                        new Predicate<GssError>() {
-                            @Override
-                            public boolean apply(GssError e) {
-                                return expectedError.equals(e.getMessage());
-                            }
-                        }))
+                errorManager.getErrors().stream().anyMatch(e -> expectedError.equals(e.getMessage())))
                 .isTrue();
         return tree;
     }

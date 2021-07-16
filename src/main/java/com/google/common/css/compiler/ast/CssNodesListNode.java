@@ -177,7 +177,7 @@ public abstract class CssNodesListNode<T extends CssNode> extends CssNode {
      */
     @Override
     public String toString() {
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         if (!getComments().isEmpty()) {
             output.append("[");
             output.append(getComments().toString());
