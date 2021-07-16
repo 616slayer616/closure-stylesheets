@@ -17,27 +17,24 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for {@link SplitRulesetNodes}.
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class SplitRulesetNodesFunctionalTest extends PassesTestBase {
+class SplitRulesetNodesFunctionalTest extends PassesTestBase {
 
     @Test
-    public void test1() {
+    void test1() {
         testTreeConstruction(
                 "foo { border: 0px; padding: 5px; }",
                 "[[foo]{[border:[[0px]];]}[foo]{[padding:[[5px]];]}]");
     }
 
     @Test
-    public void test2() {
+    void test2() {
         testTreeConstruction(
                 "foo {"
                         + "  border: 0px; padding: 5px 3px 1px;"
@@ -49,7 +46,7 @@ public class SplitRulesetNodesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void test3() {
+    void test3() {
         testTreeConstruction(
                 "foo, bar { border: 0px; padding: 5px }",
                 "[[foo]{[border:[[0px]];]}[foo]{[padding:[[5px]];]}"
@@ -57,7 +54,7 @@ public class SplitRulesetNodesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void test4() {
+    void test4() {
         testTreeConstruction(
                 linesToString(
                         ".foo .bar, .foobar ",
@@ -67,7 +64,7 @@ public class SplitRulesetNodesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void test5() {
+    void test5() {
         testTreeConstruction(
                 ".foo.bar, .foobar+a "
                         + "{ border: 0px; padding: 5px }",
@@ -76,7 +73,7 @@ public class SplitRulesetNodesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void test6() {
+    void test6() {
         testTreeConstruction(
                 ".foo.bar "
                         + "{ border: 0px; padding: 5px; display: inline }",

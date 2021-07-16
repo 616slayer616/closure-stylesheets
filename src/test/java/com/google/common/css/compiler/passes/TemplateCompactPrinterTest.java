@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -32,8 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author dgajda@google.com (Damian Gajda)
  */
-@RunWith(JUnit4.class)
-public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
+class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
     private static final char R_S = TemplateCompactPrinter.RULE_START;
     private static final char rE = TemplateCompactPrinter.RULE_END;
@@ -84,7 +81,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testChunkOutput_initialChunk() {
+    void testChunkOutput_initialChunk() {
         setupTestTree();
 
         TemplateCompactPrinter<String> printer = createPrinter("foo");
@@ -128,7 +125,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testChunkOutput_middleChunk() {
+    void testChunkOutput_middleChunk() {
         setupTestTree();
 
         TemplateCompactPrinter<String> printer = createPrinter("bar");
@@ -159,7 +156,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testChunkOutput_endChunk() {
+    void testChunkOutput_endChunk() {
         setupTestTree();
 
         TemplateCompactPrinter<String> printer = createPrinter("baz");
@@ -172,7 +169,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_unpreservedByDefault() {
+    void testMarkedComments_unpreservedByDefault() {
         String sourceCode =
                 "/* Header comment\n"
                         + " * @license MIT */\n"
@@ -212,7 +209,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_unpreservedExplicitly() {
+    void testMarkedComments_unpreservedExplicitly() {
         String sourceCode =
                 "/* Header comment\n"
                         + " * @license MIT */\n"
@@ -252,7 +249,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_preserved() {
+    void testMarkedComments_preserved() {
         String sourceCode =
                 "/* Header comment\n"
                         + " * @license MIT */\n"
@@ -297,7 +294,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_multipleAdjacentPreserved() {
+    void testMarkedComments_multipleAdjacentPreserved() {
         String sourceCode =
                 "/* @license MIT */\n"
                         + "/* @preserve Keep this comment, too */\n"
@@ -319,7 +316,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_preservedWithFooterBeforeNextFile() {
+    void testMarkedComments_preservedWithFooterBeforeNextFile() {
         String sourceCode1 = "/* Header comment\n" + " * @license MIT */\n" + "foo{}";
 
         String sourceCode2 = "bar{}";
@@ -350,7 +347,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_preservedWithFooterAfterPreviousFile() {
+    void testMarkedComments_preservedWithFooterAfterPreviousFile() {
         String sourceCode1 = "foo{}";
         String sourceCode2 = "/* Header comment\n" + " * @license MIT */\n" + "bar{}";
 
@@ -374,7 +371,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_preservedButWithBadAnnotations() {
+    void testMarkedComments_preservedButWithBadAnnotations() {
         String sourceCode = "/* ! !Header comment @licenseless *! @preservement !*/\n" + "foo{}";
 
         parseStyleSheet(sourceCode);
@@ -386,7 +383,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testCalc() {
+    void testCalc() {
         String sourceCode =
                 "/* Header comment @licenseless @preservement */\n"
                         + "foo{ width: calc((100% - 24px)*0.375);}";
@@ -401,7 +398,7 @@ public class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    public void testMarkedComments_preservedButWithSomeBadAnnotationsOneGood() {
+    void testMarkedComments_preservedButWithSomeBadAnnotationsOneGood() {
         String sourceCode = "/* ! Header comment @licenseless /*! @preserve */\n" + "foo{}";
 
         parseStyleSheet(sourceCode);

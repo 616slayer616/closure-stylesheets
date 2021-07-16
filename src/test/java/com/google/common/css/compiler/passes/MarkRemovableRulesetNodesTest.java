@@ -23,9 +23,7 @@ import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.CssTree.RulesetNodesToRemove;
 import com.google.common.css.compiler.ast.VisitController;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -39,11 +37,10 @@ import static org.mockito.Mockito.when;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class MarkRemovableRulesetNodesTest extends PassesTestBase {
+class MarkRemovableRulesetNodesTest extends PassesTestBase {
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         VisitController visitController = mock(VisitController.class);
         tree = mock(CssTree.class);
         when(tree.getVisitController()).thenReturn(visitController);
@@ -55,7 +52,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode1() {
+    void testMarkRemovableRulesetNode1() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -73,7 +70,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode2() {
+    void testMarkRemovableRulesetNode2() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -88,7 +85,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode3() {
+    void testMarkRemovableRulesetNode3() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE_1 {",
@@ -108,7 +105,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode4() {
+    void testMarkRemovableRulesetNode4() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE_1 .CSS_RULE_3 {",
@@ -131,7 +128,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode5() {
+    void testMarkRemovableRulesetNode5() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE_1 .CSS_RULE_3 {",
@@ -151,7 +148,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode6() {
+    void testMarkRemovableRulesetNode6() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "div {",
@@ -168,7 +165,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode7() {
+    void testMarkRemovableRulesetNode7() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "div .CSS_RULE_1 {",
@@ -188,7 +185,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode8() {
+    void testMarkRemovableRulesetNode8() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE_1 div {",
@@ -208,7 +205,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode9() {
+    void testMarkRemovableRulesetNode9() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -228,7 +225,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode10() {
+    void testMarkRemovableRulesetNode10() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "div {",
@@ -248,7 +245,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode11() {
+    void testMarkRemovableRulesetNode11() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "selector1 {",
@@ -271,7 +268,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode12() {
+    void testMarkRemovableRulesetNode12() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "selector1 {",
@@ -288,7 +285,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode13() {
+    void testMarkRemovableRulesetNode13() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "selector1 {",
@@ -308,7 +305,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode14() {
+    void testMarkRemovableRulesetNode14() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "selector {",
@@ -344,7 +341,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode15() {
+    void testMarkRemovableRulesetNode15() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -359,7 +356,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNode16() {
+    void testMarkRemovableRulesetNode16() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -375,7 +372,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeImportant() {
+    void testMarkRemovableRulesetNodeImportant() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -393,7 +390,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeComponents() {
+    void testMarkRemovableRulesetNodeComponents() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_C1-CSS_E {",
@@ -413,7 +410,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeShorthand() {
+    void testMarkRemovableRulesetNodeShorthand() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -431,7 +428,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeShorthandWithImportant() {
+    void testMarkRemovableRulesetNodeShorthandWithImportant() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -446,7 +443,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeShorthandWithAllImportant() {
+    void testMarkRemovableRulesetNodeShorthandWithAllImportant() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -464,7 +461,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeDontBarfOnNonRuleset() {
+    void testMarkRemovableRulesetNodeDontBarfOnNonRuleset() {
         collectRemovableRulesetNodes(
                 linesToString(
                         "@media print {}",
@@ -483,7 +480,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeAlternate1() {
+    void testMarkRemovableRulesetNodeAlternate1() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -499,7 +496,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeAlternate2() {
+    void testMarkRemovableRulesetNodeAlternate2() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -530,7 +527,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeAlternate3() {
+    void testMarkRemovableRulesetNodeAlternate3() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -553,7 +550,7 @@ public class MarkRemovableRulesetNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkRemovableRulesetNodeDeadCode() {
+    void testMarkRemovableRulesetNodeDeadCode() {
         // The "display" property is typically guarded by
         // SkippingTreeProperty.canModify because it causes layout in IE. For
         // the purposes of dead code removal this is irrelevant so make sure that

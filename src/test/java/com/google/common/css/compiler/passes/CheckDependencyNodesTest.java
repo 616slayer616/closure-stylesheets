@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class CheckDependencyNodesTest extends NewFunctionalTestBase {
+class CheckDependencyNodesTest extends NewFunctionalTestBase {
 
     private CheckDependencyNodes processDependencyNodes;
 
@@ -43,7 +40,7 @@ public class CheckDependencyNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testOrdinaryProvideRequire() throws GssParserException {
+    void testOrdinaryProvideRequire() throws GssParserException {
         ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
                 "first.css", "@provide 'foo.bar';",
                 "second.css", "@require 'foo.bar';");
@@ -52,12 +49,12 @@ public class CheckDependencyNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMissingProvide() throws GssParserException {
+    void testMissingProvide() throws GssParserException {
         parseAndRun("@require 'foo.bar';", "Missing provide for: foo.bar");
     }
 
     @Test
-    public void testDuplicateProvide() throws GssParserException {
+    void testDuplicateProvide() throws GssParserException {
         ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
                 "first.css", "@provide 'foo.bar';",
                 "second.css", "@provide 'foo.bar';");
@@ -65,7 +62,7 @@ public class CheckDependencyNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDependencyOrder() throws GssParserException {
+    void testDependencyOrder() throws GssParserException {
         ImmutableMap<String, String> fileNameToGss = ImmutableMap.of(
                 "first.css", "@provide 'foo';",
                 "second.css", "@provide 'bar';",

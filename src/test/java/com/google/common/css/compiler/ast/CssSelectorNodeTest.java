@@ -20,9 +20,7 @@ import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,11 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author dgajda@google.com (Damian Gajda)
  */
-@RunWith(JUnit4.class)
-public class CssSelectorNodeTest extends NewFunctionalTestBase {
+class CssSelectorNodeTest extends NewFunctionalTestBase {
 
     @Test
-    public void testDeepCopy() {
+    void testDeepCopy() {
         SourceCode sourceCode = new SourceCode("foo", null);
         SourceCodeLocation location =
                 new SourceCodeLocation(sourceCode, 1, 1, 1, 2, 1, 1);
@@ -56,72 +53,72 @@ public class CssSelectorNodeTest extends NewFunctionalTestBase {
     // Examples from http://www.w3.org/TR/CSS2/cascade.html#specificity
 
     @Test
-    public void testSpecificity1() {
+    void testSpecificity1() {
         testSpecificity("*", "0,0,0,0");
     }
 
     @Test
-    public void testSpecificity2() {
+    void testSpecificity2() {
         testSpecificity("li", "0,0,0,1");
     }
 
     @Test
-    public void testSpecificity3() {
+    void testSpecificity3() {
         testSpecificity("li:first-line", "0,0,0,2");
     }
 
     @Test
-    public void testSpecificity4() {
+    void testSpecificity4() {
         testSpecificity("ul li", "0,0,0,2");
     }
 
     @Test
-    public void testSpecificity5() {
+    void testSpecificity5() {
         testSpecificity("ul ol+li", "0,0,0,3");
     }
 
     @Test
-    public void testSpecificity6() {
+    void testSpecificity6() {
         testSpecificity("h1 + *[rel=up]", "0,0,1,1");
     }
 
     @Test
-    public void testSpecificity7() {
+    void testSpecificity7() {
         testSpecificity("ul ol li.red", "0,0,1,3");
     }
 
     @Test
-    public void testSpecificity8() {
+    void testSpecificity8() {
         testSpecificity("li.red.level", "0,0,2,1");
     }
 
     @Test
-    public void testSpecificity9() {
+    void testSpecificity9() {
         testSpecificity("#x34y", "0,1,0,0");
     }
 
     @Test
-    public void testSpecificity10() {
+    void testSpecificity10() {
         testSpecificity("#s12:not(FOO)", "0,1,0,1");
     }
 
     @Test
-    public void testSpecificity11() {
+    void testSpecificity11() {
         testSpecificity("*:not(li.red.level)", "0,0,2,1");
     }
 
     @Test
-    public void testSpecificity12() {
+    void testSpecificity12() {
         testSpecificity("#s12:not(#s45)", "0,2,0,0");
     }
 
     @Test
-    public void testSpecificity13() {
+    void testSpecificity13() {
         testSpecificity("#s12:not(#s45)", "0,2,0,0");
     }
 
     @Test
-    public void testSpecificity14() {
+    void testSpecificity14() {
         testSpecificity("#s12::after", "0,1,0,1");
     }
 

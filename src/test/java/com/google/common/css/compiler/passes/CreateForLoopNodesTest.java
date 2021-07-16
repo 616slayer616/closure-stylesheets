@@ -20,17 +20,14 @@ import com.google.common.css.compiler.ast.CssForLoopRuleNode;
 import com.google.common.css.compiler.ast.CssLiteralNode;
 import com.google.common.css.compiler.ast.CssLoopVariableNode;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CreateForLoopNodes}.
  */
-@RunWith(JUnit4.class)
-public class CreateForLoopNodesTest extends NewFunctionalTestBase {
+class CreateForLoopNodesTest extends NewFunctionalTestBase {
 
     @Override
     protected void runPass() {
@@ -40,7 +37,7 @@ public class CreateForLoopNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateLoopNodeWithNumbers() throws Exception {
+    void testCreateLoopNodeWithNumbers() throws Exception {
         parseAndRun("@for $i from 1 to 3 step 2 {}");
         assertThat(getFirstActualNode()).isInstanceOf(CssForLoopRuleNode.class);
         CssForLoopRuleNode loop = (CssForLoopRuleNode) getFirstActualNode();
@@ -50,7 +47,7 @@ public class CreateForLoopNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateLoopNodeWithVariables() throws Exception {
+    void testCreateLoopNodeWithVariables() throws Exception {
         parseAndRun("@for $i from $x to $y step $z {}");
         assertThat(getFirstActualNode()).isInstanceOf(CssForLoopRuleNode.class);
         CssForLoopRuleNode loop = (CssForLoopRuleNode) getFirstActualNode();
@@ -63,7 +60,7 @@ public class CreateForLoopNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateLoopNodeWithConstants() throws Exception {
+    void testCreateLoopNodeWithConstants() throws Exception {
         parseAndRun("@for $i from X to Y step Z {}");
         assertThat(getFirstActualNode()).isInstanceOf(CssForLoopRuleNode.class);
         CssForLoopRuleNode loop = (CssForLoopRuleNode) getFirstActualNode();
@@ -76,22 +73,22 @@ public class CreateForLoopNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testLoopWithoutBlock() throws Exception {
+    void testLoopWithoutBlock() throws Exception {
         parseAndRun("@for $i from 1 to 2;", "@for with no block");
     }
 
     @Test
-    public void testLoopWithoutAllParameters() throws Exception {
+    void testLoopWithoutAllParameters() throws Exception {
         parseAndRun("@for $i from 1 to {}", CreateForLoopNodes.SYNTAX_ERROR);
     }
 
     @Test
-    public void testLoopWithoutBadVariablePattern() throws Exception {
+    void testLoopWithoutBadVariablePattern() throws Exception {
         parseAndRun("@for i from 1 to 2 {}", CreateForLoopNodes.SYNTAX_ERROR);
     }
 
     @Test
-    public void testLoopThatOverridesVariable() throws Exception {
+    void testLoopThatOverridesVariable() throws Exception {
         parseAndRun(linesToString(
                 "@for $i from 1 to 2 {",
                 "  @for $i from 4 to 6 {",

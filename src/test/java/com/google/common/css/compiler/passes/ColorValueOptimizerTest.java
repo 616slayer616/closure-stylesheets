@@ -18,9 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -33,11 +31,10 @@ import static org.mockito.Mockito.mock;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class ColorValueOptimizerTest {
+class ColorValueOptimizerTest {
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         MutatingVisitController visitController = mock(MutatingVisitController.class);
         ColorValueOptimizer pass = new ColorValueOptimizer(visitController);
         visitController.startVisit(pass);
@@ -46,7 +43,7 @@ public class ColorValueOptimizerTest {
     }
 
     @Test
-    public void testEnterValueNode1() {
+    void testEnterValueNode1() {
         CssPropertyNode prop = new CssPropertyNode("color", null);
         CssPropertyValueNode value = new CssPropertyValueNode();
         BackDoorNodeMutation.addChildToBack(value, new CssHexColorNode("#112233", null));
@@ -72,7 +69,7 @@ public class ColorValueOptimizerTest {
     }
 
     @Test
-    public void testEnterValueNode2() {
+    void testEnterValueNode2() {
         CssPropertyNode prop = new CssPropertyNode("color", null);
         CssPropertyValueNode value = new CssPropertyValueNode();
         BackDoorNodeMutation.addChildToBack(value, new CssHexColorNode("#123344", null));
@@ -117,7 +114,7 @@ public class ColorValueOptimizerTest {
     }
 
     @Test
-    public void testEnterFunctionNode1() {
+    void testEnterFunctionNode1() {
         CssPropertyNode prop = new CssPropertyNode("color", null);
         CssPropertyValueNode value = new CssPropertyValueNode();
         CssFunctionNode function = createRgbFunctionNode("0%", "100%", "0%");
@@ -144,7 +141,7 @@ public class ColorValueOptimizerTest {
     }
 
     @Test
-    public void testCanShortenHex() {
+    void testCanShortenHex() {
         assertThat(ColorValueOptimizer.canShortenHexString("#000000")).isTrue();
         assertThat(ColorValueOptimizer.canShortenHexString("#00aa22")).isTrue();
         assertThat(ColorValueOptimizer.canShortenHexString("#000001")).isFalse();
@@ -152,13 +149,13 @@ public class ColorValueOptimizerTest {
     }
 
     @Test
-    public void testShortenHex() {
+    void testShortenHex() {
         assertThat(ColorValueOptimizer.shortenHexString("#000000")).isEqualTo("#000");
         assertThat(ColorValueOptimizer.shortenHexString("#00aa22")).isEqualTo("#0a2");
     }
 
     @Test
-    public void testParseRgbArguments() {
+    void testParseRgbArguments() {
         CssFunctionNode function = createRgbFunctionNode("0", "15", "255");
         assertThat(ColorValueOptimizer.parseRgbArguments(function)).isEqualTo("#000fff");
         function = createRgbFunctionNode("0%", "50%", "100%");
@@ -166,7 +163,7 @@ public class ColorValueOptimizerTest {
     }
 
     @Test
-    public void testParseRgbArgumentsOutOfRange() {
+    void testParseRgbArgumentsOutOfRange() {
         // Surprisingly, these are valid according to W3C and should be clamped
         // to valid values.
         CssFunctionNode function = createRgbFunctionNode("1", "1", "300");
@@ -176,7 +173,7 @@ public class ColorValueOptimizerTest {
     }
 
     @Test
-    public void testParseRgbArgumentsBadArgs() {
+    void testParseRgbArgumentsBadArgs() {
         CssFunctionNode function = new CssFunctionNode(
                 CssFunctionNode.Function.byName("rgb"), null /* sourceCodeLocation */);
         List<CssValueNode> values = Lists.newArrayList();

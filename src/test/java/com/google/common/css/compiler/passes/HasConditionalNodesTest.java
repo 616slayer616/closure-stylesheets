@@ -18,23 +18,23 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.CssAtRuleNode.Type;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link HasConditionalNodes}.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class HasConditionalNodesTest {
+@ExtendWith(MockitoExtension.class)
+class HasConditionalNodesTest {
     @Mock
     MutatingVisitController visitController;
 
     @Test
-    public void testEnterConditionalBlock() {
+    void testEnterConditionalBlock() {
         HasConditionalNodes pass
                 = new HasConditionalNodes(visitController);
 
@@ -47,7 +47,7 @@ public class HasConditionalNodesTest {
     }
 
     @Test
-    public void testRunPassAndHasConditionalNodes() {
+    void testRunPassAndHasConditionalNodes() {
         HasConditionalNodes pass
                 = new HasConditionalNodes(visitController);
 

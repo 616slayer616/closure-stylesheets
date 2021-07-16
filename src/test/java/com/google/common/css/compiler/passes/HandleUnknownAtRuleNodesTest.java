@@ -18,17 +18,14 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.Sets;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link HandleUnknownAtRuleNodes}.
  */
-@RunWith(JUnit4.class)
-public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
+class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
 
     private final String errorMessage = HandleUnknownAtRuleNodes.unknownAtRuleErrorMessage;
 
@@ -65,7 +62,7 @@ public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testReportRemove() throws Exception {
+    void testReportRemove() throws Exception {
         report = true;
         remove = true;
         parseAndRun(testCode, errorMessage);
@@ -74,7 +71,7 @@ public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testReportDoNotRemove() throws Exception {
+    void testReportDoNotRemove() throws Exception {
         report = true;
         remove = false;
         parseAndRun(testCode, errorMessage, errorMessage, errorMessage);
@@ -83,7 +80,7 @@ public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDoNotReportRemove() throws Exception {
+    void testDoNotReportRemove() throws Exception {
         report = false;
         remove = true;
         parseAndRun(testCode);
@@ -92,7 +89,7 @@ public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDoNotReportDoNotRemove() throws Exception {
+    void testDoNotReportDoNotRemove() throws Exception {
         report = false;
         remove = false;
         parseAndRun(testCode);
@@ -101,7 +98,7 @@ public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDoNotReportDoNotRemoveMedia() throws Exception {
+    void testDoNotReportDoNotRemoveMedia() throws Exception {
         report = true;
         remove = true;
         parseAndRun("@media print { .A { margin: 0; } }");
@@ -111,7 +108,7 @@ public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDoNotReportDoNotRemoveMediaWithUnknown() throws Exception {
+    void testDoNotReportDoNotRemoveMediaWithUnknown() throws Exception {
         report = true;
         remove = true;
         parseAndRun("@media print { @foo { .A { margin: 0; } } }", errorMessage);
@@ -120,7 +117,7 @@ public class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDoNotReportDoNotRemoveCustomAtRule() throws Exception {
+    void testDoNotReportDoNotRemoveCustomAtRule() throws Exception {
         report = true;
         remove = true;
         parseAndRun("@-custom-at-rule print { }");

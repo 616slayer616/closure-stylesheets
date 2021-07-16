@@ -17,15 +17,12 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link HandleMissingConstantDefinitions}.
  */
-@RunWith(JUnit4.class)
-public class HandleMissingConstantDefinitionsTest extends NewFunctionalTestBase {
+class HandleMissingConstantDefinitionsTest extends NewFunctionalTestBase {
 
     private static final String TEST_GOOD_CODE =
             linesToString(
@@ -45,17 +42,17 @@ public class HandleMissingConstantDefinitionsTest extends NewFunctionalTestBase 
             linesToString(".rule { width: add(1, MISSING_TEXT_SIZE) }");
 
     @Test
-    public void testGoodCodeNoErrors() throws Exception {
+    void testGoodCodeNoErrors() throws Exception {
         parseAndRun(TEST_GOOD_CODE);
     }
 
     @Test
-    public void testBadCodeThrowsErrors() throws Exception {
+    void testBadCodeThrowsErrors() throws Exception {
         parseAndRun(TEST_BAD_CODE, HandleMissingConstantDefinitions.ERROR_MESSAGE);
     }
 
     @Test
-    public void testBadCodeThrowsErrors_functionArgument() throws Exception {
+    void testBadCodeThrowsErrors_functionArgument() throws Exception {
         parseAndRun(TEST_BAD_CODE_FUNCTION_ARG, HandleMissingConstantDefinitions.ERROR_MESSAGE);
     }
 

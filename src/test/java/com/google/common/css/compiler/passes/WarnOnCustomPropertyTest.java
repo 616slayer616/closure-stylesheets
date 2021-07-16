@@ -17,15 +17,12 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link WarnOnCustomProperty}.
  */
-@RunWith(JUnit4.class)
-public class WarnOnCustomPropertyTest extends NewFunctionalTestBase {
+class WarnOnCustomPropertyTest extends NewFunctionalTestBase {
 
     @Override
     protected void runPass() {
@@ -34,12 +31,12 @@ public class WarnOnCustomPropertyTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testWarnsOnDeclaration() throws Exception {
+    void testWarnsOnDeclaration() throws Exception {
         parseAndRun(":root { --test: 123; }", WarnOnCustomProperty.DECLARATION_WARNING_MSG);
     }
 
     @Test
-    public void testWarnsOnReference() throws Exception {
+    void testWarnsOnReference() throws Exception {
         parseAndRun(":root { background: var(--test); }", WarnOnCustomProperty.REFERENCE_WARNING_MSG);
     }
 }

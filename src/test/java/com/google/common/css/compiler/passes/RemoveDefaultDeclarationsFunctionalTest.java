@@ -17,20 +17,17 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for {@link RemoveDefaultDeclarations}.
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
+class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
 
     @Test
-    public void testRemoveDeclarations1() {
+    void testRemoveDeclarations1() {
         testTreeConstruction(linesToString(
                 "@def COLOR /* @default */ #fff;",
                 "@def PADDING 1px;",
@@ -42,7 +39,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations2() {
+    void testRemoveDeclarations2() {
         testTreeConstruction(linesToString(
                 "@def COLOR /* @default */ #fff;",
                 "@def PADDING 1px;",
@@ -60,7 +57,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations3() {
+    void testRemoveDeclarations3() {
         testTreeConstruction(linesToString(
                 "@def COLOR /* @default */ #fff;",
                 "@def OTHER_COLOR COLOR;",
@@ -77,7 +74,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations4() {
+    void testRemoveDeclarations4() {
         testTreeConstruction(linesToString(
                 "@def COLOR /* @default */ #fff;",
                 ".CSS_RULE_1 {",
@@ -97,7 +94,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations5() {
+    void testRemoveDeclarations5() {
         testTreeConstruction(linesToString(
                 "@def WIDTH /* @default */ thin;",
                 ".CSS_RULE_1 {",
@@ -117,7 +114,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations6() {
+    void testRemoveDeclarations6() {
         testTreeConstruction(linesToString(
                 "@def STYLE /* @default */ solid;",
                 ".CSS_RULE_1 {",
@@ -137,7 +134,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations7() {
+    void testRemoveDeclarations7() {
         testTreeConstruction(linesToString(
                 "@def MARGIN /* @default */ 4px;",
                 ".CSS_RULE_1 {",
@@ -157,7 +154,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations8() {
+    void testRemoveDeclarations8() {
         testTreeConstruction(linesToString(
                 "@def PADDING /* @default */ 4px;",
                 ".CSS_RULE_1 {",
@@ -177,7 +174,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations9() {
+    void testRemoveDeclarations9() {
         testTreeConstruction(linesToString(
                 "@def WIDTH /* @default */ thin;",
                 "@def STYLE /* @default */ solid;",
@@ -198,7 +195,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations10() {
+    void testRemoveDeclarations10() {
         testTreeConstruction(linesToString(
                 "@def WIDTH /* @default */ thin;",
                 "@def STYLE /* @default */ solid;",
@@ -216,7 +213,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations11() {
+    void testRemoveDeclarations11() {
         testTreeConstruction(linesToString(
                 "@def WIDTH /* @default */ thin;",
                 "@def COLOR /* @default */ #fff;",
@@ -234,7 +231,7 @@ public class RemoveDefaultDeclarationsFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveDeclarations12() {
+    void testRemoveDeclarations12() {
         testTreeConstruction(linesToString(
                 "@def COLOR /* @default */ #fff;",
                 "@def BGCOLOR COLOR;",

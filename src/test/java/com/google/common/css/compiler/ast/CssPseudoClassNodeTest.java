@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.css.compiler.ast.CssPseudoClassNode.FunctionType;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,11 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class CssPseudoClassNodeTest {
+class CssPseudoClassNodeTest {
 
     @Test
-    public void testNonFunction() {
+    void testNonFunction() {
         String name = "foo";
         CssPseudoClassNode node = new CssPseudoClassNode(name, null);
         assertThat(node.getFunctionType()).isEqualTo(FunctionType.NONE);
@@ -44,7 +41,7 @@ public class CssPseudoClassNodeTest {
     }
 
     @Test
-    public void testLangFunction() {
+    void testLangFunction() {
         String name = "foo";
         String arg = "en";
         CssPseudoClassNode node = new CssPseudoClassNode(FunctionType.LANG, name,
@@ -56,7 +53,7 @@ public class CssPseudoClassNodeTest {
     }
 
     @Test
-    public void testNthFunction() {
+    void testNthFunction() {
         String name = "foo";
         String arg = "2n+1";
         CssPseudoClassNode node = new CssPseudoClassNode(FunctionType.NTH, name,
@@ -68,7 +65,7 @@ public class CssPseudoClassNodeTest {
     }
 
     @Test
-    public void testNotFunction() {
+    void testNotFunction() {
         String name = "not";
         CssSelectorNode selector = new CssSelectorNode("foo");
         CssPseudoClassNode node = new CssPseudoClassNode(name, selector, null);

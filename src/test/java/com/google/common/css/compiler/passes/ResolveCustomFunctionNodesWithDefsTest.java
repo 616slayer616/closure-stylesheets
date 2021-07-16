@@ -25,9 +25,7 @@ import com.google.common.css.compiler.ast.CssValueNode;
 import com.google.common.css.compiler.ast.ErrorManager;
 import com.google.common.css.compiler.ast.GssFunction;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -37,8 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link ResolveCustomFunctionNodes}.
  */
-@RunWith(JUnit4.class)
-public class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
+class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
 
     protected boolean allowUnknownFunctions = false;
 
@@ -76,7 +73,7 @@ public class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBas
     }
 
     @Test
-    public void testMultipleArgs() throws Exception {
+    void testMultipleArgs() throws Exception {
         parseAndRun("@def BAR 3px left top;" +
                 "A { foo: testMultipleArg(first, 30px, BAR) }");
         assertThat(getFirstPropertyValue().toString()).isEqualTo("[(first) (30px) (3px left top)]");

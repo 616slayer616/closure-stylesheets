@@ -17,18 +17,15 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for {@link RemoveEmptyValues}.
  */
-@RunWith(JUnit4.class)
-public class RemoveEmptyValuesFunctionalTest extends PassesTestBase {
+class RemoveEmptyValuesFunctionalTest extends PassesTestBase {
 
     @Test
-    public void testRemoveEmptyValues1() {
+    void testRemoveEmptyValues1() {
         testTreeConstruction(linesToString(
                 "@def COLOR empty;",
                 "@def PADDING 1px;",
@@ -40,7 +37,7 @@ public class RemoveEmptyValuesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveEmptyValues2() {
+    void testRemoveEmptyValues2() {
         testTreeConstruction(linesToString(
                 "@def COLOR empty;",
                 "@def PADDING 1px;",
@@ -52,7 +49,7 @@ public class RemoveEmptyValuesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveEmptyValues3() {
+    void testRemoveEmptyValues3() {
         testTreeConstruction(linesToString(
                 "@def A empty;",
                 "@def B A A;",
@@ -65,7 +62,7 @@ public class RemoveEmptyValuesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testRemoveEmptyValues4() {
+    void testRemoveEmptyValues4() {
         testTreeConstruction(linesToString(
                 "@def A empty;",
                 "@def B A A;",

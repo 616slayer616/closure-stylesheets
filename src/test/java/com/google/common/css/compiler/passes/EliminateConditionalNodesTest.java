@@ -18,22 +18,19 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.css.compiler.ast.FunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
 /**
  * Unit tests for {@link EliminateConditionalNodes}.
  */
-@RunWith(JUnit4.class)
-public class EliminateConditionalNodesTest extends FunctionalTestBase {
+class EliminateConditionalNodesTest extends FunctionalTestBase {
 
     private Set<String> trueConditions;
 
     @Test
-    public void testSimple1() {
+    void testSimple1() {
         trueConditions = ImmutableSet.of("COND");
         testTreeConstruction(
                 "@if COND {"
@@ -45,7 +42,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testSimple2() {
+    void testSimple2() {
         trueConditions = ImmutableSet.<String>of();
         testTreeConstruction(
                 "@if COND {"
@@ -57,7 +54,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testSimple3() {
+    void testSimple3() {
         trueConditions = ImmutableSet.of("!COND1");
         testTreeConstruction(
                 "@if COND1 {"
@@ -71,7 +68,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testSimple4() {
+    void testSimple4() {
         trueConditions = ImmutableSet.of("COND3");
         testTreeConstruction(
                 "@if COND1 {"
@@ -85,7 +82,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testSimple5() {
+    void testSimple5() {
         trueConditions = ImmutableSet.<String>of();
         testTreeConstruction(
                 "@if COND1 {"
@@ -99,7 +96,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testSimple6() {
+    void testSimple6() {
         trueConditions = ImmutableSet.of("COND3");
         testTreeConstruction(
                 "@if COND1 {"
@@ -113,7 +110,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testSimple7() {
+    void testSimple7() {
         trueConditions = ImmutableSet.of("COND1");
         testTreeConstruction(
                 "@if COND1 {"
@@ -127,7 +124,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testComplex1() {
+    void testComplex1() {
         trueConditions = ImmutableSet.of("COND1", "!COND2");
         testTreeConstruction(
                 "@if COND1 {"
@@ -146,7 +143,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testComplex2() {
+    void testComplex2() {
         trueConditions = ImmutableSet.of("COND1", "COND2");
         testTreeConstruction(
                 "@if COND1 {"
@@ -165,7 +162,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testComplex3() {
+    void testComplex3() {
         trueConditions = ImmutableSet.of("COND2");
         testTreeConstruction(
                 "@if COND1 {"
@@ -184,7 +181,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testComplex4() {
+    void testComplex4() {
         trueConditions = ImmutableSet.of("COND1", "COND3");
         testTreeConstruction(
                 "@if COND1 {"
@@ -203,7 +200,7 @@ public class EliminateConditionalNodesTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testComplex5() {
+    void testComplex5() {
         trueConditions = ImmutableSet.of("COND1", "COND3");
         testTreeConstruction(
                 "@media print {"

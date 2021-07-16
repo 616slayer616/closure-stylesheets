@@ -16,19 +16,16 @@
 
 package com.google.common.css;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit test for {@link PrefixingSubstitutionMap}.
  */
-@RunWith(JUnit4.class)
-public class PrefixingSubstitutionMapTest {
+class PrefixingSubstitutionMapTest {
     @Test
-    public void testNoPrefix() throws Exception {
+    void testNoPrefix() throws Exception {
         SubstitutionMap map = new PrefixingSubstitutionMap(
                 new SimpleSubstitutionMap(), "");
         assertThat(map.get("foo")).isEqualTo("foo_");
@@ -36,7 +33,7 @@ public class PrefixingSubstitutionMapTest {
     }
 
     @Test
-    public void testPrefix() throws Exception {
+    void testPrefix() throws Exception {
         SubstitutionMap map = new PrefixingSubstitutionMap(
                 new SimpleSubstitutionMap(), "PREFIX_");
         assertThat(map.get("foo")).isEqualTo("PREFIX_foo_");

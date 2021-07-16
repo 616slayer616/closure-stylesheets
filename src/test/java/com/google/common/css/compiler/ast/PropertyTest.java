@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.css.Vendor;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,11 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class PropertyTest {
+class PropertyTest {
 
     @Test
-    public void testBorderRadius() {
+    void testBorderRadius() {
         Property borderRadius = Property.byName("border-radius");
         assertThat(borderRadius.isRecognizedProperty()).isTrue();
         assertThat(borderRadius.getVendor()).isNull();
@@ -48,7 +45,7 @@ public class PropertyTest {
     }
 
     @Test
-    public void testWebkitBorderRadius() {
+    void testWebkitBorderRadius() {
         Property webkitBorderRadius = Property.byName("-webkit-border-radius");
         assertThat(webkitBorderRadius.isRecognizedProperty()).isTrue();
         assertThat(webkitBorderRadius.getVendor()).isEqualTo(Vendor.WEBKIT);
@@ -65,7 +62,7 @@ public class PropertyTest {
     }
 
     @Test
-    public void testMozBorderRadius() {
+    void testMozBorderRadius() {
         Property mozBorderRadius = Property.byName("-moz-border-radius");
         assertThat(mozBorderRadius.isRecognizedProperty()).isTrue();
         assertThat(mozBorderRadius.getVendor()).isEqualTo(Vendor.MOZILLA);
@@ -81,7 +78,7 @@ public class PropertyTest {
     }
 
     @Test
-    public void testCustomBorderProperty() {
+    void testCustomBorderProperty() {
         Property borderHeight = Property.byName("border-height");
         assertThat(borderHeight.isRecognizedProperty()).isFalse();
         assertThat(borderHeight.getShorthands()).isEmpty();

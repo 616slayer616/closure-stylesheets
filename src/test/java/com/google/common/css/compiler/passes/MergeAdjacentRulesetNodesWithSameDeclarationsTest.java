@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.base.Joiner;
 import com.google.common.css.SourceCode;
 import com.google.common.css.compiler.ast.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,11 +30,10 @@ import static org.mockito.Mockito.when;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
+class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         MutatingVisitController visitController = mock(MutatingVisitController.class);
         CssTree tree = mock(CssTree.class);
         when(tree.getMutatingVisitController()).thenReturn(visitController);
@@ -49,7 +46,7 @@ public class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
     }
 
     @Test
-    public void testEnterTree() {
+    void testEnterTree() {
         CssTree tree = new CssTree((SourceCode) null);
         tree.getRulesetNodesToRemove().addRulesetNode(new CssRulesetNode());
         assertThat(tree.getRulesetNodesToRemove().getRulesetNodes()).isNotEmpty();
@@ -61,7 +58,7 @@ public class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
     }
 
     @Test
-    public void testPassResult() throws Exception {
+    void testPassResult() throws Exception {
         CssTree tree = new GssParser(new SourceCode(null, lines(
                 "@-moz-document url-prefix() {",
                 "  foo {",
@@ -93,7 +90,7 @@ public class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
     }
 
     @Test
-    public void testPassResult2() {
+    void testPassResult2() {
         CssPropertyNode prop1 = new CssPropertyNode("padding", null);
         CssPropertyValueNode value1 = new CssPropertyValueNode();
         BackDoorNodeMutation.addChildToBack(value1, new CssNumericNode("5", "px"));
@@ -150,7 +147,7 @@ public class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
     }
 
     @Test
-    public void testDoNotMergePseudoElements() throws Exception {
+    void testDoNotMergePseudoElements() throws Exception {
         CssTree tree = new GssParser(new SourceCode(null, lines(
                 "foo {",
                 "  padding: 5px;",

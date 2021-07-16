@@ -18,17 +18,14 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.CssDefinitionNode;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CreateDefinitionNodes}.
  */
-@RunWith(JUnit4.class)
-public class CreateDefinitionNodesTest extends NewFunctionalTestBase {
+class CreateDefinitionNodesTest extends NewFunctionalTestBase {
 
     @Override
     protected void runPass() {
@@ -38,7 +35,7 @@ public class CreateDefinitionNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateDefNode1() throws Exception {
+    void testCreateDefNode1() throws Exception {
         parseAndRun("@def X Y;");
         assertThat(getFirstActualNode()).isInstanceOf(CssDefinitionNode.class);
         CssDefinitionNode def = (CssDefinitionNode) getFirstActualNode();
@@ -47,26 +44,26 @@ public class CreateDefinitionNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testBlockError() throws Exception {
+    void testBlockError() throws Exception {
         parseAndRun("@def X { a {b: c} }", "@def with block");
         assertThat(isEmptyBody()).isTrue();
     }
 
     @Test
-    public void testNoNameError() throws Exception {
+    void testNoNameError() throws Exception {
         parseAndRun("@def;", "@def without name");
         assertThat(isEmptyBody()).isTrue();
     }
 
     @Test
-    public void testNameError() throws Exception {
+    void testNameError() throws Exception {
         parseAndRun("@def 1px 2px 3px;",
                 "@def without a valid literal as name");
         assertThat(isEmptyBody()).isTrue();
     }
 
     @Test
-    public void testNameSyntacticallyInvalid() throws Exception {
+    void testNameSyntacticallyInvalid() throws Exception {
         parseAndRun("@def FOO-BAR 1;",
                 "WARNING for invalid @def name FOO-BAR. We will ignore this.");
     }

@@ -17,26 +17,23 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.FunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for {@link UnsafeMergeRulesetNodes}.
  */
-@RunWith(JUnit4.class)
-public class UnsafeMergeRulesetNodesFunctionalTest extends FunctionalTestBase {
+class UnsafeMergeRulesetNodesFunctionalTest extends FunctionalTestBase {
     private boolean byPartition = false;
 
     @Test
-    public void testSorting() {
+    void testSorting() {
         testEachTreeConstruction(
                 "c, a, b {x: 1px;}",
                 "[[a, b, c]{[x:[1px]]}]");
     }
 
     @Test
-    public void testGroupByDeclarations() {
+    void testGroupByDeclarations() {
         testEachTreeConstruction(
                 linesToString(
                         "c {x: 2px;}",
@@ -46,7 +43,7 @@ public class UnsafeMergeRulesetNodesFunctionalTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testPropertyPartition() {
+    void testPropertyPartition() {
         testEachTreeConstruction(
                 linesToString(
                         "c {padding: 1px;}",
@@ -62,7 +59,7 @@ public class UnsafeMergeRulesetNodesFunctionalTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testBorderAlwaysPartitioned() {
+    void testBorderAlwaysPartitioned() {
         testEachTreeConstruction(
                 linesToString(
                         "a {border-left: red;}",

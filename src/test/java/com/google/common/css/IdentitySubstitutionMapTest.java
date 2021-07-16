@@ -17,9 +17,7 @@
 package com.google.common.css;
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,11 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class IdentitySubstitutionMapTest {
+class IdentitySubstitutionMapTest {
 
     @Test
-    public void testNull() {
+    void testNull() {
         IdentitySubstitutionMap map = new IdentitySubstitutionMap();
         try {
             map.get(null);
@@ -43,7 +40,7 @@ public class IdentitySubstitutionMapTest {
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         IdentitySubstitutionMap map = new IdentitySubstitutionMap();
         assertThat(map.get("")).isEmpty();
         assertThat(map.get("a")).isEqualTo("a");

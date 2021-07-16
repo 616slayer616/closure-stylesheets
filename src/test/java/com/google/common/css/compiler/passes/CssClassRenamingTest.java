@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.css.SubstitutionMap;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.testing.AstPrinter;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,11 +30,10 @@ import static org.mockito.Mockito.verify;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class CssClassRenamingTest {
+class CssClassRenamingTest {
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         MutatingVisitController visitController = mock(MutatingVisitController.class);
 
         CssClassRenaming pass = new CssClassRenaming(visitController, null, null);
@@ -45,14 +42,14 @@ public class CssClassRenamingTest {
     }
 
     @Test
-    public void testNoSubstitutionWithNullMap() {
+    void testNoSubstitutionWithNullMap() {
         CssClassSelectorNode node = new CssClassSelectorNode("FOO", null);
         CssClassRenaming pass = new CssClassRenaming(null, null, null);
         pass.enterClassSelector(node);
     }
 
     @Test
-    public void testNoClassSubstitutionWhenClassNotFoundInMap() {
+    void testNoClassSubstitutionWhenClassNotFoundInMap() {
         CssClassSelectorNode refinerNode = new CssClassSelectorNode("FOO", null);
         SubstitutionMap cssClassRenamingMap = mock(SubstitutionMap.class);
 
@@ -64,7 +61,7 @@ public class CssClassRenamingTest {
     }
 
     @Test
-    public void testNoIdSubstitutionWhenIdNotFoundInMap() {
+    void testNoIdSubstitutionWhenIdNotFoundInMap() {
         CssIdSelectorNode refinerNode = new CssIdSelectorNode("ID", null);
         SubstitutionMap idRenamingMap = mock(SubstitutionMap.class);
 
@@ -75,7 +72,7 @@ public class CssClassRenamingTest {
     }
 
     @Test
-    public void testEnterClassRefiner() {
+    void testEnterClassRefiner() {
         CssClassSelectorNode refinerNode = new CssClassSelectorNode("CSS_FOO",
                 null);
         CssRefinerListNode refiners = new CssRefinerListNode();
@@ -106,7 +103,7 @@ public class CssClassRenamingTest {
     }
 
     @Test
-    public void testEnterIdRefiner() {
+    void testEnterIdRefiner() {
         CssIdSelectorNode refinerNode = new CssIdSelectorNode("ID_FOO", null);
         CssRefinerListNode refiners = new CssRefinerListNode();
         BackDoorNodeMutation.addChildToBack(refiners, refinerNode);

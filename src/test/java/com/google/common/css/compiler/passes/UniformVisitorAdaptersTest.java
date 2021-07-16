@@ -18,9 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.CssTreeVisitor;
 import com.google.common.css.compiler.passes.UniformVisitor.Adapters;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,11 +28,10 @@ import static org.mockito.Mockito.mock;
 /**
  * Tests {@link com.google.common.css.compiler.passes.UniformVisitor.Adapters}.
  */
-@RunWith(JUnit4.class)
-public class UniformVisitorAdaptersTest {
+class UniformVisitorAdaptersTest {
 
     @Test
-    public void asVisitor() throws Exception {
+    void asVisitor() throws Exception {
         UniformVisitor uniformVisitor = mock(UniformVisitor.class);
         CssTreeVisitor visitor = Adapters.asVisitor(uniformVisitor);
 
@@ -48,7 +45,7 @@ public class UniformVisitorAdaptersTest {
     }
 
     @Test
-    public void asCombinedVisitor() throws Exception {
+    void asCombinedVisitor() throws Exception {
         CombinedVisitor combinedVisitor = mock(CombinedVisitor.class);
         CssTreeVisitor visitor = Adapters.asCombinedVisitor(combinedVisitor);
 
@@ -63,7 +60,7 @@ public class UniformVisitorAdaptersTest {
     }
 
     @Test
-    public void testCombinedVisitorObjectMethods() throws Exception {
+    void testCombinedVisitorObjectMethods() throws Exception {
         CombinedVisitor combinedVisitor = mock(CombinedVisitor.class);
         CssTreeVisitor visitor = Adapters.asCombinedVisitor(combinedVisitor);
 
@@ -71,7 +68,7 @@ public class UniformVisitorAdaptersTest {
     }
 
     @Test
-    public void testUniformVisitorObjectMethods() throws Exception {
+    void testUniformVisitorObjectMethods() throws Exception {
         UniformVisitor uniformVisitor = mock(UniformVisitor.class);
         CssTreeVisitor visitor = Adapters.asVisitor(uniformVisitor);
 

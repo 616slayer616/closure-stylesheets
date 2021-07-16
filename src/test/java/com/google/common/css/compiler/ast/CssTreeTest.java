@@ -18,20 +18,17 @@ package com.google.common.css.compiler.ast;
 
 import com.google.common.css.SourceCode;
 import com.google.common.truth.Truth;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CssTree}
  */
-@RunWith(JUnit4.class)
-public class CssTreeTest {
+class CssTreeTest {
 
     @Test
-    public void testSimple() {
+    void testSimple() {
         CssTree tree = new CssTree(new SourceCode("testfile", ""));
         CssRootNode root = tree.getRoot();
         assertThat(root).isNotNull();
@@ -44,7 +41,7 @@ public class CssTreeTest {
     }
 
     @Test
-    public void testCopyConstructor() {
+    void testCopyConstructor() {
         CssTree tree1 = new CssTree(new SourceCode("testfile", ""));
         CssTree tree2 = new CssTree(tree1);
 

@@ -18,9 +18,7 @@ package com.google.common.css.compiler.ast;
 
 import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,11 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class CssPropertyNodeTest {
+class CssPropertyNodeTest {
 
     @Test
-    public void testPropertyNodeCreation1() {
+    void testPropertyNodeCreation1() {
         CssPropertyNode property = new CssPropertyNode("color", null);
 
         assertThat(property.getParent()).isNull();
@@ -44,7 +41,7 @@ public class CssPropertyNodeTest {
     }
 
     @Test
-    public void testPropertyNodeCreation2() {
+    void testPropertyNodeCreation2() {
         CssPropertyNode property = new CssPropertyNode("cOloR", null);
 
         assertThat(property.getParent()).isNull();
@@ -55,7 +52,7 @@ public class CssPropertyNodeTest {
     }
 
     @Test
-    public void testPropertyNodeCreation3() {
+    void testPropertyNodeCreation3() {
         SourceCodeLocation codeLoc = new SourceCodeLocation(
                 new SourceCode("file.css", null), 1, 1, 1, 1, 1, 1);
         CssPropertyNode property = new CssPropertyNode("color", codeLoc);
@@ -68,7 +65,7 @@ public class CssPropertyNodeTest {
     }
 
     @Test
-    public void testCustomPropertyNodeCreation() {
+    void testCustomPropertyNodeCreation() {
         CssPropertyNode property = new CssPropertyNode("--cOloR", null);
         assertThat(property.getParent()).isNull();
         assertThat(property.getSourceCodeLocation()).isNull();
@@ -78,7 +75,7 @@ public class CssPropertyNodeTest {
     }
 
     @Test
-    public void testPropertyNodePositionDependentValues() {
+    void testPropertyNodePositionDependentValues() {
         CssPropertyNode borderColor = new CssPropertyNode("border-color", null);
         CssPropertyNode borderStyle = new CssPropertyNode("border-style", null);
         CssPropertyNode borderWidth = new CssPropertyNode("border-width", null);
@@ -102,7 +99,7 @@ public class CssPropertyNodeTest {
     }
 
     @Test
-    public void testPropertyNodeShorthands() {
+    void testPropertyNodeShorthands() {
         assertThat(new CssPropertyNode("foo").getProperty().getShorthands()).isEmpty();
 
         assertThat(new CssPropertyNode("color").getProperty().getShorthands()).isEmpty();
@@ -125,7 +122,7 @@ public class CssPropertyNodeTest {
     }
 
     @Test
-    public void testPropertyNodePartition() {
+    void testPropertyNodePartition() {
         assertThat(new CssPropertyNode("foo").getPartition()).isEqualTo("foo");
 
         assertThat(new CssPropertyNode("color").getPartition()).isEqualTo("color");
@@ -144,7 +141,7 @@ public class CssPropertyNodeTest {
     }
 
     @Test
-    public void testPropertyNodeCopy() {
+    void testPropertyNodeCopy() {
         CssPropertyNode property = new CssPropertyNode("color", null);
         CssPropertyNode propertyCopy = new CssPropertyNode(property);
         CssPropertyNode property1 = new CssPropertyNode("border-color", null);

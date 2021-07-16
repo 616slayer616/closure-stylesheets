@@ -20,9 +20,7 @@ import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link LocationBoundingVisitor}.
  */
-@RunWith(JUnit4.class)
-public class LocationBoundingVisitorTest extends NewFunctionalTestBase {
+class LocationBoundingVisitorTest extends NewFunctionalTestBase {
     private LocationBoundingVisitor locationBoundingVisitor;
 
     @Override
@@ -42,7 +39,7 @@ public class LocationBoundingVisitorTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testTrivialBound() throws Exception {
+    void testTrivialBound() throws Exception {
         CssLiteralNode red = new CssLiteralNode("red");
         SourceCodeLocation expected =
                 new SourceCodeLocation(
@@ -58,7 +55,7 @@ public class LocationBoundingVisitorTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testUnknown() throws Exception {
+    void testUnknown() throws Exception {
         parseAndRun("div { color: red; }");
         CssTreeVisitor eraseLocations =
                 UniformVisitor.Adapters.asVisitor(
@@ -80,7 +77,7 @@ public class LocationBoundingVisitorTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMixedSubtree() throws Exception {
+    void testMixedSubtree() throws Exception {
         // Let's examine a non-trivial tree
         parseAndRun("div { color: red; }");
 

@@ -24,9 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +38,7 @@ import static org.assertj.core.data.MapEntry.entry;
  *
  * @author dgajda@google.com (Damian Gajda)
  */
-@RunWith(JUnit4.class)
-public class ProcessComponentsTest extends PassesTestBase {
+class ProcessComponentsTest extends PassesTestBase {
 
     private static final String FILE1 = "file1";
     private static final String FILE2 = "file2";
@@ -341,7 +338,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testTopComponent() throws Exception {
+    void testTopComponent() throws Exception {
         testTreeConstruction(topComponentInput, "[" + topComponentOutput + "]");
         testTreeConstructionWithResolve(
                 ImmutableMap.of(
@@ -351,7 +348,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testChildComponent() throws Exception {
+    void testChildComponent() throws Exception {
         testTreeConstruction(
                 topComponentInput + "\n" + childComponentInput,
                 "[" + topComponentOutput + childComponentOutput + "]");
@@ -366,7 +363,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testChildComponentWithReferenceWorkaround() throws Exception {
+    void testChildComponentWithReferenceWorkaround() throws Exception {
         String topComponentWithWorkaroundInput = joinNl(Iterables.concat(
                 topComponentPrefixInput,
                 topComponentWithRefWorkaroundInputConstants,
@@ -387,7 +384,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testChildComponentWithAbstractParent() throws Exception {
+    void testChildComponentWithAbstractParent() throws Exception {
         testTreeConstruction(
                 abstractTopComponentInput + "\n" + childComponentInput,
                 "[" + abstractTopComponentOutput + childComponentOutput + "]");
@@ -402,7 +399,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testGrandChildComponent() throws Exception {
+    void testGrandChildComponent() throws Exception {
         testTreeConstruction(
                 topComponentInput + "\n" + childComponentInput + "\n" +
                         grandChildComponentInput,
@@ -423,19 +420,19 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testIfComponent() throws Exception {
+    void testIfComponent() throws Exception {
         testTreeConstruction(ifComponentInput, "[" + ifComponentOutput + "]");
     }
 
     @Test
-    public void testUndefinedParentComponentError() throws Exception {
+    void testUndefinedParentComponentError() throws Exception {
         parseAndRun("@component CSS_X extends CSS_Y { }",
                 "parent component is undefined in chunk " + TEST_CHUNK);
         assertThat(isEmptyBody()).isTrue();
     }
 
     @Test
-    public void testRedefinedComponentError() throws Exception {
+    void testRedefinedComponentError() throws Exception {
         parseAndRun(ImmutableMap.of(
                 FILE1, "@component CSS_X { }",
                 FILE2, "@component CSS_X { }"),
@@ -444,37 +441,37 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testNestedComponentsError1() throws Exception {
+    void testNestedComponentsError1() throws Exception {
         parseAndRun("@component CSS_X { @component CSS_Y {} }", "nested components are not allowed");
         assertThat(isEmptyBody()).isTrue();
     }
 
     @Test
-    public void testNestedComponentsError2() throws Exception {
+    void testNestedComponentsError2() throws Exception {
         parseAndRun("@component CSS_X { @component CSS_Y {} }\n@component CSS_Z extends CSS_X {}",
                 "nested components are not allowed");
         assertThat(isEmptyBody()).isTrue();
     }
 
     @Test
-    public void testImplicitlyNamed() throws Exception {
+    void testImplicitlyNamed() throws Exception {
         testTreeConstruction(namelessComponentInput, "[" + camelCasedComponentOutput + "]");
     }
 
     @Test
-    public void testStringNamed() throws Exception {
+    void testStringNamed() throws Exception {
         testTreeConstruction(stringNamedComponentInput, "[" + camelCasedComponentOutput + "]");
     }
 
     @Test
-    public void testImplicitlyNamedNoPackageError() throws Exception {
+    void testImplicitlyNamedNoPackageError() throws Exception {
         parseAndRun("@component { }",
                 "implicitly-named @components require a prior @provide declaration " + TEST_CHUNK);
         assertThat(isEmptyBody()).isTrue();
     }
 
     @Test
-    public void testImplicitlyNamedMultiplePackage() throws Exception {
+    void testImplicitlyNamedMultiplePackage() throws Exception {
         // Construct gss consisting of three @provides and one implicit @component sandwiched
         // in-between. Verify that the produced css uses the name of the @provide immediately preceeding
         // the @compoment, not the one before or after.
@@ -486,7 +483,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testImplicitlyNamedMultipleComponents() throws Exception {
+    void testImplicitlyNamedMultipleComponents() throws Exception {
         parseAndRun(ImmutableMap.<String, String>of(
                 "file1",
                 "@provide \"some.example.package\";\n" +
@@ -497,7 +494,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testImplicitlyNamedMultipleComponentsPackageError() throws Exception {
+    void testImplicitlyNamedMultipleComponentsPackageError() throws Exception {
         parseAndRun(ImmutableMap.<String, String>of(
                 "file1",
                 "@provide \"some.example.package\";\n" +
@@ -509,7 +506,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testMultiplePackageWithNoComponentError() throws Exception {
+    void testMultiplePackageWithNoComponentError() throws Exception {
         testTreeConstruction(
                 "@provide \"some.example.package\";\n" +
                         "@provide \"another.example.package\";\n",
@@ -517,12 +514,12 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testPrefixingRules() throws Exception {
+    void testPrefixingRules() throws Exception {
         testTreeConstruction(prefixingTestComponentInput, "[" + prefixingTestComponentOutput + "]");
     }
 
     @Test
-    public void testComponentDefsSourceCodeLocation() throws Exception {
+    void testComponentDefsSourceCodeLocation() throws Exception {
         CssTree tree = parseAndRun(ImmutableMap.of(
                 FILE1,
                 joinNl(ImmutableList.of(
@@ -562,7 +559,7 @@ public class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    public void testComponentCommentsAreRetained() throws Exception {
+    void testComponentCommentsAreRetained() throws Exception {
         CssTree tree =
                 parseAndRun(
                         ImmutableMap.of(

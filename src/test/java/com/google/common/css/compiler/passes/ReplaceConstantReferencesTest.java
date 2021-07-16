@@ -18,10 +18,10 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
@@ -34,8 +34,8 @@ import static org.mockito.Mockito.*;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(MockitoJUnitRunner.class)
-public class ReplaceConstantReferencesTest {
+@ExtendWith(MockitoExtension.class)
+class ReplaceConstantReferencesTest {
 
     @Mock
     MutatingVisitController mockVisitController;
@@ -53,7 +53,7 @@ public class ReplaceConstantReferencesTest {
     ArgumentCaptor<List<CssNode>> cssNodesCaptor;
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         when(mockTree.getMutatingVisitController()).thenReturn(mockVisitController);
 
         ReplaceConstantReferences pass =
@@ -69,7 +69,7 @@ public class ReplaceConstantReferencesTest {
     }
 
     @Test
-    public void testEnterDefinitionNode() {
+    void testEnterDefinitionNode() {
         when(mockTree.getMutatingVisitController()).thenReturn(mockVisitController);
 
         ReplaceConstantReferences pass =
@@ -87,7 +87,7 @@ public class ReplaceConstantReferencesTest {
     }
 
     @Test
-    public void testEnterValueNode() {
+    void testEnterValueNode() {
         CssDefinitionNode def = new CssDefinitionNode(new CssLiteralNode("COLOR"));
         def.getParameters().add(new CssLiteralNode("red"));
 
@@ -131,7 +131,7 @@ public class ReplaceConstantReferencesTest {
     // TODO(oana): Added a task in tracker for fixing these dependencies and
     // making the mocking of objects easier.
     @Test
-    public void testEnterArgumentNode() {
+    void testEnterArgumentNode() {
         CssDefinitionNode def = new CssDefinitionNode(new CssLiteralNode("COLOR"));
 
         when(mockTree.getMutatingVisitController()).thenReturn(mockVisitController);
@@ -155,7 +155,7 @@ public class ReplaceConstantReferencesTest {
     }
 
     @Test
-    public void testAllowUndefinedConstants() {
+    void testAllowUndefinedConstants() {
         when(mockRefNode.getValue()).thenReturn("Foo");
 
         ReplaceConstantReferences allowingPass =
@@ -172,7 +172,7 @@ public class ReplaceConstantReferencesTest {
     }
 
     @Test
-    public void testAllowUndefinedConstantsError() {
+    void testAllowUndefinedConstantsError() {
         when(mockRefNode.getValue()).thenReturn("Foo");
         when(mockRefNode.getSourceCodeLocation()).thenReturn(mockLoc);
 

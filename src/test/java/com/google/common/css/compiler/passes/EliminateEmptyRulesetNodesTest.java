@@ -17,24 +17,24 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Unit tests for {@link EliminateEmptyRulesetNodes}.
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(MockitoJUnitRunner.class)
-public class EliminateEmptyRulesetNodesTest {
+@ExtendWith(MockitoExtension.class)
+class EliminateEmptyRulesetNodesTest {
 
     @Mock
     MutatingVisitController mockVisitController;
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
         mockVisitController.startVisit(pass);
 
@@ -42,7 +42,7 @@ public class EliminateEmptyRulesetNodesTest {
     }
 
     @Test
-    public void testEnterRuleset1() {
+    void testEnterRuleset1() {
         EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
 
         CssRulesetNode node = new CssRulesetNode();
@@ -50,7 +50,7 @@ public class EliminateEmptyRulesetNodesTest {
     }
 
     @Test
-    public void testEnterRuleset2() {
+    void testEnterRuleset2() {
         EliminateEmptyRulesetNodes pass = new EliminateEmptyRulesetNodes(mockVisitController);
 
         CssRulesetNode node = new CssRulesetNode();

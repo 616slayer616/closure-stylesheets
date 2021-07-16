@@ -17,22 +17,19 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.FunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Functional tests for {@link HasConditionalNodes}.
  */
-@RunWith(JUnit4.class)
-public class HasConditionalNodesFunctionalTest extends FunctionalTestBase {
+class HasConditionalNodesFunctionalTest extends FunctionalTestBase {
 
     private boolean passResult;
 
     @Test
-    public void testSimpleTrue() {
+    void testSimpleTrue() {
         parseAndBuildTree(linesToString(
                 "@if COND {",
                 "  foo { top : expression('cond') }",
@@ -44,7 +41,7 @@ public class HasConditionalNodesFunctionalTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testComplexTrue() {
+    void testComplexTrue() {
         parseAndBuildTree(linesToString(
                 "@media print {",
                 "  @if COND1 {",
@@ -65,7 +62,7 @@ public class HasConditionalNodesFunctionalTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testSimpleFalse() {
+    void testSimpleFalse() {
         parseAndBuildTree(linesToString(
                 "@media print /* @noflip */{",
                 "  .CSS_RULE_1, .CSS_RULE_2:hover a {",

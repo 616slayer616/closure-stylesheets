@@ -17,15 +17,12 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link UnrollLoops}.
  */
-@RunWith(JUnit4.class)
-public class UnrollLoopsTest extends PassesTestBase {
+class UnrollLoopsTest extends PassesTestBase {
 
     @Override
     protected void runPass() {
@@ -36,7 +33,7 @@ public class UnrollLoopsTest extends PassesTestBase {
     }
 
     @Test
-    public void testSimpleLoopUnroll() throws Exception {
+    void testSimpleLoopUnroll() throws Exception {
         testTreeConstruction(linesToString(
                 "@for $i from 1 to 3 {",
                 "  .foo-$i {}",
@@ -45,7 +42,7 @@ public class UnrollLoopsTest extends PassesTestBase {
     }
 
     @Test
-    public void testNestedLoopUnroll() throws Exception {
+    void testNestedLoopUnroll() throws Exception {
         testTreeConstruction(linesToString(
                 "@for $i from 1 to 3 {",
                 "  @for $j from 1 to $i {",
@@ -56,7 +53,7 @@ public class UnrollLoopsTest extends PassesTestBase {
     }
 
     @Test
-    public void testDefinitionRenaming() throws Exception {
+    void testDefinitionRenaming() throws Exception {
         testTreeConstruction(linesToString(
                 "@for $i from 1 to 2 {",
                 "  @def FOO $i;",
@@ -69,14 +66,14 @@ public class UnrollLoopsTest extends PassesTestBase {
     }
 
     @Test
-    public void testUnevalutedConstants() throws Exception {
+    void testUnevalutedConstants() throws Exception {
         parseAndRun("@for $i from CONST to 2 {}", UnrollLoops.UNKNOWN_CONSTANT);
         parseAndRun("@for $i from 1 to CONST {}", UnrollLoops.UNKNOWN_CONSTANT);
         parseAndRun("@for $i from 1 to 2 step CONST {}", UnrollLoops.UNKNOWN_CONSTANT);
     }
 
     @Test
-    public void testUnevalutedVariable() throws Exception {
+    void testUnevalutedVariable() throws Exception {
         parseAndRun("@for $i from $j to 2 {}", UnrollLoops.UNKNOWN_VARIABLE);
         parseAndRun("@for $i from 1 to $j {}", UnrollLoops.UNKNOWN_VARIABLE);
         parseAndRun("@for $i from 1 to 2 step $j {}", UnrollLoops.UNKNOWN_VARIABLE);

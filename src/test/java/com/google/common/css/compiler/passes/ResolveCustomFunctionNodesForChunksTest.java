@@ -20,9 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.css.compiler.ast.CssDefinitionNode;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,8 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link ResolveCustomFunctionNodesForChunks}.
  */
-@RunWith(JUnit4.class)
-public class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFunctionNodesTest {
+class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFunctionNodesTest {
 
     private static final String TEST_CHUNK = "testChunk";
 
@@ -68,53 +65,53 @@ public class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFuncti
     }
 
     @Test
-    public void testCreateDef1() {
+    void testCreateDef1() {
         assertConstants(
                 "@def A 1; .A { width: plus(A, 2, px);}",
                 "plus(A,2,px)");
     }
 
     @Test
-    public void testCreateDef2() {
+    void testCreateDef2() {
         assertConstants(
                 "@def A 1; .A { width: plus(A, 1, px); height: plus(A, 2, px);}",
                 "plus(A,1,px)", "plus(A,2,px)");
     }
 
     @Test
-    public void testFunctionWithNoDefInFunction() {
+    void testFunctionWithNoDefInFunction() {
         assertConstants(
                 "@def A 1px; .A { width: plus(A, plus(0, 2px));}",
                 "plus(A,2px)");
     }
 
     @Test
-    public void testFunctionWithDefInFunction() {
+    void testFunctionWithDefInFunction() {
         assertConstants(
                 "@def A 1; .A { width: plus(A, plus(A, 2, \"\"), px);}",
                 "plus(A,2,\"\")", "plus(A,__F0,px)");
     }
 
     @Test
-    public void testAlreadyDef1() {
+    void testAlreadyDef1() {
         assertConstants("@def A 1; @def B plus(A,2,px);",
                 "plus(A,2,px)");
     }
 
     @Test
-    public void testAlreadyDef2() {
+    void testAlreadyDef2() {
         assertConstants("@def A 1; @def B plus(A, plus(A, 2, \"\"),px);",
                 "plus(A,2,\"\")", "plus(A,__F0,px)");
     }
 
     @Test
-    public void testAlreadyDef3() {
+    void testAlreadyDef3() {
         assertConstants("@def A 1; @def B plus(A,2,px) plus(A, 1, px);",
                 "plus(A,2,px)", "plus(A,1,px)");
     }
 
     @Test
-    public void testNoFunctions() {
+    void testNoFunctions() {
         assertConstants("@def A 1; .A { width: A }");
     }
 

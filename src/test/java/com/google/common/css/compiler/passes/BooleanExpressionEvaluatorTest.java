@@ -20,9 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.css.compiler.ast.CssBooleanExpressionNode;
 import com.google.common.css.compiler.ast.CssBooleanExpressionNode.Type;
 import com.google.common.css.testing.UtilityTestCase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,10 +30,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link BooleanExpressionEvaluator}.
  */
-@RunWith(JUnit4.class)
-public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
+class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     @Test
-    public void testOrWithTrueValues() {
+    void testOrWithTrueValues() {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.OR, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
@@ -51,7 +48,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testNotWithTrueValue() {
+    void testNotWithTrueValue() {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.NOT, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"), null, null);
 
@@ -66,7 +63,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testNotWithUnknown() {
+    void testNotWithUnknown() {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.NOT, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"), null, null);
 
@@ -82,7 +79,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testWithSimpleTrue() {
+    void testWithSimpleTrue() {
         CssBooleanExpressionNode input =
                 new CssBooleanExpressionNode(Type.CONSTANT, "TRUE");
 
@@ -97,7 +94,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testAndWithTrueValues() {
+    void testAndWithTrueValues() {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.AND, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
@@ -114,7 +111,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testAndWithOneUnknown() {
+    void testAndWithOneUnknown() {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.AND, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
@@ -131,7 +128,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testAndWithTwoUnknowns() {
+    void testAndWithTwoUnknowns() {
         CssBooleanExpressionNode input = new CssBooleanExpressionNode(Type.AND, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
@@ -148,7 +145,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testNested1() {
+    void testNested1() {
         CssBooleanExpressionNode side1 = new CssBooleanExpressionNode(Type.AND, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
@@ -170,7 +167,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testNested2() {
+    void testNested2() {
         CssBooleanExpressionNode side1 = new CssBooleanExpressionNode(Type.OR, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
@@ -192,7 +189,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testNested3() {
+    void testNested3() {
         CssBooleanExpressionNode side1 = new CssBooleanExpressionNode(Type.AND, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);
@@ -214,7 +211,7 @@ public class BooleanExpressionEvaluatorTest extends UtilityTestCase {
     }
 
     @Test
-    public void testNested4() {
+    void testNested4() {
         CssBooleanExpressionNode side1 = new CssBooleanExpressionNode(Type.OR, "",
                 new CssBooleanExpressionNode(Type.CONSTANT, "a"),
                 new CssBooleanExpressionNode(Type.CONSTANT, "b"), null);

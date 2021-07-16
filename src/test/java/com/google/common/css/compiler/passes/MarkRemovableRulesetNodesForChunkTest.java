@@ -22,9 +22,7 @@ import com.google.common.css.compiler.ast.CssSelectorNode;
 import com.google.common.css.compiler.ast.CssTree.RulesetNodesToRemove;
 import com.google.common.css.compiler.ast.DefaultTreeVisitor;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -33,11 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link MarkRemovableRulesetNodesForChunk}.
  */
-@RunWith(JUnit4.class)
-public class MarkRemovableRulesetNodesForChunkTest extends PassesTestBase {
+class MarkRemovableRulesetNodesForChunkTest extends PassesTestBase {
 
     @Test
-    public void testAllOneChunk() {
+    void testAllOneChunk() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -54,7 +51,7 @@ public class MarkRemovableRulesetNodesForChunkTest extends PassesTestBase {
     }
 
     @Test
-    public void testAllOneChunkButSkipping() {
+    void testAllOneChunkButSkipping() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -69,7 +66,7 @@ public class MarkRemovableRulesetNodesForChunkTest extends PassesTestBase {
     }
 
     @Test
-    public void testDiffChunkHit() {
+    void testDiffChunkHit() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",
@@ -84,7 +81,7 @@ public class MarkRemovableRulesetNodesForChunkTest extends PassesTestBase {
     }
 
     @Test
-    public void testSameChunkHit() {
+    void testSameChunkHit() {
         collectRemovableRulesetNodes(
                 linesToString(
                         ".CSS_RULE {",

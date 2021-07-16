@@ -18,9 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.css.compiler.ast.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.css.compiler.passes.UnsafeMergeRulesetNodes.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,14 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link UnsafeMergeRulesetNodes}.
  */
-@RunWith(JUnit4.class)
-public class UnsafeMergeRulesetNodesTest {
+class UnsafeMergeRulesetNodesTest {
 
     /**
      * Tests for {@link UnsafeMergeRulesetNodes#TO_STRING_COMPARATOR}.
      */
     @Test
-    public void testToStringComparator() {
+    void testToStringComparator() {
         assertThat(TO_STRING_COMPARATOR.compare(
                 new CssSelectorNode("a"), new CssSelectorNode("a"))).isEqualTo(0);
         assertThat(TO_STRING_COMPARATOR.compare(
@@ -46,7 +43,7 @@ public class UnsafeMergeRulesetNodesTest {
      * Tests for {@link UnsafeMergeRulesetNodes#TO_STRING_ITERABLE_COMPARATOR}.
      */
     @Test
-    public void testToStringIterableComparator() {
+    void testToStringIterableComparator() {
         assertThat(TO_STRING_ITERABLE_COMPARATOR.compare(
                 ImmutableList.of("a", "b"), ImmutableList.of("a", "b"))).isEqualTo(0);
         assertThat(TO_STRING_ITERABLE_COMPARATOR.compare(
@@ -59,7 +56,7 @@ public class UnsafeMergeRulesetNodesTest {
      * Tests for {@link UnsafeMergeRulesetNodes#DECLARATION_COMPARATOR}.
      */
     @Test
-    public void testDeclarationComparator() {
+    void testDeclarationComparator() {
         CssPropertyNode padding = new CssPropertyNode("padding");
         CssPropertyNode paddingLeft = new CssPropertyNode("padding-left");
         CssPropertyNode margin = new CssPropertyNode("margin");

@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,11 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author chrishenry@google.com (Chris Henry)
  */
-@RunWith(JUnit4.class)
-public class CssCompositeValueNodeTest {
+class CssCompositeValueNodeTest {
 
     @Test
-    public void testDeepCopy() throws Exception {
+    void testDeepCopy() throws Exception {
         CssCompositeValueNode node = new CssCompositeValueNode(
                 ImmutableList.<CssValueNode>of(
                         new CssLiteralNode("foo"), new CssLiteralNode("bar")),

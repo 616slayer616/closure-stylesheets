@@ -19,10 +19,8 @@ package com.google.common.css.compiler.passes;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
@@ -31,13 +29,12 @@ import java.util.Set;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class VerifyRecognizedPropertiesTest extends NewFunctionalTestBase {
+class VerifyRecognizedPropertiesTest extends NewFunctionalTestBase {
 
     private Set<String> allowedUnrecognizedProperties;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         allowedUnrecognizedProperties = ImmutableSet.of();
     }
 
@@ -49,19 +46,19 @@ public class VerifyRecognizedPropertiesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testAllValidProperties() throws GssParserException {
+    void testAllValidProperties() throws GssParserException {
         parseAndRun("div {color: blue; background-color: green; }");
     }
 
     @Test
-    public void testUnrecognizedProperties() throws GssParserException {
+    void testUnrecognizedProperties() throws GssParserException {
         parseAndRun("div {colour: blue; background-colour: green; }",
                 "colour is an unrecognized property",
                 "background-colour is an unrecognized property");
     }
 
     @Test
-    public void testAllowedUnrecognizedProperties() throws GssParserException {
+    void testAllowedUnrecognizedProperties() throws GssParserException {
         allowedUnrecognizedProperties = ImmutableSet.of("-webkit-new-fanciness");
         parseAndRun("div { -webkit-new-fanciness: red; }");
     }

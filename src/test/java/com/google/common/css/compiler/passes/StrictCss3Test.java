@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,8 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class StrictCss3Test extends NewFunctionalTestBase {
+class StrictCss3Test extends NewFunctionalTestBase {
     private String compactPrintedResult;
 
     @Override
@@ -41,121 +38,121 @@ public class StrictCss3Test extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testPseudoClass1() throws Exception {
+    void testPseudoClass1() throws Exception {
         parseAndRun("div :root {}");
         assertThat(compactPrintedResult).isEqualTo("div :root{}");
     }
 
     @Test
-    public void testPseudoClass2() throws Exception {
+    void testPseudoClass2() throws Exception {
         parseAndRun("div :last-child {}");
         assertThat(compactPrintedResult).isEqualTo("div :last-child{}");
     }
 
     @Test
-    public void testPseudoClass3() throws Exception {
+    void testPseudoClass3() throws Exception {
         parseAndRun("div :empty {}");
         assertThat(compactPrintedResult).isEqualTo("div :empty{}");
     }
 
     @Test
-    public void testPseudoClass4() throws Exception {
+    void testPseudoClass4() throws Exception {
         parseAndRun("div :checked {}");
         assertThat(compactPrintedResult).isEqualTo("div :checked{}");
     }
 
     @Test
-    public void testPseudoElement1() throws Exception {
+    void testPseudoElement1() throws Exception {
         parseAndRun("p ::first-line {}");
         assertThat(compactPrintedResult).isEqualTo("p ::first-line{}");
     }
 
     @Test
-    public void testPseudoElement2() throws Exception {
+    void testPseudoElement2() throws Exception {
         parseAndRun("h1 ::first-letter {}");
         assertThat(compactPrintedResult).isEqualTo("h1 ::first-letter{}");
     }
 
     @Test
-    public void testPseudoElement3() throws Exception {
+    void testPseudoElement3() throws Exception {
         parseAndRun("div ::after {}");
         assertThat(compactPrintedResult).isEqualTo("div ::after{}");
     }
 
     @Test
-    public void testPseudoElement4() throws Exception {
+    void testPseudoElement4() throws Exception {
         parseAndRun("div ::before {}");
         assertThat(compactPrintedResult).isEqualTo("div ::before{}");
     }
 
     @Test
-    public void testPseudoClassNth1() throws Exception {
+    void testPseudoClassNth1() throws Exception {
         parseAndRun("ul :nth-child(5n+3) {}");
         assertThat(compactPrintedResult).isEqualTo("ul :nth-child(5n+3){}");
     }
 
     @Test
-    public void testPseudoClassNth2() throws Exception {
+    void testPseudoClassNth2() throws Exception {
         parseAndRun("ol :nth-last-child(5) {}");
         assertThat(compactPrintedResult).isEqualTo("ol :nth-last-child(5){}");
     }
 
     @Test
-    public void testPseudoClassNth3() throws Exception {
+    void testPseudoClassNth3() throws Exception {
         parseAndRun("p :nth-of-type(odd) {}");
         assertThat(compactPrintedResult).isEqualTo("p :nth-of-type(odd){}");
     }
 
     @Test
-    public void testPseudoClassNth4() throws Exception {
+    void testPseudoClassNth4() throws Exception {
         parseAndRun("div :nth-last-of-type(-2n-3) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-last-of-type(-2n-3){}");
     }
 
     @Test
-    public void testPseudoClassBad1() throws Exception {
+    void testPseudoClassBad1() throws Exception {
         parseAndRun("div :none {}", false,
                 StrictCss3.UNSUPPORTED_PESUDO_CLASS_ERROR_MESSAGE);
     }
 
     @Test
-    public void testPseudoClassBad2() throws Exception {
+    void testPseudoClassBad2() throws Exception {
         parseAndRun("div :first-line {}", false,
                 StrictCss3.UNSUPPORTED_PESUDO_CLASS_ERROR_MESSAGE);
     }
 
     @Test
-    public void testPseudoClassBad3() throws Exception {
+    void testPseudoClassBad3() throws Exception {
         parseAndRun("div :after {}", false,
                 StrictCss3.UNSUPPORTED_PESUDO_CLASS_ERROR_MESSAGE);
     }
 
     @Test
-    public void testPseudoElementBad() throws Exception {
+    void testPseudoElementBad() throws Exception {
         parseAndRun("div ::none {}", false,
                 StrictCss3.UNSUPPORTED_PESUDO_ELEMENT_ERROR_MESSAGE);
     }
 
     @Test
-    public void testPseudoClassNthBad1() throws Exception {
+    void testPseudoClassNthBad1() throws Exception {
         parseAndRun("div :none(2n) {}", false,
                 StrictCss3.UNSUPPORTED_PESUDO_CLASS_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testPseudoClassNthBad2() throws Exception {
+    void testPseudoClassNthBad2() throws Exception {
         parseAndRun("div :bad(odd) {}", false,
                 StrictCss3.UNSUPPORTED_PESUDO_CLASS_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testPseudoClassNthBad3() throws Exception {
+    void testPseudoClassNthBad3() throws Exception {
         parseAndRun("div :nth-last-of-type {}", false,
                 StrictCss3.MISSING_FUNCTION_PESUDO_CLASS_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testValidLengthUnits() throws Exception {
+    void testValidLengthUnits() throws Exception {
         parseAndRun(
                 "a {" +
                         "  width: 0;" +
@@ -186,7 +183,7 @@ public class StrictCss3Test extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testInvalidLengthUnit() throws Exception {
+    void testInvalidLengthUnit() throws Exception {
         parseAndRun(
                 "a {" +
                         "  width: 1p;" +
@@ -196,7 +193,7 @@ public class StrictCss3Test extends NewFunctionalTestBase {
 
 
     @Test
-    public void testBorderValidation() throws Exception {
+    void testBorderValidation() throws Exception {
         parseAndRun(
                 "a {" +
                         "  border-width: 1px medium 4px;" +
@@ -204,7 +201,7 @@ public class StrictCss3Test extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testBorderValidation2() throws Exception {
+    void testBorderValidation2() throws Exception {
         parseAndRun(
                 "a {" +
                         "  border-width: 1px medium 4xx;" +
@@ -213,7 +210,7 @@ public class StrictCss3Test extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testBorderValidation3() throws Exception {
+    void testBorderValidation3() throws Exception {
         parseAndRun(
                 "a {" +
                         "  border-width: 1xx medium 4px;" +

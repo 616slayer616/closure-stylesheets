@@ -19,10 +19,8 @@ package com.google.common.css.compiler.ast;
 import com.google.common.collect.Iterables;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.testing.TestParser;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -33,14 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests that {@link com.google.common.css.SourceCodeLocation}s are created properly.
  */
-@RunWith(JUnit4.class)
-public class SourceCodeLocationTest {
+class SourceCodeLocationTest {
 
     private TestParser testParser = new TestParser();
 
     @Test
-    @Ignore // The parser does not handle @charset.
-    public void testCharset() throws Exception {
+    @Disabled
+        // The parser does not handle @charset.
+    void testCharset() throws Exception {
         CssTree tree = parse("@charset 'UTF-8';");
         CssAtRuleNode charsetRule = tree.getRoot().getCharsetRule();
         SourceCodeLocation location = charsetRule.getSourceCodeLocation();
@@ -50,8 +48,9 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    @Ignore // The parser does not handle @import.
-    public void testImport() throws Exception {
+    @Disabled
+        // The parser does not handle @import.
+    void testImport() throws Exception {
         CssTree tree = parse("@import ull('funky.css');");
         CssImportBlockNode importRules = tree.getRoot().getImportRules();
         CssImportRuleNode importRule = getOnlyElement(importRules.getChildren());
@@ -62,7 +61,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testSimpleRule() throws Exception {
+    void testSimpleRule() throws Exception {
         CssTree tree = parse(".foo {}");
         List<CssNode> rules = tree.getRoot().getBody().getChildren();
         CssRulesetNode rule = (CssRulesetNode) getOnlyElement(rules);
@@ -93,7 +92,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testTwoSimpleRules() throws Exception {
+    void testTwoSimpleRules() throws Exception {
         CssTree tree = parse(".foo {}\n.bar {}");
         List<CssNode> rules = tree.getRoot().getBody().getChildren();
         CssRulesetNode rule = (CssRulesetNode) rules.get(0);
@@ -114,7 +113,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testRuleWithDeclaration() throws Exception {
+    void testRuleWithDeclaration() throws Exception {
         CssTree tree = parse(".foo {\n  background-color: blue\n}");
         List<CssNode> rules = tree.getRoot().getBody().getChildren();
         CssRulesetNode rule = (CssRulesetNode) getOnlyElement(rules);
@@ -142,7 +141,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testRuleWithCustomDeclaration() throws Exception {
+    void testRuleWithCustomDeclaration() throws Exception {
         CssTree tree = parse(".foo {\n  --theme-color: BlanchedAlmond\n}");
         List<CssNode> rules = tree.getRoot().getBody().getChildren();
         CssRulesetNode rule = (CssRulesetNode) getOnlyElement(rules);
@@ -170,7 +169,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testRuleWithTwoDeclarations() throws Exception {
+    void testRuleWithTwoDeclarations() throws Exception {
         CssTree tree = parse(".foo {\n  background-color: blue;\n  text-color: red\n}");
         List<CssNode> rules = tree.getRoot().getBody().getChildren();
         CssRulesetNode rule = (CssRulesetNode) getOnlyElement(rules);
@@ -211,7 +210,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testRuleWithFontDeclaration() throws Exception {
+    void testRuleWithFontDeclaration() throws Exception {
         CssTree tree = parse(".foo {\n  font: 12pt Times New Roman, serif;\n}");
         List<CssNode> rules = tree.getRoot().getBody().getChildren();
         CssRulesetNode rule = (CssRulesetNode) getOnlyElement(rules);

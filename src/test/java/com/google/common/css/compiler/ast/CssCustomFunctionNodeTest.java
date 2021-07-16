@@ -18,9 +18,7 @@ package com.google.common.css.compiler.ast;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.css.compiler.ast.CssStringNode.Type;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -29,14 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Test for {@link CssCustomFunctionNode}.
  */
-@RunWith(JUnit4.class)
-public class CssCustomFunctionNodeTest {
+class CssCustomFunctionNodeTest {
 
     private static final CssValueNode SPACE = new CssLiteralNode(" ");
     private static final CssValueNode COMMA = new CssLiteralNode(",");
 
     @Test
-    public void fixupFunctionArgumentsDoesNotModifyLiteralNodes_b35587881() throws Exception {
+    void fixupFunctionArgumentsDoesNotModifyLiteralNodes_b35587881() throws Exception {
         CssValueNode x = new CssLiteralNode("x");
         CssValueNode y = new CssLiteralNode("y");
         ImmutableList<CssValueNode> parameters = ImmutableList.of(x, SPACE, y);
@@ -49,7 +46,7 @@ public class CssCustomFunctionNodeTest {
     }
 
     @Test
-    public void stringsAsFunctionArgumentsAreNotHideouslyBroken() throws Exception {
+    void stringsAsFunctionArgumentsAreNotHideouslyBroken() throws Exception {
         CssValueNode x = new CssLiteralNode("x");
         CssValueNode y = new CssStringNode(Type.DOUBLE_QUOTED_STRING, "double quotes!");
         CssValueNode z = new CssStringNode(Type.SINGLE_QUOTED_STRING, "single quotes!");

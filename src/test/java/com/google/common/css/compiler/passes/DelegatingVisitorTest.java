@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.css.compiler.ast.CssSelectorNode;
 import com.google.common.css.compiler.ast.CssTreeVisitor;
 import com.google.common.css.compiler.ast.DefaultTreeVisitor;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests {@link DelegatingVisitor}
  */
-@RunWith(JUnit4.class)
-public class DelegatingVisitorTest {
+class DelegatingVisitorTest {
 
     @Test
-    public void testInvocationOrder() throws Exception {
+    void testInvocationOrder() throws Exception {
         List<String> orderRecord = new ArrayList<>();
         DefaultTreeVisitor visitor1 = new RecordingVisitor("visitor1", orderRecord);
         DefaultTreeVisitor visitor2 = new RecordingVisitor("visitor2", orderRecord);

@@ -16,9 +16,7 @@
 
 package com.google.common.css.compiler.ast;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,11 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class CssNodeTest {
+class CssNodeTest {
 
     @Test
-    public void testNodeCreation() {
+    void testNodeCreation() {
         CssLiteralNode node = new CssLiteralNode("");
 
         assertThat(node.getParent()).isNull();
@@ -39,7 +36,7 @@ public class CssNodeTest {
     }
 
     @Test
-    public void testBecomeParent() {
+    void testBecomeParent() {
         CssPropertyValueNode parentNode = new CssPropertyValueNode();
         CssLiteralNode childNode = new CssLiteralNode("");
         parentNode.becomeParentForNode(childNode);
@@ -48,7 +45,7 @@ public class CssNodeTest {
     }
 
     @Test
-    public void testDeleteAsParent() {
+    void testDeleteAsParent() {
         CssPropertyValueNode parentNode = new CssPropertyValueNode();
         CssLiteralNode childNode = new CssLiteralNode("");
         parentNode.becomeParentForNode(childNode);

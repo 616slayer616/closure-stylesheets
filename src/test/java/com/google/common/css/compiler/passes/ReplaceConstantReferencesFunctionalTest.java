@@ -17,20 +17,17 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Functional tests for {@link ReplaceConstantReferences}.
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
+class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
 
     @Test
-    public void testReplaceConstants1() {
+    void testReplaceConstants1() {
         testTreeConstruction(linesToString(
                 "@def A red;",
                 "@def B 3px;",
@@ -43,7 +40,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testReplaceConstants2() {
+    void testReplaceConstants2() {
         testTreeConstruction(linesToString(
                 "@def A red;",
                 "@def B A;",
@@ -57,7 +54,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testReplaceConstants3() {
+    void testReplaceConstants3() {
         testTreeConstruction(linesToString(
                 "@def COLOR #ccc;",
                 "@def BG_COLOR #fff;",
@@ -73,7 +70,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testReplaceConstants4() {
+    void testReplaceConstants4() {
         testTreeConstruction(linesToString(
                 "@def IE6 0;",
                 "@def HEIGHT 1px;",
@@ -90,7 +87,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testReplaceConstants5() {
+    void testReplaceConstants5() {
         testTreeConstruction(linesToString(
                 "@def EXT_COLOR red;",
                 "@def COLOR blendColors(EXT_COLOR);",
@@ -104,7 +101,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testWebkitGradient() {
+    void testWebkitGradient() {
         testTreeConstruction(linesToString(
                 "@def A #fff;",
                 "@def B #ddd;",
@@ -118,7 +115,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testCompositeValueNodeReplacement() {
+    void testCompositeValueNodeReplacement() {
         testTreeConstruction(linesToString(
                 "@def DARK_DIVIDER_LEFT -1px 0 1px rgba(5,4,4,.3);",
                 "@def DARK_DIVIDER_RIGHT 1px 0 1px rgba(73,71,71,.3);",
@@ -132,7 +129,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testVariableInFunctionInComposite() throws Exception {
+    void testVariableInFunctionInComposite() throws Exception {
         testTreeConstruction(linesToString(
                 "@def BG_COLOR beige;",
                 "",
@@ -148,7 +145,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testCompositeValueNodeWithFunctions() {
+    void testCompositeValueNodeWithFunctions() {
         testTreeConstruction(linesToString(
                 "@def DEF_A top, red 30%, rgba(0, 0, 0, 0);",
                 "@def DEF_B top, rgba(0, 0, 0, 0), red 30%;",
@@ -161,7 +158,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testFontReplacement() throws Exception {
+    void testFontReplacement() throws Exception {
         testTreeConstruction(linesToString(
                 "@def BASE_TINY_FONT_FACE verdana, arial, \"Courrier New\", sans-serif;",
                 "@def BASE_TINY_FONT_SIZE 19px;",
@@ -173,7 +170,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testMediaQueryReplacement1() throws Exception {
+    void testMediaQueryReplacement1() throws Exception {
         testTreeConstruction(linesToString(
                 "@def QUERY screen and (min-resolution:96dpi);",
                 "@media QUERY {",
@@ -185,7 +182,7 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testMediaQueryReplacement2() throws Exception {
+    void testMediaQueryReplacement2() throws Exception {
         testTreeConstruction(linesToString(
                 "@def QUERY (min-resolution:96dpi);",
                 "@media screen and QUERY {",
@@ -197,20 +194,20 @@ public class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    public void testCalcReplacement() {
+    void testCalcReplacement() {
         testTreeConstruction(
                 "@def A 5px; .elem { width: calc(A * 2) }", "[[.elem]{[width:[calc([[[5px]]*[2]])];]}]");
     }
 
     @Test
-    public void testCalcReplacement_Complex1() {
+    void testCalcReplacement_Complex1() {
         testTreeConstruction(
                 "@def A 5px; .elem { width: calc((A * (A + 5) - A) / 2) }",
                 "[[.elem]{[width:[calc([[([([[5px]]*[([[5px]] + [5])])] - [[5px]])]/[2]])];]}]");
     }
 
     @Test
-    public void testCalcReplacement_Complex2() {
+    void testCalcReplacement_Complex2() {
         testTreeConstruction(
                 "@def A 5px;"
                         + "@def C calc(2 + A + 10px);"

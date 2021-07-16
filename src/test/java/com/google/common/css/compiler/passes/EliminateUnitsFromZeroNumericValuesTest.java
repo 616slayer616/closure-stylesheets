@@ -18,10 +18,10 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.CssNumericNode;
 import com.google.common.css.compiler.ast.MutatingVisitController;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,14 +30,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(MockitoJUnitRunner.class)
-public class EliminateUnitsFromZeroNumericValuesTest {
+@ExtendWith(MockitoExtension.class)
+class EliminateUnitsFromZeroNumericValuesTest {
 
     @Mock
     MutatingVisitController mockVisitController;
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
         mockVisitController.startVisit(pass);
@@ -46,7 +46,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode1() {
+    void testEnterValueNode1() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -57,7 +57,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode2() {
+    void testEnterValueNode2() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -68,7 +68,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode3() {
+    void testEnterValueNode3() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -79,7 +79,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode4() {
+    void testEnterValueNode4() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -90,7 +90,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode5() {
+    void testEnterValueNode5() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -101,7 +101,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode6() {
+    void testEnterValueNode6() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -112,7 +112,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode7() {
+    void testEnterValueNode7() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -123,7 +123,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode8() {
+    void testEnterValueNode8() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
@@ -134,7 +134,7 @@ public class EliminateUnitsFromZeroNumericValuesTest {
     }
 
     @Test
-    public void testEnterValueNode9() {
+    void testEnterValueNode9() {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 

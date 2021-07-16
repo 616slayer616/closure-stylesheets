@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -32,11 +30,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author dgajda@google.com (Damian Gajda)
  */
-@RunWith(JUnit4.class)
-public class StringCharStreamTest {
+class StringCharStreamTest {
 
     @Test
-    public void testLocation() throws Exception {
+    void testLocation() throws Exception {
         StringCharStream s = new StringCharStream(
                 "01234\n" +
                         "6789\n" +
@@ -63,7 +60,7 @@ public class StringCharStreamTest {
     }
 
     @Test
-    public void testBackup() throws Exception {
+    void testBackup() throws Exception {
         StringCharStream s = new StringCharStream(
                 "01234\n" +
                         "6789\n" +
@@ -111,7 +108,7 @@ public class StringCharStreamTest {
     }
 
     @Test
-    public void testConvertCharacterIndex() throws Exception {
+    void testConvertCharacterIndex() throws Exception {
         StringCharStream s = new StringCharStream(
                 "01234\n" +
                         "6789\n" +
@@ -133,7 +130,7 @@ public class StringCharStreamTest {
     }
 
     @Test
-    public void testGetImageAndGetSuffix() throws Exception {
+    void testGetImageAndGetSuffix() throws Exception {
         StringCharStream s = new StringCharStream(
                 "01234\n" +
                         "6789\n" +

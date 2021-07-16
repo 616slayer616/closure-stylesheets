@@ -18,17 +18,14 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.CssKeyNode;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class ProcessKeyframesTest extends NewFunctionalTestBase {
+class ProcessKeyframesTest extends NewFunctionalTestBase {
     private static final String TEST_CODE_FROM_TO = linesToString(
             "@-webkit-keyframes bounce {",
             "from { left: 0px; }",
@@ -119,7 +116,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testFromTo() throws Exception {
+    void testFromTo() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_CODE_FROM_TO);
@@ -128,7 +125,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMozFromTo() throws Exception {
+    void testMozFromTo() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_MOZ_CODE_FROM_TO);
@@ -138,7 +135,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
 
 
     @Test
-    public void testDeactivated() throws Exception {
+    void testDeactivated() throws Exception {
         keyframesAllowed = false;
         simplifyCss = false;
         parseAndRun(TEST_CODE_FROM_TO,
@@ -148,7 +145,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testFromToSimplified() throws Exception {
+    void testFromToSimplified() throws Exception {
         keyframesAllowed = true;
         simplifyCss = true;
         parseAndRun(TEST_CODE_FROM_TO);
@@ -157,7 +154,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testFromToBad1() throws Exception {
+    void testFromToBad1() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_CODE_FROM_TO_BAD_1,
@@ -165,7 +162,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testFromToBad2() throws Exception {
+    void testFromToBad2() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_CODE_FROM_TO_BAD_2,
@@ -173,7 +170,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testFromToBad3() throws Exception {
+    void testFromToBad3() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_CODE_FROM_TO_BAD_3,
@@ -181,7 +178,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testFromToBad4() throws Exception {
+    void testFromToBad4() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_CODE_FROM_TO_BAD_4,
@@ -189,7 +186,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testPercentage1() throws Exception {
+    void testPercentage1() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_CODE_PERCENTAGE_1);
@@ -197,7 +194,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testPercentage2() throws Exception {
+    void testPercentage2() throws Exception {
         keyframesAllowed = true;
         simplifyCss = false;
         parseAndRun(TEST_CODE_PERCENTAGE_2);
@@ -206,7 +203,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testPercentageSimplified1() throws Exception {
+    void testPercentageSimplified1() throws Exception {
         keyframesAllowed = true;
         simplifyCss = true;
         parseAndRun(TEST_CODE_PERCENTAGE_1);
@@ -214,7 +211,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testPercentageSimplified2() throws Exception {
+    void testPercentageSimplified2() throws Exception {
         keyframesAllowed = true;
         simplifyCss = true;
         parseAndRun(TEST_CODE_PERCENTAGE_3);
@@ -222,7 +219,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testPercentageBad1() throws Exception {
+    void testPercentageBad1() throws Exception {
         keyframesAllowed = true;
         simplifyCss = true;
         parseAndRun(TEST_CODE_PERCENTAGE_BAD_1,
@@ -230,7 +227,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testPercentageBad2() throws Exception {
+    void testPercentageBad2() throws Exception {
         keyframesAllowed = true;
         simplifyCss = true;
         parseAndRun(TEST_CODE_PERCENTAGE_BAD_2,
@@ -238,7 +235,7 @@ public class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCompactRepresentation() throws Exception {
+    void testCompactRepresentation() throws Exception {
         runCompactRepresentation("to", "to");
         runCompactRepresentation("to", "100%");
         runCompactRepresentation("to", "100.00000%");

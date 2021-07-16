@@ -22,9 +22,7 @@ import com.google.common.css.compiler.ast.CssDefinitionNode;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.GssParser;
 import com.google.common.css.compiler.ast.GssParserException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,11 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class CollectConstantDefinitionsTest {
+class CollectConstantDefinitionsTest {
 
     @Test
-    public void testCollect1() {
+    void testCollect1() {
         final ConstantDefinitions definitions =
                 collectConstantDefinitions(
                         lines("@def COLOR red;",
@@ -62,7 +59,7 @@ public class CollectConstantDefinitionsTest {
     }
 
     @Test
-    public void testCollect2() {
+    void testCollect2() {
         final ConstantDefinitions definitions =
                 collectConstantDefinitions(
                         lines("@def COLOR red;",

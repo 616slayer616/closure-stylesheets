@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.css.compiler.ast.CssFunctionNode.Function;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,14 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class CssFunctionNodeTest {
+class CssFunctionNodeTest {
 
     private static final CssFunctionNode.Function RGB =
             CssFunctionNode.Function.byName("rgb");
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         CssFunctionNode function = new CssFunctionNode((Function) null, null);
         assertThat(function.getFunction()).isNull();
         assertThat(function.getSourceCodeLocation()).isNull();
@@ -44,7 +41,7 @@ public class CssFunctionNodeTest {
     }
 
     @Test
-    public void testFunctionName() {
+    void testFunctionName() {
         CssFunctionNode function = new CssFunctionNode(RGB, null);
         assertThat(function.getFunction()).isNotNull();
         assertThat(function.getFunction()).isEqualTo(RGB);
@@ -55,7 +52,7 @@ public class CssFunctionNodeTest {
     }
 
     @Test
-    public void testFunctionArguments() {
+    void testFunctionArguments() {
         CssFunctionNode function = new CssFunctionNode(RGB, null);
         CssFunctionArgumentsNode args = new CssFunctionArgumentsNode();
         args.addChildToBack(new CssLiteralNode("test"));

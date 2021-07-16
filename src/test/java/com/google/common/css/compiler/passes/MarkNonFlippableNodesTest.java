@@ -18,9 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,11 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author oana@google.com (Oana Florescu)
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class MarkNonFlippableNodesTest extends PassesTestBase {
+class MarkNonFlippableNodesTest extends PassesTestBase {
 
     @Test
-    public void testMisplacedAnnotation() throws GssParserException {
+    void testMisplacedAnnotation() throws GssParserException {
         parseAndRun(linesToString(
                 ".CLASSX,",
                 "/* @noflip */ .CLASSY {",
@@ -44,7 +41,7 @@ public class MarkNonFlippableNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkNonFlippableSingelDeclaration() {
+    void testMarkNonFlippableSingelDeclaration() {
         parseAndBuildTree(linesToString(
                 ".CLASSX {",
                 "  /* @noflip */ left: 10px;",
@@ -66,7 +63,7 @@ public class MarkNonFlippableNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkNonFlippableRuleset() {
+    void testMarkNonFlippableRuleset() {
         parseAndBuildTree(linesToString(
                 "/* @noflip */ .CLASSX {",
                 "  left: 10px;",
@@ -87,7 +84,7 @@ public class MarkNonFlippableNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkNonFlippableConditional() {
+    void testMarkNonFlippableConditional() {
         parseAndBuildTree(linesToString(
                 "/* @noflip */ @if COND {",
                 "  foo { top : expression('cond') }",
@@ -120,7 +117,7 @@ public class MarkNonFlippableNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkNonFlippableInConditional() {
+    void testMarkNonFlippableInConditional() {
         parseAndBuildTree(linesToString(
                 "@if COND {",
                 "  /* @noflip */foo { top : expression('cond') }",
@@ -180,7 +177,7 @@ public class MarkNonFlippableNodesTest extends PassesTestBase {
     }
 
     @Test
-    public void testMarkNonFlippableMedia() {
+    void testMarkNonFlippableMedia() {
         parseAndBuildTree(linesToString(
                 "@media print /* @noflip */{",
                 "  .CSS_RULE_1, .CSS_RULE_2:hover a {",

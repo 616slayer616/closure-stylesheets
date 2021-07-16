@@ -22,10 +22,8 @@ import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -40,8 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author dgajda@google.com (Damian Gajda)
  */
-@RunWith(JUnit4.class)
-public class MapChunkAwareNodesToChunkTest {
+class MapChunkAwareNodesToChunkTest {
 
     protected static final String F2 = "b";
     protected static final String F1 = "a";
@@ -82,8 +79,8 @@ public class MapChunkAwareNodesToChunkTest {
 
     protected CssKeyframesNode keyframes3b;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         pass = getPass(FILE_TO_CHUNK);
 
         List<CssValueNode> parameters = ImmutableList.of();
@@ -142,7 +139,7 @@ public class MapChunkAwareNodesToChunkTest {
     }
 
     @Test
-    public void testMapToChunk() {
+    void testMapToChunk() {
         setupEnterSelector();
         setupEnterDefinition();
         setupEnterFunctionNode();
@@ -160,7 +157,7 @@ public class MapChunkAwareNodesToChunkTest {
     }
 
     @Test
-    public void testMissingFileToChunkMapping() {
+    void testMissingFileToChunkMapping() {
         Map<String, String> badFileToChunk =
                 ImmutableMap.<String, String>builder()
                         .put(F1, CA)

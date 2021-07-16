@@ -18,9 +18,7 @@ package com.google.common.css;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static com.google.common.css.compiler.ast.testing.SourceCodeLocationSubject.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,10 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link SourceCodeLocation} and {@link SourceCodeLocation.SourceCodePoint}.
  */
-@RunWith(JUnit4.class)
-public class SourceCodeLocationTest {
+class SourceCodeLocationTest {
     @Test
-    public void testCreation() {
+    void testCreation() {
         String testSource = "abc\ndefg";
         SourceCodeLocation l = new SourceCodeLocation(
                 new SourceCode("testfile", testSource),
@@ -51,7 +48,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testBadCreation1() {
+    void testBadCreation1() {
         SourceCode sourceCode = new SourceCode("testfile", "abc\ndefg");
         try {
             new SourceCodeLocation(sourceCode, 7, 2, 4, 2, 1, 3);
@@ -63,7 +60,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testComparisonOfEqualLocations1() {
+    void testComparisonOfEqualLocations1() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 =
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
@@ -81,7 +78,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testComparisonOfEqualLocations2() {
+    void testComparisonOfEqualLocations2() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 =
                 new SourceCodeLocation(sourceCode, -1, 0, 0, -1, 0, 0);
@@ -99,7 +96,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testComparisonOfEqualLocations3() {
+    void testComparisonOfEqualLocations3() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 =
                 new SourceCodeLocation(sourceCode, -1, 0, 0, -1, 0, 0);
@@ -112,7 +109,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testComparisonOfEqualLocations4() {
+    void testComparisonOfEqualLocations4() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 =
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
@@ -125,7 +122,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testComparisonOfEqualLocations5() {
+    void testComparisonOfEqualLocations5() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 =
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
@@ -138,7 +135,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testComparisonOfEqualLocations6() {
+    void testComparisonOfEqualLocations6() {
         SourceCode sourceCode1 = new SourceCode("testfile1", "abcdef");
         SourceCodeLocation loc1 =
                 new SourceCodeLocation(sourceCode1, 0, 1, 1, 2, 1, 3);
@@ -150,7 +147,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testMergeTwo_sameFileInOrder() {
+    void testMergeTwo_sameFileInOrder() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 = new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 = new SourceCodeLocation(sourceCode, 1, 1, 2, 2, 1, 3);
@@ -161,7 +158,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testMergeTwo_sameFileInWrongOrder() {
+    void testMergeTwo_sameFileInWrongOrder() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 = new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 = new SourceCodeLocation(sourceCode, 1, 1, 2, 2, 1, 3);
@@ -174,7 +171,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testMergeTwo_differentFiles() {
+    void testMergeTwo_differentFiles() {
         SourceCode sourceCode1 = new SourceCode("testfile1", "abcdef");
         SourceCode sourceCode2 = new SourceCode("testfile2", "abcdef");
         SourceCodeLocation loc1 = new SourceCodeLocation(sourceCode1, 0, 1, 1, 2, 1, 3);
@@ -188,7 +185,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testMergeIterable_sameFileInOrderTwo() {
+    void testMergeIterable_sameFileInOrderTwo() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 = new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 = new SourceCodeLocation(sourceCode, 1, 1, 2, 2, 1, 3);
@@ -199,7 +196,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testMergeIterable_sameFileInOrderThree() {
+    void testMergeIterable_sameFileInOrderThree() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 = new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 = new SourceCodeLocation(sourceCode, 1, 1, 2, 2, 1, 3);
@@ -214,7 +211,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testMergeIterable_sameFileOutOfOrderThree() {
+    void testMergeIterable_sameFileOutOfOrderThree() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 = new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 = new SourceCodeLocation(sourceCode, 1, 1, 2, 2, 1, 3);
@@ -229,7 +226,7 @@ public class SourceCodeLocationTest {
     }
 
     @Test
-    public void testMergeIterable_sameFileReverseOrderThree() {
+    void testMergeIterable_sameFileReverseOrderThree() {
         SourceCode sourceCode = new SourceCode("testfile", "abcdef");
         SourceCodeLocation loc1 = new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 = new SourceCodeLocation(sourceCode, 1, 1, 2, 2, 1, 3);

@@ -19,9 +19,7 @@ package com.google.common.css.compiler.ast;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -30,13 +28,12 @@ import java.util.List;
  *
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class CssAbstractBlockNodeTest {
+class CssAbstractBlockNodeTest {
     private ImmutableList<Class<? extends CssNode>> validSuperclasses =
             ImmutableList.<Class<? extends CssNode>>of(CssValueNode.class);
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         List<CssNode> children = Lists.newArrayList();
         children.add(new CssLiteralNode("a"));
         children.add(new CssNumericNode("20", "px"));
@@ -48,7 +45,7 @@ public class CssAbstractBlockNodeTest {
     }
 
     @Test
-    public void testDeepCopy() {
+    void testDeepCopy() {
         List<CssNode> children = Lists.newArrayList();
         children.add(new CssLiteralNode("a"));
         children.add(new CssNumericNode("20", "px"));
@@ -61,7 +58,7 @@ public class CssAbstractBlockNodeTest {
     }
 
     @Test
-    public void testAddChild() {
+    void testAddChild() {
         TestBlock testBlock = new TestBlock(validSuperclasses);
         try {
             testBlock.addChildToBack(new CssLiteralNode("a"));
@@ -71,7 +68,7 @@ public class CssAbstractBlockNodeTest {
     }
 
     @Test
-    public void testAddChildren() {
+    void testAddChildren() {
         TestBlock testBlock = new TestBlock(validSuperclasses);
         List<CssNode> children = Lists.newArrayList();
         children.add(new CssLiteralNode("a"));
@@ -84,7 +81,7 @@ public class CssAbstractBlockNodeTest {
     }
 
     @Test
-    public void testAddChildError() {
+    void testAddChildError() {
         TestBlock testBlock = new TestBlock(validSuperclasses);
         try {
             testBlock.addChildToBack(new CssBlockNode());
@@ -95,7 +92,7 @@ public class CssAbstractBlockNodeTest {
     }
 
     @Test
-    public void testAddChildrenError() {
+    void testAddChildrenError() {
         TestBlock testBlock = new TestBlock(validSuperclasses);
         List<CssNode> children = Lists.newArrayList();
         children.add(new CssLiteralNode("a"));

@@ -18,9 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.passes.testing.AstPrinter;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
@@ -31,8 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author roozbeh@google.com (Roozbeh Pournader)
  */
-@RunWith(JUnit4.class)
-public class BiDiFlipperFunctionalTest extends PassesTestBase {
+class BiDiFlipperFunctionalTest extends PassesTestBase {
     /**
      * Tests that
      * border-left : green
@@ -40,7 +37,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-right : green
      */
     @Test
-    public void test1() {
+    void test1() {
         testTreeConstruction(
                 "foo { border-left: green; }",
                 "[[foo]{[border-right:[[green]];]}]");
@@ -53,7 +50,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * padding : 0px 5px 1px 3px
      */
     @Test
-    public void test2() {
+    void test2() {
         testTreeConstruction(
                 "foo { padding: 0px 3px 1px 5px; }",
                 "[[foo]{[padding:[[0px][5px][1px][3px]];]}]");
@@ -66,7 +63,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * padding : 0px 3px 1px
      */
     @Test
-    public void test3() {
+    void test3() {
         testTreeConstruction(
                 "foo { padding: 0px 3px 1px; }",
                 "[[foo]{[padding:[[0px][3px][1px]];]}]");
@@ -79,7 +76,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background : 90% 3px red
      */
     @Test
-    public void test4() {
+    void test4() {
         testTreeConstruction(
                 "foo { background: 10% 3px red; }",
                 "[[foo]{[background:[[90%][3px][red]];]}]");
@@ -92,7 +89,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background : 94.56479% 3px red
      */
     @Test
-    public void test4_withDecimals() {
+    void test4_withDecimals() {
         testTreeConstruction(
                 "foo { background: 5.43521% 3px red; }",
                 "[[foo]{[background:[[94.56479%][3px][red]];]}]");
@@ -106,7 +103,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      */
 
     @Test
-    public void test4_withDecimalsInOtherLocale() {
+    void test4_withDecimalsInOtherLocale() {
         Locale.setDefault(Locale.FRANCE);
         try {
             testTreeConstruction(
@@ -124,7 +121,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background-position-x : 90%; padding-left: 2px
      */
     @Test
-    public void test5() {
+    void test5() {
         testTreeConstruction(
                 "foo { background-position-x: 10%; padding-right: 2px; }",
                 "[[foo]{[background-position-x:[[90%]];padding-left:[[2px]];]}]");
@@ -137,7 +134,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background : url(/foo/ltr/background.png)
      */
     @Test
-    public void test6() {
+    void test6() {
         testTreeConstruction(
                 "foo { background: url(/foo/rtl/background.png); }",
                 "[[foo]{[background:[url(/foo/ltr/background.png)];]}]");
@@ -150,7 +147,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background : url('/foo/rtl/background.png')
      */
     @Test
-    public void test7() {
+    void test7() {
         testTreeConstruction(
                 "foo { background: url(/foo/ltr/background.png); }",
                 "[[foo]{[background:[url(/foo/rtl/background.png)];]}]");
@@ -163,7 +160,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background : url('/foo/background-right.png')
      */
     @Test
-    public void test8() {
+    void test8() {
         testTreeConstruction(
                 "foo { background: url(/foo/background-left.png); }",
                 "[[foo]{[background:[url(/foo/background-right.png)];]}]");
@@ -176,7 +173,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background : url(/foo/background-left.png)
      */
     @Test
-    public void test9() {
+    void test9() {
         testTreeConstruction(
                 "foo { background: url(/foo/background-right.png); }",
                 "[[foo]{[background:[url(/foo/background-left.png)];]}]");
@@ -189,7 +186,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background : url(/foo/background.png)
      */
     @Test
-    public void test10() {
+    void test10() {
         testTreeConstruction(
                 "foo { background: url('/foo/background.png'); }",
                 "[[foo]{[background:[url('/foo/background.png')];]}]");
@@ -203,7 +200,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * inside a conditional block.
      */
     @Test
-    public void test11() {
+    void test11() {
         testTreeConstruction(
                 "@if COND1 {"
                         + "  foo {"
@@ -229,7 +226,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * inside a slightly complex conditional block.
      */
     @Test
-    public void test12() {
+    void test12() {
         testTreeConstruction(
                 "@if COND1 {"
                         + "  foo {"
@@ -261,7 +258,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * inside a media rule.
      */
     @Test
-    public void test13() {
+    void test13() {
         testTreeConstruction(
                 "@media print {"
                         + "  @if COND1 {"
@@ -281,7 +278,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * Test to make sure that percentage value in 'font' node is not flipped.
      */
     @Test
-    public void test14() {
+    void test14() {
         testTreeConstruction(
                 "foo { font: 100%/1.3em Verdana, Sans-serif; }",
                 "[[foo]{[font:[[[100%]/[1.3em]][[Verdana],[Sans-serif]]];]}]");
@@ -292,7 +289,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * process of flipping.
      */
     @Test
-    public void test15() {
+    void test15() {
         testTreeConstruction(
                 "foo { *height: 13px }",
                 "[[foo]{[*height:[[13px]];]}]");
@@ -305,7 +302,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * float : right
      */
     @Test
-    public void test16() {
+    void test16() {
         testTreeConstruction(
                 "foo { float: left }",
                 "[[foo]{[float:[[right]];]}]");
@@ -318,7 +315,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * right : 5px
      */
     @Test
-    public void test17() {
+    void test17() {
         testTreeConstruction(
                 "foo { left: 5px }",
                 "[[foo]{[right:[[5px]];]}]");
@@ -331,7 +328,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * cursor : w-resize
      */
     @Test
-    public void test18() {
+    void test18() {
         testTreeConstruction(
                 "foo { cursor: e-resize }",
                 "[[foo]{[cursor:[[w-resize]];]}]");
@@ -344,7 +341,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-top-right-radius : 3px
      */
     @Test
-    public void test19() {
+    void test19() {
         testTreeConstruction(
                 "foo { border-top-left-radius: 3px }",
                 "[[foo]{[border-top-right-radius:[[3px]];]}]");
@@ -357,7 +354,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * -moz-border-radius-topright : 3px
      */
     @Test
-    public void test20() {
+    void test20() {
         testTreeConstruction(
                 "foo { -moz-border-radius-topleft: 3px }",
                 "[[foo]{[-moz-border-radius-topright:[[3px]];]}]");
@@ -367,7 +364,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * Tests that @defs get expanded and flipped correctly.
      */
     @Test
-    public void test21() {
+    void test21() {
         parseAndBuildTree(
                 "@def RTL rtl;"
                         + "@def WHOLE_PADDING 1px 2px 3px 4px;"
@@ -405,7 +402,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-color: #fff transparent #ccc #aaa
      */
     @Test
-    public void test22() {
+    void test22() {
         testTreeConstruction(
                 "foo { border-color: #fff #aaa #ccc transparent; }",
                 "[[foo]{[border-color:[[#fff][transparent][#ccc][#aaa]];]}]");
@@ -418,7 +415,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * -ms-background-position-x : 90%
      */
     @Test
-    public void test23() {
+    void test23() {
         testTreeConstruction(
                 "foo { -ms-background-position-x: 10%; }",
                 "[[foo]{[-ms-background-position-x:[[90%]];]}]");
@@ -430,7 +427,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test24() {
+    void test24() {
         testTreeConstruction(
                 "foo { background-position-y: 10%; }",
                 "[[foo]{[background-position-y:[[10%]];]}]");
@@ -442,7 +439,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test25() {
+    void test25() {
         testTreeConstruction(
                 "foo { background-size: 10% 20%; }",
                 "[[foo]{[background-size:[[10%][20%]];]}]");
@@ -455,7 +452,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background-position: 90% 20%
      */
     @Test
-    public void test26() {
+    void test26() {
         testTreeConstruction(
                 "foo { background-position: 10% 20%; }",
                 "[[foo]{[background-position:[[90%][20%]];]}]");
@@ -467,7 +464,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test27() {
+    void test27() {
         testTreeConstruction(
                 "foo { background-position: 0 0; }",
                 "[[foo]{[background-position:[[0][0]];]}]");
@@ -480,7 +477,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background: rgb(1%, 2%, 3%) 96% 5%
      */
     @Test
-    public void test28() {
+    void test28() {
         testTreeConstruction(
                 "foo { background: rgb(1%, 2%, 3%) 4% 5%; }",
                 "[[foo]{[background:[rgb(1%,2%,3%) [96%][5%]];]}]");
@@ -493,7 +490,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * background: red 96% 5%
      */
     @Test
-    public void test29() {
+    void test29() {
         testTreeConstruction(
                 "foo { background: red 4% 5%; }",
                 "[[foo]{[background:[[red][96%][5%]];]}]");
@@ -505,7 +502,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test30() {
+    void test30() {
         testTreeConstruction(
                 "foo { background: center 5%; }",
                 "[[foo]{[background:[[center][5%]];]}]");
@@ -517,7 +514,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test31() {
+    void test31() {
         testTreeConstruction(
                 "foo { box-shadow: 1px 2px 3px 4px; }",
                 "[[foo]{[box-shadow:[[1px][2px][3px][4px]];]}]");
@@ -529,7 +526,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test32() {
+    void test32() {
         testTreeConstruction(
                 "foo { text-shadow: 1px 2px 3px 4px; }",
                 "[[foo]{[text-shadow:[[1px][2px][3px][4px]];]}]");
@@ -541,7 +538,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test33() {
+    void test33() {
         testTreeConstruction(
                 "foo { border-radius: 1px; }",
                 "[[foo]{[border-radius:[[1px]];]}]");
@@ -553,7 +550,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test34() {
+    void test34() {
         testTreeConstruction(
                 "foo { border-radius: 1px / 5px; }",
                 "[[foo]{[border-radius:[[[1px]/[5px]]];]}]");
@@ -566,7 +563,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-radius: 2px 1px
      */
     @Test
-    public void test35() {
+    void test35() {
         testTreeConstruction(
                 "foo { border-radius: 1px 2px; }",
                 "[[foo]{[border-radius:[[2px][1px]];]}]");
@@ -579,7 +576,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-radius: 2px 1px 2px 3px
      */
     @Test
-    public void test36() {
+    void test36() {
         testTreeConstruction(
                 "foo { border-radius: 1px 2px 3px; }",
                 "[[foo]{[border-radius:[[2px][1px][2px][3px]];]}]");
@@ -592,7 +589,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-radius: 2px 1px 4px 3px
      */
     @Test
-    public void test37() {
+    void test37() {
         testTreeConstruction(
                 "foo { border-radius: 1px 2px 3px 4px; }",
                 "[[foo]{[border-radius:[[2px][1px][4px][3px]];]}]");
@@ -605,7 +602,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-radius: 2px 1px 4px 3px / 6px 5px 8px 7px
      */
     @Test
-    public void test38() {
+    void test38() {
         testTreeConstruction(
                 "foo { border-radius: 1px 2px 3px 4px / 5px 6px 7px 8px; }",
                 "[[foo]{[border-radius:" +
@@ -619,7 +616,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-radius: 1px / 6px 5px 8px 7px
      */
     @Test
-    public void test39() {
+    void test39() {
         testTreeConstruction(
                 "foo { border-radius: 1px / 5px 6px 7px 8px; }",
                 "[[foo]{[border-radius:[[[1px]/[6px]][5px][8px][7px]];]}]");
@@ -632,7 +629,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-radius: 2px 1px 2px 3px / 6px 5px
      */
     @Test
-    public void test40() {
+    void test40() {
         testTreeConstruction(
                 "foo { border-radius: 1px 2px 3px / 5px 6px; }",
                 "[[foo]{[border-radius:[[2px][1px][2px][[3px]/[6px]][5px]];]}]");
@@ -645,7 +642,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * -webkit-border-radius: 2px 1px 2px 3px / 6px 5px
      */
     @Test
-    public void test41() {
+    void test41() {
         testTreeConstruction(
                 "foo { -webkit-border-radius: 1px 2px 3px / 5px 6px; }",
                 "[[foo]{[-webkit-border-radius:[[2px][1px][2px][[3px]/[6px]][5px]];]}]");
@@ -658,7 +655,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-color: red blue green yellow
      */
     @Test
-    public void test42() {
+    void test42() {
         testTreeConstruction(
                 "foo { border-color: red yellow green blue; }",
                 "[[foo]{[border-color:[[red][blue][green][yellow]];]}]");
@@ -671,7 +668,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * border-width: thin 2px thick medium
      */
     @Test
-    public void test43() {
+    void test43() {
         testTreeConstruction(
                 "foo { border-width: thin medium thick 2px; }",
                 "[[foo]{[border-width:[[thin][2px][thick][medium]];]}]");
@@ -681,7 +678,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * TODO(user): BiDiFlipper should support {@code border} shorthand property.
      */
     @Test
-    public void testBorderShorthandNotFlipped() {
+    void testBorderShorthandNotFlipped() {
         testTreeConstruction(
                 "foo { border: thin medium thick 2px; }",
                 "[[foo]{[border:[[thin][medium][thick][2px]];]}]");
@@ -693,7 +690,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test44() {
+    void test44() {
         testTreeConstruction(
                 "foo { border-image-slice: 5% 10% 15% 20%; }",
                 "[[foo]{[border-image-slice:[[5%][10%][15%][20%]];]}]");
@@ -705,7 +702,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test45() {
+    void test45() {
         testTreeConstruction(
                 "foo { border-image-slice: 5% 10% 15% 20% fill; }",
                 "[[foo]{[border-image-slice:[[5%][10%][15%][20%][fill]];]}]");
@@ -717,7 +714,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test46() {
+    void test46() {
         testTreeConstruction(
                 "foo { border-image-slice: 5% 10% 15% fill; }",
                 "[[foo]{[border-image-slice:[[5%][10%][15%][fill]];]}]");
@@ -729,7 +726,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test47() {
+    void test47() {
         testTreeConstruction(
                 "foo { border-image-slice: 5% 10% fill; }",
                 "[[foo]{[border-image-slice:[[5%][10%][fill]];]}]");
@@ -741,7 +738,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test48() {
+    void test48() {
         testTreeConstruction(
                 "foo { border-image-slice: 5% fill; }",
                 "[[foo]{[border-image-slice:[[5%][fill]];]}]");
@@ -753,7 +750,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test49() {
+    void test49() {
         testTreeConstruction(
                 "foo { border-image-outset: 1 2 3 4; }",
                 "[[foo]{[border-image-outset:[[1][2][3][4]];]}]");
@@ -765,7 +762,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test50() {
+    void test50() {
         testTreeConstruction(
                 "foo { border-image-width: 1px auto 0 3%; }",
                 "[[foo]{[border-image-width:[[1px][auto][0][3%]];]}]");
@@ -777,7 +774,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is handled fine.
      */
     @Test
-    public void test51() {
+    void test51() {
         testTreeConstruction(
                 "foo { background: url(); }",
                 "[[foo]{[background:[url()];]}]");
@@ -789,7 +786,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * is not flipped.
      */
     @Test
-    public void test52() {
+    void test52() {
         testTreeConstruction(
                 "foo { future-property: e-mail }",
                 "[[foo]{[future-property:[[e-mail]];]}]");
@@ -803,7 +800,7 @@ public class BiDiFlipperFunctionalTest extends PassesTestBase {
      * cursor: nwse-resize
      */
     @Test
-    public void test53() {
+    void test53() {
         testTreeConstruction(
                 "foo { cursor: nesw-resize }",
                 "[[foo]{[cursor:[[nwse-resize]];]}]");

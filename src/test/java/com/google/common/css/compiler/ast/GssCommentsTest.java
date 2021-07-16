@@ -21,17 +21,14 @@ import com.google.common.css.compiler.passes.CreateConditionalNodes;
 import com.google.common.css.compiler.passes.CreateDefinitionNodes;
 import com.google.common.css.compiler.passes.MarkDefaultDefinitions;
 import com.google.common.css.compiler.passes.MarkNonFlippableNodes;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the handling of GSS comments.
  */
-@RunWith(JUnit4.class)
-public class GssCommentsTest extends NewFunctionalTestBase {
+class GssCommentsTest extends NewFunctionalTestBase {
 
     @Override
     protected void runPass() {
@@ -68,7 +65,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateDefinitionComments() throws Exception {
+    void testCreateDefinitionComments() throws Exception {
         parseAndRun("/* comment0 */ @def /* comment-x */ X /* comment-y */Y " +
                 "/* comment1 */  /* comment2 */   ;");
         assertThat(getFirstActualNode()).isInstanceOf(CssUnknownAtRuleNode.class);
@@ -87,7 +84,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateFunctionComments() throws Exception {
+    void testCreateFunctionComments() throws Exception {
         parseAndRun("@def /*comment0*/func(x, y/*comment1*/);");
         assertThat(getFirstActualNode()).isInstanceOf(CssUnknownAtRuleNode.class);
         CssUnknownAtRuleNode def = (CssUnknownAtRuleNode) getFirstActualNode();
@@ -103,7 +100,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateDefinitionCommentsAfterRelocation() throws Exception {
+    void testCreateDefinitionCommentsAfterRelocation() throws Exception {
         parseAndRun("@def A /* @default */#fff;");
         createDefinintions();
         relocateDefinintionsComments();
@@ -116,7 +113,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     // We don't test for comments between '!' and 'important'. See the comment on
     // the IMPORTANT_SYM in the grammar for the reason.
     @Test
-    public void testCreateRulesetComments() throws Exception {
+    void testCreateRulesetComments() throws Exception {
         parseAndRun("A {/* comment-d */b:c /*comment0*/!important }");
         assertThat(getFirstActualNode()).isInstanceOf(CssRulesetNode.class);
         CssRulesetNode ruleset = (CssRulesetNode) getFirstActualNode();
@@ -131,7 +128,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testNoflip() throws Exception {
+    void testNoflip() throws Exception {
         parseAndRun(".a .b { \n /* @noflip */\n float: left;\n}");
         assertThat(getFirstActualNode()).isInstanceOf(CssRulesetNode.class);
         CssRulesetNode ruleset = (CssRulesetNode) getFirstActualNode();
@@ -142,7 +139,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMarkNonFlippable() throws Exception {
+    void testMarkNonFlippable() throws Exception {
         parseAndRun(linesToString("/* @noflip */ @if COND {",
                 "  foo { top : expression('cond') }",
                 "  bar { bottom : expression('cond') }",
@@ -160,7 +157,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMarkDefaultDefinitions1() throws Exception {
+    void testMarkDefaultDefinitions1() throws Exception {
         parseAndRun("/* @default */ @def PADDING 2px 3px 5px 1px;");
         createDefinintions();
         relocateDefinintionsComments();
@@ -172,7 +169,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMarkDefaultDefinitions2() throws Exception {
+    void testMarkDefaultDefinitions2() throws Exception {
         parseAndRun("@def PADDING /* @default */ 2px 3px 5px 1px;");
         createDefinintions();
         relocateDefinintionsComments();
@@ -184,7 +181,7 @@ public class GssCommentsTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testSelectorList() throws Exception {
+    void testSelectorList() throws Exception {
         parseAndRun("foo/*foo*/, /*bar1*/ /*bar2*/ bar /*bar3*/ , zoo /*zoo*/ { a:b }");
         CssRulesetNode ruleset = (CssRulesetNode) getFirstActualNode();
         CssSelectorListNode selectors = ruleset.getSelectors();

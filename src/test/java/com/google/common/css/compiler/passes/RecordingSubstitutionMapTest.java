@@ -23,10 +23,8 @@ import com.google.common.css.compiler.ast.ErrorManager;
 import com.google.common.css.compiler.ast.GssParser;
 import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.testing.UtilityTestCase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -39,15 +37,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.entry;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class RecordingSubstitutionMapTest extends UtilityTestCase {
+class RecordingSubstitutionMapTest extends UtilityTestCase {
 
     private String styleSheet;
     private Predicate<String> predicate;
     private Map<String, String> mappings;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         styleSheet = linesToString(
                 ".CSS_SPRITE { background-image: url(\"foo.png\"); }",
                 ".sprite { background-image: url(\"bar.png\"); }"
@@ -76,7 +73,7 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         SubstitutionMap substitutionMap = key -> {
             if ("CSS_FOO".equals(key)) {
                 return "a";
@@ -106,7 +103,7 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
     }
 
     @Test
-    public void testOrderIsPreserved() {
+    void testOrderIsPreserved() {
         styleSheet = linesToString(
                 ".zero { color: red; }",
                 ".one { color: red; }",
@@ -149,7 +146,7 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
     }
 
     @Test
-    public void testMapWithTypeIdentity() {
+    void testMapWithTypeIdentity() {
         RecordingSubstitutionMap map =
                 new RecordingSubstitutionMap.Builder()
                         .withSubstitutionMap(new SimpleSubstitutionMap())
@@ -160,7 +157,7 @@ public class RecordingSubstitutionMapTest extends UtilityTestCase {
     }
 
     @Test
-    public void testMapWithTypeMinimal() {
+    void testMapWithTypeMinimal() {
         RecordingSubstitutionMap map =
                 new RecordingSubstitutionMap.Builder()
                         .withSubstitutionMap(new MinimalSubstitutionMap())

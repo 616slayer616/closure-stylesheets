@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.css.compiler.ast.CssDefinitionNode;
 import com.google.common.css.compiler.ast.CssValueNode;
 import com.google.common.css.compiler.ast.FunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,11 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class MarkDefaultDefinitionsTest extends FunctionalTestBase {
+class MarkDefaultDefinitionsTest extends FunctionalTestBase {
 
     @Test
-    public void testMarkDefaultDefinitions1() {
+    void testMarkDefaultDefinitions1() {
         parseAndBuildTree(
                 "/* @default */ @def COLOR red;");
         runPass();
@@ -49,7 +46,7 @@ public class MarkDefaultDefinitionsTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testMarkDefaultDefinitions2() {
+    void testMarkDefaultDefinitions2() {
         parseAndBuildTree(
                 "/* @default */ @def PADDING 2px 3px 5px 1px;");
         runPass();
@@ -64,7 +61,7 @@ public class MarkDefaultDefinitionsTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testMarkDefaultDefinition3() {
+    void testMarkDefaultDefinition3() {
         parseAndBuildTree(
                 "@def PADDING /* @default */ 2px 3px 5px 1px;");
         runPass();
@@ -79,7 +76,7 @@ public class MarkDefaultDefinitionsTest extends FunctionalTestBase {
     }
 
     @Test
-    public void testMarkDefaultDefinitions4() {
+    void testMarkDefaultDefinitions4() {
         parseAndBuildTree(
                 "@def PADDING 2px 3px 5px 1px;");
         runPass();

@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.css.compiler.ast.testing.AstUtilityTestCase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,11 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class CssDeclarationNodeTest extends AstUtilityTestCase {
+class CssDeclarationNodeTest extends AstUtilityTestCase {
 
     @Test
-    public void testDeclarationNodeCreation() {
+    void testDeclarationNodeCreation() {
         CssPropertyNode propertyName = new CssPropertyNode("color", null);
         CssDeclarationNode node = new CssDeclarationNode(propertyName);
 
@@ -44,7 +41,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
     }
 
     @Test
-    public void testCompleteDeclarationNodeCreation() {
+    void testCompleteDeclarationNodeCreation() {
         CssPropertyNode propertyName = new CssPropertyNode("color", null);
         CssLiteralNode colorValue = new CssLiteralNode("red");
         CssPropertyValueNode propertyValue = new CssPropertyValueNode();
@@ -61,7 +58,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
     }
 
     @Test
-    public void testCompleteCustomDeclarationNodeCreation() {
+    void testCompleteCustomDeclarationNodeCreation() {
         CssPropertyNode propertyName = new CssPropertyNode("--theme-color", null);
         CssLiteralNode colorValue = new CssLiteralNode("BurlyWood");
         CssPropertyValueNode propertyValue = new CssPropertyValueNode();
@@ -78,7 +75,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
     }
 
     @Test
-    public void testDeepCopyOfDeclarationNode() throws Exception {
+    void testDeepCopyOfDeclarationNode() throws Exception {
         CssPropertyNode propertyName = new CssPropertyNode("color", null);
         CssDeclarationNode node1 = new CssDeclarationNode(propertyName);
         node1.setStarHack(false);
@@ -89,7 +86,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
     }
 
     @Test
-    public void testDeepCopyOfDeclarationNode2() throws Exception {
+    void testDeepCopyOfDeclarationNode2() throws Exception {
         CssPropertyNode propertyName = new CssPropertyNode("color", null);
         CssDeclarationNode node1 = new CssDeclarationNode(propertyName);
         node1.setStarHack(true);
@@ -100,7 +97,7 @@ public class CssDeclarationNodeTest extends AstUtilityTestCase {
     }
 
     @Test
-    public void testDeepCopyOfDeclarationNode3() throws Exception {
+    void testDeepCopyOfDeclarationNode3() throws Exception {
         CssPropertyNode propertyName = new CssPropertyNode("color", null);
         CssDeclarationNode node1 = new CssDeclarationNode(propertyName);
         node1.setStarHack(true);

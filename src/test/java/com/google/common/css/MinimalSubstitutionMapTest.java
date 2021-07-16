@@ -17,9 +17,7 @@
 package com.google.common.css;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -32,8 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class MinimalSubstitutionMapTest {
+class MinimalSubstitutionMapTest {
 
     private static final char[] START_CHARS = new char[]{'a'};
 
@@ -54,7 +51,7 @@ public class MinimalSubstitutionMapTest {
      * applied to the same key.
      */
     @Test
-    public void testGet() {
+    void testGet() {
         map = createTestMap();
         assertThat(map.get("foo")).isEqualTo("a");
 
@@ -72,7 +69,7 @@ public class MinimalSubstitutionMapTest {
      * Tests that the get() function correctly omits values from the blacklist.
      */
     @Test
-    public void testGetWithBlacklist() {
+    void testGetWithBlacklist() {
         map = new MinimalSubstitutionMap(START_CHARS, CHARS, ImmutableSet.of("a"));
 
         // We skipped over "a".  See testGet().
@@ -90,7 +87,7 @@ public class MinimalSubstitutionMapTest {
      * 8 strings with 4 chars, etc.
      */
     @Test
-    public void testToShortString() {
+    void testToShortString() {
         map = createTestMap();
 
         List<String> classes = new ArrayList<>();

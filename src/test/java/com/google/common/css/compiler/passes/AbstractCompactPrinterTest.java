@@ -19,7 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.base.Joiner;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.FunctionalTestBase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,8 +32,8 @@ public abstract class AbstractCompactPrinterTest extends FunctionalTestBase {
 
     protected boolean preserveMarkedComments;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         preserveMarkedComments = false;
     }
 

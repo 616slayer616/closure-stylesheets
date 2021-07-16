@@ -19,23 +19,20 @@ package com.google.common.css.compiler.passes;
 import com.google.common.css.Vendor;
 import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for {@link RemoveVendorSpecificProperties}.
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class RemoveVendorSpecificPropertiesTest extends NewFunctionalTestBase {
+class RemoveVendorSpecificPropertiesTest extends NewFunctionalTestBase {
 
     private Vendor vendor;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         vendor = null;
     }
 
@@ -47,7 +44,7 @@ public class RemoveVendorSpecificPropertiesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testAllowWebkit() throws GssParserException {
+    void testAllowWebkit() throws GssParserException {
         vendor = Vendor.WEBKIT;
         test(linesToString(
                 ".button {",
@@ -65,7 +62,7 @@ public class RemoveVendorSpecificPropertiesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testAllowMozilla() throws GssParserException {
+    void testAllowMozilla() throws GssParserException {
         vendor = Vendor.MOZILLA;
         test(linesToString(
                 ".button {",
@@ -83,7 +80,7 @@ public class RemoveVendorSpecificPropertiesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testAllowMicrosoft() throws GssParserException {
+    void testAllowMicrosoft() throws GssParserException {
         vendor = Vendor.MICROSOFT;
         test(linesToString(
                 ".button {",
@@ -101,7 +98,7 @@ public class RemoveVendorSpecificPropertiesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testAllowOpera() throws GssParserException {
+    void testAllowOpera() throws GssParserException {
         vendor = Vendor.OPERA;
         test(linesToString(
                 ".button {",

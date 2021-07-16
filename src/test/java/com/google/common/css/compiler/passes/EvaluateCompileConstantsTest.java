@@ -20,17 +20,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.css.compiler.ast.CssDefinitionNode;
 import com.google.common.css.compiler.ast.CssForLoopRuleNode;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link EvaluateCompileConstants}.
  */
-@RunWith(JUnit4.class)
-public class EvaluateCompileConstantsTest extends PassesTestBase {
+class EvaluateCompileConstantsTest extends PassesTestBase {
 
     private static final ImmutableMap<String, Integer> CONSTANTS =
             ImmutableMap.of("FOO", 2, "BAR", 7, "BAZ", 3);
@@ -44,7 +41,7 @@ public class EvaluateCompileConstantsTest extends PassesTestBase {
     }
 
     @Test
-    public void testLoopParametersReplacement() throws Exception {
+    void testLoopParametersReplacement() throws Exception {
         parseAndRun("@for $i from FOO to BAR step BAZ {}");
         assertThat(getFirstActualNode()).isInstanceOf(CssForLoopRuleNode.class);
         CssForLoopRuleNode loop = (CssForLoopRuleNode) getFirstActualNode();
@@ -54,7 +51,7 @@ public class EvaluateCompileConstantsTest extends PassesTestBase {
     }
 
     @Test
-    public void testValueInDefinitionReplacement() throws Exception {
+    void testValueInDefinitionReplacement() throws Exception {
         parseAndRun("@def X FOO;");
         assertThat(getFirstActualNode()).isInstanceOf(CssDefinitionNode.class);
         CssDefinitionNode definition = (CssDefinitionNode) getFirstActualNode();
@@ -63,7 +60,7 @@ public class EvaluateCompileConstantsTest extends PassesTestBase {
     }
 
     @Test
-    public void testValueInArgumentReplacement() throws Exception {
+    void testValueInArgumentReplacement() throws Exception {
         parseAndRun("@def X f(BAR);");
         assertThat(getFirstActualNode()).isInstanceOf(CssDefinitionNode.class);
         CssDefinitionNode definition = (CssDefinitionNode) getFirstActualNode();

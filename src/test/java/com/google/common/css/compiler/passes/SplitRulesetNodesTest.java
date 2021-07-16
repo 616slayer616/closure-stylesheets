@@ -18,9 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -32,11 +30,10 @@ import static org.mockito.Mockito.mock;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class SplitRulesetNodesTest {
+class SplitRulesetNodesTest {
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         MutatingVisitController visitController = mock(MutatingVisitController.class);
         SplitRulesetNodes pass = new SplitRulesetNodes(visitController);
         visitController.startVisit(pass);
@@ -45,7 +42,7 @@ public class SplitRulesetNodesTest {
     }
 
     @Test
-    public void testEnterRulesetNode() {
+    void testEnterRulesetNode() {
         MutatingVisitController visitController = mock(MutatingVisitController.class);
         SplitRulesetNodes pass = new SplitRulesetNodes(visitController);
 
@@ -58,7 +55,7 @@ public class SplitRulesetNodesTest {
     }
 
     @Test
-    public void testPassResult() {
+    void testPassResult() {
         CssPropertyNode prop1 = new CssPropertyNode("padding", null);
         CssPropertyNode prop2 = new CssPropertyNode("color", null);
 

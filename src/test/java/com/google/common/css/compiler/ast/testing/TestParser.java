@@ -96,7 +96,7 @@ public class TestParser {
         return sourceMapString;
     }
 
-    public void showSourceMap() throws IOException, InterruptedException {
+    void showSourceMap() throws IOException, InterruptedException {
         /* NOTE(flan): This method is used for debugging sourcemaps with
          * https://sokra.github.io/source-map-visualization/, the best (only?) source map visualizer
          * that I've found. You need to install https://www.npmjs.com/package/source-map-visualize to

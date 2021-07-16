@@ -17,17 +17,14 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CreateVendorPrefixedKeyframes}.
  */
-@RunWith(JUnit4.class)
-public class CreateVendorPrefixedKeyframesTest extends NewFunctionalTestBase {
+class CreateVendorPrefixedKeyframesTest extends NewFunctionalTestBase {
     private String compactPrintedResult;
 
     @Override
@@ -41,7 +38,7 @@ public class CreateVendorPrefixedKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testCreateWebkitKeyframes() throws Exception {
+    void testCreateWebkitKeyframes() throws Exception {
         parseAndRun(
                 "/* @gen-webkit-keyframes */"
                         + "@keyframes A{"
@@ -61,7 +58,7 @@ public class CreateVendorPrefixedKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testWithoutComment() throws Exception {
+    void testWithoutComment() throws Exception {
         parseAndRun(
                 "@keyframes A{"
                         + "0%{top:0}"

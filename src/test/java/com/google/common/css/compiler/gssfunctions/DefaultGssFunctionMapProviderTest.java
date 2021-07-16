@@ -21,9 +21,7 @@ import com.google.common.css.compiler.ast.GssFunction;
 import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import com.google.common.css.compiler.passes.ResolveCustomFunctionNodes;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
@@ -35,8 +33,7 @@ import java.util.Set;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
+class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
 
     @Override
     protected void runPass() {
@@ -50,13 +47,13 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testAddPercentagesMissingUnit() throws GssParserException {
+    void testAddPercentagesMissingUnit() throws GssParserException {
         parseAndRun("A { width: add(5%, 10); }",
                 "Parameters' units don't match (\"%\" vs \"\")");
     }
 
     @Test
-    public void testAddPercentagesZeroSize() throws GssParserException {
+    void testAddPercentagesZeroSize() throws GssParserException {
         test("A { width: add(5%, 0, 10%); }",
                 " A { width: 15%; }");
         test("A { width: add(5%, 0%, 10%); }",
@@ -68,19 +65,19 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testAddPercentagesImplicitUnit() throws GssParserException {
+    void testAddPercentagesImplicitUnit() throws GssParserException {
         test("A { width: add(5%, 10%); }",
                 " A { width: 15%; }");
     }
 
     @Test
-    public void testAddNegativeValues() throws GssParserException {
+    void testAddNegativeValues() throws GssParserException {
         test("A { width: add(5%, 10%, -25%, 50%); }",
                 " A { width: 40%; }");
     }
 
     @Test
-    public void testMult() throws GssParserException {
+    void testMult() throws GssParserException {
         test("A { width: mult(5, 6); }",
                 " A { width: 30; }");
         test("A { width: mult(5%, 10); }",
@@ -92,7 +89,7 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMultUnitNotFirst() throws GssParserException {
+    void testMultUnitNotFirst() throws GssParserException {
         parseAndRun("A { width: mult(5, 10%, 15ex); }",
                 "Only the first argument may have a unit associated with it, "
                         + " but has unit: %");
@@ -102,7 +99,7 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDivide() throws GssParserException {
+    void testDivide() throws GssParserException {
         test("A { width: divide(30, 6); }",
                 " A { width: 5; }");
         test("A { width: divide(100%, 5); }",
@@ -114,7 +111,7 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testDivUnitNotFirst() throws GssParserException {
+    void testDivUnitNotFirst() throws GssParserException {
         parseAndRun("A { width: divide(100px, 10px); }",
                 "Only the first argument may have a unit associated with it, "
                         + " but has unit: px");
@@ -124,7 +121,7 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMaximum() throws GssParserException {
+    void testMaximum() throws GssParserException {
         test("A { width: maximum(5%, 10%); }",
                 " A { width: 10%; }");
         test("A { width: maximum(5%, 50%, -25%, 10%); }",
@@ -142,19 +139,19 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMaxUnspecifiedUnit() throws GssParserException {
+    void testMaxUnspecifiedUnit() throws GssParserException {
         parseAndRun("A { width: maximum(5%, 10); }",
                 "Parameters' units don't match (\"%\" vs \"\")");
     }
 
     @Test
-    public void testMaxMismatchedUnits() throws GssParserException {
+    void testMaxMismatchedUnits() throws GssParserException {
         parseAndRun("A { width: maximum(5%, 10px, 20%); }",
                 "Parameters' units don't match (\"%\" vs \"px\")");
     }
 
     @Test
-    public void testMinimum() throws GssParserException {
+    void testMinimum() throws GssParserException {
         test("A { width: minimum(5%, 10%); }",
                 " A { width: 5%; }");
         test("A { width: minimum(5%, 50%, -25%, 10%); }",
@@ -172,19 +169,19 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testMinUnspecifiedUnit() throws GssParserException {
+    void testMinUnspecifiedUnit() throws GssParserException {
         parseAndRun("A { width: minimum(5%, 10); }",
                 "Parameters' units don't match (\"%\" vs \"\")");
     }
 
     @Test
-    public void testMinMismatchedUnits() throws GssParserException {
+    void testMinMismatchedUnits() throws GssParserException {
         parseAndRun("A { width: minimum(5%, 10px, 20%); }",
                 "Parameters' units don't match (\"%\" vs \"px\")");
     }
 
     @Test
-    public void testScalars() throws GssParserException {
+    void testScalars() throws GssParserException {
         // This is an example of why add() and sub() should be able to take
         // arguments without any units.
         test("A {"
@@ -205,7 +202,7 @@ public class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testConcat() throws GssParserException {
+    void testConcat() throws GssParserException {
         test("A { background-image:url(concat('http://', www, '.google.com', \"/example.gif\")); }",
                 "A { background-image:url('http://www.google.com/example.gif'); }");
         test("A { x:concat(a); }", "A { x:'a'; }");

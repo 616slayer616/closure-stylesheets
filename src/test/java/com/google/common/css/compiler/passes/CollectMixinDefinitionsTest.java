@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.css.compiler.ast.CssMixinDefinitionNode;
 import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -32,18 +30,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class CollectMixinDefinitionsTest extends PassesTestBase {
+class CollectMixinDefinitionsTest extends PassesTestBase {
     private Map<String, CssMixinDefinitionNode> definitions;
 
     @Test
-    public void testSimpleMixinDefinition() {
+    void testSimpleMixinDefinition() {
         parseAndBuildTree(
                 "@defmixin test(PAR1, PAR2) { width: PAR1; height: PAR2; }");
     }
 
     @Test
-    public void testCollectedMixinDefinitions() {
+    void testCollectedMixinDefinitions() {
         parseAndBuildTree(linesToString(
                 "@defmixin test1(PAR1, PAR2) { width: PAR1; height: PAR2; }",
                 "@defmixin test2() {}",
@@ -53,31 +50,31 @@ public class CollectMixinDefinitionsTest extends PassesTestBase {
     }
 
     @Test
-    public void testDupilicateMixinDefinitionNames() throws GssParserException {
+    void testDupilicateMixinDefinitionNames() throws GssParserException {
         parseAndRun("@defmixin test() {} @defmixin test() {}",
                 CollectMixinDefinitions.DUPLICATE_MIXIN_DEFINITION_NAME_ERROR_MESSAGE);
     }
 
     @Test
-    public void testDupilicateArgumentNames() throws GssParserException {
+    void testDupilicateArgumentNames() throws GssParserException {
         parseAndRun("@defmixin test(PAR, PAR) {}",
                 CollectMixinDefinitions.DUPLICATE_ARGUMENT_NAME_ERROR_MESSAGE);
     }
 
     @Test
-    public void testInvalidArgument() throws GssParserException {
+    void testInvalidArgument() throws GssParserException {
         parseAndRun("@defmixin test(Par) {}",
                 CollectMixinDefinitions.INVALID_ARGUMENT_ERROR_MESSAGE);
     }
 
     @Test
-    public void testInvalidBlock1() throws GssParserException {
+    void testInvalidBlock1() throws GssParserException {
         parseAndRun("@if (COND) { @defmixin test(PAR) {} }",
                 CollectMixinDefinitions.INVALID_BLOCK_ERROR_MESSAGE);
     }
 
     @Test
-    public void testInvalidBlock2() throws GssParserException {
+    void testInvalidBlock2() throws GssParserException {
         parseAndRun("@component X { @defmixin test(PAR) {} }",
                 CollectMixinDefinitions.INVALID_BLOCK_ERROR_MESSAGE);
     }

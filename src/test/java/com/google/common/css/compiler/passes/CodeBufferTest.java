@@ -16,9 +16,7 @@
 
 package com.google.common.css.compiler.passes;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,10 +26,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author steveyang@google.com (Chenyun Yang)
  */
-@RunWith(JUnit4.class)
-public class CodeBufferTest {
+class CodeBufferTest {
     @Test
-    public void testInitialSetup() {
+    void testInitialSetup() {
         CodeBuffer buffer = new CodeBuffer();
         assertThat(buffer.getNextCharIndex()).isEqualTo(0);
         assertThat(buffer.getNextLineIndex()).isEqualTo(0);
@@ -40,7 +37,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testReset() {
+    void testReset() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.reset();
@@ -51,7 +48,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testAppendNull() {
+    void testAppendNull() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append(null);
         assertThat(buffer.getNextCharIndex()).isEqualTo(0);
@@ -61,7 +58,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testAppendChar() {
+    void testAppendChar() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append('c');
         assertThat(buffer.getNextCharIndex()).isEqualTo(1);
@@ -71,7 +68,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testAppendStr() {
+    void testAppendStr() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         assertThat(buffer.getNextCharIndex()).isEqualTo(3);
@@ -81,7 +78,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testAppendStrIncludeNewLine() {
+    void testAppendStrIncludeNewLine() {
         CodeBuffer buffer;
 
         buffer = new CodeBuffer();
@@ -100,7 +97,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testAppendObject() {
+    void testAppendObject() {
         CodeBuffer buffer = new CodeBuffer();
         class TestObject {
             @Override
@@ -116,7 +113,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testAppendNewLineChar() {
+    void testAppendNewLineChar() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.append('\n');
@@ -132,7 +129,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testAppendSequenceOfNewLineChar() {
+    void testAppendSequenceOfNewLineChar() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo\n\nbar");
         assertThat(buffer.getNextCharIndex()).isEqualTo(3);
@@ -142,7 +139,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testStartNewLine() {
+    void testStartNewLine() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.startNewLine();
@@ -158,7 +155,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testDeleteLastChar() {
+    void testDeleteLastChar() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.deleteLastChar();
@@ -179,7 +176,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testDeleteLastChars() {
+    void testDeleteLastChars() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.deleteLastChars(2);
@@ -190,7 +187,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testDeleteLastCharsWhenExceedBufferLength() {
+    void testDeleteLastCharsWhenExceedBufferLength() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.deleteLastChars(10);
@@ -201,7 +198,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testDeleteLastCharForNewLine() {
+    void testDeleteLastCharForNewLine() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.startNewLine();
@@ -221,7 +218,7 @@ public class CodeBufferTest {
     }
 
     @Test
-    public void testDeleteEndingIfEndingIs() {
+    void testDeleteEndingIfEndingIs() {
         CodeBuffer buffer = new CodeBuffer();
         buffer.append("foo");
         buffer.startNewLine();

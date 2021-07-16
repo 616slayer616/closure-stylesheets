@@ -17,18 +17,15 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for the {@link AutoExpandBrowserPrefix} compiler pass.
  */
-@RunWith(JUnit4.class)
-public class AutoExpandBrowserPrefixTest extends PassesTestBase {
+class AutoExpandBrowserPrefixTest extends PassesTestBase {
 
     @Test
-    public void testMatchOnPropertyNameAndValue() {
+    void testMatchOnPropertyNameAndValue() {
         testTreeConstruction(linesToString(
                 "p {",
                 "  display: flex;",
@@ -39,7 +36,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testMatchOnPropertyName() {
+    void testMatchOnPropertyName() {
         testTreeConstruction(linesToString(
                 "p {",
                 "  flex-grow: 1;",
@@ -50,7 +47,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testMatchFunction() {
+    void testMatchFunction() {
         testTreeConstruction(linesToString(
                 "@def GRADIENT top, #f8f8f8, #f1f1f1;",
                 "p {",
@@ -65,7 +62,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testMatchValueOnlyFunction() {
+    void testMatchValueOnlyFunction() {
         testTreeConstruction(
                 "p { margin: calc(100% - 24px) auto; }",
                 ""
@@ -75,7 +72,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testMatchValueOnlyFunctionLast() {
+    void testMatchValueOnlyFunctionLast() {
         testTreeConstruction(
                 "p { margin: 10px calc(100% - 24px); }",
                 ""
@@ -85,7 +82,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testMatchValueOnlyMultipleFunctions() {
+    void testMatchValueOnlyMultipleFunctions() {
         testTreeConstruction(
                 "p { margin: calc(100% - 24px) calc(50% + 16px); }",
                 ""
@@ -96,7 +93,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testDefMixinUnaffected() {
+    void testDefMixinUnaffected() {
         testTreeConstruction(linesToString(
                 "@defmixin display_flex() {",
                 "  display: flex;",
@@ -113,7 +110,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testCommentsArePreserved() {
+    void testCommentsArePreserved() {
         testTreeConstruction(
                 "p { /* @noflip */ left: calc(100% - 24px); }",
                 ""
@@ -123,7 +120,7 @@ public class AutoExpandBrowserPrefixTest extends PassesTestBase {
     }
 
     @Test
-    public void testCommentsArePreservedAfterExpansion() {
+    void testCommentsArePreservedAfterExpansion() {
         testTreeConstruction(
                 "p { /* @noflip */ transform-origin: left top; }",
                 ""

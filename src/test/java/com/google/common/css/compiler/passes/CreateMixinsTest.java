@@ -20,9 +20,7 @@ import com.google.common.css.compiler.ast.CssMixinDefinitionNode;
 import com.google.common.css.compiler.ast.CssMixinNode;
 import com.google.common.css.compiler.ast.CssRulesetNode;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,8 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class CreateMixinsTest extends PassesTestBase {
+class CreateMixinsTest extends PassesTestBase {
 
     @Override
     protected void runPass() {
@@ -42,7 +39,7 @@ public class CreateMixinsTest extends PassesTestBase {
     }
 
     @Test
-    public void testCreateMixin() throws Exception {
+    void testCreateMixin() throws Exception {
         parseAndRun("div { @mixin test(10px, 20%); }");
         assertThat(getFirstActualNode()).isInstanceOf(CssRulesetNode.class);
         CssRulesetNode ruleset = (CssRulesetNode) getFirstActualNode();
@@ -55,19 +52,19 @@ public class CreateMixinsTest extends PassesTestBase {
     }
 
     @Test
-    public void testMixinWithBlockError() throws Exception {
+    void testMixinWithBlockError() throws Exception {
         parseAndRun("div { @mixin test(10px, 20%) {} }",
                 CreateMixins.BLOCK_ERROR_MESSAGE);
     }
 
     @Test
-    public void testMixinWithInvalidParameter() throws Exception {
+    void testMixinWithInvalidParameter() throws Exception {
         parseAndRun("div { @mixin test; }",
                 CreateMixins.INVALID_PARAMETERS_ERROR_MESSAGE);
     }
 
     @Test
-    public void testCreateMixinDefinition() throws Exception {
+    void testCreateMixinDefinition() throws Exception {
         parseAndRun("@defmixin test(A,B) { a:b }");
         assertThat(getFirstActualNode()).isInstanceOf(CssMixinDefinitionNode.class);
         CssMixinDefinitionNode mixinDefinition =
@@ -78,13 +75,13 @@ public class CreateMixinsTest extends PassesTestBase {
     }
 
     @Test
-    public void testMixinDefinitionWithoutBlockError() throws Exception {
+    void testMixinDefinitionWithoutBlockError() throws Exception {
         parseAndRun("@defmixin test(A, B);",
                 CreateMixins.NO_BLOCK_ERROR_MESSAGE);
     }
 
     @Test
-    public void testMixinDefinitionWithInvalidParameter() throws Exception {
+    void testMixinDefinitionWithInvalidParameter() throws Exception {
         parseAndRun("@defmixin test {}",
                 CreateMixins.INVALID_PARAMETERS_ERROR_MESSAGE);
     }

@@ -20,11 +20,11 @@ import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.CssRulesetNode;
 import com.google.common.css.compiler.ast.CssTree;
 import com.google.common.css.compiler.ast.MutatingVisitController;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
@@ -39,21 +39,21 @@ import static org.mockito.Mockito.when;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(MockitoJUnitRunner.class)
-public class EliminateUselessRulesetNodesTest {
+@ExtendWith(MockitoExtension.class)
+class EliminateUselessRulesetNodesTest {
 
     @Mock
     MutatingVisitController mockVisitController;
     @Mock
     CssTree mockTree;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         when(mockTree.getMutatingVisitController()).thenReturn(mockVisitController);
     }
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         EliminateUselessRulesetNodes pass = new EliminateUselessRulesetNodes(mockTree);
         mockVisitController.startVisit(pass);
 
@@ -61,7 +61,7 @@ public class EliminateUselessRulesetNodesTest {
     }
 
     @Test
-    public void testEnterRulesetNode() {
+    void testEnterRulesetNode() {
         CssRulesetNode node = new CssRulesetNode();
         List<CssRulesetNode> rulesList = Lists.newArrayList(node);
 

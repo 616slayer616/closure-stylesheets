@@ -17,9 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,11 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(JUnit4.class)
-public class CssDefinitionNodeTest {
+class CssDefinitionNodeTest {
 
     @Test
-    public void testDefinitionNodeCreation() {
+    void testDefinitionNodeCreation() {
         CssDefinitionNode definition = new CssDefinitionNode(
                 new CssLiteralNode("COLOR"));
 
@@ -43,7 +40,7 @@ public class CssDefinitionNodeTest {
     }
 
     @Test
-    public void testDefinitionNodeCopy() {
+    void testDefinitionNodeCopy() {
         CssDefinitionNode definition1 = new CssDefinitionNode(
                 new CssLiteralNode("COLOR"),
                 Lists.newArrayList(new CssCommentNode("/* foo */", null)));

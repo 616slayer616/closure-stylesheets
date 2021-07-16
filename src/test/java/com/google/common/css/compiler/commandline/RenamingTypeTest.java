@@ -23,9 +23,7 @@ import com.google.common.css.IdentitySubstitutionMap;
 import com.google.common.css.RecordingSubstitutionMap;
 import com.google.common.css.SubstitutionMap;
 import com.google.common.css.SubstitutionMapProvider;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
@@ -38,11 +36,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@RunWith(JUnit4.class)
-public class RenamingTypeTest {
+class RenamingTypeTest {
 
     @Test
-    public void testNone() {
+    void testNone() {
         SubstitutionMapProvider provider = RenamingType.NONE
                 .getCssSubstitutionMapProvider();
         assertThat(provider).isNotNull();
@@ -54,7 +51,7 @@ public class RenamingTypeTest {
     }
 
     @Test
-    public void testDebug() {
+    void testDebug() {
         SubstitutionMapProvider provider = RenamingType.DEBUG
                 .getCssSubstitutionMapProvider();
         assertThat(provider).isNotNull();
@@ -71,7 +68,7 @@ public class RenamingTypeTest {
 
 
     @Test
-    public void testClosure() {
+    void testClosure() {
         SubstitutionMapProvider provider = RenamingType.CLOSURE
                 .getCssSubstitutionMapProvider();
         assertThat(provider).isNotNull();
@@ -91,7 +88,7 @@ public class RenamingTypeTest {
     }
 
     @Test
-    public void testClosureWithInputRenamingMap() {
+    void testClosureWithInputRenamingMap() {
         SubstitutionMapProvider provider = RenamingType.CLOSURE.getCssSubstitutionMapProvider();
         RecordingSubstitutionMap map =
                 new RecordingSubstitutionMap.Builder()

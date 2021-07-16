@@ -17,17 +17,14 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author fbenz@google.com (Florian Benz)
  */
-@RunWith(JUnit4.class)
-public class ProcessRefinersTest extends NewFunctionalTestBase {
+class ProcessRefinersTest extends NewFunctionalTestBase {
     private boolean simplifyCss;
     private String compactPrintedResult;
 
@@ -57,196 +54,196 @@ public class ProcessRefinersTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testNthCompact1() throws Exception {
+    void testNthCompact1() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child(+n) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(1n){}");
     }
 
     @Test
-    public void testNthCompact2() throws Exception {
+    void testNthCompact2() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child(+1n) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(1n){}");
     }
 
     @Test
-    public void testNthCompact3() throws Exception {
+    void testNthCompact3() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child(1n) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(1n){}");
     }
 
     @Test
-    public void testNthCompact4() throws Exception {
+    void testNthCompact4() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child(+n+0) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(1n){}");
     }
 
     @Test
-    public void testNthCompact5() throws Exception {
+    void testNthCompact5() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( +2n+5 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(2n+5){}");
     }
 
     @Test
-    public void testNthCompact6() throws Exception {
+    void testNthCompact6() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( n-7 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(n-7){}");
     }
 
     @Test
-    public void testNthCompact7() throws Exception {
+    void testNthCompact7() throws Exception {
         simplifyCss = true;
         parseAndRun("#id :nth-child( 2 ) {}");
         assertThat(compactPrintedResult).isEqualTo("#id :nth-child(2){}");
     }
 
     @Test
-    public void testNthCompact8() throws Exception {
+    void testNthCompact8() throws Exception {
         simplifyCss = true;
         parseAndRun(".class :nth-child( -3 ) {}");
         assertThat(compactPrintedResult).isEqualTo(".class :nth-child(-3){}");
     }
 
     @Test
-    public void testNthCompact9() throws Exception {
+    void testNthCompact9() throws Exception {
         simplifyCss = true;
         parseAndRun("* :nth-child( odd ) {}");
         assertThat(compactPrintedResult).isEqualTo("* :nth-child(odd){}");
     }
 
     @Test
-    public void testNthCompact10() throws Exception {
+    void testNthCompact10() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( even ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(2n){}");
     }
 
     @Test
-    public void testNthCompact11() throws Exception {
+    void testNthCompact11() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( +3 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(3){}");
     }
 
     @Test
-    public void testNthCompact12() throws Exception {
+    void testNthCompact12() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( 0 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(0){}");
     }
 
     @Test
-    public void testNthCompact13() throws Exception {
+    void testNthCompact13() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( 0n ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(0){}");
     }
 
     @Test
-    public void testNthCompact14() throws Exception {
+    void testNthCompact14() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( 0n+0 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(0){}");
     }
 
     @Test
-    public void testNthCompact15() throws Exception {
+    void testNthCompact15() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( 0 n - 1 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(-1){}");
     }
 
     @Test
-    public void testNthCompact16() throws Exception {
+    void testNthCompact16() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( 1 n - 0 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(1n){}");
     }
 
     @Test
-    public void testNthCompact17() throws Exception {
+    void testNthCompact17() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( -1 n - 0 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(-1n){}");
     }
 
     @Test
-    public void testNthCompact18() throws Exception {
+    void testNthCompact18() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( -n ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(-1n){}");
     }
 
     @Test
-    public void testNthCompact19() throws Exception {
+    void testNthCompact19() throws Exception {
         simplifyCss = true;
         parseAndRun("div :nth-child( -n+5 ) {}");
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(-1n+5){}");
     }
 
     @Test
-    public void testNthBad1() throws Exception {
+    void testNthBad1() throws Exception {
         simplifyCss = false;
         parseAndRun("div :nth-child(1.1) {}",
                 ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNthBad2() throws Exception {
+    void testNthBad2() throws Exception {
         simplifyCss = false;
         parseAndRun("div :nth-child(n+2.3) {}",
                 ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNthBad3() throws Exception {
+    void testNthBad3() throws Exception {
         simplifyCss = false;
         parseAndRun("div :nth-child(m+7) {}",
                 ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNthBad4() throws Exception {
+    void testNthBad4() throws Exception {
         simplifyCss = false;
         parseAndRun("div :nth-child(oddy) {}",
                 ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNthBad5() throws Exception {
+    void testNthBad5() throws Exception {
         simplifyCss = false;
         parseAndRun("div :nth-child(_even) {}",
                 ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNotBad1() throws Exception {
+    void testNotBad1() throws Exception {
         simplifyCss = false;
         parseAndRun("div :not(:not(*)) {}",
                 ProcessRefiners.INVALID_NOT_SELECTOR_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNotBad2() throws Exception {
+    void testNotBad2() throws Exception {
         simplifyCss = false;
         parseAndRun("div :not(::first-line) {}",
                 ProcessRefiners.INVALID_NOT_SELECTOR_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNotBad3() throws Exception {
+    void testNotBad3() throws Exception {
         simplifyCss = false;
         parseAndRun("div :not(.A.B) {}",
                 ProcessRefiners.INVALID_NOT_SELECTOR_ERROR_MESSAGE);
     }
 
     @Test
-    public void testNotWithComment() throws Exception {
+    void testNotWithComment() throws Exception {
         simplifyCss = true;
         parseAndRun("div:not(.A /* C */) {}");
         assertThat(compactPrintedResult).isEqualTo("div:not(.A){}");
@@ -254,7 +251,7 @@ public class ProcessRefinersTest extends NewFunctionalTestBase {
 
 
     @Test
-    public void testParseA() throws Exception {
+    void testParseA() throws Exception {
         runParseA(0, "2");
         runParseA(0, "-3");
         runParseA(1, "n");
@@ -270,7 +267,7 @@ public class ProcessRefinersTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testParseB() throws Exception {
+    void testParseB() throws Exception {
         runParseB(2, "2");
         runParseB(-3, "-3");
         runParseB(0, "n");
@@ -286,7 +283,7 @@ public class ProcessRefinersTest extends NewFunctionalTestBase {
     }
 
     @Test
-    public void testLang() throws Exception {
+    void testLang() throws Exception {
         simplifyCss = true;
         parseAndRun("div :lang(en) {}");
         assertThat(compactPrintedResult).isEqualTo("div :lang(en){}");

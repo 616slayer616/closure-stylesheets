@@ -22,28 +22,20 @@ import com.google.common.css.SourceCode;
 import com.google.common.css.compiler.ast.ErrorManager;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import com.google.common.io.Files;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Java6Assertions.fail;
 
-@RunWith(JUnit4.class)
-public class ClosureCommandLineCompilerTest {
+class ClosureCommandLineCompilerTest {
 
     static final ExitCodeHandler EXIT_CODE_HANDLER =
-            new ExitCodeHandler() {
-                @Override
-                public void processExitCode(int exitCode) {
-                    fail("compiler exited with code: " + exitCode);
-                }
-            };
+            exitCode -> fail("compiler exited with code: " + exitCode);
 
     @Test
-    public void testMixinPropagation() throws Exception {
+    void testMixinPropagation() throws Exception {
         ErrorManager errorManager = new NewFunctionalTestBase.TestErrorManager(new String[0]);
 
         SourceCode def =
@@ -67,8 +59,7 @@ public class ClosureCommandLineCompilerTest {
     }
 
     @Test
-
-    public void testAllowDefPropagationDefaultsToTrue() throws Exception {
+    void testAllowDefPropagationDefaultsToTrue() throws Exception {
         ClosureCommandLineCompiler.Flags flags =
                 ClosureCommandLineCompiler.parseArgs(new String[]{"/dev/null"}, EXIT_CODE_HANDLER);
         JobDescription jobDescription = flags.createJobDescription();
@@ -76,8 +67,7 @@ public class ClosureCommandLineCompilerTest {
     }
 
     @Test
-
-    public void testEmptyImportBlocks() throws Exception {
+    void testEmptyImportBlocks() throws Exception {
         // See b/29995881
         ErrorManager errorManager = new NewFunctionalTestBase.TestErrorManager(new String[0]);
 

@@ -17,24 +17,24 @@
 package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Unit tests for {@link RemoveDefaultDeclarations}.
  *
  * @author oana@google.com (Oana Florescu)
  */
-@RunWith(MockitoJUnitRunner.class)
-public class RemoveDefaultDeclarationsTest {
+@ExtendWith(MockitoExtension.class)
+class RemoveDefaultDeclarationsTest {
 
     @Mock
     MutatingVisitController visitController;
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
         visitController.startVisit(pass);
@@ -43,7 +43,7 @@ public class RemoveDefaultDeclarationsTest {
     }
 
     @Test
-    public void testEnterDeclaration1() {
+    void testEnterDeclaration1() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 
@@ -52,7 +52,7 @@ public class RemoveDefaultDeclarationsTest {
     }
 
     @Test
-    public void testEnterDeclaration2() {
+    void testEnterDeclaration2() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 
@@ -70,7 +70,7 @@ public class RemoveDefaultDeclarationsTest {
      * Two default values: remove entire declaration
      */
     @Test
-    public void testEnterDeclaration3() {
+    void testEnterDeclaration3() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 
@@ -91,7 +91,7 @@ public class RemoveDefaultDeclarationsTest {
      * One default value, one non-default value: remove the default value
      */
     @Test
-    public void testEnterDeclaration4() {
+    void testEnterDeclaration4() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 
@@ -115,7 +115,7 @@ public class RemoveDefaultDeclarationsTest {
      * values.
      */
     @Test
-    public void testEnterDeclaration5() {
+    void testEnterDeclaration5() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 
@@ -136,7 +136,7 @@ public class RemoveDefaultDeclarationsTest {
     }
 
     @Test
-    public void testEnterValueNotDefault() {
+    void testEnterValueNotDefault() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 
@@ -147,7 +147,7 @@ public class RemoveDefaultDeclarationsTest {
     }
 
     @Test
-    public void testEnterValueDefault() {
+    void testEnterValueDefault() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 
@@ -161,7 +161,7 @@ public class RemoveDefaultDeclarationsTest {
      * Two default values and !important flag: don't delete them.
      */
     @Test
-    public void testImportantDefault() {
+    void testImportantDefault() {
         RemoveDefaultDeclarations pass
                 = new RemoveDefaultDeclarations(visitController);
 

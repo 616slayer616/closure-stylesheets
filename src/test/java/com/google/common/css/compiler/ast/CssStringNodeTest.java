@@ -16,9 +16,7 @@
 
 package com.google.common.css.compiler.ast;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 
@@ -29,10 +27,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@code CssStringNode}
  */
-@RunWith(JUnit4.class)
-public class CssStringNodeTest {
+class CssStringNodeTest {
     @Test
-    public void testCssValueNodeRoundtrip() throws Exception {
+    void testCssValueNodeRoundtrip() throws Exception {
         String v = "ordinary";
         for (CssStringNode.Type t : CssStringNode.Type.values()) {
             CssStringNode n = new CssStringNode(t, v);
@@ -42,7 +39,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testCssValueNodeFixedPoint() throws Exception {
+    void testCssValueNodeFixedPoint() throws Exception {
         // This test doesn't care if setValue/getValue work in terms of
         // CSS or abstract values, but we just want to make sure that
         // eventually what we set is what we get.
@@ -58,7 +55,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testConcreteRoundtrip() throws Exception {
+    void testConcreteRoundtrip() throws Exception {
         // This value is safe for verbatim inclusion in either kind of
         // string literal, and for each kind it includes:
         //   (a) an escape sequence that denotes a character that must
@@ -86,7 +83,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testShortEscaper() throws Exception {
+    void testShortEscaper() throws Exception {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},
@@ -115,7 +112,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testInsertsIgnoredWhitespaceAfterEscape() throws Exception {
+    void testInsertsIgnoredWhitespaceAfterEscape() throws Exception {
         // When parsing, we always discard zero or one whitespace after an
         // escape sequence.
         // See http://www.w3.org/TR/CSS2/syndata.html#characters
@@ -152,7 +149,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testHtmlEscaper() throws Exception {
+    void testHtmlEscaper() throws Exception {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},
@@ -176,7 +173,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testEscape() throws Exception {
+    void testEscape() throws Exception {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},
@@ -198,7 +195,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testUnescape() throws Exception {
+    void testUnescape() throws Exception {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},
@@ -245,7 +242,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testCopyCtor() {
+    void testCopyCtor() {
         CssStringNode a = new CssStringNode(
                 CssStringNode.Type.DOUBLE_QUOTED_STRING, "foo");
         a.setConcreteValue("\\0066oobar");
@@ -256,7 +253,7 @@ public class CssStringNodeTest {
     }
 
     @Test
-    public void testStringCannotDirectlyContainNewline() {
+    void testStringCannotDirectlyContainNewline() {
         // See http://www.w3.org/TR/CSS2/syndata.html#strings
         CssStringNode a = new CssStringNode(
                 CssStringNode.Type.SINGLE_QUOTED_STRING, "line1\nline2");

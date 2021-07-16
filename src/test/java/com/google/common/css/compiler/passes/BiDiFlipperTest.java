@@ -19,9 +19,7 @@ package com.google.common.css.compiler.passes;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.CssFunctionNode.Function;
 import com.google.common.css.compiler.ast.CssPriorityNode.PriorityType;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,11 +27,10 @@ import static org.mockito.Mockito.mock;
 /**
  * Unit tests for {@link BiDiFlipper}.
  */
-@RunWith(JUnit4.class)
-public class BiDiFlipperTest {
+class BiDiFlipperTest {
 
     @Test
-    public void testRunPass() {
+    void testRunPass() {
         MutatingVisitController visitController = mock(MutatingVisitController.class);
 
         BiDiFlipper pass = new BiDiFlipper(visitController, true, true);
@@ -44,7 +41,7 @@ public class BiDiFlipperTest {
 
     // Test when the node is set to be non-flippable.
     @Test
-    public void testEnterDeclaration1() {
+    void testEnterDeclaration1() {
         MutatingVisitController visitController = mock(MutatingVisitController.class);
         CssDeclarationNode node = new CssDeclarationNode(new CssPropertyNode("foo"));
         node.setShouldBeFlipped(false);
@@ -57,7 +54,7 @@ public class BiDiFlipperTest {
 
     // Test when the node is set to be flippable.
     @Test
-    public void testEnterDeclaration2() {
+    void testEnterDeclaration2() {
         // padding: 5px 1px 2px 3px;
         CssPropertyNode prop1 = new CssPropertyNode("padding", null);
         CssPropertyValueNode value1 = new CssPropertyValueNode();
@@ -177,7 +174,7 @@ public class BiDiFlipperTest {
     }
 
     @Test
-    public void testSubPercentValues() {
+    void testSubPercentValues() {
         // background-position-x: 1.12345678%;
         CssPropertyNode prop1 = new CssPropertyNode("background-position-x", null);
         CssPropertyValueNode value1 = new CssPropertyValueNode();
@@ -217,7 +214,7 @@ public class BiDiFlipperTest {
     }
 
     @Test
-    public void testBidiImportant() {
+    void testBidiImportant() {
         // margin: 1px 2px 3px 4px !important;
         CssPropertyNode prop1 = new CssPropertyNode("margin", null);
         CssPropertyValueNode value1 = new CssPropertyValueNode();
