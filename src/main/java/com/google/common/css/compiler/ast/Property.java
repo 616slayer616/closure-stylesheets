@@ -43,11 +43,11 @@ public final class Property {
      */
     private static final java.lang.String CUSTOM_PROPERTY_PREFIX = "--";
 
-    private final static String BORDER = "border";
-    private final static String BORDER_RADIUS = "border-radius";
-    private final static String MOZ_BORDER_RADIUS = "-moz-border-radius";
-    private final static String WEBKIT_BORDER_RADIUS = "-webkit-border-radius";
-    private final static String FLEX_BOX_NO_SUPPORT = "The flexbox spec has changed and this property is no longer supported.";
+    private static final String BORDER = "border";
+    private static final String BORDER_RADIUS = "border-radius";
+    private static final String MOZ_BORDER_RADIUS = "-moz-border-radius";
+    private static final String WEBKIT_BORDER_RADIUS = "-webkit-border-radius";
+    private static final String FLEX_BOX_NO_SUPPORT = "The flexbox spec has changed and this property is no longer supported.";
 
     /**
      * The CSS properties recognized by default by the CSS Compiler, indexed by name. Note that this
