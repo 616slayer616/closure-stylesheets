@@ -38,6 +38,9 @@ public class PassUtil {
     @VisibleForTesting
     public static final String ALTERNATE = "/* @alternate */";
 
+    private PassUtil() {
+    }
+
     /**
      * Prints a selector including the combinators and refiners but without
      * a block behind with the compact printer.

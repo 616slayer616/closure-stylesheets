@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class HandleUnknownAtRuleNodes extends DefaultTreeVisitor
         implements CssCompilerPass {
-    static final String unknownAtRuleErrorMessage = "unknown @ rule";
+    static final String UNKNOWN_AT_RULE_ERROR_MESSAGE = "unknown @ rule";
 
     private final MutatingVisitController visitController;
     private final ErrorManager errorManager;
@@ -66,7 +66,7 @@ public class HandleUnknownAtRuleNodes extends DefaultTreeVisitor
         }
 
         if (report) {
-            errorManager.report(new GssError(unknownAtRuleErrorMessage, node.getSourceCodeLocation()));
+            errorManager.report(new GssError(UNKNOWN_AT_RULE_ERROR_MESSAGE, node.getSourceCodeLocation()));
         }
         if (remove) {
             visitController.removeCurrentNode();

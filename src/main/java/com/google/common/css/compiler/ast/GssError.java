@@ -143,7 +143,7 @@ public class GssError implements Comparable<GssError>, Serializable {
             }
         } else if (source1 == null && source2 != null) {
             return -1;
-        } else if (source1 != null && source2 == null) {
+        } else if (source1 != null) {
             return 1;
         }
 

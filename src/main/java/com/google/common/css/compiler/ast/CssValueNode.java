@@ -46,8 +46,8 @@ public abstract class CssValueNode extends CssNode {
      * @param value              value
      * @param sourceCodeLocation sourceCodeLocation
      */
-    public CssValueNode(@Nullable String value,
-                        @Nullable SourceCodeLocation sourceCodeLocation) {
+    protected CssValueNode(@Nullable String value,
+                           @Nullable SourceCodeLocation sourceCodeLocation) {
         super(sourceCodeLocation);
         this.value = value;
         this.isDefault = false;
@@ -58,7 +58,7 @@ public abstract class CssValueNode extends CssNode {
      *
      * @param value value
      */
-    public CssValueNode(String value) {
+    protected CssValueNode(String value) {
         this(value, null);
     }
 
@@ -67,7 +67,7 @@ public abstract class CssValueNode extends CssNode {
      *
      * @param node node
      */
-    public CssValueNode(CssValueNode node) {
+    protected CssValueNode(CssValueNode node) {
         this(node.getValue(), node.getSourceCodeLocation());
         this.isDefault = node.getIsDefault();
     }

@@ -44,7 +44,7 @@ import java.util.stream.StreamSupport;
  *
  * <p>Instances of this class are immutable.
  */
-public class SourceCodeLocation implements Comparable<SourceCodeLocation> {
+public class SourceCodeLocation implements Comparable<SourceCodeLocation>, Serializable {
 
     /**
      * This describes a point in a string. A point is the location between two

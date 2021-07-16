@@ -49,7 +49,7 @@ public abstract class CssNodesListNode<T extends CssNode> extends CssNode {
      *
      * @param isEnclosedWithBraces
      */
-    public CssNodesListNode(boolean isEnclosedWithBraces) {
+    protected CssNodesListNode(boolean isEnclosedWithBraces) {
         this(isEnclosedWithBraces, null);
     }
 
@@ -59,8 +59,8 @@ public abstract class CssNodesListNode<T extends CssNode> extends CssNode {
      * @param isEnclosedWithBraces
      * @param comments
      */
-    public CssNodesListNode(boolean isEnclosedWithBraces,
-                            @Nullable List<CssCommentNode> comments) {
+    protected CssNodesListNode(boolean isEnclosedWithBraces,
+                               @Nullable List<CssCommentNode> comments) {
         super(null, comments, null);
         this.isEnclosedWithBraces = isEnclosedWithBraces;
     }
@@ -72,9 +72,9 @@ public abstract class CssNodesListNode<T extends CssNode> extends CssNode {
      * @param comments
      * @param childrenList         list of children
      */
-    public CssNodesListNode(boolean isEnclosedWithBraces,
-                            List<T> childrenList,
-                            @Nullable List<CssCommentNode> comments) {
+    protected CssNodesListNode(boolean isEnclosedWithBraces,
+                               List<T> childrenList,
+                               @Nullable List<CssCommentNode> comments) {
         super(null, comments, null);
         for (T child : childrenList) {
             @SuppressWarnings("unchecked")
@@ -90,7 +90,7 @@ public abstract class CssNodesListNode<T extends CssNode> extends CssNode {
      *
      * @param node
      */
-    public CssNodesListNode(CssNodesListNode<? extends CssNode> node) {
+    protected CssNodesListNode(CssNodesListNode<? extends CssNode> node) {
         super(
                 node.getParent(),
                 node.getComments(),

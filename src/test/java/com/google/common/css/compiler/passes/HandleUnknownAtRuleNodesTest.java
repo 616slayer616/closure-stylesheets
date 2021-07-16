@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
 
-    private final String errorMessage = HandleUnknownAtRuleNodes.unknownAtRuleErrorMessage;
+    private final String errorMessage = HandleUnknownAtRuleNodes.UNKNOWN_AT_RULE_ERROR_MESSAGE;
 
     private final String testCode = "@foo a b c {.x {y: z}\n@bar {}\n@baz X;}";
     private final String testCodePrettyPrintedResult = linesToString(

@@ -112,7 +112,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     }
 
     private int jjMoveStringLiteralDfa20(long old0, long active0) {
-        if (((active0 &= old0)) == 0L)
+        if ((active0 &= old0) == 0L)
             return jjStartNfa0(0, old0);
         try {
             curChar = inputStream.readChar();
@@ -2190,7 +2190,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     }
 
     int curLexState = 0;
-    final int defaultLexState = 0;
+    static final int DEFAULT_LEX_STATE = 0;
     int jjnewStateCnt;
     int jjround;
     int jjmatchedPos;
@@ -2312,7 +2312,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     public void reInit(CharStream stream) {
 
         jjmatchedPos = jjnewStateCnt = 0;
-        curLexState = defaultLexState;
+        curLexState = DEFAULT_LEX_STATE;
         inputStream = stream;
         reInitRounds();
     }
