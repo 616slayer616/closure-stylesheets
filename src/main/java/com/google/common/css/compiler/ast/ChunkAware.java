@@ -48,12 +48,12 @@ public interface ChunkAware {
      *
      * @param chunk an object identifying a chunk
      */
-    public void setChunk(Object chunk);
+    void setChunk(Object chunk);
 
     /**
      * Gets the chunk id of the node.
      *
      * @return the chunk id or {@code null} if no chunk id was previously set
      */
-    public Object getChunk();
+    Object getChunk();
 }

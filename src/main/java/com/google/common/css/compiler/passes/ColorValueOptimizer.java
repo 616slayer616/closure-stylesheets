@@ -39,7 +39,7 @@ public class ColorValueOptimizer extends DefaultTreeVisitor
 
     private static final Function RGB = Function.byName("rgb");
 
-    private MutatingVisitController visitController;
+    private final MutatingVisitController visitController;
 
     public ColorValueOptimizer(MutatingVisitController visitController) {
         this.visitController = visitController;
@@ -60,7 +60,7 @@ public class ColorValueOptimizer extends DefaultTreeVisitor
                 temp.add(optimizedColor);
                 visitController.replaceCurrentBlockChildWith(temp, true);
             } catch (NumberFormatException nfe) {
-                logger.info("Error parsing rgb() function: " + nfe.toString());
+                logger.info("Error parsing rgb() function: " + nfe);
             }
         }
         return true;
@@ -109,7 +109,7 @@ public class ColorValueOptimizer extends DefaultTreeVisitor
                     scalarValue = (int) (255.0 * scalarValue / 100 + 0.5);
                 } else if (!CssNumericNode.NO_UNITS.equals(numericValue.getUnit())) {
                     throw new NumberFormatException("rgb arguments must be scalar or " +
-                            "%. Bad value:" + numericValue.toString());
+                            "%. Bad value:" + numericValue);
                 }
                 // According to W3C specs, out-of-range values are OK, but there's a
                 // good chance it's unintentional, so emit a warning.

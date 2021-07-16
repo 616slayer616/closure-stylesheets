@@ -36,7 +36,7 @@ public class CssCombinatorNode extends CssNode {
 
         private final String symbol;
 
-        private Combinator(String symbol) {
+        Combinator(String symbol) {
             this.symbol = symbol;
         }
 
@@ -52,7 +52,7 @@ public class CssCombinatorNode extends CssNode {
     /**
      * Type of combinator.
      */
-    private Combinator type;
+    private final Combinator type;
 
     /**
      * Constructor of a combinator node.

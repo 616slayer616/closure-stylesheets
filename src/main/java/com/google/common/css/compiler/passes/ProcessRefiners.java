@@ -165,7 +165,7 @@ public class ProcessRefiners extends DefaultTreeVisitor
         StringBuilder compact = new StringBuilder();
         if (a != 0) {
             if (a != 1 || b == 0 /* for WebKit */) {
-                compact.append(Integer.toString(a));
+                compact.append(a);
             }
             compact.append("n");
         }
@@ -173,7 +173,7 @@ public class ProcessRefiners extends DefaultTreeVisitor
             compact.append("+");
         }
         if (b != 0) {
-            compact.append(Integer.toString(b));
+            compact.append(b);
         }
         return compact.toString();
     }
@@ -213,7 +213,7 @@ public class ProcessRefiners extends DefaultTreeVisitor
         } else {
             if (indexOfN + 1 < argument.length()) {
                 // an+b
-                String bStr = argument.substring(indexOfN + 1, argument.length());
+                String bStr = argument.substring(indexOfN + 1);
                 bStr = trim(bStr);
                 bStr = bStr.replace("+", "");
                 return Integer.parseInt(bStr);

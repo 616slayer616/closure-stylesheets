@@ -124,12 +124,12 @@ public enum OutputRenamingMapFormat {
 
     private final String formatString;
 
-    private OutputRenamingMapFormat(String formatString) {
+    OutputRenamingMapFormat(String formatString) {
         Preconditions.checkNotNull(formatString);
         this.formatString = formatString;
     }
 
-    private OutputRenamingMapFormat() {
+    OutputRenamingMapFormat() {
         this("%s");
     }
 
@@ -161,7 +161,7 @@ public enum OutputRenamingMapFormat {
         try {
             writeRenamingMap(renamingMap, (Writer) renamingMapWriter);
         } catch (IOException ex) {
-            throw (AssertionError) new AssertionError("IOException from PrintWriter").initCause(ex);
+            throw new AssertionError("IOException from PrintWriter", ex);
         }
     }
 

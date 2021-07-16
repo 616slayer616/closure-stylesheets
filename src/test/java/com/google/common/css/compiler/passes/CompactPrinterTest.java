@@ -28,12 +28,12 @@ import org.junit.jupiter.api.Test;
 class CompactPrinterTest extends AbstractCompactPrinterTest {
 
     @Test
-    void testEmptyRuleset1() throws Exception {
+    void testEmptyRuleset1() {
         assertCompactPrintedResult("foo{}", "foo {}");
     }
 
     @Test
-    void testEmptyRuleset2() throws Exception {
+    void testEmptyRuleset2() {
         assertCompactPrintedResult("bar{}", "bar {}");
     }
 
@@ -62,30 +62,30 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     @Test
     void testRuleset2() {
         assertCompactPrintedResult(
-                "foo,.bar{color:red;background-image:url('http://s')}",
+                "foo,.bar{color:red;background-image:url('https://s')}",
                 lines("foo, .bar {",
                         "color: red;",
-                        "background-image: url('http://s');",
+                        "background-image: url('https://s');",
                         "}"));
     }
 
     @Test
     void testRuleset3() {
         assertCompactPrintedResult(
-                ".foo .bar{color:red;background-image:url('http://s')}",
+                ".foo .bar{color:red;background-image:url('https://s')}",
                 lines(".foo .bar {",
                         "color: red;",
-                        "background-image: url('http://s');",
+                        "background-image: url('https://s');",
                         "}"));
     }
 
     @Test
     void testRuleset4() {
         assertCompactPrintedResult(
-                ".foo .bar .foobar{color:red;background-image:url('http://s')}",
+                ".foo .bar .foobar{color:red;background-image:url('https://s')}",
                 lines(".foo .bar .foobar {",
                         "color: red;",
-                        "background-image: url('http://s');",
+                        "background-image: url('https://s');",
                         "}",
                         ""));
     }
@@ -93,10 +93,10 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     @Test
     void testRuleset5() {
         assertCompactPrintedResult(
-                ".foo:hover .bar+.foobar{color:red;background-image:url('http://s')}",
+                ".foo:hover .bar+.foobar{color:red;background-image:url('https://s')}",
                 lines(".foo:hover .bar+.foobar {",
                         "color: red;",
-                        "background-image: url('http://s');",
+                        "background-image: url('https://s');",
                         "}"));
     }
 
@@ -373,7 +373,7 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    void testAlphaImageLoader() throws Exception {
+    void testAlphaImageLoader() {
         assertNewCompactPrintedResult(
                 ".CSS_CW_MUC_BUBBLE_BOTTOM_LEFT_ANCHOR{filter:"
                         + "progid:DXImageTransform.Microsoft.AlphaImageLoader("
@@ -388,7 +388,7 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    void testYouTube() throws Exception {
+    void testYouTube() {
         assertNewCompactPrintedResult(
                 ".test{"
                         + "background:-webkit-linear-gradient(left,rgba(0,0,0,.12),"
@@ -410,7 +410,7 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    void testRemovesComments() throws Exception {
+    void testRemovesComments() {
         assertNewCompactPrintedResult(
                 ".foo{}.bar{color:red}",
                 lines(
@@ -424,7 +424,7 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    void testPreservesImportantCommentsWhenSet() throws Exception {
+    void testPreservesImportantCommentsWhenSet() {
         preserveMarkedComments = true;
         assertNewCompactPrintedResult(
                 ".foo{}\n/*! I'm important. */\n.bar{color:red}",
@@ -439,7 +439,7 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    void testPreservesImportantCommentsWhenSet2() throws Exception {
+    void testPreservesImportantCommentsWhenSet2() {
         preserveMarkedComments = true;
         assertNewCompactPrintedResult(
                 ".foo{}\n/* I'm @license */\n.bar{color:red}",
@@ -454,7 +454,7 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    void testPreservesImportantCommentsWhenSet3() throws Exception {
+    void testPreservesImportantCommentsWhenSet3() {
         preserveMarkedComments = true;
         assertNewCompactPrintedResult(
                 ".foo{}\n/* I'm @preserve */\n.bar{color:red}",
@@ -469,7 +469,7 @@ class CompactPrinterTest extends AbstractCompactPrinterTest {
     }
 
     @Test
-    void testPreservesMultipleImportantCommentsWhenSet() throws Exception {
+    void testPreservesMultipleImportantCommentsWhenSet() {
         preserveMarkedComments = true;
         assertNewCompactPrintedResult(
                 "\n/* I'm @preserve */\n.foo{}\n/*! Save me *//* @license hi */\n.bar{color:red}",

@@ -1009,8 +1009,7 @@ public class GssFunctions {
         }
 
         @Override
-        public List<CssValueNode> getCallResultNodes(List<CssValueNode> args, ErrorManager errorManager)
-                throws GssFunctionException {
+        public List<CssValueNode> getCallResultNodes(List<CssValueNode> args, ErrorManager errorManager) {
             StringBuilder result = new StringBuilder();
             for (CssValueNode arg : args) {
                 result.append(arg.getValue());
@@ -1020,7 +1019,7 @@ public class GssFunctions {
         }
 
         @Override
-        public String getCallResultString(List<String> args) throws GssFunctionException {
+        public String getCallResultString(List<String> args) {
             StringBuilder result = new StringBuilder();
             for (String arg : args) {
                 if (arg.length() > 1 && ((arg.startsWith("'") && arg.endsWith("'"))

@@ -33,7 +33,7 @@ class CssCustomFunctionNodeTest {
     private static final CssValueNode COMMA = new CssLiteralNode(",");
 
     @Test
-    void fixupFunctionArgumentsDoesNotModifyLiteralNodes_b35587881() throws Exception {
+    void fixupFunctionArgumentsDoesNotModifyLiteralNodes_b35587881() {
         CssValueNode x = new CssLiteralNode("x");
         CssValueNode y = new CssLiteralNode("y");
         ImmutableList<CssValueNode> parameters = ImmutableList.of(x, SPACE, y);
@@ -46,7 +46,7 @@ class CssCustomFunctionNodeTest {
     }
 
     @Test
-    void stringsAsFunctionArgumentsAreNotHideouslyBroken() throws Exception {
+    void stringsAsFunctionArgumentsAreNotHideouslyBroken() {
         CssValueNode x = new CssLiteralNode("x");
         CssValueNode y = new CssStringNode(Type.DOUBLE_QUOTED_STRING, "double quotes!");
         CssValueNode z = new CssStringNode(Type.SINGLE_QUOTED_STRING, "single quotes!");

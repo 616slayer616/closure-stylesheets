@@ -27,7 +27,7 @@ import com.google.common.css.compiler.ast.*;
 public class MarkDefaultDefinitions extends DefaultTreeVisitor
         implements CssCompilerPass {
 
-    private VisitController visitController;
+    private final VisitController visitController;
 
     /**
      * String that matches the comment marking a definition as a default value.

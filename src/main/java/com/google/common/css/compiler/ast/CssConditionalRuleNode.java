@@ -95,7 +95,7 @@ public class CssConditionalRuleNode extends CssAtRuleNode {
     void setCondition(CssBooleanExpressionNode condition) {
         Preconditions.checkState(getType() != Type.ELSE);
         Preconditions.checkState(getParametersCount() <= 1);
-        this.setParameters(ImmutableList.<CssValueNode>of(condition));
+        this.setParameters(ImmutableList.of(condition));
     }
 
     @Override

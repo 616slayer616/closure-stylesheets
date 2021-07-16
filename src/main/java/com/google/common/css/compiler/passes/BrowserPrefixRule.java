@@ -128,8 +128,8 @@ public final class BrowserPrefixRule {
         private String matchPropertyName = null;
         @Nullable
         private String matchPropertyValue = null;
-        List<String> expandPropertyNameList = Lists.newArrayList();
-        List<String> expandPropertyValueList = Lists.newArrayList();
+        final List<String> expandPropertyNameList = Lists.newArrayList();
+        final List<String> expandPropertyValueList = Lists.newArrayList();
         private boolean isFunction = false;
 
         /**

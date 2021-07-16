@@ -34,7 +34,7 @@ public class CssRulesetNode extends CssNode {
     /**
      * The block of declarations inside this style rule.
      */
-    private CssDeclarationBlockNode declarations;
+    private final CssDeclarationBlockNode declarations;
 
     /**
      * Constructor of a ruleset node.

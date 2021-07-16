@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author fbenz@google.com (Florian Benz)
  */
-@SuppressWarnings("java:S2699")
 class StrictCss2Test extends NewFunctionalTestBase {
     private String compactPrintedResult;
 

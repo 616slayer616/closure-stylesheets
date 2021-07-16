@@ -96,7 +96,7 @@ public class RecordingSubstitutionMap implements SubstitutionMap.Initializable {
         private SubstitutionMap delegate = new IdentitySubstitutionMap();
         private Predicate<? super String> shouldRecordMappingForCodeGeneration =
                 Predicates.alwaysTrue();
-        private Map<String, String> mappings = Maps.newLinkedHashMap();
+        private final Map<String, String> mappings = Maps.newLinkedHashMap();
 
         /**
          * Specifies the underlying map. Multiple calls clobber.

@@ -44,10 +44,10 @@ public final class CheckMissingRequire extends DefaultTreeVisitor implements Css
     private static final Logger logger = Logger.getLogger(CheckMissingRequire.class.getName());
 
     private static final Pattern OVERRIDE_SELECTOR_REGEX = Pattern.compile(
-            "^\\s*(?:/\\*?)?\\*\\s+@overrideSelector\\s+\\{(.*)\\}\\s*(?:\\*/)?$", MULTILINE);
+            "^\\s*(?:/\\*?)?\\*\\s+@overrideSelector\\s+\\{(.*)}\\s*(?:\\*/)?$", MULTILINE);
 
     private static final Pattern OVERRIDE_DEF_REGEX = Pattern.compile(
-            "^\\s*(?:/\\*?)?\\*\\s+@overrideDef\\s+\\{(.*)\\}\\s*(?:\\*/)?$", MULTILINE);
+            "^\\s*(?:/\\*?)?\\*\\s+@overrideDef\\s+\\{(.*)}\\s*(?:\\*/)?$", MULTILINE);
 
     private final VisitController visitController;
     private final ErrorManager errorManager;

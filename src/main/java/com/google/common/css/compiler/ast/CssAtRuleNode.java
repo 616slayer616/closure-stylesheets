@@ -103,11 +103,11 @@ public abstract class CssAtRuleNode extends CssNodesListNode<CssValueNode> {
         /**
          * Most at rules require a block.
          */
-        private Type(@Nullable String canonicalName) {
+        Type(@Nullable String canonicalName) {
             this(canonicalName, true /* hasBlock */);
         }
 
-        private Type(@Nullable String canonicalName, boolean hasBlock) {
+        Type(@Nullable String canonicalName, boolean hasBlock) {
             this.canonicalName = canonicalName;
             this.hasBlock = hasBlock;
         }

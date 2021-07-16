@@ -148,7 +148,7 @@ public class CssSelectorNode extends CssNode implements ChunkAware {
             }
         }
         if (combinator != null) {
-            sb.append(combinator.toString());
+            sb.append(combinator);
         }
         return sb.toString();
     }
@@ -159,7 +159,7 @@ public class CssSelectorNode extends CssNode implements ChunkAware {
      * http://www.w3.org/TR/CSS2/cascade.html#specificity.
      */
     public static class Specificity implements Comparable<Specificity> {
-        /**
+        /*
          * Counts 1 if the declaration is from is a 'style' attribute rather than
          * a rule with a selector, 0 otherwise
          */

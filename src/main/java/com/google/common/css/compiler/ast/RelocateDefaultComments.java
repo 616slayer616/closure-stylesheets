@@ -40,15 +40,11 @@ public class RelocateDefaultComments extends DefaultTreeVisitor
         CssLiteralNode name = node.getName();
         List<CssValueNode> params = node.getParameters();
         List<CssCommentNode> nameComments = name.getComments();
-        for (CssCommentNode c : nameComments) {
-            comments.add(c);
-        }
+        comments.addAll(nameComments);
         nameComments.clear();
         for (CssValueNode valueNode : params) {
             List<CssCommentNode> commentsList = valueNode.getComments();
-            for (CssCommentNode c : commentsList) {
-                comments.add(c);
-            }
+            comments.addAll(commentsList);
             commentsList.clear();
         }
         return true;

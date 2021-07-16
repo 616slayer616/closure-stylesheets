@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SplittingSubstitutionMapTest {
 
     @Test
-    void testGet() throws Exception {
+    void testGet() {
         SubstitutionMap map = new SplittingSubstitutionMap(
                 new SimpleSubstitutionMap());
         assertThat(map.get("a")).isEqualTo("a_");
@@ -42,7 +42,7 @@ class SplittingSubstitutionMapTest {
         // Manually force a non-interned string so that we can prove we got back
         // the same one we meant. If we just used a String literal, it would be
         // less convincing.
-        String input = new String("abc");
+        String input = "abc";
         SubstitutionMap map = new SplittingSubstitutionMap(
                 new PassThroughSubstitutionMap());
         assertThat(map.get(input)).isSameAs(input);

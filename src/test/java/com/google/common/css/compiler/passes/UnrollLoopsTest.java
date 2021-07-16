@@ -33,7 +33,7 @@ class UnrollLoopsTest extends PassesTestBase {
     }
 
     @Test
-    void testSimpleLoopUnroll() throws Exception {
+    void testSimpleLoopUnroll() {
         testTreeConstruction(linesToString(
                 "@for $i from 1 to 3 {",
                 "  .foo-$i {}",
@@ -42,7 +42,7 @@ class UnrollLoopsTest extends PassesTestBase {
     }
 
     @Test
-    void testNestedLoopUnroll() throws Exception {
+    void testNestedLoopUnroll() {
         testTreeConstruction(linesToString(
                 "@for $i from 1 to 3 {",
                 "  @for $j from 1 to $i {",
@@ -53,7 +53,7 @@ class UnrollLoopsTest extends PassesTestBase {
     }
 
     @Test
-    void testDefinitionRenaming() throws Exception {
+    void testDefinitionRenaming() {
         testTreeConstruction(linesToString(
                 "@for $i from 1 to 2 {",
                 "  @def FOO $i;",

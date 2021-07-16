@@ -842,7 +842,7 @@ public final class Property {
     private static Property createUserDefinedProperty(String name) {
         Preconditions.checkArgument(!NAME_TO_PROPERTY_MAP.containsKey(name));
         Builder builder = builder(name)
-                .setShorthands(ImmutableSet.<String>of());
+                .setShorthands(ImmutableSet.of());
         if (name.startsWith(CUSTOM_PROPERTY_PREFIX)) {
             builder.isCustom();
         }
@@ -1136,7 +1136,7 @@ public final class Property {
 
             // Special-case border-radius properties because they are particularly
             // odd.
-            if (BORDER_RADIUS_PROPERTIES.keySet().contains(property)) {
+            if (BORDER_RADIUS_PROPERTIES.containsKey(property)) {
                 return ImmutableSet.of(BORDER_RADIUS_PROPERTIES.get(property));
             }
 

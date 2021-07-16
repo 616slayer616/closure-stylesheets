@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author oana@google.com (Oana Florescu)
  * @author fbenz@google.com (Florian Benz)
  */
-@SuppressWarnings("java:S2699")
 class MarkNonFlippableNodesTest extends PassesTestBase {
 
     @Test

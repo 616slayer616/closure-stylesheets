@@ -31,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author oana@google.com (Oana Florescu)
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("java:S2699")
 class EliminateUnitsFromZeroNumericValuesTest {
 
     @Mock

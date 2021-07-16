@@ -43,7 +43,7 @@ class EliminateConditionalNodesTest extends FunctionalTestBase {
 
     @Test
     void testSimple2() {
-        trueConditions = ImmutableSet.<String>of();
+        trueConditions = ImmutableSet.of();
         testTreeConstruction(
                 "@if COND {"
                         + "  foo { top : expression('cond') }"
@@ -83,7 +83,7 @@ class EliminateConditionalNodesTest extends FunctionalTestBase {
 
     @Test
     void testSimple5() {
-        trueConditions = ImmutableSet.<String>of();
+        trueConditions = ImmutableSet.of();
         testTreeConstruction(
                 "@if COND1 {"
                         + "  foo { top : expression('cond1') }"

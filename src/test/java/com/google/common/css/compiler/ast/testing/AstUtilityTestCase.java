@@ -71,7 +71,7 @@ public abstract class AstUtilityTestCase extends UtilityTestCase {
                                    CssNode node2,
                                    Class<?> currentClass)
             throws IllegalAccessException {
-        Field fields[] = currentClass.getDeclaredFields();
+        Field[] fields = currentClass.getDeclaredFields();
         for (Field field : fields) {
             if ("parent".equals(field.getName())) {
                 continue;

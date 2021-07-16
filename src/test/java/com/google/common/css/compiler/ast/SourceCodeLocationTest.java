@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SourceCodeLocationTest {
 
-    private TestParser testParser = new TestParser();
+    private final TestParser testParser = new TestParser();
 
     @Test
     @Disabled("The parser does not handle @charset.")

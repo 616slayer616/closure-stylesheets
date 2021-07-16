@@ -98,7 +98,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
     private ImmutableSet<String> outputValueBlacklist;
 
     public MinimalSubstitutionMap() {
-        this(ImmutableSet.<String>of());
+        this(ImmutableSet.of());
     }
 
     /**
@@ -120,7 +120,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
      */
     @VisibleForTesting
     MinimalSubstitutionMap(char[] startChars, char[] usableChars) {
-        this(startChars, usableChars, ImmutableSet.<String>of());
+        this(startChars, usableChars, ImmutableSet.of());
     }
 
     /**

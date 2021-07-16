@@ -18,8 +18,6 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.CssNode;
 
-import java.io.IOException;
-
 /**
  * Null class implements {@link GssSourceMapGenerator}.
  *
@@ -28,7 +26,7 @@ import java.io.IOException;
 public final class NullGssSourceMapGenerator implements GssSourceMapGenerator {
 
     @Override
-    public void appendOutputTo(Appendable out, String name) throws IOException {
+    public void appendOutputTo(Appendable out, String name) {
         return;
     }
 

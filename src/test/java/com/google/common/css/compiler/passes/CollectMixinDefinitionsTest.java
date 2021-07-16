@@ -30,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author fbenz@google.com (Florian Benz)
  */
-@SuppressWarnings("java:S2699")
 class CollectMixinDefinitionsTest extends PassesTestBase {
     private Map<String, CssMixinDefinitionNode> definitions;
 

@@ -1979,7 +1979,7 @@ class DefaultVisitController implements MutatingVisitController {
     }
 
     static class StateStack {
-        Deque<VisitState<? extends CssNode>> stack = Queues.newArrayDeque();
+        final Deque<VisitState<? extends CssNode>> stack = Queues.newArrayDeque();
 
         VisitState<? extends CssNode> getTop() {
             return stack.peek();

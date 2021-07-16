@@ -214,7 +214,7 @@ class MarkRemovableRulesetNodesTest extends PassesTestBase {
                         ".CSS_RULE {",
                         "  border: 3px;",
                         "}"),
-                Sets.<String>newHashSet(),
+                Sets.newHashSet(),
                 null);
         final RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
 
@@ -489,7 +489,7 @@ class MarkRemovableRulesetNodesTest extends PassesTestBase {
                         ".CSS_RULE {",
                         "  /* @alternate */ border: 3px;",
                         "}"),
-                Sets.<String>newHashSet(),
+                Sets.newHashSet(),
                 null);
         final RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
         assertThat(rules.getRulesetNodes()).isEmpty();
@@ -509,7 +509,7 @@ class MarkRemovableRulesetNodesTest extends PassesTestBase {
                         ".CSS_RULE {",
                         "  border: 2px;",
                         "}"),
-                Sets.<String>newHashSet(),
+                Sets.newHashSet(),
                 null);
         final RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
 
@@ -540,7 +540,7 @@ class MarkRemovableRulesetNodesTest extends PassesTestBase {
                         ".CSS_RULE {",
                         "  /* @alternate */ border: 3px;",
                         "}"),
-                Sets.<String>newHashSet(),
+                Sets.newHashSet(),
                 null);
         final RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
 
@@ -560,7 +560,7 @@ class MarkRemovableRulesetNodesTest extends PassesTestBase {
                         ".CSS_RULE {",
                         "  display: 1px;",
                         "}"),
-                Sets.<String>newHashSet(".some_other_thing"),
+                Sets.newHashSet(".some_other_thing"),
                 "");
         final RulesetNodesToRemove rules = tree.getRulesetNodesToRemove();
 

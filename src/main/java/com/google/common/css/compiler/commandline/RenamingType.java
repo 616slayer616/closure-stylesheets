@@ -53,7 +53,7 @@ enum RenamingType {
 
     private final SubstitutionMapProvider provider;
 
-    private RenamingType(SubstitutionMapProvider provider) {
+    RenamingType(SubstitutionMapProvider provider) {
         this.provider = provider;
     }
 

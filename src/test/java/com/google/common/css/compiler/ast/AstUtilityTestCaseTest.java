@@ -20,7 +20,7 @@ import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.CssCombinatorNode.Combinator;
 import com.google.common.css.compiler.ast.testing.AstUtilityTestCase;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AstUtilityTestCaseTest extends AstUtilityTestCase {
 
     @Test
-    void testDeepEquals1() throws Exception {
+    void testDeepEquals1() {
         CssLiteralNode node1 = new CssLiteralNode("");
         CssLiteralNode node2 = new CssLiteralNode("");
 
@@ -41,7 +41,7 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
     }
 
     @Test
-    void testDeepEquals2() throws Exception {
+    void testDeepEquals2() {
         CssLiteralNode node1 = new CssLiteralNode("node");
         CssLiteralNode node2 = new CssLiteralNode("node");
 
@@ -49,13 +49,13 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
     }
 
     @Test
-    void testDeepEquals3() throws Exception {
+    void testDeepEquals3() {
         CssLiteralNode node1 = new CssLiteralNode("node1");
         CssLiteralNode node2 = new CssLiteralNode("node2");
 
         try {
             assertThat(node1).isEqualToComparingFieldByFieldRecursively(node2);
-            Assert.fail("FAIL: Node1 and Node2 should not be equal.");
+            Assertions.fail("FAIL: Node1 and Node2 should not be equal.");
         } catch (AssertionError e) {
             if (e.getMessage().startsWith("FAIL")) {
                 throw e;
@@ -64,7 +64,7 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
     }
 
     @Test
-    void testDeepEquals4() throws Exception {
+    void testDeepEquals4() {
         CssCombinatorNode parent1 = new CssCombinatorNode(
                 Combinator.DESCENDANT,
                 new SourceCodeLocation(
@@ -80,7 +80,7 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
 
         try {
             assertThat(parent1).isEqualToComparingFieldByFieldRecursively(parent2);
-            Assert.fail("FAIL: Parent1 and Parent2 should not be equal.");
+            Assertions.fail("FAIL: Parent1 and Parent2 should not be equal.");
         } catch (AssertionError e) {
             if (e.getMessage().startsWith("FAIL")) {
                 throw e;

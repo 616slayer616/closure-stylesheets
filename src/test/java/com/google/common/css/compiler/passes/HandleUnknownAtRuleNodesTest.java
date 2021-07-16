@@ -51,7 +51,7 @@ class HandleUnknownAtRuleNodesTest extends NewFunctionalTestBase {
     protected void runPass() {
         new HandleUnknownAtRuleNodes(
                 tree.getMutatingVisitController(), errorManager,
-                Sets.<String>newHashSet("-custom-at-rule"),
+                Sets.newHashSet("-custom-at-rule"),
                 report, remove).runPass();
         PrettyPrinter prettyPrinterPass = new PrettyPrinter(tree.getVisitController());
         prettyPrinterPass.runPass();

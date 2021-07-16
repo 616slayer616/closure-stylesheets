@@ -21,8 +21,8 @@ import com.google.common.css.compiler.ast.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
-import org.mockito.Matchers;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -61,7 +61,7 @@ class AbbreviatePositionalValuesTest {
         pass.enterDeclaration(declaration);
 
         verify(mockVisitController)
-                .replaceCurrentBlockChildWith(cssNodesCaptor.capture(), Matchers.anyBoolean());
+                .replaceCurrentBlockChildWith(cssNodesCaptor.capture(), ArgumentMatchers.anyBoolean());
         CssNode cssNode = Iterables.getOnlyElement(cssNodesCaptor.getValue());
         assertThat(cssNode).isInstanceOf(CssDeclarationNode.class);
         CssDeclarationNode replacement = (CssDeclarationNode) cssNode;

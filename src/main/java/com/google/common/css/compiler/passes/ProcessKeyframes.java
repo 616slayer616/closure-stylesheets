@@ -128,7 +128,7 @@ public class ProcessKeyframes extends DefaultTreeVisitor
             String percentageStr = Float.toString(percentage);
             if (0 < percentage && percentage < 1) {
                 // eliminate an unnecessary leading 0
-                percentageStr = percentageStr.substring(1, percentageStr.length());
+                percentageStr = percentageStr.substring(1);
             }
             // eliminate a trailing zero like in 0.0
             percentageStr = percentageStr.replaceAll("0+$", "");

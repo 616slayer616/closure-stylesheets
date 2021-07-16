@@ -93,7 +93,7 @@ public class EliminateUnitsFromZeroNumericValues extends DefaultTreeVisitor
             logger.warning(
                     "Numeric part of the numeric value node could not be "
                             + "parsed: "
-                            + node.toString()
+                            + node
                             + ((node.getSourceCodeLocation() != null)
                             ? "@" + node.getSourceCodeLocation().getLineNumber()
                             : ""));

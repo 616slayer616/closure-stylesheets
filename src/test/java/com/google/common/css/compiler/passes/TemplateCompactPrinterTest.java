@@ -432,8 +432,8 @@ class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
      * to a chunk, given selector belongs to.
      */
     protected static class SetSelectorChunk extends DefaultTreeVisitor implements CssCompilerPass {
-        private CssTree tree;
-        private Map<String, String> selectorToChunkMap;
+        private final CssTree tree;
+        private final Map<String, String> selectorToChunkMap;
 
         /**
          * The current "top" selector - one which is first in a list of selectors divided by

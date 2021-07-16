@@ -49,6 +49,6 @@ public interface Proxiable<T> {
      *
      * @return the proxy object
      */
-    public T createProxy();
+    T createProxy();
 
 }

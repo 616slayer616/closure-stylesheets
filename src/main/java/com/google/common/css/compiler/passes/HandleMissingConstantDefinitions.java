@@ -55,7 +55,7 @@ public final class HandleMissingConstantDefinitions extends DefaultTreeVisitor
 
     private void checkValueNode(CssValueNode node) {
         if (node instanceof CssConstantReferenceNode
-                && !definitions.getConstants().keySet().contains(node.getValue())) {
+                && !definitions.getConstants().containsKey(node.getValue())) {
             errorManager.report(new GssError(
                     ERROR_MESSAGE, node.getSourceCodeLocation()));
         }

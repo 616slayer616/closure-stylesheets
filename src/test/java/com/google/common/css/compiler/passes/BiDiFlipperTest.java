@@ -27,7 +27,6 @@ import static org.mockito.Mockito.mock;
 /**
  * Unit tests for {@link BiDiFlipper}.
  */
-@SuppressWarnings("java:S2699")
 class BiDiFlipperTest {
 
     @Test

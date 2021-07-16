@@ -18,12 +18,12 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -31,7 +31,6 @@ import static org.mockito.Mockito.mock;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@SuppressWarnings("java:S2699")
 class ColorValueOptimizerTest {
 
     @Test
@@ -184,7 +183,7 @@ class ColorValueOptimizerTest {
 
         try {
             ColorValueOptimizer.parseRgbArguments(function);
-            fail("Too few arguments to rgb function; should have thrown.");
+            Assertions.fail("Too few arguments to rgb function; should have thrown.");
         } catch (NumberFormatException expected) {
             // Exception is expected.
         }

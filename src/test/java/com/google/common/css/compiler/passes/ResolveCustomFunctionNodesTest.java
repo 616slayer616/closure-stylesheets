@@ -50,7 +50,7 @@ class ResolveCustomFunctionNodesTest extends NewFunctionalTestBase {
         new ResolveCustomFunctionNodes(
                 tree.getMutatingVisitController(), errorManager,
                 createTestFunctionMap(), allowUnknownFunctions,
-                ImmutableSet.<String>of() /* allowedNonStandardFunctions */).runPass();
+                ImmutableSet.of() /* allowedNonStandardFunctions */).runPass();
     }
 
     @Test

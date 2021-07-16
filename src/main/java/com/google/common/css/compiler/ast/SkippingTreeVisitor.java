@@ -33,7 +33,7 @@ public class SkippingTreeVisitor extends DefaultTreeVisitor {
      * The rules which contain any of these property names will be skipped,
      * if skipping is set to true.
      */
-    Set<String> propertyNamesToSkip = ImmutableSet.of("display");
+    final Set<String> propertyNamesToSkip = ImmutableSet.of("display");
     // TODO(user): Possible more needed property names (which can trigger
     // hasLayout in IE): zoom, position, float
 

@@ -43,9 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TestParser {
 
     private CssTree tree;
-    private List<SourceCode> sources = new ArrayList<>();
-    private TestErrorManager errorManager = new TestErrorManager(new String[0]);
-    private GssSourceMapGenerator generator =
+    private final List<SourceCode> sources = new ArrayList<>();
+    private final TestErrorManager errorManager = new TestErrorManager(new String[0]);
+    private final GssSourceMapGenerator generator =
             new DefaultGssSourceMapGenerator(SourceMapDetailLevel.ALL);
     private String output = null;
     private SourceMapping sourceMap = null;

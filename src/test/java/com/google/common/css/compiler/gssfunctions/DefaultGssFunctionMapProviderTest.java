@@ -33,7 +33,6 @@ import java.util.Set;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@SuppressWarnings("java:S2699")
 class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
 
     @Override
@@ -204,8 +203,8 @@ class DefaultGssFunctionMapProviderTest extends NewFunctionalTestBase {
 
     @Test
     void testConcat() throws GssParserException {
-        test("A { background-image:url(concat('http://', www, '.google.com', \"/example.gif\")); }",
-                "A { background-image:url('http://www.google.com/example.gif'); }");
+        test("A { background-image:url(concat('https://', www, '.google.com', \"/example.gif\")); }",
+                "A { background-image:url('https://www.google.com/example.gif'); }");
         test("A { x:concat(a); }", "A { x:'a'; }");
         test("A { x:concat(\"'\", \"\\\"\", 'bar','\"', '\\''); }",
                 "A { x:'\\'\"bar\"\\'' }");

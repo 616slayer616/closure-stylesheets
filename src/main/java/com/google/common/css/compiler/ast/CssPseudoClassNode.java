@@ -34,7 +34,7 @@ public class CssPseudoClassNode extends CssRefinerNode {
     /**
      * Indicates if the refiner is a function and if so which one.
      */
-    private FunctionType functionType;
+    private final FunctionType functionType;
     /**
      * Argument of the function if the refiner is a function else empty
      */
@@ -42,7 +42,7 @@ public class CssPseudoClassNode extends CssRefinerNode {
     /**
      * Selector for the ':not' function
      */
-    private CssSelectorNode notSelector;
+    private final CssSelectorNode notSelector;
 
     /**
      * Determines if the pseudo-class is a function and if so which one.
@@ -52,7 +52,7 @@ public class CssPseudoClassNode extends CssRefinerNode {
         LANG,
         // TODO(fbenz): make the arguments for nth-functions real nodes
         NTH,
-        NOT;
+        NOT
         // No support for 'any' at the moment because it is relatively new and
         // subject to changes (e.g. introduced in Gecko 2).
     }

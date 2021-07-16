@@ -46,7 +46,7 @@ public class StringCharStream implements CharStream {
     private int beginLine;
     private int beginColumn;
 
-    private int tabSize = 1;
+    private final int tabSize = 1;
     private boolean trackLineColumn;
 
     /**

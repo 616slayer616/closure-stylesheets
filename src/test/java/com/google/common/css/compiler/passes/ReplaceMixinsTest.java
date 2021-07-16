@@ -454,7 +454,7 @@ class ReplaceMixinsTest extends PassesTestBase {
     }
 
     @Test
-    void testIdSeqInFontShorthandUsingDefMixin() throws Exception {
+    void testIdSeqInFontShorthandUsingDefMixin() {
         testTreeConstruction(linesToString(
                 "@defmixin myfont(FONTSTYLE, FONTFACEA, FONTFACEB) {",
                 "  font: FONTSTYLE FONTFACEA, FONTFACEB;",

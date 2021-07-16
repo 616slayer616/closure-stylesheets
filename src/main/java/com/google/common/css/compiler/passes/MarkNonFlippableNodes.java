@@ -79,9 +79,7 @@ public class MarkNonFlippableNodes extends DefaultTreeVisitor
             if (selectors.numChildren() == 0) {
                 return false;
             }
-            if (!selectors.getChildAt(0).getShouldBeFlipped()) {
-                return true;
-            }
+            return !selectors.getChildAt(0).getShouldBeFlipped();
         }
         return false;
     }

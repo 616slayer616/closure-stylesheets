@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class CssStringNodeTest {
     @Test
-    void testCssValueNodeRoundtrip() throws Exception {
+    void testCssValueNodeRoundtrip() {
         String v = "ordinary";
         for (CssStringNode.Type t : CssStringNode.Type.values()) {
             CssStringNode n = new CssStringNode(t, v);
@@ -39,7 +39,7 @@ class CssStringNodeTest {
     }
 
     @Test
-    void testCssValueNodeFixedPoint() throws Exception {
+    void testCssValueNodeFixedPoint() {
         // This test doesn't care if setValue/getValue work in terms of
         // CSS or abstract values, but we just want to make sure that
         // eventually what we set is what we get.
@@ -55,7 +55,7 @@ class CssStringNodeTest {
     }
 
     @Test
-    void testConcreteRoundtrip() throws Exception {
+    void testConcreteRoundtrip() {
         // This value is safe for verbatim inclusion in either kind of
         // string literal, and for each kind it includes:
         //   (a) an escape sequence that denotes a character that must
@@ -83,7 +83,7 @@ class CssStringNodeTest {
     }
 
     @Test
-    void testShortEscaper() throws Exception {
+    void testShortEscaper() {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},
@@ -112,7 +112,7 @@ class CssStringNodeTest {
     }
 
     @Test
-    void testInsertsIgnoredWhitespaceAfterEscape() throws Exception {
+    void testInsertsIgnoredWhitespaceAfterEscape() {
         // When parsing, we always discard zero or one whitespace after an
         // escape sequence.
         // See http://www.w3.org/TR/CSS2/syndata.html#characters
@@ -149,7 +149,7 @@ class CssStringNodeTest {
     }
 
     @Test
-    void testHtmlEscaper() throws Exception {
+    void testHtmlEscaper() {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},
@@ -173,7 +173,7 @@ class CssStringNodeTest {
     }
 
     @Test
-    void testEscape() throws Exception {
+    void testEscape() {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},
@@ -195,7 +195,7 @@ class CssStringNodeTest {
     }
 
     @Test
-    void testUnescape() throws Exception {
+    void testUnescape() {
         for (String[] io : new String[][]{
                 {"", ""},
                 {"a", "a"},

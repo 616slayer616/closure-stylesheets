@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 class UniformVisitorAdaptersTest {
 
     @Test
-    void asVisitor() throws Exception {
+    void asVisitor() {
         UniformVisitor uniformVisitor = mock(UniformVisitor.class);
         CssTreeVisitor visitor = Adapters.asVisitor(uniformVisitor);
 
@@ -45,7 +45,7 @@ class UniformVisitorAdaptersTest {
     }
 
     @Test
-    void asCombinedVisitor() throws Exception {
+    void asCombinedVisitor() {
         CombinedVisitor combinedVisitor = mock(CombinedVisitor.class);
         CssTreeVisitor visitor = Adapters.asCombinedVisitor(combinedVisitor);
 
@@ -60,7 +60,7 @@ class UniformVisitorAdaptersTest {
     }
 
     @Test
-    void testCombinedVisitorObjectMethods() throws Exception {
+    void testCombinedVisitorObjectMethods() {
         CombinedVisitor combinedVisitor = mock(CombinedVisitor.class);
         CssTreeVisitor visitor = Adapters.asCombinedVisitor(combinedVisitor);
 
@@ -68,7 +68,7 @@ class UniformVisitorAdaptersTest {
     }
 
     @Test
-    void testUniformVisitorObjectMethods() throws Exception {
+    void testUniformVisitorObjectMethods() {
         UniformVisitor uniformVisitor = mock(UniformVisitor.class);
         CssTreeVisitor visitor = Adapters.asVisitor(uniformVisitor);
 
@@ -78,5 +78,4 @@ class UniformVisitorAdaptersTest {
     private interface CombinedVisitor extends CssTreeVisitor, UniformVisitor {
     }
 
-    ;
 }

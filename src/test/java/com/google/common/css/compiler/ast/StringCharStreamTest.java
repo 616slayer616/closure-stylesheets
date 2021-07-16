@@ -16,7 +16,7 @@
 
 package com.google.common.css.compiler.ast;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -108,7 +108,7 @@ class StringCharStreamTest {
     }
 
     @Test
-    void testConvertCharacterIndex() throws Exception {
+    void testConvertCharacterIndex() {
         StringCharStream s = new StringCharStream(
                 "01234\n" +
                         "6789\n" +
@@ -174,7 +174,7 @@ class StringCharStreamTest {
 
         try {
             s.readChar();
-            Assert.fail();
+            Assertions.fail();
         } catch (IOException e) {
             // Should thrown an exception, when reaching behind the end of the string.
         }

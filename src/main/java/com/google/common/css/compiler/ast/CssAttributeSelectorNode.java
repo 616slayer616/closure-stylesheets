@@ -29,9 +29,9 @@ public class CssAttributeSelectorNode extends CssRefinerNode {
     /**
      * Indicates which kind of attribute selector is used.
      */
-    private MatchType matchType;
-    private String attributeName;
-    private CssValueNode value;
+    private final MatchType matchType;
+    private final String attributeName;
+    private final CssValueNode value;
 
     /**
      * Determines how the given value has to match the value of the attribute so
@@ -48,7 +48,7 @@ public class CssAttributeSelectorNode extends CssRefinerNode {
 
         private final String symbol;
 
-        private MatchType(String symbol) {
+        MatchType(String symbol) {
             this.symbol = symbol;
         }
 

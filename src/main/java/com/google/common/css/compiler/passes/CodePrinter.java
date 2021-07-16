@@ -148,7 +148,7 @@ public abstract class CodePrinter implements CssCompilerPass {
 
     private class CommentPrintingVisitor implements UniformVisitor {
 
-        private LastLicenseData lastLicenseData = new LastLicenseData();
+        private final LastLicenseData lastLicenseData = new LastLicenseData();
 
         @Override
         public void enter(CssNode node) {

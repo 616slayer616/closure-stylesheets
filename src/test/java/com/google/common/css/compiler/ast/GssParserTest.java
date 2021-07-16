@@ -21,7 +21,7 @@ import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.passes.CompactPrinter;
 import com.google.common.css.compiler.passes.testing.AstPrinter;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -288,7 +288,7 @@ class GssParserTest {
 
     @Test
     void testParsingURL() throws Exception {
-        testValid("a { x: url('http://test.com') }");
+        testValid("a { x: url('https://test.com') }");
     }
 
     @Test
@@ -326,12 +326,12 @@ class GssParserTest {
 
     @Test
     void testParsingAt1() throws Exception {
-        testValid("@import url('http://test.com/test.css');");
+        testValid("@import url('https://test.com/test.css');");
     }
 
     @Test
     void testParsingAt2() throws Exception {
-        testValid("@import url(http://test.com/test.css);");
+        testValid("@import url(https://test.com/test.css);");
     }
 
     @Test
@@ -845,7 +845,7 @@ class GssParserTest {
 
     @Test
     void testUnquotedUrl() throws Exception {
-        testValid("div { background-image: url(http://google.com/logo.png) }");
+        testValid("div { background-image: url(https://google.com/logo.png) }");
     }
 
     @Test
@@ -863,13 +863,13 @@ class GssParserTest {
 
     @Test
     void testFn() throws Exception {
-        testValid("div { background-image: url(http://foo) }");
+        testValid("div { background-image: url(https://foo) }");
     }
 
     @Test
     void testUrlPrefix() throws Exception {
-        testTree("div { background-image: url-prefix(http://fo); }",
-                "[[div]{[background-image:[url-prefix(http://fo)];]}]");
+        testTree("div { background-image: url-prefix(https://fo); }",
+                "[[div]{[background-image:[url-prefix(https://fo)];]}]");
     }
 
     @Test
@@ -885,16 +885,16 @@ class GssParserTest {
 
     @Test
     void testUrlWithWhitespace() throws Exception {
-        testTree("div { background-image: url( 'http://google.com/logo.png'); }",
+        testTree("div { background-image: url( 'https://google.com/logo.png'); }",
                 "[[div]{[background-image:"
-                        + "[url('http://google.com/logo.png')];]}]");
+                        + "[url('https://google.com/logo.png')];]}]");
     }
 
     @Test
     void testUnquotedUrlWithWhitespace() throws Exception {
-        testTree("div { background-image: url( http://google.com/logo.png); }",
+        testTree("div { background-image: url( https://google.com/logo.png); }",
                 "[[div]{[background-image:"
-                        + "[url(http://google.com/logo.png)];]}]");
+                        + "[url(https://google.com/logo.png)];]}]");
     }
 
     @Test
@@ -905,11 +905,11 @@ class GssParserTest {
     }
 
     @Test
-    void testIntraPropertyCdoCdc() throws Exception {
+    void testIntraPropertyCdoCdc() {
         String css = ".foo{border:1px<!--solid-->blue;}";
         try {
             parse(css);
-            Assert.fail("CDO should not be accepted in property values.");
+            Assertions.fail("CDO should not be accepted in property values.");
         } catch (GssParserException e) {
             assertWithMessage(
                     "The error should reflect that CDO is not accepted in property " + "values.")
@@ -942,7 +942,7 @@ class GssParserTest {
     }
 
     @Test
-    void testRunawayMicrosoftListAtRule() throws Exception {
+    void testRunawayMicrosoftListAtRule() {
         String[] samples = new String[]{
                 // unterminated block
                 "@list l0 {mso-list-id:792754432;",
@@ -957,7 +957,7 @@ class GssParserTest {
         for (String css : samples) {
             try {
                 parse(css);
-                Assert.fail("The compiler should only accept complete @list rules, not " + css);
+                Assertions.fail("The compiler should only accept complete @list rules, not " + css);
             } catch (GssParserException e) {
                 // expected
             }

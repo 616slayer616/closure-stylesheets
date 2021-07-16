@@ -43,7 +43,7 @@ public final class DefaultGssSourceMapGenerator implements GssSourceMapGenerator
     /**
      * The underlying source map generator to use.
      */
-    private SourceMapGenerator generator;
+    private final SourceMapGenerator generator;
 
     /**
      * Maintains a mapping from a given node's source code position to its generated output.
@@ -71,9 +71,9 @@ public final class DefaultGssSourceMapGenerator implements GssSourceMapGenerator
             Maps.immutableEnumMap(
                     ImmutableMap.of(
                             SourceMapDetailLevel.ALL,
-                            Predicates.<CssNode>alwaysTrue(),
+                            Predicates.alwaysTrue(),
                             SourceMapDetailLevel.DEFAULT,
-                            Predicates.<CssNode>alwaysTrue()));
+                            Predicates.alwaysTrue()));
 
     /**
      * Deque to hold current mappings on stack while visiting the subtree.
@@ -85,12 +85,12 @@ public final class DefaultGssSourceMapGenerator implements GssSourceMapGenerator
      **/
     private final List<Mapping> allMappings;
 
-    private SourceMapDetailLevel sourceMapDetailLevel;
+    private final SourceMapDetailLevel sourceMapDetailLevel;
 
     /**
      * Predicate to determine whether to include current node under visit into {@code mappings}.
      **/
-    private Predicate<CssNode> detailLevelPredicate;
+    private final Predicate<CssNode> detailLevelPredicate;
 
     /**
      * Constructor to get source map class to use.

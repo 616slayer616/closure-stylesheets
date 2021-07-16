@@ -19,7 +19,7 @@ package com.google.common.css.compiler.gssfunctions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.css.compiler.ast.GssFunction;
 import com.google.common.css.compiler.ast.GssFunctionException;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -284,7 +284,7 @@ class GssFunctionsTest {
     private void testFunctionCallFail(GssFunction funct, ImmutableList<String> args) {
         try {
             funct.getCallResultString(args);
-            Assert.fail();
+            Assertions.fail();
         } catch (GssFunctionException expected) {
             // Expected to fail.
         }
@@ -298,7 +298,7 @@ class GssFunctionsTest {
         assertThat(funct.getCallResultString(ImmutableList.of("'a'"))).isEqualTo("'a'");
         assertThat(funct.getCallResultString(ImmutableList.of("\"a\""))).isEqualTo("'a'");
         assertThat(funct.getCallResultString(ImmutableList.of("a", "b", "c"))).isEqualTo("'abc'");
-        assertThat(funct.getCallResultString(ImmutableList.<String>of())).isEqualTo("''");
+        assertThat(funct.getCallResultString(ImmutableList.of())).isEqualTo("''");
         assertThat(funct.getCallResultString(ImmutableList.of("'a'", "'b'"))).isEqualTo("'ab'");
         assertThat(funct.getCallResultString(ImmutableList.of("'\"'"))).isEqualTo("'\"'");
         assertThat(funct.getCallResultString(ImmutableList.of("'"))).isEqualTo("'\\''");

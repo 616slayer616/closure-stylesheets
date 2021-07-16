@@ -39,7 +39,7 @@ class LocationBoundingVisitorTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testTrivialBound() throws Exception {
+    void testTrivialBound() {
         CssLiteralNode red = new CssLiteralNode("red");
         SourceCodeLocation expected =
                 new SourceCodeLocation(

@@ -39,7 +39,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     protected final VisitController visitController;
     protected final CodeBuffer buffer;
 
-    private String compactedPrintedString = null;
+    private final String compactedPrintedString = null;
 
     public CompactPrintingVisitor(VisitController visitController, CodeBuffer buffer) {
         this.visitController = checkNotNull(visitController);

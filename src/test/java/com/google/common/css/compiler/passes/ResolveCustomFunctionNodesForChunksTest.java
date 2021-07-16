@@ -50,7 +50,7 @@ class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFunctionNodes
                         errorManager,
                         createTestFunctionMap(),
                         allowUnknownFunctions,
-                        ImmutableSet.<String>of() /* allowedNonStandardFunctions */,
+                        ImmutableSet.of() /* allowedNonStandardFunctions */,
                         new Function<String, String>() {
                             private int count = 0;
 

@@ -30,7 +30,7 @@ public class EliminateConditionalNodes extends DefaultTreeVisitor
 
     private final MutatingVisitController visitController;
 
-    private Set<String> trueConditions;
+    private final Set<String> trueConditions;
 
     public EliminateConditionalNodes(MutatingVisitController visitController,
                                      Set<String> trueConditions) {

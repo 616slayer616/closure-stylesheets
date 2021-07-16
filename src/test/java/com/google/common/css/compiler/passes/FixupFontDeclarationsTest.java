@@ -335,7 +335,7 @@ class FixupFontDeclarationsTest {
         assertWithMessage(
                 Joiner.on("\n")
                         .join(
-                                errorManager.getErrors().stream().map(e -> e.format()).collect(Collectors.toList())))
+                                errorManager.getErrors().stream().map(GssError::format).collect(Collectors.toList())))
                 .that(errorManager.hasErrors())
                 .isFalse();
         return tree;

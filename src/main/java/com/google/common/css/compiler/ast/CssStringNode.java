@@ -66,7 +66,7 @@ import java.util.regex.Pattern;
 public class CssStringNode extends CssValueNode {
 
     private static final String LINE_BREAK_PATTERN_STRING =
-            "(?:\\n|\\r\\n|\\r|\\f)";
+            "\\n|\\r\\n|\\r|\\f";
 
     private static final CharMatcher CONSUMABLE_WHITESPACE =
             CharMatcher.anyOf("\n\t ");
@@ -190,7 +190,7 @@ public class CssStringNode extends CssValueNode {
      * <p>
      * This function stores a normalized representation of the given
      * {@code value}; if you want to work in more exact terms, try
-     * {@link setConcreteValue}.
+     * {@link #setConcreteValue}.
      * <p>
      * For example, the Java snippet: {@code
      * n.setValue("Senator's Response")

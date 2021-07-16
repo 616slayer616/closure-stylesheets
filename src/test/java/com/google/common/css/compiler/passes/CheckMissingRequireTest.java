@@ -19,7 +19,6 @@ package com.google.common.css.compiler.passes;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.CssCompilerPass;
-import com.google.common.css.compiler.ast.GssParserException;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +58,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testBaseCase1() throws GssParserException {
+    void testBaseCase1() {
         String base = ""
                 + "@provide 'foo.base';"
                 + "@def FOO_BASE_COLOR     #fff;";
@@ -93,7 +92,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testBaseCase2() throws GssParserException {
+    void testBaseCase2() {
         String base = ""
                 + "@provide 'foo.base';"
                 + "@def FOO_BASE_COLOR     #fff;"
@@ -111,7 +110,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingRequire() throws GssParserException {
+    void testMissingRequire() {
         String base = ""
                 + "@provide 'foo.base';"
                 + "@def FOO_BASE_COLOR     #fff;";
@@ -135,7 +134,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingRequire_overrideSelector() throws GssParserException {
+    void testMissingRequire_overrideSelector() {
         String base = ""
                 + "@provide 'foo.base';\n"
                 + ".nav { color: blue; }\n";
@@ -162,7 +161,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingRequireFromComponent() throws GssParserException {
+    void testMissingRequireFromComponent() {
         String base = ""
                 + "@provide 'foo.base';"
                 + "@def FOO_BASE_COLOR     #fff;";
@@ -189,7 +188,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingRequireOfComponent() throws GssParserException {
+    void testMissingRequireOfComponent() {
         String basecomponent = ""
                 + "@provide 'foo.basecomponent';"
                 + "@component {"
@@ -215,7 +214,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingRequireInDef() throws GssParserException {
+    void testMissingRequireInDef() {
         String base = ""
                 + "@provide 'foo.base';"
                 + "@def FOO_BASE_COLOR     #fff;";
@@ -238,7 +237,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingRequireDefMixin() throws GssParserException {
+    void testMissingRequireDefMixin() {
         String base = ""
                 + "@provide 'foo.base';\n"
                 + "/**\n"
@@ -269,7 +268,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingOverrideSelectorNamespace() throws GssParserException {
+    void testMissingOverrideSelectorNamespace() {
         String base = ""
                 + "@provide 'foo.base';"
                 + "@def FOO_BASE_COLOR     #fff;";
@@ -294,7 +293,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingOverrideSelectorNamespace_multilineComment() throws GssParserException {
+    void testMissingOverrideSelectorNamespace_multilineComment() {
         String base = ""
                 + "@provide 'foo.base';\n"
                 + "@def FOO_BASE_COLOR     #fff;\n";
@@ -322,7 +321,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingOverrideDefNamespace() throws GssParserException {
+    void testMissingOverrideDefNamespace() {
         String base = ""
                 + "@provide 'foo.base';"
                 + "@def FOO_BASE_COLOR     #fff;";
@@ -345,7 +344,7 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testMissingOverrideDefNamespace_multilineComment() throws GssParserException {
+    void testMissingOverrideDefNamespace_multilineComment() {
         String base = ""
                 + "@provide 'foo.base';\n"
                 + "@def FOO_BASE_COLOR     #fff;\n";

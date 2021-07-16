@@ -19,7 +19,7 @@ package com.google.common.css.compiler.ast;
 import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,7 +126,7 @@ class CssSelectorNodeTest extends NewFunctionalTestBase {
         try {
             parseAndRun(selector + " {}");
         } catch (GssParserException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
         CssNode node = tree.getRoot().getBody().getChildAt(0);
         assertThat(node).isInstanceOf(CssRulesetNode.class);

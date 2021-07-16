@@ -77,7 +77,7 @@ publishing {
                 description = 'Closure Stylesheets is an extension to CSS that adds variables, functions,\n' +
                         'conditionals, and mixins to standard CSS. The tool also supports\n' +
                         'minification, linting, RTL flipping, and CSS class renaming.'
-                url = 'http://github.com/616slayer616/natorder'
+                url = 'https://github.com/616slayer616/natorderr'
                 licenses {
                     license {
                         name = 'License'
@@ -94,7 +94,7 @@ publishing {
                 scm {
                     connection = 'scm:git:git://github.com/616slayer616/closure-stylesheets.git'
                     developerConnection = 'scm:git:ssh://github.com/616slayer616/closure-stylesheets.git'
-                    url = 'http://github.com/616slayer616/closure-stylesheets'
+                    url = 'https://github.com/616slayer616/closure-stylesheetss'
                 }
             }
         }

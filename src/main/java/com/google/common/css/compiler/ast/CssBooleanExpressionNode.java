@@ -49,7 +49,7 @@ public class CssBooleanExpressionNode extends CssValueNode {
 
         private final String operatorString;
 
-        private Type(@Nullable String operatorString) {
+        Type(@Nullable String operatorString) {
             this.operatorString = operatorString;
         }
 
@@ -222,9 +222,9 @@ public class CssBooleanExpressionNode extends CssValueNode {
     private void appendChildExpression(StringBuilder sb,
                                        CssBooleanExpressionNode child) {
         if (child.getType().getPriority() >= getType().getPriority()) {
-            sb.append(child.toString());
+            sb.append(child);
         } else {
-            sb.append("(" + child.toString() + ")");
+            sb.append("(").append(child).append(")");
         }
     }
 

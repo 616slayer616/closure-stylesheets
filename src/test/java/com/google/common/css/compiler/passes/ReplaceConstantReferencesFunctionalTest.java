@@ -129,7 +129,7 @@ class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    void testVariableInFunctionInComposite() throws Exception {
+    void testVariableInFunctionInComposite() {
         testTreeConstruction(linesToString(
                 "@def BG_COLOR beige;",
                 "",
@@ -158,7 +158,7 @@ class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    void testFontReplacement() throws Exception {
+    void testFontReplacement() {
         testTreeConstruction(linesToString(
                 "@def BASE_TINY_FONT_FACE verdana, arial, \"Courrier New\", sans-serif;",
                 "@def BASE_TINY_FONT_SIZE 19px;",
@@ -170,7 +170,7 @@ class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    void testMediaQueryReplacement1() throws Exception {
+    void testMediaQueryReplacement1() {
         testTreeConstruction(linesToString(
                 "@def QUERY screen and (min-resolution:96dpi);",
                 "@media QUERY {",
@@ -182,7 +182,7 @@ class ReplaceConstantReferencesFunctionalTest extends PassesTestBase {
     }
 
     @Test
-    void testMediaQueryReplacement2() throws Exception {
+    void testMediaQueryReplacement2() {
         testTreeConstruction(linesToString(
                 "@def QUERY (min-resolution:96dpi);",
                 "@media screen and QUERY {",

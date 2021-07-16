@@ -31,11 +31,11 @@ public abstract class CssRefinerNode extends CssNode {
     /**
      * Type of refiner.
      */
-    protected Refiner refinerType;
+    protected final Refiner refinerType;
     /**
      * Name of the refiner.
      */
-    protected String refinerName;
+    protected final String refinerName;
 
     /**
      * Contains the list of all possible CSS refiners.
@@ -52,7 +52,7 @@ public abstract class CssRefinerNode extends CssNode {
         private final String prefix;
         private final String suffix;
 
-        private Refiner(String prefix, String suffix) {
+        Refiner(String prefix, String suffix) {
             this.prefix = prefix;
             this.suffix = suffix;
         }

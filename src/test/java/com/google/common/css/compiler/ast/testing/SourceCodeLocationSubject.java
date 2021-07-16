@@ -31,7 +31,7 @@ public class SourceCodeLocationSubject
         extends Subject<SourceCodeLocationSubject, SourceCodeLocation> {
 
     static final Subject.Factory<SourceCodeLocationSubject, SourceCodeLocation> LOCATION =
-            (fm, that) -> new SourceCodeLocationSubject(fm, that);
+            SourceCodeLocationSubject::new;
 
     @CheckReturnValue
     public static SourceCodeLocationSubject assertThat(SourceCodeLocation target) {

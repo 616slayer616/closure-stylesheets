@@ -503,9 +503,6 @@ public class GssParserCC extends GssParserCCConstants {
 // name but the characters are written instead, e.g. '(' instead of LEFTROUND,
 // but IDENTIFIER stays the same.
 
-    // string
-//   : DOUBLEQUOTEDSTRING | SINGLEQUOTEDSTRING
-//   ;
     public final CssStringNode string() throws ParseException {
         Token t;
         CssStringNode.Type type;
@@ -534,9 +531,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // ruleset
-//   : selectorList '{' styleDeclarations '}'
-//   ;
     public final CssRulesetNode ruleSet() throws ParseException {
         CssSelectorListNode selectors;
         CssDeclarationBlockNode declarations;
@@ -575,9 +569,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // selectorList
-//   : selector [ ',' S* selector ]*
-//   ;
     public final CssSelectorListNode selectorList() throws ParseException {
         CssSelectorListNode list = new CssSelectorListNode();
         CssSelectorNode selector;
@@ -606,9 +597,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // selector
-//   : simpleSelector [ combinator simpleSelector ]* S*
-//   ;
     public final CssSelectorNode selector() throws ParseException {
         CssSelectorNode first;
         CssCombinatorNode c;
@@ -639,9 +627,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // class
-//   : '.' IDENTIFIER
-//   ;
     public final CssClassSelectorNode className() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
@@ -679,9 +664,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // id
-//   : HASHNAME
-//   ;
     public final CssRefinerNode id() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
@@ -693,10 +675,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // pseudo
-//   : ':' [ IDENT | [ ':' IDENT ] | [ 'not(' S* simpleSelector S* ')' ]
-//         | [ 'lang(' S* IDENT S* ')' ] | [ FUNCTION S* nth S* ')' ] ]?
-//   ;
     public final CssRefinerNode pseudo() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation;
@@ -843,9 +821,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // nth
-//   : [ [ [ S* '+' ] | '-' | NUMBER | IDENTIFIER | FORVARIABLE ] S* ]+
-//   ;
     public final String nth() throws ParseException {
         Token t;
         StringBuilder argument = new StringBuilder();
@@ -904,12 +879,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // attribute
-//   : '[' S* IDENT S* [
-//        [ '=' | '~=' | '^=' | '$=' | '*=' | '|=' ] S* [ IDENTIFIER | STRING ]
-//        S*
-//      ]? ']'
-//   ;
     public final CssAttributeSelectorNode attribute() throws ParseException {
         Token t;
         CssStringNode stringNode = null;
@@ -1052,10 +1021,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // simpleSelector
-//   : [ elementName [ id | class | attribute | pseudo ]* ]
-//     | [ id | class | attribute | pseudo ]+
-//   ;
     public final CssSelectorNode simpleSelector() throws ParseException {
         CssRefinerNode n;
         Token selectorName = null;
@@ -1147,9 +1112,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // elementName
-//   : IDENTIFIER | '*'
-//   ;
     public final Token elementName() throws ParseException {
         Token t;
         switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
@@ -1171,9 +1133,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // combinator
-//   : [ '+' S* ] | [ '>' S* ] | [ '~' S* ] | [ WDEEP S*] | S+
-//   ;
     public final CssCombinatorNode combinator() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
@@ -1261,18 +1220,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // styleDeclaration
-//   : S* standardDeclaration? S*
-//     [
-//        [ innerAtRule S* standardDeclaration ]
-//      | ';' S* standardDeclaration
-//     ]*
-//   ;
-// This production rule returns a block that contains a list of declarations and
-// @-rules. The declarations and rules must be separated by semicolons. If the
-// last thing in the block is a declaration, the trailing semicolon is optional.
-// Note that the trailing semicolon is NOT optional if the last thing is an
-// @-rule. This is a limitation of the current grammar.
     public final CssDeclarationBlockNode styleDeclaration() throws ParseException {
         CssDeclarationBlockNode block = new CssDeclarationBlockNode();
         CssNode decl;
@@ -1407,9 +1354,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // customDeclaration
-//   : CUSTOMPROPERTYNAME S* ':' customDeclarationValue
-//   ;
     public final CssDeclarationNode customDeclaration() throws ParseException {
         Token t;
         CssPropertyNode property;
@@ -1450,13 +1394,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // For the time being, we have decided to be more restrictive in what we accept here. Instead of
-// following spec, we have decided to parse CSS expressions only. At some point, this may be
-// revisited.
-//
-// customDeclarationValue
-//   : expr()
-//   ;
     public final CssPropertyValueNode customDeclarationValue() throws ParseException {
         CssPropertyValueNode value;
         value = expr();
@@ -1465,9 +1402,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // standardDeclaration
-//   : '*'? IDENTIFIER S* ':' S* expr S* important?
-//   ;
     public final CssDeclarationNode standardDeclaration() throws ParseException {
         Token t;
         CssPropertyNode property;
@@ -1535,9 +1469,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // expr
-//   : compositeTerm [ compositeTerm ]*
-//   ;
     public final CssPropertyValueNode expr() throws ParseException {
         List<CssValueNode> lst = Lists.newArrayList();
         CssValueNode value;
@@ -1554,10 +1485,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// compositeTerm
-//   : assignTerm [ ',' assignTerm ]*
-//   ;
     public final CssValueNode compositeTerm() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
@@ -1596,10 +1523,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// assignTerm
-//   : slashTerm [ '=' slashTerm ]*
-//   ;
     public final CssValueNode assignTerm() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
@@ -1637,10 +1560,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// slashTerm
-//   : term [ '/' term ]*
-//   ;
     public final CssValueNode slashTerm() throws ParseException {
         CssValueNode value;
         List<CssValueNode> lst = Lists.newArrayList();
@@ -1679,13 +1598,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // term
-//   : unaryOperator?
-//     [ [ NUMBER [ PERCENT | IDENTIFIER ] ] | STRING | IDENT | FORVARIABLE
-//       | '(' S? IDENT ':' S* NUMBER [ S* '/' S* NUMBER | IDENT ]? ')'
-//       | URI | hexcolor | function | math
-//     ] S*
-//   ;
     public final CssValueNode term() throws ParseException {
         Token t = null;
         Token dim = null;
@@ -1946,10 +1858,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// extendedTerm
-//   : booleanAndTerm [ '||' S* booleanAndTerm ]*
-//   ;
     public final CssBooleanExpressionNode extendedTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         SourceCodeLocation endLocation;
@@ -1989,11 +1897,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// booleanAndTerm
-//   :  [ booleanNegatedTerm | basicTerm]
-//      [ '&&' S* [ booleanNegatedTerm | basicTerm ] ]*
-//   ;
     public final CssBooleanExpressionNode booleanAndTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         SourceCodeLocation endLocation;
@@ -2053,10 +1956,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// booleanNegatedTerm
-//   : '!' S* basicTerm
-//   ;
     public final CssBooleanExpressionNode booleanNegatedTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         String value;
@@ -2082,10 +1981,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// basicTerm
-//   :  term | parenthesizedTerm
-//   ;
     public final CssBooleanExpressionNode basicTerm() throws ParseException {
         SourceCodeLocation beginLocation;
         String value;
@@ -2119,10 +2014,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// parenthesizedTerm
-//   : '(' S* extendedTerm ')' S*
-//   ;
     public final CssBooleanExpressionNode parenthesizedTerm() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
@@ -2162,9 +2053,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // unaryOperator
-//   : '-' | '+'
-//   ;
     public final Token unaryOperator() throws ParseException {
         Token t;
         switch ((jjNtk == -1) ? jjNtkF() : jjNtk) {
@@ -2191,9 +2079,6 @@ public class GssParserCC extends GssParserCCConstants {
      * have either 3 or 6 hex-digits (i.e., [0-9a-fA-F])
      * after the "#"; e.g., "#000" is OK, but "#abcd" is not.
      */
-// hexcolor
-//   : HASH_NAME S*
-//   ;
     public final Token hexcolor() throws ParseException {
         Token t;
         t = jjConsumeToken(HASH_NAME);
@@ -2267,13 +2152,12 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // function
-//   : [ FUNCTION
-//     | [ IDENTIFIER [ '.' | ':' ] [ IDENTIFIER [ '.' | ':' ] ]* FUNCTION ]
-//     S* expr ')' S*
-//   ;
-// Note: We allow the function name to have : and . to support non-standard IE
-// functions.
+    /**
+     * Note: We allow the function name to have : and . to support non-standard IE functions
+     *
+     * @return function node
+     * @throws ParseException
+     */
     public final CssFunctionNode function() throws ParseException {
         Token t;
         CssPropertyValueNode expr;
@@ -2373,10 +2257,7 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // calc
-//  : "calc(" S* sum S* ")"
-//  ;
-// TODO(user): this production disallows nested calc() expressions like calc(1 + calc(2*3)).
+    // TODO(user): this production disallows nested calc() expressions like calc(1 + calc(2*3)).
 // (This is equivalent to calc(1 + (2*3)), which is allowed by this production.)
     public final CssFunctionNode calc() throws ParseException {
         Token t;
@@ -2416,9 +2297,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // sum
-//  : product [ S+ [ "+" | "-" ] S+ product ]*
-//  ;
     public final CssValueNode sum(boolean hasParenthesis) throws ParseException {
         CssValueNode operand;
         List<CssValueNode> operands = new ArrayList<>();
@@ -2462,9 +2340,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // product
-//  : unit [ S* [ "*" S* unit | "/" S* NUMBER ] ]*
-//  ;
     public final CssValueNode product(boolean hasParenthesis) throws ParseException {
         Token t;
         CssValueNode operand;
@@ -2525,9 +2400,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // unit
-//  : [ var | IDENTIFIER | NUMBER | DIMENSION | PERCENTAGE | "(" S* sum S* ")" ];
-//  ;
     public final CssValueNode unit() throws ParseException {
         Token t;
         String sign = "";
@@ -2641,10 +2513,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// atFunction
-//   : FUNCTION S* expr? ')' S*
-//   ;
     public final CssFunctionNode atFunction() throws ParseException {
         Token t;
         CssPropertyValueNode expr = null;
@@ -2692,9 +2560,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // important
-//   : IMPORTANTSYM S*
-//   ;
     public final CssPriorityNode important() throws ParseException {
         Token t;
         List<Token> tokens = Lists.newArrayList();
@@ -2716,11 +2581,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// atRule
-//   : ATKEYWORD S* [ [ compositeTerm | extendedTerm ] S* ]*
-//     [ [ '{' S* block  '}'  ] | ';' ] S*
-//   ;
     public final CssAtRuleNode atRule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation;
@@ -2821,16 +2681,7 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// atRuleWithDeclBlock
-//   : ATRULESWITHDECLBLOCK S*
-//     [  atFunction
-//      | [ IDENT? ':' IDENT S* ]
-//      | [ [ compositeTerm | extendedTerm ] S* ]*
-//     ]
-//     [ [ '{' S* styleDeclaration '}  ] | ';' ] S*
-//   ;
-// TODO(fbenz): Try to reuse selctor parsing instead of [ IDENT? ':' IDENT S* ].
+    // TODO(fbenz): Try to reuse selctor parsing instead of [ IDENT? ':' IDENT S* ].
 // The problem is that @-rules take a list of value nodes and selectors are not
 // value nodes.
     public final CssAtRuleNode atRuleWithDeclBlock() throws ParseException {
@@ -2969,15 +2820,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// innerAtRule
-//   : ATKEYWORD S*
-//    [  atFunction
-//     | [ IDENT? ':' IDENT S* ]
-//     | [[ compositeTerm | extendedTerm ] S* ]*
-//    ]
-//    [ [ '{' S* styleDeclaration '} ] | ';' ] S*
-//   ;
     public final CssAtRuleNode innerAtRule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation;
@@ -3114,12 +2956,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (WebKit specific extension. We need a separate rule for the
-//  WebKit keyframes, because they don't follow the standard grammar exactly.)
-// webkitKeyframesRule
-//   : '@-webkit-keyframes' S* IDENTIFIER S*
-//     '{' S* webkitKeyframesBlock  '}'*
-//   ;
     public final CssAtRuleNode webkitKeyframesRule() throws ParseException {
         Token t;
         SourceCodeLocation beginLocation;
@@ -3193,10 +3029,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (WebKit specific extension)
-// webkitKeyframesBlock
-//   : [ webkitKeyframeRuleset S* ]*
-//   ;
     public final CssBlockNode webkitKeyframesBlock() throws ParseException {
         CssBlockNode block;
         CssNode n;
@@ -3222,10 +3054,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (WebKit specific extension)
-// webkitKeyframeRuleset
-//   : keyList '{' styleDeclarations '}'
-//   ;
     public final CssKeyframeRulesetNode webkitKeyframeRuleSet() throws ParseException {
         CssKeyListNode keys;
         CssDeclarationBlockNode declarations;
@@ -3266,10 +3094,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (WebKit specific extension)
-// keyList
-//   : key [ ',' S* key ]*
-//   ;
     public final CssKeyListNode keyList() throws ParseException {
         CssKeyListNode list = new CssKeyListNode();
         CssKeyNode key;
@@ -3298,10 +3122,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (WebKit specific extension)
-// key
-//   : PERCENTAGE | IDENTIFIER
-//   ;
     public final CssKeyNode key() throws ParseException {
         Token key;
         Token t;
@@ -3347,13 +3167,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // (non-standard GSS extension)
-// block
-//   : [ [  ruleset | atRule | webkitKeyframesRule
-//        | atRuleWithDeclBlock
-//       ] S*
-//     ]*
-//   ;
     public final CssBlockNode block(boolean isEnclosedWithBraces) throws ParseException {
         CssBlockNode block;
         CssNode n;
@@ -3480,11 +3293,6 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // CSS3 has very few syntactic constraints on at-rules. We shouldn't let
-// our inability to understand the details of future or non-standard at-rules
-// prevent us from parsing the rest of the stylesheet.
-// atRuleWithCrazySyntax
-//   : ATKEYWORD S* [^;{] LOOKAHEAD( ( ';' | <?LEFTBRACE> ) ) ';'?
     public final CssAtRuleNode atRuleWithCrazySyntax() throws ParseException {
         Token t;
         String s;
@@ -3542,7 +3350,12 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // A last-resort, minimally-restrictive brace-delimited production.
+    /**
+     * A last-resort, minimally-restrictive brace-delimited production.
+     *
+     * @return literal node
+     * @throws ParseException
+     */
     public final CssLiteralNode crazyBlockBrace() throws ParseException {
         Token t;
         String s;
@@ -3598,7 +3411,12 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // Inside blocks, brackets, parens, and braces must be balanced.
+    /**
+     * Inside blocks, brackets, parens, and braces must be balanced.
+     *
+     * @return literal node
+     * @throws ParseException
+     */
     public final CssLiteralNode crazyBlockBracket() throws ParseException {
         Token t;
         String s;
@@ -3654,7 +3472,12 @@ public class GssParserCC extends GssParserCCConstants {
         }
     }
 
-    // Inside blocks, brackets, parens, and braces must be balanced.
+    /**
+     * Inside blocks, brackets, parens, and braces must be balanced.
+     *
+     * @return literal node
+     * @throws ParseException
+     */
     public final CssLiteralNode crazyBlockParen() throws ParseException {
         Token t;
         String s;
@@ -4508,7 +4331,7 @@ public class GssParserCC extends GssParserCCConstants {
     /**
      * Generated Token Manager.
      */
-    private GssParserCCTokenManager tokenSource;
+    private final GssParserCCTokenManager tokenSource;
     /**
      * Current token.
      */
@@ -4655,7 +4478,7 @@ public class GssParserCC extends GssParserCCConstants {
     }
 
     private int jjNtkF() {
-        /**
+        /*
          * Next token.
          */
         Token jjNt;

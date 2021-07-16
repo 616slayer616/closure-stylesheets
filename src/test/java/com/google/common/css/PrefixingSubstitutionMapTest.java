@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PrefixingSubstitutionMapTest {
     @Test
-    void testNoPrefix() throws Exception {
+    void testNoPrefix() {
         SubstitutionMap map = new PrefixingSubstitutionMap(
                 new SimpleSubstitutionMap(), "");
         assertThat(map.get("foo")).isEqualTo("foo_");
@@ -33,7 +33,7 @@ class PrefixingSubstitutionMapTest {
     }
 
     @Test
-    void testPrefix() throws Exception {
+    void testPrefix() {
         SubstitutionMap map = new PrefixingSubstitutionMap(
                 new SimpleSubstitutionMap(), "PREFIX_");
         assertThat(map.get("foo")).isEqualTo("PREFIX_foo_");

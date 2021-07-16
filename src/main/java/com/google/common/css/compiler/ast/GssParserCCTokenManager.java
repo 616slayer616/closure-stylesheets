@@ -12,7 +12,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
      * Set debug output.
      */
     public void setDebugStream(java.io.PrintStream ds) {
-        /**
+        /*
          * Debug output.
          */
     }
@@ -988,7 +988,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                     }
                 } while (i != startsAt);
             } else if (curChar < 128) {
-                long l = 1L << (curChar & 077);
+                long l = 1L << (curChar & 63);
                 do {
                     switch (jjstateSet[--i]) {
                         case 0:
@@ -1940,9 +1940,9 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             } else {
                 int hiByte = (curChar >> 8);
                 int i1 = hiByte >> 6;
-                long l1 = 1L << (hiByte & 077);
+                long l1 = 1L << (hiByte & 63);
                 int i2 = (curChar & 0xff) >> 6;
-                long l2 = 1L << (curChar & 077);
+                long l2 = 1L << (curChar & 63);
                 do {
                     switch (jjstateSet[--i]) {
                         case 0:
@@ -2147,7 +2147,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             29, 30, 31, 44, 45, 46, 47, 191, 194, 195,
     };
 
-    private static final boolean jjCanMove0(int hiByte, int i1, int i2, long l1, long l2) {
+    private static boolean jjCanMove0(int hiByte, int i1, int i2, long l1, long l2) {
         if (hiByte == 0) {
             return ((jjbitVec2[i2] & l2) != 0L);
         }
@@ -2190,7 +2190,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     }
 
     int curLexState = 0;
-    int defaultLexState = 0;
+    final int defaultLexState = 0;
     int jjnewStateCnt;
     int jjround;
     int jjmatchedPos;
@@ -2224,12 +2224,12 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             if (jjmatchedKind != 0x7fffffff) {
                 if (jjmatchedPos + 1 < curPos)
                     inputStream.backup(curPos - jjmatchedPos - 1);
-                if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
+                if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 63))) != 0L) {
                     matchedToken = jjFillToken();
                     matchedToken.specialToken = specialToken;
                     return matchedToken;
                 } else {
-                    if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 077))) != 0L) {
+                    if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 63))) != 0L) {
                         matchedToken = jjFillToken();
                         if (specialToken == null)
                             specialToken = matchedToken;

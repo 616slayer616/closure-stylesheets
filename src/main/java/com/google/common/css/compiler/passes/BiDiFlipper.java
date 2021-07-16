@@ -168,8 +168,8 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
      */
     private static final ImmutableMap<Pattern, String> URL_LTRTL_PATTERN_FOR_FLIPPING =
             new ImmutableMap.Builder<Pattern, String>()
-                    .put(Pattern.compile("(?<![a-zA-Z])([-_\\./]*)ltr([-_\\./]+)"), "$1rtl$2")
-                    .put(Pattern.compile("(?<![a-zA-Z])([-_\\./]*)rtl([-_\\./]+)"), "$1ltr$2")
+                    .put(Pattern.compile("(?<![a-zA-Z])([-_./]*)ltr([-_./]+)"), "$1rtl$2")
+                    .put(Pattern.compile("(?<![a-zA-Z])([-_./]*)rtl([-_./]+)"), "$1ltr$2")
                     .build();
 
     /**
@@ -196,8 +196,8 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
      */
     private static final ImmutableMap<Pattern, String> URL_LEFTRIGHT_PATTERN_FOR_FLIPPING =
             new ImmutableMap.Builder<Pattern, String>()
-                    .put(Pattern.compile("(?<![a-zA-Z])([-_\\./]*)left([-_\\./]+)"), "$1right$2")
-                    .put(Pattern.compile("(?<![a-zA-Z])([-_\\./]*)right([-_\\./]+)"), "$1left$2")
+                    .put(Pattern.compile("(?<![a-zA-Z])([-_./]*)left([-_./]+)"), "$1right$2")
+                    .put(Pattern.compile("(?<![a-zA-Z])([-_./]*)right([-_./]+)"), "$1left$2")
                     .build();
 
     /**
@@ -377,8 +377,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
         List<CssValueNode> slashNodeValues = slashNode.getValues();
 
         // Create a list of horizontal values and flip them
-        List<CssValueNode> horizontalValues = new ArrayList<>();
-        horizontalValues.addAll(valueNodes.subList(0, slashLocation));
+        List<CssValueNode> horizontalValues = new ArrayList<>(valueNodes.subList(0, slashLocation));
         horizontalValues.add(slashNodeValues.get(0));
         List<CssValueNode> newHorizontalValues = flipCorners(horizontalValues);
 
@@ -400,9 +399,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
                 null
         );
 
-        List<CssValueNode> newValueList = new ArrayList<>();
-        newValueList.addAll(newHorizontalValues.subList(0,
-                newHorizontalValues.size() - 1));
+        List<CssValueNode> newValueList = new ArrayList<>(newHorizontalValues.subList(0, newHorizontalValues.size() - 1));
         newValueList.add(newSlashNode);
         newValueList.addAll(newVerticalValues.subList(1, newVerticalValues.size()));
 

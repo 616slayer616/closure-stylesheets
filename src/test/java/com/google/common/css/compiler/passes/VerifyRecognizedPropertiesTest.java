@@ -29,7 +29,6 @@ import java.util.Set;
  *
  * @author bolinfest@google.com (Michael Bolin)
  */
-@SuppressWarnings("java:S2699")
 class VerifyRecognizedPropertiesTest extends NewFunctionalTestBase {
 
     private Set<String> allowedUnrecognizedProperties;

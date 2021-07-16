@@ -37,14 +37,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
 
-    protected boolean allowUnknownFunctions = false;
+    protected final boolean allowUnknownFunctions = false;
 
     protected Map<String, GssFunction> createTestFunctionMap() {
         /*
          * The explicit type parameters required here due to a bug in the JDK used
          * to compile the open-source test.
          */
-        return ImmutableMap.<String, GssFunction>of(
+        return ImmutableMap.of(
                 "testMultipleArg", new SampleMultipleArgsFunc());
     }
 
@@ -68,7 +68,7 @@ class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
         new ResolveCustomFunctionNodes(
                 tree.getMutatingVisitController(), errorManager,
                 createTestFunctionMap(), allowUnknownFunctions,
-                ImmutableSet.<String>of() /* allowedNonStandardFunctions */)
+                ImmutableSet.of() /* allowedNonStandardFunctions */)
                 .runPass();
     }
 
@@ -102,7 +102,7 @@ class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
 
             CssLiteralNode result = new CssLiteralNode(getCallResultString(argsStr),
                     args.get(0).getSourceCodeLocation());
-            return ImmutableList.of((CssValueNode) result);
+            return ImmutableList.of(result);
         }
 
         @Override

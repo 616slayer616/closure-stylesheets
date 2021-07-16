@@ -50,7 +50,7 @@ public class PassesTestBase extends NewFunctionalTestBase {
     }
 
     protected void checkRuleset(String expected, CssRulesetNode rule) {
-        List<CssNode> blockChildren = ImmutableList.of((CssNode) rule);
+        List<CssNode> blockChildren = ImmutableList.of(rule);
         CssBlockNode block = new CssBlockNode(false, blockChildren);
         CssRootNode root = new CssRootNode(block);
         CssTree t = new CssTree(null, root);

@@ -116,7 +116,7 @@ public class UnrollLoops extends DefaultTreeVisitor implements CssCompilerPass {
      * A visitor gathers all the definitions ({@code @def}) inside the loop.
      * That is needed to properly add the iteration suffix.
      */
-    private class GatherLoopDefinitions extends DefaultTreeVisitor {
+    private static class GatherLoopDefinitions extends DefaultTreeVisitor {
 
         private final Set<String> loopDefinitions = new HashSet<>();
 

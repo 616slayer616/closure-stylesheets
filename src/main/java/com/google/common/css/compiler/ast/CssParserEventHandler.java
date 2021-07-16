@@ -42,7 +42,7 @@ public interface CssParserEventHandler {
     /**
      * Builds an expression.
      */
-    public interface ExpressionHandler {
+    interface ExpressionHandler {
         // TODO(oana): Maybe change the parameters into something like
         //     ParserToken operator and CssValueNode term.
         void onLiteral(ParserToken expression);
@@ -76,7 +76,7 @@ public interface CssParserEventHandler {
     /**
      * Builds a boolean expression.
      */
-    public interface BooleanExpressionHandler {
+    interface BooleanExpressionHandler {
         void onBooleanExpressionStart();
 
         Object onConstant(ParserToken constantName);
@@ -98,7 +98,7 @@ public interface CssParserEventHandler {
     /**
      * Builds an import.
      */
-    public interface ImportHandler {
+    interface ImportHandler {
         void appendImportParameter(ParserToken parameter);
     }
 
@@ -109,7 +109,7 @@ public interface CssParserEventHandler {
     /**
      * Builds a media rule.
      */
-    public interface MediaHandler {
+    interface MediaHandler {
         void appendMediaParameter(ParserToken parameter);
     }
 

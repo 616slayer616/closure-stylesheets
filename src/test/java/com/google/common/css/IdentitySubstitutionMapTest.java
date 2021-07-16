@@ -16,7 +16,7 @@
 
 package com.google.common.css;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +33,7 @@ class IdentitySubstitutionMapTest {
         IdentitySubstitutionMap map = new IdentitySubstitutionMap();
         try {
             map.get(null);
-            Assert.fail();
+            Assertions.fail();
         } catch (NullPointerException e) {
             // OK.
         }

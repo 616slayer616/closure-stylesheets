@@ -106,13 +106,13 @@ public class ResolveCustomFunctionNodesForChunks<T> extends ResolveCustomFunctio
         CssLiteralNode defLiteral =
                 new CssLiteralNode(defName, node.getSourceCodeLocation());
         CssDefinitionNode def =
-                new CssDefinitionNode(ImmutableList.<CssValueNode>of(node.deepCopy()), defLiteral);
+                new CssDefinitionNode(ImmutableList.of(node.deepCopy()), defLiteral);
         CssConstantReferenceNode defRef =
                 new CssConstantReferenceNode(defName, node.getSourceCodeLocation());
 
         addNewDefinition(chunk, def);
 
-        return ImmutableList.<CssValueNode>of(defRef);
+        return ImmutableList.of(defRef);
     }
 
     private void addNewDefinition(T chunk, CssDefinitionNode def) {

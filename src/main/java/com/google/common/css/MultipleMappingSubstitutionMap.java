@@ -46,7 +46,7 @@ public interface MultipleMappingSubstitutionMap extends SubstitutionMap {
      * Contains both the value and mappings returned by
      * {@link MultipleMappingSubstitutionMap#getValueWithMappings(String)}.
      */
-    public static class ValueWithMappings {
+    class ValueWithMappings {
         public final String value;
         public final Map<String, String> mappings;
 
@@ -76,5 +76,5 @@ public interface MultipleMappingSubstitutionMap extends SubstitutionMap {
      * associated with this substitution. These mappings are available as
      * {@link ValueWithMappings#mappings}.
      */
-    public ValueWithMappings getValueWithMappings(String key);
+    ValueWithMappings getValueWithMappings(String key);
 }

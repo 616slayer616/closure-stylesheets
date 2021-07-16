@@ -235,7 +235,7 @@ class ProcessKeyframesTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testCompactRepresentation() throws Exception {
+    void testCompactRepresentation() {
         runCompactRepresentation("to", "to");
         runCompactRepresentation("to", "100%");
         runCompactRepresentation("to", "100.00000%");

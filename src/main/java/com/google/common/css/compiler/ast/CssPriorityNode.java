@@ -33,7 +33,7 @@ public class CssPriorityNode extends CssValueNode {
 
         private final String priority;
 
-        private PriorityType(String priority) {
+        PriorityType(String priority) {
             this.priority = priority;
         }
 

@@ -100,7 +100,7 @@ public class PassUtil {
     }
 
     private static CssTree createTreeWithRuleset(CssRulesetNode rulesetNode) {
-        List<CssNode> blockChildren = ImmutableList.of((CssNode) rulesetNode);
+        List<CssNode> blockChildren = ImmutableList.of(rulesetNode);
         CssBlockNode block = new CssBlockNode(false, blockChildren);
         CssRootNode root = new CssRootNode(block);
         return new CssTree(null, root);

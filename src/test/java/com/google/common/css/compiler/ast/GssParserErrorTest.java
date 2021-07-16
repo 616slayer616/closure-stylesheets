@@ -17,7 +17,7 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.css.SourceCode;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ class GssParserErrorTest {
                            String line, String caret) {
         try {
             parse(gss);
-            Assert.fail();
+            Assertions.fail();
         } catch (GssParserException e) {
             assertThat(e)
                     .hasMessage(
@@ -56,8 +56,8 @@ class GssParserErrorTest {
 
     @Test
     void test1() {
-        testError("a { exu7y&&rgx: url('http://test.com') }", 1, 10,
-                "a { exu7y&&rgx: url('http://test.com') }",
+        testError("a { exu7y&&rgx: url('https://test.com') }", 1, 10,
+                "a { exu7y&&rgx: url('https://test.com') }",
                 "         ^");
     }
 
@@ -65,9 +65,9 @@ class GssParserErrorTest {
     void test2() {
         testError(
                 "a {\n" +
-                        "    exu7y&&rgx: url('http://test.com')\n" +
+                        "    exu7y&&rgx: url('https://test.com')\n" +
                         "  }", 2, 10,
-                "    exu7y&&rgx: url('http://test.com')",
+                "    exu7y&&rgx: url('https://test.com')",
                 "         ^");
     }
 
@@ -241,8 +241,8 @@ class GssParserErrorTest {
         assertThat(tree).isNotNull();
         CssRootNode root = tree.getRoot();
         assertThat(root).isNotNull();
-        assertThat(errorMessages).asList().containsExactly((Object[]) errors);
-        assertThat(root.toString()).isEqualTo(expected);
+        assertThat(errorMessages).containsExactly(errors);
+        assertThat(root).hasToString(expected);
     }
 
     @Test
@@ -340,7 +340,7 @@ class GssParserErrorTest {
     }
 
     @Test
-    void testUnterminatedBlockCommentsWithoutErrorRecovery() throws GssParserException {
+    void testUnterminatedBlockCommentsWithoutErrorRecovery() {
         testError("div {}/*comment**p {}", 1, 7,
                 "div {}/*comment**p {}",
                 "      ^");

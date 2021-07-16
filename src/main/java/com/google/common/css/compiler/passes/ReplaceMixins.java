@@ -66,7 +66,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
     /**
      * the current call stack of the mixins
      */
-    private Stack<StackFrame> currentMixinStack;
+    private final Stack<StackFrame> currentMixinStack;
 
     public ReplaceMixins(MutatingVisitController visitController,
                          ErrorManager errorManager,
@@ -311,7 +311,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
      * other mixins.
      */
     private static class StackFrame {
-        private CssMixinNode mixin;
+        private final CssMixinNode mixin;
         private int declarationCount;
         private final Map<String, List<CssValueNode>> valueMap;
 

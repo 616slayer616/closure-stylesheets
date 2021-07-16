@@ -199,7 +199,7 @@ public class NewFunctionalTestBase extends FunctionalTestCommonBase {
     public static class TestErrorManager extends BasicErrorManager {
         private final String[] expectedMessages;
         private int currentIndex = 0;
-        private boolean exactMatch;
+        private final boolean exactMatch;
 
         public TestErrorManager(String[] expectedMessages) {
             this(true, expectedMessages);

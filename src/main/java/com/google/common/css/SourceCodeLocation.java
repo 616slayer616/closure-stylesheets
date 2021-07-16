@@ -17,13 +17,13 @@
 package com.google.common.css;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 

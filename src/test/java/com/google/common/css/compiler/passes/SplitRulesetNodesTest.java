@@ -30,7 +30,6 @@ import static org.mockito.Mockito.mock;
  *
  * @author oana@google.com (Oana Florescu)
  */
-@SuppressWarnings("java:S2699")
 class SplitRulesetNodesTest {
 
     @Test

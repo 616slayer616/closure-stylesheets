@@ -26,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -168,7 +167,7 @@ class ReplaceConstantReferencesTest {
         allowingPass.replaceConstantReference(mockRefNode);
 
         // This should not cause an error to be reported.
-        verify(mockErrorManager, times(0)).report(Matchers.<GssError>any());
+        verify(mockErrorManager, times(0)).report(ArgumentMatchers.any());
     }
 
     @Test
@@ -186,6 +185,6 @@ class ReplaceConstantReferencesTest {
         nonAllowingPass.replaceConstantReference(mockRefNode);
 
         // This should cause an error to be reported.
-        verify(mockErrorManager).report(Matchers.<GssError>any());
+        verify(mockErrorManager).report(ArgumentMatchers.any());
     }
 }

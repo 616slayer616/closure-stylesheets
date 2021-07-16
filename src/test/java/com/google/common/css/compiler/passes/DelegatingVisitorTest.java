@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DelegatingVisitorTest {
 
     @Test
-    void testInvocationOrder() throws Exception {
+    void testInvocationOrder() {
         List<String> orderRecord = new ArrayList<>();
         DefaultTreeVisitor visitor1 = new RecordingVisitor("visitor1", orderRecord);
         DefaultTreeVisitor visitor2 = new RecordingVisitor("visitor2", orderRecord);

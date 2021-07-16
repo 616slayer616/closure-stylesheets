@@ -27,15 +27,14 @@ import com.google.common.css.compiler.ast.DefaultVisitController.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.util.List;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -47,34 +46,34 @@ import static org.mockito.Mockito.*;
  */
 class DefaultVisitControllerTest {
 
-    DefaultTreeVisitor testVisitor = mock(DefaultTreeVisitor.class);
+    final DefaultTreeVisitor testVisitor = mock(DefaultTreeVisitor.class);
 
     @BeforeEach
-    void setUp() throws Exception {
-        when(testVisitor.enterTree(Matchers.<CssRootNode>any())).thenReturn(true);
-        when(testVisitor.enterImportBlock(Matchers.<CssImportBlockNode>any())).thenReturn(true);
-        when(testVisitor.enterBlock(Matchers.<CssBlockNode>any())).thenReturn(true);
-        when(testVisitor.enterDefinition(Matchers.<CssDefinitionNode>any())).thenReturn(true);
-        when(testVisitor.enterRuleset(Matchers.<CssRulesetNode>any())).thenReturn(true);
-        when(testVisitor.enterSelectorBlock(Matchers.<CssSelectorListNode>any())).thenReturn(true);
-        when(testVisitor.enterSelector(Matchers.<CssSelectorNode>any())).thenReturn(true);
-        when(testVisitor.enterClassSelector(Matchers.<CssClassSelectorNode>any())).thenReturn(true);
-        when(testVisitor.enterIdSelector(Matchers.<CssIdSelectorNode>any())).thenReturn(true);
-        when(testVisitor.enterPseudoClass(Matchers.<CssPseudoClassNode>any())).thenReturn(true);
-        when(testVisitor.enterPseudoElement(Matchers.<CssPseudoElementNode>any())).thenReturn(true);
-        when(testVisitor.enterAttributeSelector(Matchers.<CssAttributeSelectorNode>any()))
+    void setUp() {
+        when(testVisitor.enterTree(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterImportBlock(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterBlock(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterDefinition(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterRuleset(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterSelectorBlock(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterSelector(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterClassSelector(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterIdSelector(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterPseudoClass(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterPseudoElement(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterAttributeSelector(ArgumentMatchers.any()))
                 .thenReturn(true);
-        when(testVisitor.enterDeclarationBlock(Matchers.<CssDeclarationBlockNode>any()))
+        when(testVisitor.enterDeclarationBlock(ArgumentMatchers.any()))
                 .thenReturn(true);
-        when(testVisitor.enterDeclaration(Matchers.<CssDeclarationNode>any())).thenReturn(true);
-        when(testVisitor.enterPropertyValue(Matchers.<CssPropertyValueNode>any())).thenReturn(true);
-        when(testVisitor.enterValueNode(Matchers.<CssValueNode>any())).thenReturn(true);
-        when(testVisitor.enterUnknownAtRule(Matchers.<CssUnknownAtRuleNode>any())).thenReturn(true);
+        when(testVisitor.enterDeclaration(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterPropertyValue(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterValueNode(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterUnknownAtRule(ArgumentMatchers.any())).thenReturn(true);
         when(testVisitor.enterMediaTypeListDelimiter(
-                Matchers.<CssNodesListNode<? extends CssNode>>any()))
+                ArgumentMatchers.any()))
                 .thenReturn(true);
-        when(testVisitor.enterForLoop(Matchers.<CssForLoopRuleNode>any())).thenReturn(true);
-        when(testVisitor.enterComponent(Matchers.<CssComponentNode>any())).thenReturn(true);
+        when(testVisitor.enterForLoop(ArgumentMatchers.any())).thenReturn(true);
+        when(testVisitor.enterComponent(ArgumentMatchers.any())).thenReturn(true);
     }
 
     @Test
@@ -102,7 +101,7 @@ class DefaultVisitControllerTest {
         // Enter Tree gets the root - there is no enterRoot.
         inOrder.verify(testVisitor).enterTree(root);
         // There are blocks that get created even if you don't add them.
-        inOrder.verify(testVisitor).enterImportBlock(Matchers.<CssImportBlockNode>any());
+        inOrder.verify(testVisitor).enterImportBlock(ArgumentMatchers.any());
         // Then we enter the block.
         inOrder.verify(testVisitor).enterBlock(block);
         // Then another node that we created.
@@ -157,10 +156,10 @@ class DefaultVisitControllerTest {
         InOrder inOrder = Mockito.inOrder(testVisitor);
 
         inOrder.verify(testVisitor).enterTree(root);
-        inOrder.verify(testVisitor).enterImportBlock(Matchers.<CssImportBlockNode>any());
+        inOrder.verify(testVisitor).enterImportBlock(ArgumentMatchers.any());
         inOrder.verify(testVisitor).enterBlock(block);
         inOrder.verify(testVisitor).enterRuleset(ruleset);
-        inOrder.verify(testVisitor).enterSelectorBlock(Matchers.<CssSelectorListNode>any());
+        inOrder.verify(testVisitor).enterSelectorBlock(ArgumentMatchers.any());
         inOrder.verify(testVisitor).enterSelector(selector);
         inOrder.verify(testVisitor).enterClassSelector(classSelector);
         inOrder.verify(testVisitor).enterIdSelector(idSelector);
@@ -418,7 +417,7 @@ class DefaultVisitControllerTest {
         assertThat(state.currentIndex).isEqualTo(0);
 
         state.replaceCurrentBlockChildWith(
-                Lists.<CssNode>newArrayList(
+                Lists.newArrayList(
                         new CssDefinitionNode(new CssLiteralNode("")),
                         new CssDefinitionNode(new CssLiteralNode(""))),
                 true);
@@ -437,7 +436,7 @@ class DefaultVisitControllerTest {
         CssUnknownAtRuleNode atDef = new CssUnknownAtRuleNode(defLit, false);
         CssLiteralNode xLit = new CssLiteralNode("x");
         CssLiteralNode yLit = new CssLiteralNode("y");
-        List<CssValueNode> defParameters = Lists.newArrayList((CssValueNode) xLit, (CssValueNode) yLit);
+        List<CssValueNode> defParameters = Lists.newArrayList(xLit, yLit);
         atDef.setParameters(defParameters);
         CssBlockNode block = new CssBlockNode(false);
         block.addChildToBack(atDef);
@@ -452,7 +451,7 @@ class DefaultVisitControllerTest {
         // Enter Tree gets the root - there is no enterRoot.
         inOrder.verify(testVisitor).enterTree(root);
         // There are blocks that get created even if you don't add them.
-        inOrder.verify(testVisitor).enterImportBlock(Matchers.<CssImportBlockNode>any());
+        inOrder.verify(testVisitor).enterImportBlock(ArgumentMatchers.any());
         // Then we enter the block.
         verify(testVisitor).enterBlock(block);
         // Then we enter the unknown at-rule node that we created.
@@ -473,7 +472,7 @@ class DefaultVisitControllerTest {
         CssUnknownAtRuleNode atDef = new CssUnknownAtRuleNode(defLit, false);
         CssLiteralNode xLit = new CssLiteralNode("x");
         CssLiteralNode yLit = new CssLiteralNode("y");
-        List<CssValueNode> defParameters = Lists.newArrayList((CssValueNode) xLit, (CssValueNode) yLit);
+        List<CssValueNode> defParameters = Lists.newArrayList(xLit, yLit);
         atDef.setParameters(defParameters);
         CssBlockNode defBlock = new CssBlockNode(true);
         defBlock.addChildToBack(atDef);
@@ -482,7 +481,7 @@ class DefaultVisitControllerTest {
         CssUnknownAtRuleNode atIf = new CssUnknownAtRuleNode(ifLit, true);
         CssBooleanExpressionNode ifCondition = new CssBooleanExpressionNode(
                 CssBooleanExpressionNode.Type.CONSTANT, "some condition", null, null);
-        List<CssValueNode> ifParameters = Lists.newArrayList((CssValueNode) ifCondition);
+        List<CssValueNode> ifParameters = Lists.newArrayList(ifCondition);
         atIf.setParameters(ifParameters);
         atIf.setBlock(defBlock);
 
@@ -499,7 +498,7 @@ class DefaultVisitControllerTest {
         // Enter Tree gets the root - there is no enterRoot.
         inOrder.verify(testVisitor).enterTree(root);
         // There are blocks that get created even if you don't add them.
-        inOrder.verify(testVisitor).enterImportBlock(Matchers.<CssImportBlockNode>any());
+        inOrder.verify(testVisitor).enterImportBlock(ArgumentMatchers.any());
         // Then we enter the block.
         verify(testVisitor).enterBlock(block);
         // Then we enter the unknown 'if' at-rule node that we created.
@@ -552,7 +551,7 @@ class DefaultVisitControllerTest {
         // Enter Tree gets the root - there is no enterRoot.
         inOrder.verify(testVisitor).enterTree(root);
         // There are blocks that get created even if you don't add them.
-        inOrder.verify(testVisitor).enterImportBlock(Matchers.<CssImportBlockNode>any());
+        inOrder.verify(testVisitor).enterImportBlock(ArgumentMatchers.any());
         // Then we enter the block.
         inOrder.verify(testVisitor).enterBlock(block);
         // Then we enter the component that we created.
@@ -566,7 +565,7 @@ class DefaultVisitControllerTest {
         CssDefinitionNode def = new CssDefinitionNode(new CssLiteralNode("FOO"));
         CssFunctionNode func = new CssFunctionNode(Function.byName("url"), null);
         CssStringNode argument = new CssStringNode(Type.SINGLE_QUOTED_STRING, "some_url");
-        func.setArguments(new CssFunctionArgumentsNode(ImmutableList.<CssValueNode>of(argument)));
+        func.setArguments(new CssFunctionArgumentsNode(ImmutableList.of(argument)));
         def.addChildToBack(func);
 
         // Visit children
@@ -593,7 +592,7 @@ class DefaultVisitControllerTest {
         CssDefinitionNode def = new CssDefinitionNode(new CssLiteralNode("FOO"));
         CssFunctionNode func = new CssFunctionNode(Function.byName("url"), null);
         CssStringNode argument = new CssStringNode(Type.SINGLE_QUOTED_STRING, "some_url");
-        func.setArguments(new CssFunctionArgumentsNode(ImmutableList.<CssValueNode>of(argument)));
+        func.setArguments(new CssFunctionArgumentsNode(ImmutableList.of(argument)));
         def.addChildToBack(func);
 
         // Prevent visiting children
@@ -756,19 +755,19 @@ class DefaultVisitControllerTest {
     @Test
     void testRemoveCompositePropertyValueElement() {
         verifyRemoveablePropertyValueElement(
-                "url(http://www.google.com/logo), red fixed");
+                "url(https://www.google.com/logo), red fixed");
     }
 
     @Test
     void testRemoveCompositePropertyValueElementMiddle() {
         verifyRemoveablePropertyValueElement(
-                "red, url(http://www.google.com/logo), fixed");
+                "red, url(https://www.google.com/logo), fixed");
     }
 
     @Test
     void testRemoveCompositePropertyValueElementEnd() {
         verifyRemoveablePropertyValueElement(
-                "red fixed, url(http://www.google.com/logo)");
+                "red fixed, url(https://www.google.com/logo)");
     }
 
     @Test
@@ -800,7 +799,7 @@ class DefaultVisitControllerTest {
         // Enter Tree gets the root - there is no enterRoot.
         inOrder.verify(testVisitor).enterTree(root);
         // There are blocks that get created even if you don't add them.
-        inOrder.verify(testVisitor).enterImportBlock(Matchers.<CssImportBlockNode>any());
+        inOrder.verify(testVisitor).enterImportBlock(ArgumentMatchers.any());
         // Then we enter the block.
         inOrder.verify(testVisitor).enterBlock(block);
         // Then we enter the for loop node.
@@ -814,7 +813,7 @@ class DefaultVisitControllerTest {
         CssLiteralNode foo = new CssLiteralNode("foo");
         CssLiteralNode bar = new CssLiteralNode("bar");
         CssCompositeValueNode composite =
-                new CssCompositeValueNode(ImmutableList.<CssValueNode>of(foo, bar), Operator.COMMA, null);
+                new CssCompositeValueNode(ImmutableList.of(foo, bar), Operator.COMMA, null);
 
         final MutatingVisitController controller = new DefaultVisitController(composite, true);
         controller.startVisit(
@@ -825,7 +824,7 @@ class DefaultVisitControllerTest {
                             CssLiteralNode baz = new CssLiteralNode("baz");
                             CssLiteralNode quux = new CssLiteralNode("quux");
                             CssCompositeValueNode newNode =
-                                    new CssCompositeValueNode(ImmutableList.<CssValueNode>of(baz, quux), Operator.COMMA, null);
+                                    new CssCompositeValueNode(ImmutableList.of(baz, quux), Operator.COMMA, null);
                             controller.replaceCurrentBlockChildWith(ImmutableList.of(newNode), false);
                         }
                         return true;

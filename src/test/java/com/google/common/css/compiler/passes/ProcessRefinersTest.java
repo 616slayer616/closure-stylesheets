@@ -251,7 +251,7 @@ class ProcessRefinersTest extends NewFunctionalTestBase {
 
 
     @Test
-    void testParseA() throws Exception {
+    void testParseA() {
         runParseA(0, "2");
         runParseA(0, "-3");
         runParseA(1, "n");
@@ -267,7 +267,7 @@ class ProcessRefinersTest extends NewFunctionalTestBase {
     }
 
     @Test
-    void testParseB() throws Exception {
+    void testParseB() {
         runParseB(2, "2");
         runParseB(-3, "-3");
         runParseB(0, "n");

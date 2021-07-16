@@ -387,7 +387,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
                         ? defName : parentRefPrefix + defName;
                 CssConstantReferenceNode parentRefNode =
                         new CssConstantReferenceNode(parentRefName, sourceCodeLocation);
-                newNode = new CssDefinitionNode(ImmutableList.<CssValueNode>of(parentRefNode),
+                newNode = new CssDefinitionNode(ImmutableList.of(parentRefNode),
                         newDefLit, sourceCodeLocation);
             } else {
                 newNode = new CssDefinitionNode(CssNode.deepCopyNodes(node.getParameters()),

@@ -33,7 +33,7 @@ public class ResolveCustomFunctionNodes extends DefaultTreeVisitor
         implements CssCompilerPass {
 
     private final MutatingVisitController visitController;
-    protected Map<String, GssFunction> functionMap;
+    protected final Map<String, GssFunction> functionMap;
     private final ErrorManager errorManager;
     private final boolean allowUnknownFunctions;
     private final Set<String> allowedNonStandardFunctions;
@@ -66,7 +66,7 @@ public class ResolveCustomFunctionNodes extends DefaultTreeVisitor
                                       Map<String, GssFunction> functionMap,
                                       boolean allowUnknownFunctions) {
         this(visitController, errorManager, functionMap, allowUnknownFunctions,
-                ImmutableSet.<String>of() /* allowedNonStandardFunctions */);
+                ImmutableSet.of() /* allowedNonStandardFunctions */);
     }
 
     /**

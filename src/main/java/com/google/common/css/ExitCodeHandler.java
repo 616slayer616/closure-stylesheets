@@ -32,6 +32,6 @@ public interface ExitCodeHandler {
      * Process the request to exit with the specified exit code.
      * Implementations of this method <em>must never</em> return normally.
      */
-    public void processExitCode(int exitCode);
+    void processExitCode(int exitCode);
 
 }

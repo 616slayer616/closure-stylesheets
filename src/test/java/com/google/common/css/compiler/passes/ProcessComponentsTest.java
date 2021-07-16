@@ -331,14 +331,14 @@ class ProcessComponentsTest extends PassesTestBase {
                         tree.getMutatingVisitController(), errorManager,
                         ImmutableMap.of("someColorFunction", SOME_COLOR_FUNCTION),
                         false /* allowUnknownFunctions */,
-                        ImmutableSet.<String>of() /* allowedNonStandardFunctions */,
+                        ImmutableSet.of() /* allowedNonStandardFunctions */,
                         new UniqueSuffixFunction());
         resolveFunctions.runPass();
         checkTreeDebugString(expectedOutput);
     }
 
     @Test
-    void testTopComponent() throws Exception {
+    void testTopComponent() {
         testTreeConstruction(topComponentInput, "[" + topComponentOutput + "]");
         testTreeConstructionWithResolve(
                 ImmutableMap.of(
@@ -348,7 +348,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testChildComponent() throws Exception {
+    void testChildComponent() {
         testTreeConstruction(
                 topComponentInput + "\n" + childComponentInput,
                 "[" + topComponentOutput + childComponentOutput + "]");
@@ -363,7 +363,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testChildComponentWithReferenceWorkaround() throws Exception {
+    void testChildComponentWithReferenceWorkaround() {
         String topComponentWithWorkaroundInput = joinNl(Iterables.concat(
                 topComponentPrefixInput,
                 topComponentWithRefWorkaroundInputConstants,
@@ -384,7 +384,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testChildComponentWithAbstractParent() throws Exception {
+    void testChildComponentWithAbstractParent() {
         testTreeConstruction(
                 abstractTopComponentInput + "\n" + childComponentInput,
                 "[" + abstractTopComponentOutput + childComponentOutput + "]");
@@ -399,7 +399,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testGrandChildComponent() throws Exception {
+    void testGrandChildComponent() {
         testTreeConstruction(
                 topComponentInput + "\n" + childComponentInput + "\n" +
                         grandChildComponentInput,
@@ -420,7 +420,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testIfComponent() throws Exception {
+    void testIfComponent() {
         testTreeConstruction(ifComponentInput, "[" + ifComponentOutput + "]");
     }
 
@@ -454,12 +454,12 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testImplicitlyNamed() throws Exception {
+    void testImplicitlyNamed() {
         testTreeConstruction(namelessComponentInput, "[" + camelCasedComponentOutput + "]");
     }
 
     @Test
-    void testStringNamed() throws Exception {
+    void testStringNamed() {
         testTreeConstruction(stringNamedComponentInput, "[" + camelCasedComponentOutput + "]");
     }
 
@@ -471,7 +471,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testImplicitlyNamedMultiplePackage() throws Exception {
+    void testImplicitlyNamedMultiplePackage() {
         // Construct gss consisting of three @provides and one implicit @component sandwiched
         // in-between. Verify that the produced css uses the name of the @provide immediately preceeding
         // the @compoment, not the one before or after.
@@ -484,7 +484,7 @@ class ProcessComponentsTest extends PassesTestBase {
 
     @Test
     void testImplicitlyNamedMultipleComponents() throws Exception {
-        parseAndRun(ImmutableMap.<String, String>of(
+        parseAndRun(ImmutableMap.of(
                 "file1",
                 "@provide \"some.example.package\";\n" +
                         "@component { }",
@@ -495,7 +495,7 @@ class ProcessComponentsTest extends PassesTestBase {
 
     @Test
     void testImplicitlyNamedMultipleComponentsPackageError() throws Exception {
-        parseAndRun(ImmutableMap.<String, String>of(
+        parseAndRun(ImmutableMap.of(
                 "file1",
                 "@provide \"some.example.package\";\n" +
                         "@component { }",
@@ -506,7 +506,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testMultiplePackageWithNoComponentError() throws Exception {
+    void testMultiplePackageWithNoComponentError() {
         testTreeConstruction(
                 "@provide \"some.example.package\";\n" +
                         "@provide \"another.example.package\";\n",
@@ -514,7 +514,7 @@ class ProcessComponentsTest extends PassesTestBase {
     }
 
     @Test
-    void testPrefixingRules() throws Exception {
+    void testPrefixingRules() {
         testTreeConstruction(prefixingTestComponentInput, "[" + prefixingTestComponentOutput + "]");
     }
 
@@ -648,7 +648,7 @@ class ProcessComponentsTest extends PassesTestBase {
                     args.get(1).getValue());
             String stringResult = getCallResultString(stringArgs);
             CssLiteralNode nodeResult = new CssLiteralNode(stringResult);
-            return ImmutableList.<CssValueNode>of(nodeResult);
+            return ImmutableList.of(nodeResult);
         }
     };
 }

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link HandleMissingConstantDefinitions}.
  */
-@SuppressWarnings("java:S2699")
 class HandleMissingConstantDefinitionsTest extends NewFunctionalTestBase {
 
     private static final String TEST_GOOD_CODE =

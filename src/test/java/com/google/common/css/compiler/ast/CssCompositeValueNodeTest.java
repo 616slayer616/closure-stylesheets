@@ -29,9 +29,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CssCompositeValueNodeTest {
 
     @Test
-    void testDeepCopy() throws Exception {
+    void testDeepCopy() {
         CssCompositeValueNode node = new CssCompositeValueNode(
-                ImmutableList.<CssValueNode>of(
+                ImmutableList.of(
                         new CssLiteralNode("foo"), new CssLiteralNode("bar")),
                 CssCompositeValueNode.Operator.SPACE, null);
 

@@ -32,7 +32,7 @@ public interface GssSourceMapGenerator {
      * @param out  an {@link Appendable} object to append the output on
      * @param name filename to be written inside the source map (not the filename where writes at)
      */
-    public void appendOutputTo(Appendable out, String name) throws IOException;
+    void appendOutputTo(Appendable out, String name) throws IOException;
 
     /**
      * Starts the source mapping for the given node at the current position.
@@ -42,7 +42,7 @@ public interface GssSourceMapGenerator {
      * @param startLine      the first character's line number once it starts writing output
      * @param startCharIndex the first character's character index once it starts writing output
      */
-    public void startSourceMapping(CssNode node, int startLine, int startCharIndex);
+    void startSourceMapping(CssNode node, int startLine, int startCharIndex);
 
     /**
      * Finishes the source mapping for the given node at the current position.
@@ -54,7 +54,7 @@ public interface GssSourceMapGenerator {
      *                     or one less than the corresponding {@link #startSourceMapping startCharIndex} if
      *                     a source mapping is empty.
      */
-    public void endSourceMapping(CssNode node, int endLine, int endCharIndex);
+    void endSourceMapping(CssNode node, int endLine, int endCharIndex);
 
     /**
      * A prefix to be added to the beginning of each source file name.
@@ -62,5 +62,5 @@ public interface GssSourceMapGenerator {
      *
      * @param path The URL prefix to save in the sourcemap file.
      */
-    public void setSourceRoot(String path);
+    void setSourceRoot(String path);
 }

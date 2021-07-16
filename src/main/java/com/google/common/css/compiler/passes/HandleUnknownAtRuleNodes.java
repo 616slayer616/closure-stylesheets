@@ -41,7 +41,7 @@ public class HandleUnknownAtRuleNodes extends DefaultTreeVisitor
                                     ErrorManager errorManager,
                                     boolean report,
                                     boolean remove) {
-        this(visitController, errorManager, ImmutableSet.<String>of(),
+        this(visitController, errorManager, ImmutableSet.of(),
                 report, remove);
     }
 

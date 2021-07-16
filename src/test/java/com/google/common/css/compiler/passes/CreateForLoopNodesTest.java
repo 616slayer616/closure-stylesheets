@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Unit tests for {@link CreateForLoopNodes}.
  */
-@SuppressWarnings("java:S2699")
 class CreateForLoopNodesTest extends NewFunctionalTestBase {
 
     @Override

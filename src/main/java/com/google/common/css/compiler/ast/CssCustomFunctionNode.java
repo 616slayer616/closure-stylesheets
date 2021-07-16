@@ -275,7 +275,7 @@ public class CssCustomFunctionNode extends CssFunctionNode
                         arguments.remove(lastArg);
                         lastArg =
                                 new CssLiteralNode(
-                                        lastArg.toString() + " " + value.toString(), value.getSourceCodeLocation());
+                                        lastArg + " " + value, value.getSourceCodeLocation());
                         arguments.add(lastArg);
                     }
                 }

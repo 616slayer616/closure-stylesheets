@@ -51,7 +51,7 @@ class LoopVariableReplacementPass extends DefaultTreeVisitor implements CssCompi
         this.visitController = visitController;
         this.loopId = loopId;
         variableInNthArgumentPattern =
-                Pattern.compile("\\s*(?:-|\\+)?" + Pattern.quote(variable) + "n?\\s*");
+                Pattern.compile("\\s*[-+]?" + Pattern.quote(variable) + "n?\\s*");
     }
 
     @Override

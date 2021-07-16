@@ -41,7 +41,7 @@ public class BooleanExpressionEvaluator {
      */
     public BooleanExpressionEvaluator(CssBooleanExpressionNode expression,
                                       Set<String> trueConditions) {
-        this(expression, trueConditions, ImmutableSet.<String>of(),
+        this(expression, trueConditions, ImmutableSet.of(),
                 false /* the rest of the conditions are assumed known */);
         Preconditions.checkArgument(!trueConditions.contains(null));
     }
@@ -180,8 +180,6 @@ public class BooleanExpressionEvaluator {
             if (leftOperand instanceof Boolean) {
                 // In this case the result is dictated by the right operand, as we can
                 // only have (TRUE && right) or (FALSE || right).
-                // assert leftOperand.equals(Boolean.TRUE) && node.getType() == Type.AND ||
-                //       leftOperand.equals(Boolean.FALSE) && node.getType() == Type.OR;
                 return rightOperand;
             } else {
                 // Return a tree for "leftOperand operator rightOperand".

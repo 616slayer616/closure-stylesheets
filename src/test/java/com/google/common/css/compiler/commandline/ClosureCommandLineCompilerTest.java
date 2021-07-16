@@ -35,7 +35,7 @@ class ClosureCommandLineCompilerTest {
             exitCode -> fail("compiler exited with code: " + exitCode);
 
     @Test
-    void testMixinPropagation() throws Exception {
+    void testMixinPropagation() {
         ErrorManager errorManager = new NewFunctionalTestBase.TestErrorManager(new String[0]);
 
         SourceCode def =
@@ -59,7 +59,7 @@ class ClosureCommandLineCompilerTest {
     }
 
     @Test
-    void testAllowDefPropagationDefaultsToTrue() throws Exception {
+    void testAllowDefPropagationDefaultsToTrue() {
         ClosureCommandLineCompiler.Flags flags =
                 ClosureCommandLineCompiler.parseArgs(new String[]{"/dev/null"}, EXIT_CODE_HANDLER);
         JobDescription jobDescription = flags.createJobDescription();
@@ -67,7 +67,7 @@ class ClosureCommandLineCompilerTest {
     }
 
     @Test
-    void testEmptyImportBlocks() throws Exception {
+    void testEmptyImportBlocks() {
         // See b/29995881
         ErrorManager errorManager = new NewFunctionalTestBase.TestErrorManager(new String[0]);
 

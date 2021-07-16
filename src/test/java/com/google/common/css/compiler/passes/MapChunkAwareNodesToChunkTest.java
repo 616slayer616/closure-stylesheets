@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.css.SourceCode;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -80,7 +80,7 @@ class MapChunkAwareNodesToChunkTest {
     protected CssKeyframesNode keyframes3b;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         pass = getPass(FILE_TO_CHUNK);
 
         List<CssValueNode> parameters = ImmutableList.of();
@@ -168,7 +168,7 @@ class MapChunkAwareNodesToChunkTest {
         pass = getPass(badFileToChunk);
         try {
             pass.enterSelector(sel2a);
-            Assert.fail("Node 2a does not have a file to chunk mapping");
+            Assertions.fail("Node 2a does not have a file to chunk mapping");
         } catch (NullPointerException expected) {
             // OK
         }

@@ -36,7 +36,7 @@ public class CssKeyframeRulesetNode extends CssNode {
     /**
      * The block of declarations inside this style rule.
      */
-    private CssDeclarationBlockNode declarations;
+    private final CssDeclarationBlockNode declarations;
 
     /**
      * Constructor of a keyframe ruleset node.
