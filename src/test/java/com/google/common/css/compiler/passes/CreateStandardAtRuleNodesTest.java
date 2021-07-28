@@ -395,6 +395,71 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
     }
 
     @Test
+    void testCreateCharSetNodeInvalidCharacterBefore() throws GssParserException {
+        CssTree t = parseAndRun("a,i{} @charset \"UTF-8\"; foo,hr,.bar,i{} ",
+                CreateStandardAtRuleNodes.CHARSET_ERROR_CHAR_BEFORE_MESSAGE);
+        assertWithMessage("This pass should find errors.")
+                .that(
+                        SExprPrinter.print(false, false, t))
+                .isEqualTo(
+                        "(com.google.common.css.compiler.ast.CssRootNode " +
+                                "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
+                                "(com.google.common.css.compiler.ast.CssBlockNode " +
+                                "(com.google.common.css.compiler.ast.CssRulesetNode " +
+                                "(com.google.common.css.compiler.ast.CssSelectorListNode " +
+                                "(com.google.common.css.compiler.ast.CssSelectorNode)" +
+                                "(com.google.common.css.compiler.ast.CssSelectorNode))" +
+                                "(com.google.common.css.compiler.ast.CssDeclarationBlockNode))" +
+                                "(com.google.common.css.compiler.ast.CssRulesetNode " +
+                                "(com.google.common.css.compiler.ast.CssSelectorListNode " +
+                                "(com.google.common.css.compiler.ast.CssSelectorNode)" +
+                                "(com.google.common.css.compiler.ast.CssSelectorNode)" +
+                                "(com.google.common.css.compiler.ast.CssSelectorNode " +
+                                "(com.google.common.css.compiler.ast.CssClassSelectorNode))" +
+                                "(com.google.common.css.compiler.ast.CssSelectorNode))" +
+                                "(com.google.common.css.compiler.ast.CssDeclarationBlockNode))))");
+    }
+
+    @Test
+    void testCreateCharSetNodeInvalidWrongQuotes() throws GssParserException {
+        CssTree t = parseAndRun("@charset 'UTF-8';",
+                CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
+        assertWithMessage("This pass should find errors.")
+                .that(
+                        SExprPrinter.print(false, false, t))
+                .isEqualTo(
+                        "(com.google.common.css.compiler.ast.CssRootNode " +
+                                "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
+                                "(com.google.common.css.compiler.ast.CssBlockNode))");
+    }
+
+    @Test
+    void testCreateCharSetNodeInvalidMissingQuotes() throws GssParserException {
+        CssTree t = parseAndRun("@charset UTF-8;",
+                CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
+        assertWithMessage("This pass should find an error.")
+                .that(
+                        SExprPrinter.print(false, false, t))
+                .isEqualTo(
+                        "(com.google.common.css.compiler.ast.CssRootNode " +
+                                "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
+                                "(com.google.common.css.compiler.ast.CssBlockNode))");
+    }
+
+    @Test
+    void testCreateCharSetNodeInvalidMissingParameter() throws GssParserException {
+        CssTree t = parseAndRun("@charset;",
+                CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
+        assertWithMessage("This pass should find an error.")
+                .that(
+                        SExprPrinter.print(false, false, t))
+                .isEqualTo(
+                        "(com.google.common.css.compiler.ast.CssRootNode " +
+                                "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
+                                "(com.google.common.css.compiler.ast.CssBlockNode))");
+    }
+
+    @Test
     void testMultipleCharsetWarning() throws Exception {
         CssTree t = parseAndRun("@charset \"UTF-8\"; @charset \"iso-8859-15\";",
                 CreateStandardAtRuleNodes.IGNORED_CHARSET_WARNING_MESSAGE);
