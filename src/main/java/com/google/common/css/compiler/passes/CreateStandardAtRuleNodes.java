@@ -68,6 +68,10 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     static final String IGNORE_IMPORT_WARNING_MESSAGE =
             "A node after which all @import rule nodes are ignored is here.";
 
+    @VisibleForTesting
+    static final String IGNORED_CHARSET_WARNING_MESSAGE =
+            "Only the first @charset rule is used. This node is superfluous.";
+
     private static final ImmutableList<Type> PAGE_SELECTORS =
             ImmutableList.of(
                     Type.TOP_LEFT_CORNER,
@@ -108,6 +112,12 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
      */
     private CssNode noMoreImportRules;
 
+    /**
+     * The first node after which charset rules will be ignored, or null if
+     * no such nodes have been discovered.
+     */
+    private CssNode noMoreCharsetRules;
+
     public CreateStandardAtRuleNodes(
             MutatingVisitController visitController, ErrorManager errorManager) {
         this.visitController = visitController;
@@ -117,6 +127,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     private void enterTree(CssRootNode root) {
         this.root = root;
         noMoreImportRules = null;
+        noMoreCharsetRules = null;
     }
 
     @Override
@@ -432,11 +443,17 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     }
 
     private void createCharsetRule(CssUnknownAtRuleNode node) {
-        CssCharSetNode charSet = new CssCharSetNode(node.getComments());
-        charSet.setParameters(node.getChildren());
-        charSet.setSourceCodeLocation(node.getSourceCodeLocation());
-        visitController.replaceCurrentBlockChildWith(
-                Lists.newArrayList(charSet), true /* visitTheReplacementNodes */);
+        if (noMoreCharsetRules == null) {
+            CssCharSetNode charSet = new CssCharSetNode(node.getComments());
+            charSet.setParameters(node.getChildren());
+            charSet.setSourceCodeLocation(node.getSourceCodeLocation());
+            visitController.replaceCurrentBlockChildWith(
+                    Lists.newArrayList(charSet), true /* visitTheReplacementNodes */);
+            noMoreCharsetRules = node;
+        } else {
+            visitController.removeCurrentNode();
+            reportWarning(IGNORED_CHARSET_WARNING_MESSAGE, node);
+        }
     }
 
     /**
