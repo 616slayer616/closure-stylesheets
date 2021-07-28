@@ -395,6 +395,20 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
     }
 
     @Test
+    void testMultipleCharsetWarning() throws Exception {
+        CssTree t = parseAndRun("@charset \"UTF-8\"; @charset \"iso-8859-15\";",
+                CreateStandardAtRuleNodes.IGNORED_CHARSET_WARNING_MESSAGE);
+        assertWithMessage("This pass should remove superfluous charset nodes.")
+                .that(
+                        SExprPrinter.print(false, false, t))
+                .isEqualTo(
+                        "(com.google.common.css.compiler.ast.CssRootNode " +
+                                "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
+                                "(com.google.common.css.compiler.ast.CssBlockNode " +
+                                "(com.google.common.css.compiler.ast.CssCharSetNode)))");
+    }
+
+    @Test
     void testMonochrome() throws Exception {
         parseAndRun(
                 "@media (monochrome) {\n"

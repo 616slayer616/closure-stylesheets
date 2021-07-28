@@ -94,9 +94,6 @@ class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
                                 + "@charset\"UTF-8\""
                                 + rE
                                 + R_S
-                                + "@charset\"iso-8859-15\""
-                                + rE
-                                + R_S
                                 + "foo{}"
                                 + rE
                                 + R_S
@@ -141,9 +138,6 @@ class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
                                 + "@charset\"UTF-8\""
                                 + rE
                                 + R_S
-                                + "@charset\"iso-8859-15\""
-                                + rE
-                                + R_S
                                 + ".bar{}"
                                 + rE
                                 + R_S
@@ -171,7 +165,7 @@ class TemplateCompactPrinterTest extends AbstractCompactPrinterTest {
 
         assertThat(printer.getCompactPrintedString())
                 .isEqualTo(
-                        R_S + "@charset\"UTF-8\"" + rE + R_S + "@charset\"iso-8859-15\"" + rE + R_S + "hr,i{}" + rE + R_S + "i{}" + rE + R_S + "hr{}" + rE + R_S + "i,hr{}" + rE + R_S
+                        R_S + "@charset\"UTF-8\"" + rE + R_S + "hr,i{}" + rE + R_S + "i{}" + rE + R_S + "hr{}" + rE + R_S + "i,hr{}" + rE + R_S
                                 + "a i{}" + rE + R_S + "a+i{}" + rE);
     }
 
