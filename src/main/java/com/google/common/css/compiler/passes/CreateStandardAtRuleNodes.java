@@ -60,6 +60,18 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
             "@font-face is not allowed to have parameters";
 
     @VisibleForTesting
+    static final String CHARSET_SPACES_MESSAGE =
+            "There may only be a single space between @charset and the quote";
+
+    @VisibleForTesting
+    static final String CHARSET_ERROR_CHAR_BEFORE_MESSAGE =
+            "There must not be characters before @charset";
+
+    @VisibleForTesting
+    static final String CHARSET_ERROR_NO_PARAMETER_MESSAGE =
+            "Missing charset definition for @charset rule";
+
+    @VisibleForTesting
     static final String IGNORED_IMPORT_WARNING_MESSAGE =
             "@import rules should occur outside blocks and can only be preceded "
                     + "by @charset and other @import rules.";
@@ -444,6 +456,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
 
     private void createCharsetRule(CssUnknownAtRuleNode node) {
         if (noMoreCharsetRules == null) {
+            charsetRuleValidation(node);
             CssCharSetNode charSet = new CssCharSetNode(node.getComments());
             charSet.setParameters(node.getChildren());
             charSet.setSourceCodeLocation(node.getSourceCodeLocation());
@@ -453,6 +466,22 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
         } else {
             visitController.removeCurrentNode();
             reportWarning(IGNORED_CHARSET_WARNING_MESSAGE, node);
+        }
+    }
+
+    private void charsetRuleValidation(CssUnknownAtRuleNode node) {
+        if (!root.toString().startsWith("[" + node.toString())) {
+            reportError(CHARSET_ERROR_CHAR_BEFORE_MESSAGE, node);
+        }
+        List<CssValueNode> children = node.getChildren();
+        if (children.isEmpty()) {
+            reportError(INVALID_PARAMETERS_ERROR_MESSAGE, node);
+            return;
+        }
+        CssValueNode charsetParamNode = children.get(0);
+        String charsetParam = charsetParamNode.toString();
+        if (!charsetParam.startsWith("\"") || !charsetParam.endsWith("\"")) {
+            reportError(INVALID_PARAMETERS_ERROR_MESSAGE, node);
         }
     }
 
