@@ -37,14 +37,14 @@ dependencies {
     implementation("args4j:args4j:2.33")
     implementation("com.google.code.gson:gson:2.8.7")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("com.google.javascript:closure-compiler-unshaded:v20210106")
+    implementation("com.google.javascript:closure-compiler-unshaded:v20210808")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
-    testImplementation("org.mockito:mockito-core:3.11.2")
-    testImplementation("org.mockito:mockito-junit-jupiter:3.11.2")
+    testImplementation("org.mockito:mockito-core:3.12.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.12.0")
     testImplementation("com.google.truth:truth:0.36")
-    testImplementation("org.assertj:assertj-core:3.11.1")
+    testImplementation("org.assertj:assertj-core:3.20.2")
 }
 
 task sourcesJar(type: Jar) {
