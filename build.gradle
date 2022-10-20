@@ -3,15 +3,15 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'jacoco'
-    id "org.sonarqube" version "3.3"
+    id "org.sonarqube" version "3.4.0.2513"
 }
 
 apply from: 'gradle/sonarqube.gradle'
 
 group = 'org.padler'
-version = '1.6.4'
+version = '1.6.5'
 description = 'Closure Stylesheets'
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 test {
     useJUnitPlatform()
@@ -20,7 +20,7 @@ test {
 test.finalizedBy jacocoTestReport
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.8"
 }
 
 jacocoTestReport {
@@ -35,16 +35,16 @@ repositories {
 
 dependencies {
     implementation("args4j:args4j:2.33")
-    implementation("com.google.code.gson:gson:2.8.7")
+    implementation("com.google.code.gson:gson:2.9.1")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("com.google.javascript:closure-compiler-unshaded:v20210808")
+    implementation("com.google.javascript:closure-compiler-unshaded:v20221004")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
-    testImplementation("org.mockito:mockito-core:3.12.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:3.12.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+    testImplementation('org.mockito:mockito-core:4.8.0')
+    testImplementation('org.mockito:mockito-junit-jupiter:4.8.0')
     testImplementation("com.google.truth:truth:0.36")
-    testImplementation("org.assertj:assertj-core:3.20.2")
+    testImplementation('org.assertj:assertj-core:3.23.1')
 }
 
 task sourcesJar(type: Jar) {
