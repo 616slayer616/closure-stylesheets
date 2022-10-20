@@ -59,6 +59,11 @@ class ResolveCustomFunctionNodesTest extends NewFunctionalTestBase {
     }
 
     @Test
+    void testAcceptBuiltInFunctionDifferentRGB() throws Exception {
+        parseAndRun("A { color: rgb(0 0 0 / 0%) }");
+    }
+
+    @Test
     void testUnknownFunctionError() throws Exception {
         parseAndRun("A { width: -example(a,b) }", "Unknown function \"-example\"");
     }
