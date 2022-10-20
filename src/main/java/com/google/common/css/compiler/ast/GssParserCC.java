@@ -45,6 +45,8 @@ public class GssParserCC extends GssParserCCConstants {
     private static final Pattern FUNCTIONSWITHSPACESEPOK = Pattern.compile(
             "(?:-(?:O|MOZ|WEBKIT|MS)-)?(?:REPEATING-)?(?:LINEAR|RADIAL)-GRADIENT"
                     + "|(?:-(?:O|MOZ|WEBKIT|MS)-)?IMAGE-SET"
+                    + "|(?:-(?:O|MOZ|WEBKIT|MS)-)?RGB"
+                    + "|(?:-(?:O|MOZ|WEBKIT|MS)-)?RGBA"
                     + "|RECT|INSET|CIRCLE|ELLIPSE|POLYGON|-KHTML-GRADIENT|-WEBKIT-GRADIENT"
                     + "|(?:-WEBKIT-)?DROP-SHADOW|(?:-WEBKIT-)?CUSTOM|LOCAL",
             Pattern.CASE_INSENSITIVE);

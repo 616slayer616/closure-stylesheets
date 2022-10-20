@@ -220,10 +220,6 @@ class GssParserErrorTest {
                 1, 32,
                 "div { transform:rotate(180 deg); }",
                 "                               ^");
-        testError("div { background: rgba(255,0,0 1); }",
-                1, 34,
-                "div { background: rgba(255,0,0 1); }",
-                "                                 ^");
     }
 
     /**
