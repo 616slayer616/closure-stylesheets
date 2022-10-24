@@ -34,6 +34,8 @@ public class SourceCodeLocationSubject
     static final Subject.Factory<SourceCodeLocationSubject, SourceCodeLocation> LOCATION =
             SourceCodeLocationSubject::new;
 
+    private final SourceCodeLocation actual;
+
     @CheckReturnValue
     public static SourceCodeLocationSubject assertThat(SourceCodeLocation target) {
         return assertAbout(LOCATION).that(target);
@@ -41,40 +43,41 @@ public class SourceCodeLocationSubject
 
     public SourceCodeLocationSubject(FailureMetadata failureMetadata, SourceCodeLocation subject) {
         super(failureMetadata, subject);
+        actual = subject;
     }
 
     public void hasSpan(int beginLine, int beginIndex, int endLine, int endIndex) {
-        check().that(actual()).isNotNull();
-        if (!(beginLine == actual().getBeginLineNumber()
-                && beginIndex == actual().getBeginIndexInLine()
-                && endLine == actual().getEndLineNumber()
-                && endIndex == actual().getEndIndexInLine())) {
+        check("").that(actual).isNotNull();
+        if (!(beginLine == actual.getBeginLineNumber()
+                && beginIndex == actual.getBeginIndexInLine()
+                && endLine == actual.getEndLineNumber()
+                && endIndex == actual.getEndIndexInLine())) {
             failWithoutActual(simpleFact(String.format(
                     "Location did not match <%s,%s -> %s,%s>, was <%s,%s -> %s,%s>",
                     beginLine,
                     beginIndex,
                     endLine,
                     endIndex,
-                    actual().getBeginLineNumber(),
-                    actual().getBeginIndexInLine(),
-                    actual().getEndLineNumber(),
-                    actual().getEndIndexInLine())));
+                    actual.getBeginLineNumber(),
+                    actual.getBeginIndexInLine(),
+                    actual.getEndLineNumber(),
+                    actual.getEndIndexInLine())));
         }
     }
 
     public void matches(String text) {
-        check().that(actual()).isNotNull();
+         check("").that(actual).isNotNull();
         String source =
-                actual()
+                actual
                         .getSourceCode()
                         .getFileContents()
                         .substring(
-                                actual().getBeginCharacterIndex(), actual().getEndCharacterIndex());
-        check().that(source).isEqualTo(text);
+                                actual.getBeginCharacterIndex(), actual.getEndCharacterIndex());
+         check("").that(source).isEqualTo(text);
     }
 
     public void isUnknown() {
-        check().that(actual()).isNotNull();
-        check().that(actual().isUnknown()).named("isUnknown").isTrue();
+         check("").that(actual).isNotNull();
+         check("").that(actual.isUnknown()).named("isUnknown").isTrue();
     }
 }
