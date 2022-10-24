@@ -23,11 +23,13 @@ import com.google.common.css.compiler.ast.ErrorManager;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import com.google.common.io.Files;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 class ClosureCommandLineCompilerTest {
 
@@ -59,6 +61,7 @@ class ClosureCommandLineCompilerTest {
     }
 
     @Test
+    @DisabledOnOs(WINDOWS)
     void testAllowDefPropagationDefaultsToTrue() {
         ClosureCommandLineCompiler.Flags flags =
                 ClosureCommandLineCompiler.parseArgs(new String[]{"/dev/null"}, EXIT_CODE_HANDLER);
