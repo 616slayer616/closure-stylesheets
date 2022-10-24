@@ -18,7 +18,6 @@ package com.google.common.css.compiler.ast.testing;
 
 import com.google.common.css.compiler.ast.CssNode;
 import com.google.common.css.testing.UtilityTestCase;
-import com.google.common.truth.Truth;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -95,7 +94,7 @@ public abstract class AstUtilityTestCase extends UtilityTestCase {
                     continue;
                 }
 
-                Truth.assertWithMessage("Field " + field).that(value1).isEqualTo(value2);
+                assertThat(value1).withFailMessage("Field " + field).isEqualTo(value2);
             }
         }
     }

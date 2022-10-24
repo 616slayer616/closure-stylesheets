@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -80,8 +79,8 @@ class RenamingTypeTest {
         assertThat(map.get("settings")).isEqualTo("b");
         assertThat(map.get("dialog-button")).isEqualTo("a-c");
         assertThat(map.get("button")).isEqualTo("c");
-        assertWithMessage("A CSS class may include a part with the same name multiple times.")
-                .that(map.get("goog-imageless-button-button-pos"))
+        assertThat(map.get("goog-imageless-button-button-pos"))
+                .as("A CSS class may include a part with the same name multiple times.")
                 .isEqualTo("d-e-c-c-f");
 
         testRenamingTypeThatWrapsASplittingSubstitutionMap(RenamingType.CLOSURE);
@@ -105,8 +104,8 @@ class RenamingTypeTest {
         assertThat(map.get("dialog-button")).isEqualTo("e-a");
         assertThat(map.get("button")).isEqualTo("a");
         assertThat(map.get("title")).isEqualTo("c");
-        assertWithMessage("Should accept same part multiple times even with a input renaming map.")
-                .that(map.get("goog-imageless-button-button-pos-dialog"))
+        assertThat(map.get("goog-imageless-button-button-pos-dialog"))
+                .as("Should accept same part multiple times even with a input renaming map.")
                 .isEqualTo("d-f-a-a-g-e");
 
         Map<String, String> expectedMappings =
@@ -139,11 +138,10 @@ class RenamingTypeTest {
                 "title"
         );
         Set<String> observedMappings = map.getMappings().keySet();
-        assertWithMessage(
-                "There should be entries for both 'dialog' and 'content' in"
+        assertThat(observedMappings)
+                .as("There should be entries for both 'dialog' and 'content' in"
                         + "case someone does: "
                         + "goog.getCssName(goog.getCssName('dialog'), 'content')")
-                .that(observedMappings)
                 .isEqualTo(expectedMappings);
     }
 }

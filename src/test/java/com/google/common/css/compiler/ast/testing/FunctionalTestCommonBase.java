@@ -18,7 +18,8 @@ package com.google.common.css.compiler.ast.testing;
 
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.UniformVisitor;
-import com.google.common.truth.Truth;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Utility methods for all the functional tests.
@@ -57,7 +58,7 @@ public abstract class FunctionalTestCommonBase extends AstUtilityTestCase {
      * @param expected
      */
     protected void checkTreeDebugString(String expected) {
-        Truth.assertThat(tree.getRoot().toString()).isEqualTo(expected);
+        assertThat(tree.getRoot().toString()).isEqualTo(expected);
     }
 
     protected boolean isEmptyBody() {

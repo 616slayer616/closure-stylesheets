@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -550,10 +549,9 @@ class GssParserTest {
         CssFunctionNode function =
                 (CssFunctionNode) decl.getPropertyValue().getChildAt(0);
         CssFunctionArgumentsNode args = function.getArguments();
-        assertWithMessage(
-                "The argument list should be flattened, and contain "
+        assertThat(args.numChildren())
+                .as("The argument list should be flattened, and contain "
                         + "7 arguments + 6 separators (4 commas and 2 meaningful spaces).")
-                .that(args.numChildren())
                 .isEqualTo(13);
     }
 
@@ -911,9 +909,8 @@ class GssParserTest {
             parse(css);
             Assertions.fail("CDO should not be accepted in property values.");
         } catch (GssParserException e) {
-            assertWithMessage(
-                    "The error should reflect that CDO is not accepted in property " + "values.")
-                    .that(e.getGssError().getLocation().getBeginCharacterIndex())
+            assertThat(e.getGssError().getLocation().getBeginCharacterIndex()).as(
+                            "The error should reflect that CDO is not accepted in property " + "values.")
                     .isEqualTo(css.indexOf("<!--"));
         }
     }

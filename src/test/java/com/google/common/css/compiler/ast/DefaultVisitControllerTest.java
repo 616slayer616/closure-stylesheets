@@ -33,7 +33,6 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -716,10 +715,9 @@ class DefaultVisitControllerTest {
                     new com.google.common.css.SourceCode(null,
                             String.format("p { background: %s; }", backgroundValue)))
                     .parse();
-            assertWithMessage(
-                    "This test assumes we start with a stylesheet containing detectable "
+            assertThat(FunctionDetector.detect(t))
+                    .as("This test assumes we start with a stylesheet containing detectable "
                             + "function nodes.")
-                    .that(FunctionDetector.detect(t))
                     .isTrue();
             final DefaultVisitController vc =
                     new DefaultVisitController(t, true /* allowMutating */);
@@ -733,19 +731,16 @@ class DefaultVisitControllerTest {
                         }
                     };
             vc.startVisit(functionRemover);
-            assertWithMessage(
-                    "We should be able to remove function nodes that occur as property " + "values.")
-                    .that(FunctionDetector.detect(t))
+            assertThat(FunctionDetector.detect(t))
+                    .as("We should be able to remove function nodes that occur as property " + "values.")
                     .isFalse();
-            assertWithMessage(
-                    "Removing one composite element within a property value should not "
+            assertThat(ValueDetector.detect(t, "red"))
+                    .as("Removing one composite element within a property value should not "
                             + "affect its siblings.")
-                    .that(ValueDetector.detect(t, "red"))
                     .isTrue();
-            assertWithMessage(
-                    "Removing one composite element within a property value should not "
+            assertThat(ValueDetector.detect(t, "fixed"))
+                    .as("Removing one composite element within a property value should not "
                             + "affect its siblings.")
-                    .that(ValueDetector.detect(t, "fixed"))
                     .isTrue();
         } catch (GssParserException e) {
             throw new RuntimeException(e);

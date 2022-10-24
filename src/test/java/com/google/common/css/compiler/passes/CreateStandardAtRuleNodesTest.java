@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.StreamSupport;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -46,9 +45,8 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
         CssImportRuleNode importRule = findFirstNodeOf(CssImportRuleNode.class);
         assertThat(importRule.getName().getValue()).isEqualTo("import");
         assertThat(importRule.getParametersCount()).isEqualTo(1);
-        assertWithMessage("Import rules should occur in the import block.")
-                .that(
-                        StreamSupport.stream(importRule.ancestors().spliterator(), false).anyMatch(Predicates.instanceOf(CssImportBlockNode.class)::apply))
+        assertThat(StreamSupport.stream(importRule.ancestors().spliterator(), false).anyMatch(Predicates.instanceOf(CssImportBlockNode.class)::apply))
+                .as("Import rules should occur in the import block.")
                 .isTrue();
     }
 
@@ -91,9 +89,8 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
         CssTree t = parseAndRun("div { font-family: sans } @import 'a';",
                 CreateStandardAtRuleNodes.IGNORE_IMPORT_WARNING_MESSAGE,
                 CreateStandardAtRuleNodes.IGNORED_IMPORT_WARNING_MESSAGE);
-        assertWithMessage("This pass should not reorder misplaced nodes.")
-                .that(
-                        SExprPrinter.print(false /* includeHashCodes */, false /* withLocationAnnotation */, t))
+        assertThat(SExprPrinter.print(false /* includeHashCodes */, false /* withLocationAnnotation */, t))
+                .as("This pass should not reorder misplaced nodes.")
                 .isEqualTo(
                         "(com.google.common.css.compiler.ast.CssRootNode "
                                 + "(com.google.common.css.compiler.ast.CssImportBlockNode)"
@@ -398,9 +395,8 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
     void testCreateCharSetNodeInvalidCharacterBefore() throws GssParserException {
         CssTree t = parseAndRun("a,i{} @charset \"UTF-8\"; foo,hr,.bar,i{} ",
                 CreateStandardAtRuleNodes.CHARSET_ERROR_CHAR_BEFORE_MESSAGE);
-        assertWithMessage("This pass should find errors.")
-                .that(
-                        SExprPrinter.print(false, false, t))
+        assertThat(SExprPrinter.print(false, false, t))
+                .as("This pass should find errors.")
                 .isEqualTo(
                         "(com.google.common.css.compiler.ast.CssRootNode " +
                                 "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
@@ -424,9 +420,8 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
     void testCreateCharSetNodeInvalidWrongQuotes() throws GssParserException {
         CssTree t = parseAndRun("@charset 'UTF-8';",
                 CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
-        assertWithMessage("This pass should find errors.")
-                .that(
-                        SExprPrinter.print(false, false, t))
+        assertThat(SExprPrinter.print(false, false, t))
+                .as("This pass should find errors.")
                 .isEqualTo(
                         "(com.google.common.css.compiler.ast.CssRootNode " +
                                 "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
@@ -437,9 +432,8 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
     void testCreateCharSetNodeInvalidMissingQuotes() throws GssParserException {
         CssTree t = parseAndRun("@charset UTF-8;",
                 CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
-        assertWithMessage("This pass should find an error.")
-                .that(
-                        SExprPrinter.print(false, false, t))
+        assertThat(SExprPrinter.print(false, false, t))
+                .as("This pass should find an error.")
                 .isEqualTo(
                         "(com.google.common.css.compiler.ast.CssRootNode " +
                                 "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
@@ -450,9 +444,8 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
     void testCreateCharSetNodeInvalidMissingParameter() throws GssParserException {
         CssTree t = parseAndRun("@charset;",
                 CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
-        assertWithMessage("This pass should find an error.")
-                .that(
-                        SExprPrinter.print(false, false, t))
+        assertThat(SExprPrinter.print(false, false, t))
+                .as("This pass should find an error.")
                 .isEqualTo(
                         "(com.google.common.css.compiler.ast.CssRootNode " +
                                 "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
@@ -463,9 +456,8 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
     void testMultipleCharsetWarning() throws Exception {
         CssTree t = parseAndRun("@charset \"UTF-8\"; @charset \"iso-8859-15\";",
                 CreateStandardAtRuleNodes.IGNORED_CHARSET_WARNING_MESSAGE);
-        assertWithMessage("This pass should remove superfluous charset nodes.")
-                .that(
-                        SExprPrinter.print(false, false, t))
+        assertThat(SExprPrinter.print(false, false, t))
+                .as("This pass should remove superfluous charset nodes.")
                 .isEqualTo(
                         "(com.google.common.css.compiler.ast.CssRootNode " +
                                 "(com.google.common.css.compiler.ast.CssImportBlockNode)" +
