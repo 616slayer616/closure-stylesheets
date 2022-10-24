@@ -22,6 +22,7 @@ import com.google.common.truth.Subject;
 
 import javax.annotation.CheckReturnValue;
 
+import static com.google.common.truth.Fact.simpleFact;
 import static com.google.common.truth.Truth.assertAbout;
 
 /**
@@ -48,16 +49,16 @@ public class SourceCodeLocationSubject
                 && beginIndex == actual().getBeginIndexInLine()
                 && endLine == actual().getEndLineNumber()
                 && endIndex == actual().getEndIndexInLine())) {
-            failWithRawMessage(
+            failWithoutActual(simpleFact(String.format(
                     "Location did not match <%s,%s -> %s,%s>, was <%s,%s -> %s,%s>",
-                    String.valueOf(beginLine),
-                    String.valueOf(beginIndex),
-                    String.valueOf(endLine),
-                    String.valueOf(endIndex),
-                    String.valueOf(actual().getBeginLineNumber()),
-                    String.valueOf(actual().getBeginIndexInLine()),
-                    String.valueOf(actual().getEndLineNumber()),
-                    String.valueOf(actual().getEndIndexInLine()));
+                    beginLine,
+                    beginIndex,
+                    endLine,
+                    endIndex,
+                    actual().getBeginLineNumber(),
+                    actual().getBeginIndexInLine(),
+                    actual().getEndLineNumber(),
+                    actual().getEndIndexInLine())));
         }
     }
 
