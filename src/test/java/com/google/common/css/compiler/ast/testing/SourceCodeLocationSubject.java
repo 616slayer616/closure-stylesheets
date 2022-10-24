@@ -29,7 +29,7 @@ import static com.google.common.truth.Truth.assertAbout;
  * Truth subject for {@link SourceCodeLocation}.
  */
 public class SourceCodeLocationSubject
-        extends Subject<SourceCodeLocationSubject, SourceCodeLocation> {
+        extends Subject {
 
     static final Subject.Factory<SourceCodeLocationSubject, SourceCodeLocation> LOCATION =
             SourceCodeLocationSubject::new;
@@ -66,18 +66,18 @@ public class SourceCodeLocationSubject
     }
 
     public void matches(String text) {
-         check("").that(actual).isNotNull();
+        check("").that(actual).isNotNull();
         String source =
                 actual
                         .getSourceCode()
                         .getFileContents()
                         .substring(
                                 actual.getBeginCharacterIndex(), actual.getEndCharacterIndex());
-         check("").that(source).isEqualTo(text);
+        check("").that(source).isEqualTo(text);
     }
 
     public void isUnknown() {
-         check("").that(actual).isNotNull();
-         check("").that(actual.isUnknown()).named("isUnknown").isTrue();
+        check("").that(actual).isNotNull();
+        check("").that(actual.isUnknown()).isTrue();
     }
 }
