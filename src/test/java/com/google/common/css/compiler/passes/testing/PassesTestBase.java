@@ -19,9 +19,10 @@ package com.google.common.css.compiler.passes.testing;
 import com.google.common.collect.ImmutableList;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import com.google.common.truth.Truth;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Base class for testing passes where the printed output has to be compared.
@@ -46,7 +47,7 @@ public class PassesTestBase extends NewFunctionalTestBase {
      */
     @Override
     protected void checkTreeDebugString(String expected) {
-        Truth.assertThat(AstPrinter.print(tree)).isEqualTo(expected);
+        assertThat(AstPrinter.print(tree)).isEqualTo(expected);
     }
 
     protected void checkRuleset(String expected, CssRulesetNode rule) {
@@ -54,6 +55,6 @@ public class PassesTestBase extends NewFunctionalTestBase {
         CssBlockNode block = new CssBlockNode(false, blockChildren);
         CssRootNode root = new CssRootNode(block);
         CssTree t = new CssTree(null, root);
-        Truth.assertThat(AstPrinter.print(t)).isEqualTo(expected);
+        assertThat(AstPrinter.print(t)).isEqualTo(expected);
     }
 }

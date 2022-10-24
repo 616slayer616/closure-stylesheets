@@ -17,7 +17,6 @@
 package com.google.common.css.compiler.ast;
 
 import com.google.common.css.SourceCode;
-import com.google.common.truth.Truth;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +51,6 @@ class CssTreeTest {
         assertThat(tree2.getSourceCode()).isEqualTo(tree1.getSourceCode());
 
         tree1.getRulesetNodesToRemove().addRulesetNode(new CssRulesetNode());
-        Truth.assertThat(tree2.getRulesetNodesToRemove().getRulesetNodes()).isEmpty();
+        assertThat(tree2.getRulesetNodesToRemove().getRulesetNodes()).isEmpty();
     }
 }

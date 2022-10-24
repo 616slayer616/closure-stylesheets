@@ -21,12 +21,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.css.SourceCode;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.PrettyPrinter;
-import org.junit.Assert;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Base class for testing the passes which use an {@link ErrorManager}.
@@ -51,7 +51,7 @@ public class NewFunctionalTestBase extends FunctionalTestCommonBase {
         try {
             parseAndRun(fileNameToGss);
         } catch (GssParserException e) {
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 

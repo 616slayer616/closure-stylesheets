@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -257,21 +256,20 @@ class CssStringNodeTest {
         // See http://www.w3.org/TR/CSS2/syndata.html#strings
         CssStringNode a = new CssStringNode(
                 CssStringNode.Type.SINGLE_QUOTED_STRING, "line1\nline2");
-        assertWithMessage("We should support the Java String representation of newlines.")
-                .that(a.getValue().contains("\n"))
+        assertThat(a.getValue().contains("\n"))
+                .as("We should support the Java String representation of newlines.")
                 .isTrue();
-        assertWithMessage(
-                "If we set a Java newline, it should be escaped in the" + " generated concrete value.")
-                .that(a.getConcreteValue().contains("\n"))
+        assertThat(a.getConcreteValue().contains("\n"))
+                .as("If we set a Java newline, it should be escaped in the" + " generated concrete value.")
                 .isFalse();
-        assertWithMessage("If we ask for CSS markup, we should escape newlines per the" + " CSS spec.")
-                .that(a.toString(CssStringNode.HTML_ESCAPER).contains("\n"))
+        assertThat(a.toString(CssStringNode.HTML_ESCAPER).contains("\n"))
+                .as("If we ask for CSS markup, we should escape newlines per the" + " CSS spec.")
                 .isFalse();
-        assertWithMessage("Escaping a new line shouldn't affect the left hand side")
-                .that(a.toString(CssStringNode.HTML_ESCAPER).startsWith("'line1"))
+        assertThat(a.toString(CssStringNode.HTML_ESCAPER).startsWith("'line1"))
+                .as("Escaping a new line shouldn't affect the left hand side")
                 .isTrue();
-        assertWithMessage("Escaping a new line shouldn't affect the right-hand side")
-                .that(a.toString(CssStringNode.HTML_ESCAPER).endsWith("line2'"))
+        assertThat(a.toString(CssStringNode.HTML_ESCAPER).endsWith("line2'"))
+                .as("Escaping a new line shouldn't affect the right-hand side")
                 .isTrue();
     }
 }

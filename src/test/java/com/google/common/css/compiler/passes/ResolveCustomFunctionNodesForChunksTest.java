@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.css.compiler.ast.CssDefinitionNode;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -126,23 +125,23 @@ class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFunctionNodes
 
         int defCount = 0;
         for (String constant : constants) {
-            assertWithMessage("Definitions expected").that(constantDefinitions).isNotNull();
+            assertThat(constantDefinitions).as("Definitions expected").isNotNull();
 
             String defName = getDefName(defCount);
             CssDefinitionNode defNode =
                     constantDefinitions.getConstantDefinition(defName);
 
-            assertWithMessage("Missing definition " + defCount).that(defNode).isNotNull();
+            assertThat(defNode).as("Missing definition " + defCount).isNotNull();
             assertThat(defNode.toString()).isEqualTo("@def " + defName + " [" + constant + "]");
 
             defCount++;
         }
 
         if (defCount == 0) {
-            assertWithMessage("No definitions expected").that(constantDefinitions).isNull();
+            assertThat(constantDefinitions).as("No definitions expected").isNull();
         } else {
-            assertWithMessage("Too many definitions! Expected " + defCount)
-                    .that(constantDefinitions.getConstantDefinition(getDefName(defCount)))
+            assertThat(constantDefinitions.getConstantDefinition(getDefName(defCount)))
+                    .as("Too many definitions! Expected " + defCount)
                     .isNull();
         }
     }
