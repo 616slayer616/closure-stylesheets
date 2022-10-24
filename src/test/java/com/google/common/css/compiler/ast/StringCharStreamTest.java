@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -39,9 +38,9 @@ class StringCharStreamTest {
                         "6789\n" +
                         "bcd");
 
-        assertWithMessage("column").that(s.getEndColumn()).isEqualTo(0);
-        assertWithMessage("line").that(s.getEndLine()).isEqualTo(1);
-        assertWithMessage("char index").that(s.getCharIndex()).isEqualTo(-1);
+        assertThat(s.getEndColumn()).as("column").isEqualTo(0);
+        assertThat(s.getEndLine()).as("line").isEqualTo(1);
+        assertThat(s.getCharIndex()).as("char index").isEqualTo(-1);
 
         readCharCheckLocation(s, '0', 1, 1, 0);
         readCharCheckLocation(s, '1', 1, 2, 1);
@@ -188,33 +187,33 @@ class StringCharStreamTest {
 
     private void checkCharacterIndex(StringCharStream s,
                                      int line, int column, int charIndex) {
-        assertWithMessage("char index")
-                .that(s.convertToCharacterIndex(line, column))
+        assertThat(s.convertToCharacterIndex(line, column))
+                .as("char index")
                 .isEqualTo(charIndex);
     }
 
     private void readCharCheckLocation(
             StringCharStream s, char c, int line, int column, int charIndex)
             throws IOException {
-        assertWithMessage("char").that(s.readChar()).isEqualTo(c);
+        assertThat(s.readChar()).as("char").isEqualTo(c);
         checkLocation(s, line, column, charIndex);
     }
 
     private void beginTokenCheckLocation(
             StringCharStream s, char c, int line, int column, int charIndex)
             throws IOException {
-        assertWithMessage("char").that(s.beginToken()).isEqualTo(c);
+        assertThat(s.beginToken()).as("char").isEqualTo(c);
         checkLocation(s, line, column, charIndex);
-        assertWithMessage("begin column").that(s.getBeginColumn()).isEqualTo(column);
-        assertWithMessage("begin line").that(s.getBeginLine()).isEqualTo(line);
-        assertWithMessage("char index").that(s.getCharIndex()).isEqualTo(charIndex);
-        assertWithMessage("token start").that(s.getTokenStart()).isEqualTo(charIndex);
+        assertThat(s.getBeginColumn()).as("begin column").isEqualTo(column);
+        assertThat(s.getBeginLine()).as("begin line").isEqualTo(line);
+        assertThat(s.getCharIndex()).as("char index").isEqualTo(charIndex);
+        assertThat(s.getTokenStart()).as("token start").isEqualTo(charIndex);
     }
 
     private void checkLocation(
             StringCharStream s, int line, int column, int charIndex) {
-        assertWithMessage("column").that(s.getEndColumn()).isEqualTo(column);
-        assertWithMessage("line").that(s.getEndLine()).isEqualTo(line);
-        assertWithMessage("char index").that(s.getCharIndex()).isEqualTo(charIndex);
+        assertThat(s.getEndColumn()).as("column").isEqualTo(column);
+        assertThat(s.getEndLine()).as("line").isEqualTo(line);
+        assertThat(s.getCharIndex()).as("char index").isEqualTo(charIndex);
     }
 }

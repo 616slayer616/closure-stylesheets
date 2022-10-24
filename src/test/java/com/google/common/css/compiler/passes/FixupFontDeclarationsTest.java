@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.stream.Collectors;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -197,42 +196,42 @@ class FixupFontDeclarationsTest {
     @Test
     void testTooManyLineHeights() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.LINE_HEIGHT),
+                        FixupFontDeclarations.FontProperty.LINE_HEIGHT),
                 "a { font: 1ex/2pt/4px serif; }");
     }
 
     @Test
     void testTooManyLineHeightPairs() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.LINE_HEIGHT),
+                        FixupFontDeclarations.FontProperty.LINE_HEIGHT),
                 "a { font: 1ex/2pt 4px/8em serif; }");
     }
 
     @Test
     void testTooManyFontSizes() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.SIZE),
+                        FixupFontDeclarations.FontProperty.SIZE),
                 "a { font: large 12pt serif; }");
     }
 
     @Test
     void testTooManyStyles() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.STYLE),
+                        FixupFontDeclarations.FontProperty.STYLE),
                 "a { font: italic oblique 10px helvetica; }");
     }
 
     @Test
     void testTooManyVariants() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.VARIANT),
+                        FixupFontDeclarations.FontProperty.VARIANT),
                 "a { font: small-caps small-caps 10px helvetica; }");
     }
 
     @Test
     void testTooManyWeights() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.WEIGHT),
+                        FixupFontDeclarations.FontProperty.WEIGHT),
                 "a { font: bold 800 72pt serif; }");
     }
 
@@ -261,14 +260,14 @@ class FixupFontDeclarationsTest {
     @Test
     void testSizeHeightSize() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.SIZE),
+                        FixupFontDeclarations.FontProperty.SIZE),
                 "a { font: 1em/2em 3em serif; }");
     }
 
     @Test
     void testSizeSizeHeight() throws Exception {
         testError(FixupFontDeclarations.TOO_MANY.get(
-                FixupFontDeclarations.FontProperty.SIZE),
+                        FixupFontDeclarations.FontProperty.SIZE),
                 "a { font: 3em 1em/2em serif; }");
     }
 
@@ -332,11 +331,10 @@ class FixupFontDeclarationsTest {
             FixupFontDeclarations.InputMode mode, String css) throws Exception {
         CssTree tree = runPass(mode, parse(css));
         assertThat(tree).isNotNull();
-        assertWithMessage(
-                Joiner.on("\n")
+        assertThat(errorManager.hasErrors())
+                .as(Joiner.on("\n")
                         .join(
                                 errorManager.getErrors().stream().map(GssError::format).collect(Collectors.toList())))
-                .that(errorManager.hasErrors())
                 .isFalse();
         return tree;
     }

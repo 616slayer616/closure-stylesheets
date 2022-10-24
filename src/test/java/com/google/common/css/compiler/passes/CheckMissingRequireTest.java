@@ -24,7 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.google.common.truth.Truth.assertWithMessage;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 /**
  * Tests for {@link CheckMissingRequire}.
@@ -86,8 +87,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -104,8 +105,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -128,8 +129,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -155,8 +156,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -182,8 +183,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -208,8 +209,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -231,8 +232,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -262,8 +263,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -287,8 +288,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -315,8 +316,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -338,8 +339,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 
@@ -364,8 +365,8 @@ class CheckMissingRequireTest extends NewFunctionalTestBase {
         TestErrorManager errorManager = new TestErrorManager(false, expectedMessages);
         runPasses(errorManager);
         errorManager.generateReport();
-        assertWithMessage("Encountered all errors.")
-                .that(errorManager.hasEncounteredAllErrors())
+        assertThat(errorManager.hasEncounteredAllErrors())
+                .as("Encountered all errors.")
                 .isTrue();
     }
 }

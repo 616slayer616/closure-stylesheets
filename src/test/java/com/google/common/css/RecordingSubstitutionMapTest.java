@@ -17,8 +17,8 @@
 package com.google.common.css;
 
 import com.google.common.collect.ImmutableSet;
-import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
 import java.io.StringReader;

@@ -22,7 +22,6 @@ import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import org.junit.jupiter.api.Test;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -71,8 +70,8 @@ class LocationBoundingVisitorTest extends NewFunctionalTestBase {
                         });
         tree.getMutatingVisitController().startVisit(eraseLocations);
         SourceCodeLocation actual = LocationBoundingVisitor.bound(tree.getRoot());
-        assertWithMessage(new com.google.common.css.compiler.ast.GssError("boo", actual).format())
-                .that(actual)
+        assertThat(actual)
+                .as(new com.google.common.css.compiler.ast.GssError("boo", actual).format())
                 .isEqualTo(SourceCodeLocation.getUnknownLocation());
     }
 
@@ -83,37 +82,37 @@ class LocationBoundingVisitorTest extends NewFunctionalTestBase {
 
         // First: establish some facts we can use later on
         CssSelectorNode div = findFirstNodeOf(CssSelectorNode.class);
-        assertWithMessage("There should be a node with known location")
-                .that(div.getSourceCodeLocation().isUnknown())
+        assertThat(div.getSourceCodeLocation().isUnknown())
+                .as("There should be a node with known location")
                 .isFalse();
         CssLiteralNode red = findFirstNodeOf(CssLiteralNode.class);
-        assertWithMessage("There should be a distinguished second node")
-                .that(red.getValue())
+        assertThat(red.getValue())
+                .as("There should be a distinguished second node")
                 .isEqualTo("red");
-        assertWithMessage("The second node  should also have known location")
-                .that(red.getSourceCodeLocation().isUnknown())
+        assertThat(red.getSourceCodeLocation().isUnknown())
+                .as("The second node  should also have known location")
                 .isFalse();
         CssDeclarationBlockNode block =
                 findFirstNodeOf(CssDeclarationBlockNode.class);
-        assertWithMessage("There should be a node with an known location")
-                .that(block.getSourceCodeLocation() == null || block.getSourceCodeLocation().isUnknown())
+        assertThat(block.getSourceCodeLocation() == null || block.getSourceCodeLocation().isUnknown())
+                .as("There should be a node with an known location")
                 .isFalse();
 
         // Next: demonstrate some properties of the visitor
         SourceCodeLocation actual = LocationBoundingVisitor.bound(tree.getRoot());
         assertThat(actual.isUnknown()).isFalse();
-        assertWithMessage("The tree-wide lower bound should l.b. a known node.")
-                .that(actual.getBeginCharacterIndex())
-                .isAtMost(div.getSourceCodeLocation().getBeginCharacterIndex());
-        assertWithMessage("The tree-wide lower bound should l.b. all the known nodes.")
-                .that(actual.getBeginCharacterIndex())
-                .isAtMost(red.getSourceCodeLocation().getBeginCharacterIndex());
-        assertWithMessage("The tree-wide upper bound should u.b. a known node.")
-                .that(actual.getEndCharacterIndex())
-                .isAtLeast(div.getSourceCodeLocation().getEndCharacterIndex());
-        assertWithMessage("The tree-wide upper bound should u.b. all the known nodes.")
-                .that(actual.getEndCharacterIndex())
-                .isAtLeast(red.getSourceCodeLocation().getEndCharacterIndex());
+        assertThat(actual.getBeginCharacterIndex())
+                .as("The tree-wide lower bound should l.b. a known node.")
+                .isLessThanOrEqualTo(div.getSourceCodeLocation().getBeginCharacterIndex());
+        assertThat(actual.getBeginCharacterIndex())
+                .as("The tree-wide lower bound should l.b. all the known nodes.")
+                .isLessThanOrEqualTo(red.getSourceCodeLocation().getBeginCharacterIndex());
+        assertThat(actual.getEndCharacterIndex())
+                .as("The tree-wide upper bound should u.b. a known node.")
+                .isGreaterThan(div.getSourceCodeLocation().getEndCharacterIndex());
+        assertThat(actual.getEndCharacterIndex())
+                .as("The tree-wide upper bound should u.b. all the known nodes.")
+                .isGreaterThan(red.getSourceCodeLocation().getEndCharacterIndex());
 
         for (CssNode n : new CssNode[]{div, red, block}) {
             SourceCodeLocation nLocation = n.getSourceCodeLocation();
@@ -134,12 +133,12 @@ class LocationBoundingVisitorTest extends NewFunctionalTestBase {
                         continue;
                     }
                     SourceCodeLocation aBound = LocationBoundingVisitor.bound(a);
-                    assertWithMessage("ancestral lower bounds should not exceed descendent l.b.s")
-                            .that(aBound.getBeginCharacterIndex())
-                            .isAtMost(nLocation.getBeginCharacterIndex());
-                    assertWithMessage("ancestral upper bounds should equal or exceed descendent u.b.s")
-                            .that(aBound.getBeginCharacterIndex())
-                            .isAtLeast(nLocation.getBeginCharacterIndex());
+                    assertThat(aBound.getBeginCharacterIndex())
+                            .as("ancestral lower bounds should not exceed descendent l.b.s")
+                            .isLessThanOrEqualTo(nLocation.getBeginCharacterIndex());
+                    assertThat(aBound.getBeginCharacterIndex())
+                            .as("ancestral upper bounds should equal or exceed descendent u.b.s")
+                            .isLessThanOrEqualTo(nLocation.getBeginCharacterIndex());
                 } catch (NullPointerException e) {
                     // Our tree-traversal code is a bit buggy, so give up
                     // on this ancestor and try another one. To the extent

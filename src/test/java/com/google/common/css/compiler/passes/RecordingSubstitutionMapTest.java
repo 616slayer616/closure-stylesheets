@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.google.common.truth.Truth.assertWithMessage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 
@@ -89,8 +88,8 @@ class RecordingSubstitutionMapTest extends UtilityTestCase {
         assertThat(recordingMap.get("BIZ")).isEqualTo("BIZ");
 
         mappings = recordingMap.getMappings();
-        assertWithMessage("Predicate for RecordingSubstitutionMap was not honored")
-                .that(mappings)
+        assertThat(mappings)
+                .as("Predicate for RecordingSubstitutionMap was not honored")
                 .doesNotContainKey("BIZ");
         assertThat(mappings).containsExactly(entry("CSS_FOO", "a"),
                 entry("CSS_BAR", "b"),
