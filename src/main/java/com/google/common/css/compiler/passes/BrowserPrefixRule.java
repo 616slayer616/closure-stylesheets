@@ -16,12 +16,12 @@
 
 package com.google.common.css.compiler.passes;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.*;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -44,8 +44,8 @@ public final class BrowserPrefixRule {
 
     private BrowserPrefixRule(Builder builder) {
         checkState(builder.matchPropertyName != null || builder.matchPropertyValue != null);
-        this.matchPropertyName = Optional.fromNullable(builder.matchPropertyName);
-        this.matchPropertyValue = Optional.fromNullable(builder.matchPropertyValue);
+        this.matchPropertyName = Optional.ofNullable(builder.matchPropertyName);
+        this.matchPropertyValue = Optional.ofNullable(builder.matchPropertyValue);
         this.isFunction = builder.isFunction;
 
         // Pre-compute placeholder expansion nodes for this rule.
@@ -75,7 +75,7 @@ public final class BrowserPrefixRule {
                     valueNode.addChildToBack(functionNode);
                 } else {
                     // Case #2: Property value is not a function
-                    checkState(matchPropertyValue != null);  // Has both name and value
+                    checkState(matchPropertyValue.isPresent());  // Has both name and value
                     valueNode.addChildToBack(new CssLiteralNode(propertyValue));
                 }
                 if (matchPropertyName.isPresent()) {
@@ -95,12 +95,12 @@ public final class BrowserPrefixRule {
 
     @Nullable
     public String getMatchPropertyName() {
-        return matchPropertyName.orNull();
+        return matchPropertyName.orElse(null);
     }
 
     @Nullable
     public String getMatchPropertyValue() {
-        return matchPropertyValue.orNull();
+        return matchPropertyValue.orElse(null);
     }
 
     public boolean isFunction() {
