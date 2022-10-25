@@ -467,9 +467,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
      * Performs appropriate replacements needed for BiDi flipping a literal value.
      */
     public static String flipLiteralValue(String value) {
-        if (EXACT_MATCHING_FOR_FLIPPING.containsKey(value)) {
-            value = EXACT_MATCHING_FOR_FLIPPING.get(value);
-        }
+        value = EXACT_MATCHING_FOR_FLIPPING.getOrDefault(value, value);
         for (String s : ENDS_WITH_MATCHING_FOR_FLIPPING.keySet()) {
             if (value.endsWith(s)) {
                 value = value.replace(s, ENDS_WITH_MATCHING_FOR_FLIPPING.get(s));
