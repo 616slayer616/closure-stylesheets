@@ -256,20 +256,20 @@ class CssStringNodeTest {
         // See http://www.w3.org/TR/CSS2/syndata.html#strings
         CssStringNode a = new CssStringNode(
                 CssStringNode.Type.SINGLE_QUOTED_STRING, "line1\nline2");
-        assertThat(a.getValue().contains("\n"))
+        assertThat(a.getValue())
                 .as("We should support the Java String representation of newlines.")
-                .isTrue();
-        assertThat(a.getConcreteValue().contains("\n"))
+                .contains("\n");
+        assertThat(a.getConcreteValue())
                 .as("If we set a Java newline, it should be escaped in the" + " generated concrete value.")
-                .isFalse();
-        assertThat(a.toString(CssStringNode.HTML_ESCAPER).contains("\n"))
+                .doesNotContain("\n");
+        assertThat(a.toString(CssStringNode.HTML_ESCAPER))
                 .as("If we ask for CSS markup, we should escape newlines per the" + " CSS spec.")
-                .isFalse();
-        assertThat(a.toString(CssStringNode.HTML_ESCAPER).startsWith("'line1"))
+                .doesNotContain("\n");
+        assertThat(a.toString(CssStringNode.HTML_ESCAPER))
                 .as("Escaping a new line shouldn't affect the left hand side")
-                .isTrue();
-        assertThat(a.toString(CssStringNode.HTML_ESCAPER).endsWith("line2'"))
+                .startsWith("'line1");
+        assertThat(a.toString(CssStringNode.HTML_ESCAPER))
                 .as("Escaping a new line shouldn't affect the right-hand side")
-                .isTrue();
+                .endsWith("line2'");
     }
 }

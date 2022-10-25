@@ -90,10 +90,11 @@ class RecordingSubstitutionMapTest extends UtilityTestCase {
         mappings = recordingMap.getMappings();
         assertThat(mappings)
                 .as("Predicate for RecordingSubstitutionMap was not honored")
-                .doesNotContainKey("BIZ");
-        assertThat(mappings).containsExactly(entry("CSS_FOO", "a"),
-                entry("CSS_BAR", "b"),
-                entry("CSS_BAZ", "CSS_BAZ"));
+                .doesNotContainKey("BIZ")
+                .containsExactly(
+                        entry("CSS_FOO", "a"),
+                        entry("CSS_BAR", "b"),
+                        entry("CSS_BAZ", "CSS_BAZ"));
     }
 
     @Test
