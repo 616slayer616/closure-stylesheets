@@ -21,12 +21,13 @@ import com.google.common.css.JobDescriptionBuilder;
 import com.google.common.css.SourceCode;
 import com.google.common.css.compiler.ast.ErrorManager;
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
-import com.google.common.io.Files;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 
 import java.io.File;
+import java.io.IOException;
 
+import static java.nio.file.Files.createTempDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.fail;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
@@ -70,7 +71,7 @@ class ClosureCommandLineCompilerTest {
     }
 
     @Test
-    void testEmptyImportBlocks() {
+    void testEmptyImportBlocks() throws IOException {
         // See b/29995881
         ErrorManager errorManager = new NewFunctionalTestBase.TestErrorManager(new String[0]);
 
@@ -81,7 +82,7 @@ class ClosureCommandLineCompilerTest {
                 .setCreateSourceMap(true)
                 .getJobDescription();
 
-        File outputDir = Files.createTempDir();
+        File outputDir = createTempDirectory(null).toFile();
         File sourceMapFile = new File(outputDir, "sourceMap");
 
         String compiledCss = new ClosureCommandLineCompiler(
