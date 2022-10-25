@@ -58,7 +58,7 @@ public abstract class FunctionalTestCommonBase extends AstUtilityTestCase {
      * @param expected
      */
     protected void checkTreeDebugString(String expected) {
-        assertThat(tree.getRoot().toString()).isEqualTo(expected);
+        assertThat(tree.getRoot()).hasToString(expected);
     }
 
     protected boolean isEmptyBody() {

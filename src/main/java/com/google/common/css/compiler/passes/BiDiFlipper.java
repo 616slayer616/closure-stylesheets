@@ -494,11 +494,11 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
         if (tNode instanceof CssLiteralNode) {
             CssLiteralNode literalNode = (CssLiteralNode) tNode;
             String oldValue = literalNode.getValue();
-            if (null == oldValue) {
+            if (oldValue == null) {
                 return tNode;
             }
             String flippedValue = flipLiteralValue(oldValue);
-            if (flippedValue.equals(oldValue)) {
+            if (oldValue.equals(flippedValue)) {
                 return tNode;
             }
 
@@ -510,11 +510,11 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
         } else if (tNode instanceof CssPropertyNode) {
             CssPropertyNode propertyNode = (CssPropertyNode) tNode;
             String oldValue = propertyNode.getPropertyName();
-            if (null == oldValue) {
+            if (oldValue == null) {
                 return tNode;
             }
             String flippedValue = flipLiteralValue(oldValue);
-            if (flippedValue.equals(oldValue)) {
+            if (oldValue.equals(flippedValue)) {
                 return tNode;
             }
 
@@ -532,7 +532,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
      * Performs appropriate replacements required for flipping url.
      */
     private String flipUrlValue(String value) {
-        if (null == value) {
+        if (value == null) {
             return null;
         }
         if (shouldSwapLtrRtlInUrl) {
