@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public class SkippingTreeVisitor extends DefaultTreeVisitor {
 
-    private boolean skipping = false;
+    private boolean skipping;
     /**
      * The rules which contain any of these property names will be skipped,
      * if skipping is set to true.

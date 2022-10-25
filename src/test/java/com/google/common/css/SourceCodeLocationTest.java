@@ -66,15 +66,11 @@ class SourceCodeLocationTest {
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 =
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
-        assertThat(loc1.equals(loc1)).isTrue();
-        assertThat(loc1.equals(loc2)).isTrue();
-        assertThat(loc2.equals(loc1)).isTrue();
-        assertThat(loc2.equals(loc2)).isTrue();
+        assertThat(loc1).isEqualTo(loc2);
+        assertThat(loc2).isEqualTo(loc1);
         assertThat(loc1.compareTo(loc2)).isZero();
-        assertThat(loc1.compareTo(loc1)).isZero();
         assertThat(loc2.compareTo(loc1)).isZero();
-        assertThat(loc2.compareTo(loc2)).isZero();
-        assertThat(loc2.hashCode()).isEqualTo(loc1.hashCode());
+        assertThat(loc2.hashCode()).hasSameHashCodeAs(loc1);
     }
 
     @Test
@@ -84,14 +80,9 @@ class SourceCodeLocationTest {
                 new SourceCodeLocation(sourceCode, -1, 0, 0, -1, 0, 0);
         SourceCodeLocation loc2 =
                 new SourceCodeLocation(sourceCode, -1, 0, 0, -1, 0, 0);
-        assertThat(loc1.equals(loc1)).isTrue();
-        assertThat(loc1.equals(loc2)).isTrue();
-        assertThat(loc2.equals(loc1)).isTrue();
-        assertThat(loc2.equals(loc2)).isTrue();
-        assertThat(loc1.compareTo(loc2)).isZero();
-        assertThat(loc1.compareTo(loc1)).isZero();
+        assertThat(loc1).isEqualTo(loc2);
+        assertThat(loc2).isEqualTo(loc1);
         assertThat(loc2.compareTo(loc1)).isZero();
-        assertThat(loc2.compareTo(loc2)).isZero();
         assertThat(loc2.hashCode()).isEqualTo(loc1.hashCode());
     }
 
@@ -115,8 +106,8 @@ class SourceCodeLocationTest {
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 =
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 3, 1, 4);
-        assertThat(loc1.equals(loc2)).isFalse();
-        assertThat(loc2.equals(loc1)).isFalse();
+        assertThat(loc1).isNotEqualTo(loc2);
+        assertThat(loc2).isNotEqualTo(loc1);
         assertThat(loc1.compareTo(loc2)).isEqualTo(-1);
         assertThat(loc2.compareTo(loc1)).isEqualTo(1);
     }
@@ -128,8 +119,8 @@ class SourceCodeLocationTest {
                 new SourceCodeLocation(sourceCode, 0, 1, 1, 2, 1, 3);
         SourceCodeLocation loc2 =
                 new SourceCodeLocation(sourceCode, 1, 1, 2, 2, 1, 3);
-        assertThat(loc1.equals(loc2)).isFalse();
-        assertThat(loc2.equals(loc1)).isFalse();
+        assertThat(loc1).isNotEqualTo(loc2);
+        assertThat(loc2).isNotEqualTo(loc1);
         assertThat(loc1.compareTo(loc2)).isEqualTo(-1);
         assertThat(loc2.compareTo(loc1)).isEqualTo(1);
     }
@@ -142,8 +133,8 @@ class SourceCodeLocationTest {
         SourceCode sourceCode2 = new SourceCode("testfile2", "abcdef");
         SourceCodeLocation loc2 =
                 new SourceCodeLocation(sourceCode2, 0, 1, 1, 2, 1, 3);
-        assertThat(loc1.equals(loc2)).isFalse();
-        assertThat(loc2.equals(loc1)).isFalse();
+        assertThat(loc1).isNotEqualTo(loc2);
+        assertThat(loc2).isNotEqualTo(loc1);
     }
 
     @Test

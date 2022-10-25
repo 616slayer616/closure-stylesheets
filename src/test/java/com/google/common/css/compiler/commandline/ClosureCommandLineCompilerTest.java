@@ -29,7 +29,7 @@ import java.io.IOException;
 
 import static java.nio.file.Files.createTempDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.fail;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.condition.OS.WINDOWS;
 
 class ClosureCommandLineCompilerTest {

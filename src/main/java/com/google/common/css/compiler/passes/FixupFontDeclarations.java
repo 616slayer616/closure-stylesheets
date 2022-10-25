@@ -197,7 +197,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         List<CssDeclarationNode> replacement = ImmutableList.of(d);
         if (FONT.equals(propertyName)) {
             d.setPropertyValue(reparseFont(decl.getPropertyValue()));
-        } else if (FONT_FAMILY.equals(propertyName)) {
+        } else /* if (FONT_FAMILY.equals(propertyName)) */ {
             d.setPropertyValue(reparseFontFamily(decl.getPropertyValue()));
         }
         visitController.replaceCurrentBlockChildWith(replacement, false);
@@ -558,7 +558,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
      */
     private <T> Iterable<T> takeWhile(
             final Iterable<T> xs, final Predicate<? super T> p) {
-        return () -> new UnmodifiableIterator<T>() {
+        return () -> new UnmodifiableIterator<>() {
             final Iterator<T> xsi = xs.iterator();
             boolean validT = false;
             T t;

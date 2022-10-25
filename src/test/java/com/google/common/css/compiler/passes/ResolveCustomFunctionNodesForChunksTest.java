@@ -50,7 +50,7 @@ class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFunctionNodes
                         createTestFunctionMap(),
                         allowUnknownFunctions,
                         ImmutableSet.of() /* allowedNonStandardFunctions */,
-                        new Function<String, String>() {
+                        new Function<>() {
                             private int count = 0;
 
                             @Override
