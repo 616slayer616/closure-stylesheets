@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.nio.file.Files.createTempDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -103,7 +104,7 @@ public class TestParser {
          * in order to send the source map to the webapp. If you are concerned about leaking data, you
          * should *not* use this method. The meat is commented out to prevent mistakes.
          */
-        File tmpDir = Files.createTempDir();
+        File tmpDir = createTempDirectory(null).toFile();
         File sourcemapFile = new File(tmpDir, "sourcemap");
         File compiledFile = new File(tmpDir, "compiled.css");
 
