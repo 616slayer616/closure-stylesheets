@@ -46,9 +46,7 @@ enum RenamingType {
      * Each chunk of a CSS class as delimited by '-' is renamed using the
      * shortest available name.
      */
-    CLOSURE(() -> {
-        return new SplittingSubstitutionMap(new MinimalSubstitutionMap());
-    }),
+    CLOSURE(() -> new SplittingSubstitutionMap(new MinimalSubstitutionMap())),
     ;
 
     private final SubstitutionMapProvider provider;

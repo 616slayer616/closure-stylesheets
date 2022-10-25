@@ -171,8 +171,6 @@ public class CssPseudoClassNode extends CssRefinerNode {
                 sb.append(refinerType.getSuffix());
                 break;
             case LANG:
-                sb.append(argument);
-                break;
             case NTH:
                 sb.append(argument);
                 break;

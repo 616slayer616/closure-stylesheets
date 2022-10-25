@@ -166,12 +166,7 @@ public class ColorValueOptimizer extends DefaultTreeVisitor
      */
     @VisibleForTesting
     static String shortenHexString(String hex) {
-        StringBuilder optimizedHexValue = new StringBuilder("#");
-        optimizedHexValue.append(hex.charAt(1));
-        optimizedHexValue.append(hex.charAt(3));
-        optimizedHexValue.append(hex.charAt(5));
-
-        return optimizedHexValue.toString();
+        return "#" + hex.charAt(1) + hex.charAt(3) + hex.charAt(5);
     }
 
     @Override

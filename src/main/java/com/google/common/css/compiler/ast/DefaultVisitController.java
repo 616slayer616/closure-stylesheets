@@ -1624,7 +1624,6 @@ class DefaultVisitController implements MutatingVisitController {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void removeCurrentNodeCalled() {
             // If the function is a singleton, remove the nearest declaration that
             // contains it.
@@ -1657,7 +1656,7 @@ class DefaultVisitController implements MutatingVisitController {
                     // get this high.
                     otherSiblingsExist = true;
                 } else if (child instanceof CssNodesListNode) {
-                    otherSiblingsExist = ((CssNodesListNode) child).numChildren() > 1;
+                    otherSiblingsExist = ((CssNodesListNode<?>) child).numChildren() > 1;
                 } else if (child instanceof CssCompositeValueNode) {
                     otherSiblingsExist =
                             ((CssCompositeValueNode) child).getValues().size() > 1;

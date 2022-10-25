@@ -39,7 +39,7 @@ public final class RecordingSubstitutionMapTest {
     }
 
     @Test
-    public final void testReadAndWrite() throws IOException {
+    public void testReadAndWrite() throws IOException {
         for (OutputRenamingMapFormat format : OutputRenamingMapFormat.values()) {
             RecordingSubstitutionMap recording =
                     new RecordingSubstitutionMap.Builder().withSubstitutionMap(createDelegate()).build();
@@ -76,8 +76,7 @@ public final class RecordingSubstitutionMapTest {
                                         + format
                                         + "\n```\n"
                                         + formatted
-                                        + "\n```")
-                                .initCause(ex);
+                                        + "\n```", ex);
             }
 
             // Vary the order to check that we get stable values from the
