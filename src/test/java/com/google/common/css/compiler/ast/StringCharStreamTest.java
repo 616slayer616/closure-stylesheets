@@ -38,8 +38,8 @@ class StringCharStreamTest {
                         "6789\n" +
                         "bcd");
 
-        assertThat(s.getEndColumn()).as("column").isEqualTo(0);
-        assertThat(s.getEndLine()).as("line").isEqualTo(1);
+        assertThat(s.getEndColumn()).as("column").isZero();
+        assertThat(s.getEndLine()).as("line").isOne();
         assertThat(s.getCharIndex()).as("char index").isEqualTo(-1);
 
         readCharCheckLocation(s, '0', 1, 1, 0);
