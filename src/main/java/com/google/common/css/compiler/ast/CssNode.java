@@ -292,7 +292,7 @@ public abstract class CssNode implements Locatable {
      * This node and the transitive closure of its {@link #parent}s.
      */
     public Iterable<CssNode> ancestors() {
-        return () -> new UnmodifiableIterator<CssNode>() {
+        return () -> new UnmodifiableIterator<>() {
 
             private CssNode current = CssNode.this;
 

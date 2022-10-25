@@ -291,7 +291,7 @@ class GssFunctionsTest {
     }
 
     @Test
-    void testConcat() throws Exception {
+    void testConcat() {
         GssFunctions.Concat funct = new GssFunctions.Concat();
         assertThat(funct.getCallResultString(ImmutableList.of("a", "b"))).isEqualTo("'ab'");
         assertThat(funct.getCallResultString(ImmutableList.of("a"))).isEqualTo("'a'");

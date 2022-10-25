@@ -236,7 +236,7 @@ public class CssStringNode extends CssValueNode {
                 ESCAPE_CHAR_STRING_CONTINUATION_PATTERN.matcher(escaped).replaceAll("");
         result = ESCAPE_CHAR_NOT_SPECIAL.matcher(result).replaceAll("$1");
         Matcher unicode = ESCAPE_CHAR_HARD_TO_TYPE.matcher(result);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (unicode.find()) {
             // CSS allows us to substitute characters above 0x110000. Java
             // requires us to stay at or below MAX_CODE_POINT. If we are
@@ -249,7 +249,7 @@ public class CssStringNode extends CssValueNode {
             // probably that will produce an exception below, and then we'll
             // know it's worth thinking about that case some more.
             int codepoint = Integer.parseInt(unicode.group(1), 16);
-            if (codepoint > 0x10FFFF && codepoint > Character.MAX_CODE_POINT) {
+            if (codepoint > Character.MAX_CODE_POINT) {
                 // CSS allows us to substitute, and Java requires us not to use the
                 // character we were given, so here is a character specifically
                 // for replacements:
@@ -335,7 +335,7 @@ public class CssStringNode extends CssValueNode {
      *                codepoints that are {@code banned}.
      */
     private static String paranoidEscapeChars(Pattern banned, String context) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Matcher markup = banned.matcher(context);
         while (markup.find()) {
             String match = markup.group(0);
@@ -369,7 +369,7 @@ public class CssStringNode extends CssValueNode {
      */
     public static final Function<String, String> SHORT_ESCAPER =
             input -> {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 Matcher m = WIDE_NONASCII_PATTERN.matcher(input);
                 while (m.find()) {
                     String match = m.group(0);

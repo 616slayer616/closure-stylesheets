@@ -240,7 +240,7 @@ public enum OutputRenamingMapFormat {
                     .toEscaper();
 
     private static String escape(char ch) {
-        return ESCAPER.escape(new String(new char[]{ch}));
+        return ESCAPER.escape(String.valueOf(ch));
     }
 
     /**

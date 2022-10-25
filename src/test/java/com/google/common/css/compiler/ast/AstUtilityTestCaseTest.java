@@ -37,7 +37,7 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
         CssLiteralNode node1 = new CssLiteralNode("");
         CssLiteralNode node2 = new CssLiteralNode("");
 
-        assertThat(node1).isEqualToComparingFieldByFieldRecursively(node2);
+        assertThat(node1).usingRecursiveComparison().isEqualTo(node2);
     }
 
     @Test
@@ -45,7 +45,7 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
         CssLiteralNode node1 = new CssLiteralNode("node");
         CssLiteralNode node2 = new CssLiteralNode("node");
 
-        assertThat(node1).isEqualToComparingFieldByFieldRecursively(node2);
+        assertThat(node1).usingRecursiveComparison().isEqualTo(node2);
     }
 
     @Test
@@ -54,7 +54,7 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
         CssLiteralNode node2 = new CssLiteralNode("node2");
 
         try {
-            assertThat(node1).isEqualToComparingFieldByFieldRecursively(node2);
+            assertThat(node1).usingRecursiveComparison().isEqualTo(node2);
             Assertions.fail("FAIL: Node1 and Node2 should not be equal.");
         } catch (AssertionError e) {
             if (e.getMessage().startsWith("FAIL")) {
@@ -79,7 +79,7 @@ class AstUtilityTestCaseTest extends AstUtilityTestCase {
         BackDoorNodeMutation.setParent(node2, parent2);
 
         try {
-            assertThat(parent1).isEqualToComparingFieldByFieldRecursively(parent2);
+            assertThat(parent1).usingRecursiveComparison().isEqualTo(parent2);
             Assertions.fail("FAIL: Parent1 and Parent2 should not be equal.");
         } catch (AssertionError e) {
             if (e.getMessage().startsWith("FAIL")) {
