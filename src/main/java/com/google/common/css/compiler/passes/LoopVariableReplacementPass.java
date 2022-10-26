@@ -56,11 +56,7 @@ class LoopVariableReplacementPass extends DefaultTreeVisitor implements CssCompi
 
     @Override
     public boolean enterValueNode(CssValueNode node) {
-        CssNumericNode newNode = updateValueNode(node);
-        if (newNode != null) {
-            visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), true);
-        }
-        return true;
+        return enterNode(node);
     }
 
     @Override
@@ -83,8 +79,12 @@ class LoopVariableReplacementPass extends DefaultTreeVisitor implements CssCompi
 
     @Override
     public boolean enterArgumentNode(CssValueNode node) {
+        return enterNode(node);
+    }
+
+    private boolean enterNode(CssValueNode node) {
         CssNumericNode newNode = updateValueNode(node);
-        if (newNode != null) {
+        if (newNode!=null) {
             visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), true);
         }
         return true;
@@ -115,15 +115,15 @@ class LoopVariableReplacementPass extends DefaultTreeVisitor implements CssCompi
     @Override
     public boolean enterForLoop(CssForLoopRuleNode node) {
         CssNumericNode from = updateValueNode(node.getFrom());
-        if (from != null) {
+        if (from!=null) {
             node.setFrom(from);
         }
         CssNumericNode to = updateValueNode(node.getTo());
-        if (to != null) {
+        if (to!=null) {
             node.setTo(to);
         }
         CssNumericNode step = updateValueNode(node.getStep());
-        if (step != null) {
+        if (step!=null) {
             node.setStep(step);
         }
         return true;
@@ -154,7 +154,7 @@ class LoopVariableReplacementPass extends DefaultTreeVisitor implements CssCompi
     }
 
     private String replaceVariable(String identifier) {
-        return needsReplacement(identifier) ? String.valueOf(value) : identifier;
+        return needsReplacement(identifier) ? String.valueOf(value):identifier;
     }
 
     private String replaceDefinition(String definiton) {
