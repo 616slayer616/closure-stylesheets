@@ -17,6 +17,7 @@
 package com.google.common.css;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.css.compiler.passes.RecordingSubstitutionMap;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
