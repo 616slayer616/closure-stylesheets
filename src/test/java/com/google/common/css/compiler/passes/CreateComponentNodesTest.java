@@ -43,7 +43,7 @@ class CreateComponentNodesTest extends NewFunctionalTestBase {
         assertThat(comp.getName().getValue()).isEqualTo("CSS_X");
         assertThat(comp.getParentName()).isNull();
         assertThat(comp.isAbstract()).isFalse();
-        assertThat(comp.getBlock().toString()).isEqualTo("[@def[X, Y]]");
+        assertThat(comp.getBlock()).hasToString("[@def[X, Y]]");
     }
 
     @Test
@@ -54,7 +54,7 @@ class CreateComponentNodesTest extends NewFunctionalTestBase {
         assertThat(comp.getName().getValue()).isEqualTo("CSS_X");
         assertThat(comp.getParentName()).isNull();
         assertThat(comp.isAbstract()).isTrue();
-        assertThat(comp.getBlock().toString()).isEqualTo("[@def[X, Y]]");
+        assertThat(comp.getBlock()).hasToString("[@def[X, Y]]");
     }
 
     @Test
@@ -70,7 +70,7 @@ class CreateComponentNodesTest extends NewFunctionalTestBase {
         assertThat(comp.getParentName()).isNotNull();
         assertThat(comp.getParentName().getValue()).isEqualTo("CSS_X");
         assertThat(comp.isAbstract()).isFalse();
-        assertThat(comp.getBlock().toString()).isEqualTo("[@def[X, Y]]");
+        assertThat(comp.getBlock()).hasToString("[@def[X, Y]]");
     }
 
     @Test
@@ -81,7 +81,7 @@ class CreateComponentNodesTest extends NewFunctionalTestBase {
         assertThat(comp.getName().getValue()).isSameAs(CssComponentNode.IMPLICIT_NODE_NAME);
         assertThat(comp.getParentName()).isNull();
         assertThat(comp.isAbstract()).isFalse();
-        assertThat(comp.getBlock().toString()).isEqualTo("[@def[X, Y]]");
+        assertThat(comp.getBlock()).hasToString("[@def[X, Y]]");
     }
 
     @Test

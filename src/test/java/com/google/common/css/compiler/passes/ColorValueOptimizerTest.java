@@ -65,7 +65,7 @@ class ColorValueOptimizerTest {
         ColorValueOptimizer pass = new ColorValueOptimizer(
                 tree.getMutatingVisitController());
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString()).isEqualTo("[[foo]{[color:[#123]]}]");
+        assertThat(tree.getRoot().getBody()).hasToString("[[foo]{[color:[#123]]}]");
     }
 
     @Test
@@ -91,7 +91,7 @@ class ColorValueOptimizerTest {
         ColorValueOptimizer pass = new ColorValueOptimizer(
                 tree.getMutatingVisitController());
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString()).isEqualTo("[[foo]{[color:[#123344]]}]");
+        assertThat(tree.getRoot().getBody()).hasToString("[[foo]{[color:[#123344]]}]");
     }
 
     private CssNumericNode createNumericNode(String value) {
@@ -137,7 +137,7 @@ class ColorValueOptimizerTest {
         ColorValueOptimizer pass = new ColorValueOptimizer(
                 tree.getMutatingVisitController());
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString()).isEqualTo("[[foo]{[color:[#0f0]]}]");
+        assertThat(tree.getRoot().getBody()).hasToString("[[foo]{[color:[#0f0]]}]");
     }
 
     @Test

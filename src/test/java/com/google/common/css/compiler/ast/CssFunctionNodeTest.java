@@ -63,7 +63,7 @@ class CssFunctionNodeTest {
         assertThat(function.getSourceCodeLocation()).isNull();
         assertThat(function.getArguments()).isNotNull();
         assertThat(function.getArguments().getChildren()).asList().isNotEmpty();
-        assertThat(function.toString()).isEqualTo("rgb(test)");
+        assertThat(function).hasToString("rgb(test)");
         assertThat(function.getValue()).isEqualTo("rgb(test)");
     }
 }

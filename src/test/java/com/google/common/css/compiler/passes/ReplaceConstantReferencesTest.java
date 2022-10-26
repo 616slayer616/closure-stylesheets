@@ -123,8 +123,8 @@ class ReplaceConstantReferencesTest {
                         true /* removeDefs */, new DummyErrorManager(),
                         true /* allowUndefinedConstants */);
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo("[[foo]{[padding:[5px], color:[red]]}]");
+        assertThat(tree.getRoot().getBody())
+                .hasToString("[[foo]{[padding:[5px], color:[red]]}]");
     }
 
     // TODO(oana): Added a task in tracker for fixing these dependencies and

@@ -132,12 +132,12 @@ class ResolveCustomFunctionNodesForChunksTest extends ResolveCustomFunctionNodes
                     constantDefinitions.getConstantDefinition(defName);
 
             assertThat(defNode).as("Missing definition " + defCount).isNotNull();
-            assertThat(defNode.toString()).isEqualTo("@def " + defName + " [" + constant + "]");
+            assertThat(defNode).hasToString("@def " + defName + " [" + constant + "]");
 
             defCount++;
         }
 
-        if (defCount == 0) {
+        if (defCount==0) {
             assertThat(constantDefinitions).as("No definitions expected").isNull();
         } else {
             assertThat(constantDefinitions.getConstantDefinition(getDefName(defCount)))

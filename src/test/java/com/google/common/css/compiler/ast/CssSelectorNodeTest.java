@@ -132,6 +132,6 @@ class CssSelectorNodeTest extends NewFunctionalTestBase {
         assertThat(node).isInstanceOf(CssRulesetNode.class);
         CssRulesetNode rulesetNode = (CssRulesetNode) node;
         CssSelectorNode selectorNode = rulesetNode.getSelectors().getChildAt(0);
-        assertThat(selectorNode.getSpecificity().toString()).isEqualTo(expected);
+        assertThat(selectorNode.getSpecificity()).hasToString(expected);
     }
 }

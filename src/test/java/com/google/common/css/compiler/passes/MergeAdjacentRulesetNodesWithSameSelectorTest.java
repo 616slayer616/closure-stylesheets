@@ -126,15 +126,15 @@ class MergeAdjacentRulesetNodesWithSameSelectorTest {
 
         CssRootNode root = new CssRootNode(body);
         CssTree tree = new CssTree(null, root);
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo("[[foo]{[padding:[5px]]}, [foo]{[display:[2px]]}]");
+        assertThat(tree.getRoot().getBody())
+                .hasToString("[[foo]{[padding:[5px]]}, [foo]{[display:[2px]]}]");
 
         MergeAdjacentRulesetNodesWithSameSelector pass =
                 new MergeAdjacentRulesetNodesWithSameSelector(tree, true);
         pass.runPass();
         // skip merging rules with display -> we expect output == input
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo("[[foo]{[padding:[5px]]}, [foo]{[display:[2px]]}]");
+        assertThat(tree.getRoot().getBody())
+                .hasToString("[[foo]{[padding:[5px]]}, [foo]{[display:[2px]]}]");
     }
 
     private String lines(String... lines) {

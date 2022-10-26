@@ -36,7 +36,7 @@ class CssPropertyNodeTest {
         assertThat(property.getParent()).isNull();
         assertThat(property.getSourceCodeLocation()).isNull();
         assertThat(property.isCustom()).isFalse();
-        assertThat(property.toString()).isEqualTo("color");
+        assertThat(property).hasToString("color");
         assertThat(property.getProperty().hasPositionalParameters()).isFalse();
     }
 
@@ -47,7 +47,7 @@ class CssPropertyNodeTest {
         assertThat(property.getParent()).isNull();
         assertThat(property.getSourceCodeLocation()).isNull();
         assertThat(property.isCustom()).isFalse();
-        assertThat(property.toString()).isEqualTo("color");
+        assertThat(property).hasToString("color");
         assertThat(property.getProperty().hasPositionalParameters()).isFalse();
     }
 
@@ -60,7 +60,7 @@ class CssPropertyNodeTest {
         assertThat(property.getParent()).isNull();
         assertThat(property.getSourceCodeLocation()).isEqualTo(codeLoc);
         assertThat(property.isCustom()).isFalse();
-        assertThat(property.toString()).isEqualTo("color");
+        assertThat(property).hasToString("color");
         assertThat(property.getProperty().hasPositionalParameters()).isFalse();
     }
 
@@ -70,7 +70,7 @@ class CssPropertyNodeTest {
         assertThat(property.getParent()).isNull();
         assertThat(property.getSourceCodeLocation()).isNull();
         assertThat(property.isCustom()).isTrue();
-        assertThat(property.toString()).isEqualTo("--cOloR");
+        assertThat(property).hasToString("--cOloR");
         assertThat(property.getProperty().hasPositionalParameters()).isFalse();
     }
 
@@ -82,19 +82,19 @@ class CssPropertyNodeTest {
         CssPropertyNode margin = new CssPropertyNode("margin", null);
         CssPropertyNode padding = new CssPropertyNode("padding", null);
 
-        assertThat(borderColor.toString()).isEqualTo("border-color");
+        assertThat(borderColor).hasToString("border-color");
         assertThat(borderColor.getProperty().hasPositionalParameters()).isTrue();
 
-        assertThat(borderStyle.toString()).isEqualTo("border-style");
+        assertThat(borderStyle).hasToString("border-style");
         assertThat(borderStyle.getProperty().hasPositionalParameters()).isTrue();
 
-        assertThat(borderWidth.toString()).isEqualTo("border-width");
+        assertThat(borderWidth).hasToString("border-width");
         assertThat(borderWidth.getProperty().hasPositionalParameters()).isTrue();
 
-        assertThat(margin.toString()).isEqualTo("margin");
+        assertThat(margin).hasToString("margin");
         assertThat(margin.getProperty().hasPositionalParameters()).isTrue();
 
-        assertThat(padding.toString()).isEqualTo("padding");
+        assertThat(padding).hasToString("padding");
         assertThat(padding.getProperty().hasPositionalParameters()).isTrue();
     }
 
@@ -163,12 +163,12 @@ class CssPropertyNodeTest {
         assertThat(property2.getSourceCodeLocation()).isNull();
         assertThat(property2Copy.getSourceCodeLocation()).isNull();
 
-        assertThat(property.toString()).isEqualTo("color");
-        assertThat(propertyCopy.toString()).isEqualTo("color");
-        assertThat(property1.toString()).isEqualTo("border-color");
-        assertThat(property1Copy.toString()).isEqualTo("border-color");
-        assertThat(property2.toString()).isEqualTo("--theme-color");
-        assertThat(property2Copy.toString()).isEqualTo("--theme-color");
+        assertThat(property).hasToString("color");
+        assertThat(propertyCopy).hasToString("color");
+        assertThat(property1).hasToString("border-color");
+        assertThat(property1Copy).hasToString("border-color");
+        assertThat(property2).hasToString("--theme-color");
+        assertThat(property2Copy).hasToString("--theme-color");
 
         assertThat(property.getProperty().isRecognizedProperty()).isTrue();
         assertThat(propertyCopy.getProperty().isRecognizedProperty()).isTrue();

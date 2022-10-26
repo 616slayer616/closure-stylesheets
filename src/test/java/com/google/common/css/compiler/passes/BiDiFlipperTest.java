@@ -157,8 +157,8 @@ class BiDiFlipperTest {
         BiDiFlipper pass = new BiDiFlipper(tree.getMutatingVisitController(),
                 true, true);
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[[foo]{["
                                 + "padding:[5px, 3px, 2px, 1px], "
                                 + "font:[90%], "
@@ -205,8 +205,8 @@ class BiDiFlipperTest {
         BiDiFlipper pass = new BiDiFlipper(tree.getMutatingVisitController(),
                 true, true);
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[[foo]{["
                                 + "background-position-x:[98.87654322%], "
                                 + "-ms-background-position-x:[97.5%]"
@@ -262,8 +262,8 @@ class BiDiFlipperTest {
         BiDiFlipper pass = new BiDiFlipper(tree.getMutatingVisitController(),
                 true, true);
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[[foo]{["
                                 + "margin:[1px, 4px, 3px, 2px, !important], "
                                 + "border-radius:[2px, 1px, !important], "
