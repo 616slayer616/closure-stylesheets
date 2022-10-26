@@ -20,8 +20,9 @@ import com.google.common.collect.Lists;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
 
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * A compiler pass that replaces each {@code @if}, {@code @elseif}, and
@@ -33,8 +34,8 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
 
     private final MutatingVisitController visitController;
     private final ErrorManager errorManager;
-    private final Stack<CssConditionalBlockNode> stack =
-            new Stack<>();
+    private final Deque<CssConditionalBlockNode> stack =
+            new ConcurrentLinkedDeque<>();
     private CssConditionalBlockNode activeBlockNode = null;
 
     private static final String IF_NAME = CssAtRuleNode.Type.IF.getCanonicalName();
@@ -55,7 +56,7 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
             condBlock.setSourceCodeLocation(node.getSourceCodeLocation());
             stack.push(condBlock);
         } else if (name.equals(ELSEIF_NAME) || name.equals(ELSE_NAME)) {
-            if (activeBlockNode == null) {
+            if (activeBlockNode==null) {
                 errorManager.report(new GssError("@" + name + " without previous @" + IF_NAME,
                         node.getSourceCodeLocation()));
                 visitController.removeCurrentNode();
@@ -104,7 +105,7 @@ public class CreateConditionalNodes extends DefaultTreeVisitor
     private CssConditionalRuleNode createConditionalRuleNode(
             CssUnknownAtRuleNode node, String name) {
         CssAbstractBlockNode block = node.getBlock();
-        if (block == null) {
+        if (block==null) {
             errorManager.report(new GssError("@" + name + " without block",
                     node.getSourceCodeLocation()));
         }
