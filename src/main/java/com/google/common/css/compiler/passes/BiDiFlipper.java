@@ -27,6 +27,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -70,7 +71,7 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
      * left" we need an exact match to flip "left" because we don't want to touch things like
      * "background: left.png".
      */
-    private static final ImmutableMap<String, String> EXACT_MATCHING_FOR_FLIPPING =
+    private static final Map<String, String> EXACT_MATCHING_FOR_FLIPPING =
             new ImmutableMap.Builder<String, String>()
                     .put("ltr", "rtl")
                     .put("rtl", "ltr")
@@ -468,15 +469,15 @@ public class BiDiFlipper extends DefaultTreeVisitor implements CssCompilerPass {
      */
     public static String flipLiteralValue(String value) {
         value = EXACT_MATCHING_FOR_FLIPPING.getOrDefault(value, value);
-        for (String s : ENDS_WITH_MATCHING_FOR_FLIPPING.keySet()) {
-            if (value.endsWith(s)) {
-                value = value.replace(s, ENDS_WITH_MATCHING_FOR_FLIPPING.get(s));
+        for (Map.Entry<String, String> entry : ENDS_WITH_MATCHING_FOR_FLIPPING.entrySet()) {
+            if (value.endsWith(entry.getKey())) {
+                value = value.replace(entry.getKey(), entry.getValue());
                 break;
             }
         }
-        for (String s : CONTAINS_MATCHING_FOR_FLIPPING.keySet()) {
-            if (value.contains(s)) {
-                value = value.replace(s, CONTAINS_MATCHING_FOR_FLIPPING.get(s));
+        for (Map.Entry<String, String> entry : CONTAINS_MATCHING_FOR_FLIPPING.entrySet()) {
+            if (value.contains(entry.getKey())) {
+                value = value.replace(entry.getKey(), entry.getValue());
                 break;
             }
         }
