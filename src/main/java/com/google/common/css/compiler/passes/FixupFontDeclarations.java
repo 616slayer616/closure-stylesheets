@@ -72,7 +72,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
         @Override
         public boolean apply(CssCompositeValueNode n) {
-            return n.getOperator() == op;
+            return n.getOperator()==op;
         }
     }
 
@@ -206,14 +206,14 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
     private CssPropertyValueNode reparseFont(CssPropertyValueNode n) {
         // Preliminary easy cases
-        if (n.numChildren() == 0) {
+        if (n.numChildren()==0) {
             return n.deepCopy();
-        } else if (n.numChildren() == 1
+        } else if (n.numChildren()==1
                 && SYSTEM_FONTS.contains(n.getChildAt(0).getValue())
                 || INHERIT.equals(n.getChildAt(0).getValue())) {
             return n.deepCopy();
         } else if (n.numChildren() < 2) {
-            if (mode == InputMode.CSS) {
+            if (mode==InputMode.CSS) {
                 errorManager.report(
                         new GssError(SIZE_AND_FAMILY_REQUIRED, getSourceCodeLocation(n)));
             }
@@ -301,7 +301,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
     private <T> Iterable<T> takeUntil(Iterable<T> xs, final T excludedEndpoint) {
         return takeWhile(
-                xs, i -> excludedEndpoint != i);
+                xs, i -> excludedEndpoint!=i);
     }
 
     private Map<CssValueNode, FontProperty> classifyNodes(
@@ -342,7 +342,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
     }
 
     private void validateSizeLineHeight(CssCompositeValueNode composite) {
-        if (composite.getValues().size() != 2) {
+        if (composite.getValues().size()!=2) {
             reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),
                     getSourceCodeLocation(composite));
         }
@@ -358,23 +358,23 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
             Iterable<CssCompositeValueNode> sizeLineHeights,
             Iterable<CssValueNode> sizes) {
         CssCompositeValueNode secondSLH = Iterables.get(sizeLineHeights, 1, null);
-        if (secondSLH != null) {
+        if (secondSLH!=null) {
             reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),
                     getSourceCodeLocation(secondSLH));
             return false;
         }
         StreamSupport.stream(sizeLineHeights.spliterator(), false)
-                .filter(n -> n.getValues().size() != 2)
+                .filter(n -> n.getValues().size()!=2)
                 .findFirst()
                 .ifPresent(slashy -> reportError(TOO_MANY.get(FontProperty.LINE_HEIGHT),
                         getSourceCodeLocation(slashy)));
         if (Iterables.isEmpty(sizes)) {
-            if (mode == InputMode.CSS) {
+            if (mode==InputMode.CSS) {
                 reportError(SIZE_AND_FAMILY_REQUIRED, loc);
             }
             return false;
         }
-        if (Iterables.get(sizes, 1, null) != null) {
+        if (Iterables.get(sizes, 1, null)!=null) {
             reportError(TOO_MANY.get(FontProperty.SIZE),
                     getSourceCodeLocation(
                             max(sizes, Functions.forMap(lexicalOrder))));
@@ -386,7 +386,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
     private void validatePrefix(
             Iterable<CssValueNode> prefix) {
         CssValueNode tooMuch = Iterables.get(prefix, 3, null);
-        if (tooMuch != null) {
+        if (tooMuch!=null) {
             reportError(TOO_MANY_PRE_SIZE, getSourceCodeLocation(tooMuch));
         }
     }
@@ -413,7 +413,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
                         getSourceCodeLocation(p.getKey()));
             }
         }
-        if (mode == InputMode.CSS) {
+        if (mode==InputMode.CSS) {
             StreamSupport.stream(prefix.spliterator(), false)
                     .filter(n -> !classified.containsKey(n) && !normals.contains(n))
                     .findFirst()
@@ -446,12 +446,12 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         List<CssValueNode> tail =
                 Iterables.isEmpty(families)
                         ? ImmutableList.of()
-                        : ImmutableList.of(reparseFamilies(
+                        :ImmutableList.of(reparseFamilies(
                         families,
                         SourceCodeLocation.merge(families)));
         ImmutableList.Builder<CssValueNode> resultNodes = ImmutableList.builder();
         resultNodes.addAll(Iterables.concat(preFamily, tail));
-        if (priority != null) {
+        if (priority!=null) {
             resultNodes.add(priority);
         }
         CssPropertyValueNode result = new CssPropertyValueNode(resultNodes.build());
@@ -466,7 +466,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
         for (CssValueNode i : families) {
             if (i instanceof CssCompositeValueNode) {
                 CssCompositeValueNode segment = (CssCompositeValueNode) i;
-                if (segment.getValues().size() == 0) {
+                if (segment.getValues().isEmpty()) {
                     continue;
                 }
                 CssValueNode first = Iterables.getFirst(segment.getValues(), null);
@@ -489,10 +489,10 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
     }
 
     private CssPropertyValueNode reparseFontFamily(CssPropertyValueNode n) {
-        if (n.numChildren() == 0) {
+        if (n.numChildren()==0) {
             return n.deepCopy();
         }
-        if (n.numChildren() == 1
+        if (n.numChildren()==1
                 && INHERIT.equals(n.getChildAt(0).getValue())) {
             return n.deepCopy();
         }
@@ -503,7 +503,7 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
                 getSourceCodeLocation(n));
         ImmutableList.Builder<CssValueNode> result = ImmutableList.builder();
         result.add(altNode);
-        if (priority != null) {
+        if (priority!=null) {
             result.add(priority);
         }
         return new CssPropertyValueNode(result.build());
@@ -544,11 +544,11 @@ public class FixupFontDeclarations extends DefaultTreeVisitor
 
     private static SourceCodeLocation getSourceCodeLocation(CssNode n) {
         n = StreamSupport.stream(n.ancestors().spliterator(), false)
-                .filter(n1 -> n1.getSourceCodeLocation() != null)
+                .filter(n1 -> n1.getSourceCodeLocation()!=null)
                 .findFirst().orElse(null);
-        return n != null
+        return n!=null
                 ? n.getSourceCodeLocation()
-                : new SourceCodeLocation(
+                :new SourceCodeLocation(
                 new SourceCode(null, "x"),
                 1, 1, 1, 1, 1, 1);
     }

@@ -71,7 +71,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
         // together, meaning that there will be multiple @provide declarations. We are only
         // interested in @provide nodes which are in the same source file as the @component.
         SourceCode sourceCode = node.getSourceCodeLocation().getSourceCode();
-        if (sourceCode != lastFile) {
+        if (sourceCode!=lastFile) {
             provideNodes.clear();
             lastFile = sourceCode;
         }
@@ -82,7 +82,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
     @Override
     public boolean enterComponent(CssComponentNode node) {
         SourceCode sourceCode = node.getSourceCodeLocation().getSourceCode();
-        if (sourceCode != lastFile) {
+        if (sourceCode!=lastFile) {
             provideNodes.clear();
             lastFile = sourceCode;
         }
@@ -91,7 +91,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
             // together before compiling, which can result in multiple @component nodes in the same file.
             // So in the unnamed @component case, having multiple @provide is okay (use the last) but not
             // having any is still not allowed.
-            if (provideNodes.size() < 1) {
+            if (provideNodes.isEmpty()) {
                 reportError("implicitly-named @components require a prior @provide declaration ", node);
                 return false;
             }
@@ -102,7 +102,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
             return false;
         }
         CssLiteralNode parentName = node.getParentName();
-        if ((parentName != null) && !components.containsKey(parentName.getValue())) {
+        if ((parentName!=null) && !components.containsKey(parentName.getValue())) {
             reportError("parent component is undefined in chunk ", node);
             return false;
         }
@@ -116,12 +116,12 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
         // Note that this works because enterComponent, above, returns false -
         // this visitor never sees class selectors inside components (the other
         // visitor does).
-        if (node.getScoping() == ComponentScoping.FORCE_SCOPED) {
+        if (node.getScoping()==ComponentScoping.FORCE_SCOPED) {
             reportError("'%' prefix for class selectors may only be used in the scope of an @component",
                     node);
             return false;
         }
-        if (node.getScoping() == ComponentScoping.FORCE_UNSCOPED) {
+        if (node.getScoping()==ComponentScoping.FORCE_UNSCOPED) {
             reportError("'^' prefix for class selectors may only be used in the scope of an @component",
                     node);
             return false;
@@ -130,7 +130,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
     }
 
     private void reportError(String message, CssNode node) {
-        if (fileToChunk != null) {
+        if (fileToChunk!=null) {
             message += String.valueOf(
                     MapChunkAwareNodesToChunk.getChunk(node, fileToChunk));
         }
@@ -162,7 +162,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
      */
     private void transformAllParentNodes(List<CssNode> nodes, Set<String> constants,
                                          CssComponentNode current, @Nullable CssLiteralNode parentLiteralNode) {
-        if (parentLiteralNode == null) {
+        if (parentLiteralNode==null) {
             return;
         }
         String parentName = parentLiteralNode.getValue();
@@ -196,9 +196,9 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
         copyBlock.setSourceCodeLocation(source.getBlock().getSourceCodeLocation());
         CssTree tree = new CssTree(
                 target.getSourceCodeLocation().getSourceCode(), new CssRootNode(copyBlock));
-        new TransformNodes(constants, target, target != source,
+        new TransformNodes(constants, target, target!=source,
                 tree.getMutatingVisitController(), errorManager, provideNodes).runPass();
-        if (fileToChunk != null) {
+        if (fileToChunk!=null) {
             T chunk = MapChunkAwareNodesToChunk.getChunk(target, fileToChunk);
             new SetChunk(tree, chunk).runPass();
         }
@@ -274,14 +274,14 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
                 currentName = Iterables.getLast(provideNodes).getProvide();
             }
             this.isAbstract = current.isAbstract();
-            if (current.getPrefixStyle() == CssComponentNode.PrefixStyle.CASE_CONVERT) {
+            if (current.getPrefixStyle()==CssComponentNode.PrefixStyle.CASE_CONVERT) {
                 this.classPrefix = getClassPrefixFromDottedName(currentName);
                 this.defPrefix = getDefPrefixFromDottedName(currentName);
             } else {
                 this.classPrefix = currentName + CLASS_SEP;
                 this.defPrefix = currentName + DEF_SEP;
             }
-            this.parentName = inAncestorBlock ? current.getParentName().getValue() : null;
+            this.parentName = inAncestorBlock ? current.getParentName().getValue():null;
             this.sourceCodeLocation = current.getSourceCodeLocation();
         }
 
@@ -319,7 +319,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
             // Only reset the 'first selector' flag if we're not in a combinator.
             // Otherwise, keep the same flag value (which may or may not have been set
             // depending on whether we saw a class selector in an earlier refiner list.)
-            if (nestedSelectorDepth == 0) {
+            if (nestedSelectorDepth==0) {
                 firstClassSelector = true;
             }
             return true;
@@ -345,16 +345,16 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
         @Override
         public boolean enterClassSelector(CssClassSelectorNode node) {
             Preconditions.checkState(!isAbstract);
-            if (!firstClassSelector && node.getScoping() == ComponentScoping.FORCE_UNSCOPED) {
+            if (!firstClassSelector && node.getScoping()==ComponentScoping.FORCE_UNSCOPED) {
                 errorManager.report(new GssError(
                         "'^' prefix may only be used on the first classname in a selector.",
                         node.getSourceCodeLocation()));
             }
-            if (firstClassSelector && node.getScoping() != ComponentScoping.FORCE_UNSCOPED
-                    || node.getScoping() == ComponentScoping.FORCE_SCOPED) {
+            if (firstClassSelector && node.getScoping()!=ComponentScoping.FORCE_UNSCOPED
+                    || node.getScoping()==ComponentScoping.FORCE_SCOPED) {
                 CssClassSelectorNode newNode = new CssClassSelectorNode(
                         classPrefix + node.getRefinerName(),
-                        inAncestorBlock ? sourceCodeLocation : node.getSourceCodeLocation());
+                        inAncestorBlock ? sourceCodeLocation:node.getSourceCodeLocation());
                 newNode.setComments(node.getComments());
                 visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), false);
             }
@@ -372,7 +372,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
             String defName = node.getName().getValue();
             CssLiteralNode newDefLit =
                     new CssLiteralNode(defPrefix + defName,
-                            inAncestorBlock ? sourceCodeLocation : node.getSourceCodeLocation());
+                            inAncestorBlock ? sourceCodeLocation:node.getSourceCodeLocation());
             CssDefinitionNode newNode;
             // When copying the ancestor block, we want to replace definition values
             // with a reference to the constant emitted when the parent component was
@@ -384,7 +384,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
                 // Hack to avoid breaking hacked components with http://b/3213779
                 // workarounds.  Can be removed when all workarounds are removed.
                 String parentRefName = defName.startsWith(parentRefPrefix)
-                        ? defName : parentRefPrefix + defName;
+                        ? defName:parentRefPrefix + defName;
                 CssConstantReferenceNode parentRefNode =
                         new CssConstantReferenceNode(parentRefName, sourceCodeLocation);
                 newNode = new CssDefinitionNode(ImmutableList.of(parentRefNode),
@@ -407,7 +407,7 @@ public class ProcessComponents<T> extends DefaultTreeVisitor
                     && componentConstants.contains(node.getValue())) {
                 CssConstantReferenceNode newNode =
                         new CssConstantReferenceNode(defPrefix + node.getValue(),
-                                inAncestorBlock ? sourceCodeLocation : node.getSourceCodeLocation());
+                                inAncestorBlock ? sourceCodeLocation:node.getSourceCodeLocation());
                 visitController.replaceCurrentBlockChildWith(ImmutableList.of(newNode), false);
             }
             return true;

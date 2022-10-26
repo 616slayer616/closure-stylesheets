@@ -423,7 +423,7 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
         maybeAppendComments(node);
         buffer.append(indent);
         buffer.append('@').append(node.getName().toString());
-        if (node.getParameters().size() > 0 || (node.getType().hasBlock() && node.getBlock()!=null)) {
+        if (!node.getParameters().isEmpty() || (node.getType().hasBlock() && node.getBlock()!=null)) {
             buffer.append(' ');
         }
         return true;
