@@ -76,7 +76,7 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
     public boolean enterMediaRule(CssMediaRuleNode node) {
         maybeAppendComments(node);
         buffer.append(node.getType().toString());
-        if (!node.getParameters().isEmpty() || (node.getType().hasBlock() && node.getBlock() != null)) {
+        if (!node.getParameters().isEmpty() || (node.getType().hasBlock() && node.getBlock()!=null)) {
             buffer.append(' ');
         }
         return true;
@@ -280,7 +280,7 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
     public boolean enterSelector(CssSelectorNode selector) {
         maybeAppendComments(selector);
         String name = selector.getSelectorName();
-        if (name != null) {
+        if (name!=null) {
             buffer.append(name);
         }
         return true;
@@ -315,17 +315,22 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
                 buffer.append(node.getArgument().replace(" ", ""));
                 buffer.append(')');
                 break;
+            case NONE:
+            case NOT:
+                break;
             case LANG:
                 buffer.append(node.getArgument());
                 buffer.append(')');
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + node.getFunctionType());
         }
         return true;
     }
 
     @Override
     public void leavePseudoClass(CssPseudoClassNode node) {
-        if (node.getFunctionType() == FunctionType.NOT) {
+        if (node.getFunctionType()==FunctionType.NOT) {
             buffer.deleteEndingIfEndingIs(", ");
             buffer.append(')');
         }
@@ -359,7 +364,7 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
 
     @Override
     public boolean enterCombinator(CssCombinatorNode combinator) {
-        if (combinator != null) {
+        if (combinator!=null) {
             maybeAppendComments(combinator);
             buffer.append(combinator.getCombinatorType().getCanonicalName());
         }
@@ -384,7 +389,7 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
     @Override
     public boolean enterConditionalRule(CssConditionalRuleNode node) {
         maybeAppendComments(node);
-        if (node.getType() != Type.IF) {
+        if (node.getType()!=Type.IF) {
             buffer.append(' ');
         } else {
             buffer.append(indent);
@@ -418,7 +423,7 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
         maybeAppendComments(node);
         buffer.append(indent);
         buffer.append('@').append(node.getName().toString());
-        if (node.getParameters().size() > 0 || (node.getType().hasBlock() && node.getBlock() != null)) {
+        if (node.getParameters().size() > 0 || (node.getType().hasBlock() && node.getBlock()!=null)) {
             buffer.append(' ');
         }
         return true;
@@ -469,7 +474,7 @@ public class PrettyPrintingVisitor extends DefaultTreeVisitor {
     public boolean enterKey(CssKeyNode key) {
         maybeAppendComments(key);
         String value = key.getKeyValue();
-        if (value != null) {
+        if (value!=null) {
             buffer.append(value);
         }
         return true;

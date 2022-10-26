@@ -4653,6 +4653,8 @@ public class GssParserCC extends GssParserCCConstants {
                             case 19:
                                 jj320();
                                 break;
+                            default:
+                                throw new IllegalStateException("Unexpected value: " + i);
                         }
                     }
                     p = p.next;
