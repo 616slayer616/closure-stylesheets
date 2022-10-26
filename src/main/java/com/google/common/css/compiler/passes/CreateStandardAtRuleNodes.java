@@ -146,7 +146,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     public void leave(CssNode node) {
         if (!(node instanceof CssImportRuleNode)
                 && !(node instanceof CssImportBlockNode)
-                && node != root.getCharsetRule()) {
+                && node!=root.getCharsetRule()) {
             noMoreImportRules = node;
         }
         if (node instanceof CssRootNode) {
@@ -188,7 +188,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
                 return;
             }
             List<CssValueNode> paramlist = Lists.newArrayList(param);
-            if (params.size() == 2) {
+            if (params.size()==2) {
                 CssValueNode param2 = params.get(1);
                 if (param2 instanceof CssCompositeValueNode || param2 instanceof CssLiteralNode) {
                     paramlist.add(param2);
@@ -200,7 +200,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
             CssImportRuleNode importRule = new CssImportRuleNode(node.getComments());
             importRule.setParameters(paramlist);
             importRule.setSourceCodeLocation(node.getSourceCodeLocation());
-            if (noMoreImportRules != null) {
+            if (noMoreImportRules!=null) {
                 visitController.replaceCurrentBlockChildWith(
                         Lists.newArrayList((CssNode) importRule),
                         false /* visitTheReplacementNodes */);
@@ -240,7 +240,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
      * for more information.
      */
     private void createMediaRule(CssUnknownAtRuleNode node) {
-        if (node.getBlock() == null) {
+        if (node.getBlock()==null) {
             reportError(NO_BLOCK_ERROR_MESSAGE, node);
             return;
         }
@@ -363,7 +363,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
                                                   int start) {
         CssCompositeValueNode comp = (CssCompositeValueNode) params.get(start);
         CssValueNode startValue;
-        if (comp.getValues().size() == 2) {
+        if (comp.getValues().size()==2) {
             startValue = comp.getValues().get(1);
         } else {
             List<CssValueNode> newChildren = Lists.newArrayList(comp.getValues());
@@ -401,7 +401,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
      * Page selector grammar</a> for more information.
      */
     private void createPageRule(CssUnknownAtRuleNode node) {
-        if (node.getBlock() == null) {
+        if (node.getBlock()==null) {
             reportError(NO_BLOCK_ERROR_MESSAGE, node);
             return;
         }
@@ -414,15 +414,13 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
         if (numParams > 2) {
             reportError(INVALID_PARAMETERS_ERROR_MESSAGE, node);
             return;
-        } else if (numParams == 2 && !PSEUDO_PAGES.contains(params.get(1).getValue())) {
+        } else if (numParams==2 && !PSEUDO_PAGES.contains(params.get(1).getValue())) {
             reportError(INVALID_PARAMETERS_ERROR_MESSAGE, node);
             return;
-        } else if (numParams == 1) {
-            if (params.get(0).getValue().startsWith(":")
-                    && !PSEUDO_PAGES.contains(params.get(0).getValue())) {
-                reportError(INVALID_PARAMETERS_ERROR_MESSAGE, node);
-                return;
-            }
+        } else if (numParams==1 && params.get(0).getValue().startsWith(":")
+                && !PSEUDO_PAGES.contains(params.get(0).getValue())) {
+            reportError(INVALID_PARAMETERS_ERROR_MESSAGE, node);
+            return;
         }
         CssDeclarationBlockNode block = (CssDeclarationBlockNode) node.getBlock();
         CssPageRuleNode pageRule = new CssPageRuleNode(node.getComments(),
@@ -434,7 +432,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     }
 
     private void createPageSelector(Type type, CssUnknownAtRuleNode node) {
-        if (node.getBlock() == null) {
+        if (node.getBlock()==null) {
             reportError(NO_BLOCK_ERROR_MESSAGE, node);
             return;
         }
@@ -455,7 +453,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
     }
 
     private void createCharsetRule(CssUnknownAtRuleNode node) {
-        if (noMoreCharsetRules == null) {
+        if (noMoreCharsetRules==null) {
             charsetRuleValidation(node);
             CssCharSetNode charSet = new CssCharSetNode(node.getComments());
             charSet.setParameters(node.getChildren());
@@ -491,7 +489,7 @@ public class CreateStandardAtRuleNodes implements UniformVisitor, CssCompilerPas
      * font-face grammar</a> for more information.
      */
     private void createFontFaceRule(CssUnknownAtRuleNode node) {
-        if (node.getBlock() == null) {
+        if (node.getBlock()==null) {
             reportError(NO_BLOCK_ERROR_MESSAGE, node);
             return;
         }
