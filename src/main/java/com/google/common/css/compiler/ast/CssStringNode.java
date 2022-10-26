@@ -257,7 +257,7 @@ public class CssStringNode extends CssValueNode {
                 // TODO(user): this would be a good spot for a warning.
             }
             String replacement =
-                    codepoint == 0 ? "" : new String(Character.toChars(codepoint));
+                    codepoint==0 ? "":new String(Character.toChars(codepoint));
             unicode.appendReplacement(sb, replacement);
         }
         unicode.appendTail(sb);
@@ -345,7 +345,7 @@ public class CssStringNode extends CssValueNode {
                             // Our replacement accounts for the entire banned snippet,
                             // which is one codepoint but potentially multiple UTF-16
                             // Java Characters.
-                            && match.length() == match.offsetByCodePoints(0, 1));
+                            && match.length()==match.offsetByCodePoints(0, 1));
             markup.appendReplacement(
                     sb,
                     String.format("\\\\%06x", markup.group(0).codePointAt(0)));
@@ -367,7 +367,7 @@ public class CssStringNode extends CssValueNode {
      * efficiency in order to produce the shortest possible output for each
      * replaced character. This is a good choice for readability.
      */
-    public static final Function<String, String> SHORT_ESCAPER =
+    public static final UnaryOperator<String> SHORT_ESCAPER =
             input -> {
                 StringBuilder sb = new StringBuilder();
                 Matcher m = WIDE_NONASCII_PATTERN.matcher(input);
@@ -379,7 +379,7 @@ public class CssStringNode extends CssValueNode {
                                     // Our replacement accounts for the entire banned snippet,
                                     // which is one codepoint but potentially multiple UTF-16
                                     // Java Characters.
-                                    && match.length() == match.offsetByCodePoints(0, 1));
+                                    && match.length()==match.offsetByCodePoints(0, 1));
                     /* Escape codes can have up to 6 digits. We are allowed to pad
                      * with 0s on the left.
                      * When the escaped character ends the string, we simply

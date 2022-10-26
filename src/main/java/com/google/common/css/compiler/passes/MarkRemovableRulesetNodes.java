@@ -25,7 +25,7 @@ import com.google.common.collect.Table;
 import com.google.common.css.compiler.ast.*;
 
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 import java.util.stream.StreamSupport;
 
 /**
@@ -117,7 +117,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
                 // being processed or any of the other criteria that canModifyRuleset
                 // checks for because there's no reason not to remove unreferenced
                 // rules.
-                if (referencedRules != null && !referencedRules.isEmpty()
+                if (referencedRules!=null && !referencedRules.isEmpty()
                         && isSelectorUnreferenced(ruleset.getSelectors().getChildAt(0))) {
                     tree.getRulesetNodesToRemove().addRulesetNode(ruleset);
                     continue;
@@ -128,7 +128,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
                 // (in that case "canModifyRuleset()" will return false).
                 if (canModifyRuleset(ruleset)) {
                     // Make sure the node has only one selector.
-                    Preconditions.checkArgument(isSkipping() || (ruleset.getSelectors().numChildren() == 1));
+                    Preconditions.checkArgument(isSkipping() || (ruleset.getSelectors().numChildren()==1));
 
                     processRuleset(rules, ruleset);
                 }
@@ -149,7 +149,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
      */
     private void processRuleset(
             Table<String, String, CssRulesetNode> rules, CssRulesetNode ruleset) {
-        if ((referencedRules != null) && !referencedRules.isEmpty()) {
+        if ((referencedRules!=null) && !referencedRules.isEmpty()) {
             // If this rule is not referenced to in the code we remove it.
             if (isSelectorUnreferenced(ruleset.getSelectors().getChildAt(0))) {
                 // TODO(henrywong, dgajda): Storing the set of things to clean up
@@ -162,7 +162,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
         }
 
         // Make sure the node has only one declaration.
-        Preconditions.checkArgument(ruleset.getDeclarations().numChildren() == 1);
+        Preconditions.checkArgument(ruleset.getDeclarations().numChildren()==1);
         Preconditions.checkArgument(
                 ruleset.getDeclarations().getChildAt(0) instanceof CssDeclarationNode);
         CssDeclarationNode declaration =
@@ -183,7 +183,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
                 ruleset.getSelectors().getChildAt(0));
 
         CssRulesetNode previousRuleset = rules.get(selector, propertyName);
-        if (previousRuleset != null) {
+        if (previousRuleset!=null) {
             // If the new rule is important and the saved was not, then remove the saved one.
             if (isImportantRule(ruleset) && !isImportantRule(previousRuleset)) {
                 tree.getRulesetNodesToRemove().addRulesetNode(previousRuleset);
@@ -214,9 +214,9 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
      * in combination with other CSS classes.
      */
     private boolean okToRemoveSelector(CssSelectorNode selector) {
-        return (selector.getSelectorName() == null)
+        return (selector.getSelectorName()==null)
                 || !selector.getRefiners().isEmpty()
-                || (selector.getCombinator() != null);
+                || (selector.getCombinator()!=null);
     }
 
     /**
@@ -240,7 +240,7 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
      * Returns whether the combinator of the specified selector is unreferenced.
      */
     private boolean unreferencedSelectorCombinator(CssSelectorNode selector) {
-        return (selector.getCombinator() != null
+        return (selector.getCombinator()!=null
                 && isSelectorUnreferenced(selector.getCombinator().getSelector()));
     }
 
@@ -280,12 +280,12 @@ public class MarkRemovableRulesetNodes extends SkippingTreeVisitor
             Table<String, String, CssRulesetNode> rules,
             final CssRulesetNode ruleset) {
 
-        Supplier<Boolean> rulesetIsImportant = Suppliers.memoize(() -> isImportantRule(ruleset))::get;
+        BooleanSupplier rulesetIsImportant = Suppliers.memoize(() -> isImportantRule(ruleset))::get;
 
         for (String shorthand : propertyNode.getProperty().getShorthands()) {
             CssRulesetNode shorthandRuleset = rules.get(selector, shorthand);
-            if ((shorthandRuleset != null)
-                    && (!rulesetIsImportant.get() || isImportantRule(shorthandRuleset))) {
+            if ((shorthandRuleset!=null)
+                    && (!rulesetIsImportant.getAsBoolean() || isImportantRule(shorthandRuleset))) {
                 return true;
             }
         }
