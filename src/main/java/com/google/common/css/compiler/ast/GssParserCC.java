@@ -2666,10 +2666,8 @@ public class GssParserCC extends GssParserCCConstants {
             default:
                 jjLa1[117] = jjGen;
                 ParseException e = generateParseException();
-                if (enableErrorRecovery && e.currentToken!=null) {
-                    if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE)==LEFTBRACE) {
-                        skipComponentValuesToAfter(RIGHTBRACE);
-                    }
+                if (enableErrorRecovery && e.currentToken!=null && skipComponentValuesToAfter(SEMICOLON, LEFTBRACE)==LEFTBRACE) {
+                    skipComponentValuesToAfter(RIGHTBRACE);
                 }
             {
                 throw e;
@@ -2805,10 +2803,8 @@ public class GssParserCC extends GssParserCCConstants {
             default:
                 jjLa1[124] = jjGen;
                 ParseException e = generateParseException();
-                if (enableErrorRecovery && e.currentToken!=null) {
-                    if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE)==LEFTBRACE) {
-                        skipComponentValuesToAfter(RIGHTBRACE);
-                    }
+                if (enableErrorRecovery && e.currentToken!=null && skipComponentValuesToAfter(SEMICOLON, LEFTBRACE)==LEFTBRACE) {
+                    skipComponentValuesToAfter(RIGHTBRACE);
                 }
             {
                 throw e;
@@ -2941,10 +2937,8 @@ public class GssParserCC extends GssParserCCConstants {
             default:
                 jjLa1[131] = jjGen;
                 ParseException e = generateParseException();
-                if (enableErrorRecovery && e.currentToken!=null) {
-                    if (skipComponentValuesToAfter(SEMICOLON, LEFTBRACE)==LEFTBRACE) {
-                        skipComponentValuesToAfter(RIGHTBRACE);
-                    }
+                if (enableErrorRecovery && e.currentToken!=null && skipComponentValuesToAfter(SEMICOLON, LEFTBRACE)==LEFTBRACE) {
+                    skipComponentValuesToAfter(RIGHTBRACE);
                 }
             {
                 throw e;
