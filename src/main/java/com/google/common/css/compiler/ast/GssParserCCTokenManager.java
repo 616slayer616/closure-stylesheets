@@ -20,21 +20,21 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     private int jjStopStringLiteralDfa0(int pos, long active0) {
         switch (pos) {
             case 0:
-                if ((active0 & 0x40L) != 0L)
+                if ((active0 & 0x40L)!=0L)
                     return 139;
-                if ((active0 & 0x4000000080L) != 0L)
+                if ((active0 & 0x4000000080L)!=0L)
                     return 176;
-                if ((active0 & 0x10000L) != 0L)
+                if ((active0 & 0x10000L)!=0L)
                     return 288;
-                if ((active0 & 0x8000000L) != 0L)
+                if ((active0 & 0x8000000L)!=0L)
                     return 3;
-                if ((active0 & 0x20L) != 0L)
+                if ((active0 & 0x20L)!=0L)
                     return 5;
-                if ((active0 & 0x10L) != 0L)
+                if ((active0 & 0x10L)!=0L)
                     return 9;
                 return -1;
             case 1:
-                if ((active0 & 0x4000000000L) != 0L)
+                if ((active0 & 0x4000000000L)!=0L)
                     return 183;
                 return -1;
             default:
@@ -103,16 +103,17 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             jjStopStringLiteralDfa0(0, active0);
             return 1;
         }
-        if (curChar == 33) {
+        if (curChar==33) {
             return jjMoveStringLiteralDfa20(active0, 0x2000000000L);
-        } else if (curChar == 45) {
+        } else if (curChar==45) {
             return jjMoveStringLiteralDfa20(active0, 0x4000000000L);
         }
         return jjStartNfa0(0, active0);
     }
 
     private int jjMoveStringLiteralDfa20(long old0, long active0) {
-        if ((active0 &= old0) == 0L)
+        active0 &= old0;
+        if (active0==0L)
             return jjStartNfa0(0, old0);
         try {
             curChar = inputStream.readChar();
@@ -124,7 +125,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             case 45:
                 return jjMoveStringLiteralDfa30(active0, 0x2000000000L);
             case 62:
-                if ((active0 & 0x4000000000L) != 0L)
+                if ((active0 & 0x4000000000L)!=0L)
                     return jjStopAtPos(2, 38);
                 break;
             default:
@@ -134,7 +135,8 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     }
 
     private int jjMoveStringLiteralDfa30(long old0, long active0) {
-        if ((active0 &= old0) == 0L)
+        active0 &= old0;
+        if (active0==0L)
             return jjStartNfa0(1, old0);
         try {
             curChar = inputStream.readChar();
@@ -142,7 +144,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             jjStopStringLiteralDfa0(2, active0);
             return 3;
         }
-        if (curChar == 45 && (active0 & 0x2000000000L) != 0L) return jjStopAtPos(3, 37);
+        if (curChar==45 && (active0 & 0x2000000000L)!=0L) return jjStopAtPos(3, 37);
         return jjStartNfa0(2, active0);
     }
 
@@ -171,68 +173,68 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
         jjstateSet[0] = startState;
         int kind = 0x7fffffff;
         for (; ; ) {
-            if (++jjround == 0x7fffffff)
+            if (++jjround==0x7fffffff)
                 reInitRounds();
             if (curChar < 64) {
                 long l = 1L << curChar;
                 do {
                     switch (jjstateSet[--i]) {
                         case 0:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 if (kind > 58)
                                     kind = 58;
                                 {
                                     jjCheckNAddStates(0, 2);
                                 }
-                            } else if ((0x100003600L & l) != 0L) {
+                            } else if ((0x100003600L & l)!=0L) {
                                 if (kind > 45)
                                     kind = 45;
                                 {
                                     jjCheckNAddStates(3, 13);
                                 }
-                            } else if (curChar == 45) {
+                            } else if (curChar==45) {
                                 jjAddStates(14, 16);
-                            } else if (curChar == 36) {
+                            } else if (curChar==36) {
                                 jjAddStates(17, 18);
-                            } else if (curChar == 47) {
+                            } else if (curChar==47) {
                                 jjCheckNAddTwoStates(139, 154);
-                            } else if (curChar == 39) {
+                            } else if (curChar==39) {
                                 jjCheckNAddStates(19, 21);
-                            } else if (curChar == 34) {
+                            } else if (curChar==34) {
                                 jjCheckNAddStates(22, 24);
-                            } else if (curChar == 33) {
+                            } else if (curChar==33) {
                                 jjCheckNAddTwoStates(13, 22);
-                            } else if (curChar == 35) {
+                            } else if (curChar==35) {
                                 jjCheckNAdd(11);
-                            } else if (curChar == 46) {
+                            } else if (curChar==46) {
                                 jjCheckNAdd(9);
-                            } else if (curChar == 62) {
+                            } else if (curChar==62) {
                                 if (kind > 50)
                                     kind = 50;
-                            } else if (curChar == 43) {
+                            } else if (curChar==43) {
                                 if (kind > 49)
                                     kind = 49;
-                            } else if (curChar == 42)
+                            } else if (curChar==42)
                                 jjstateSet[jjnewStateCnt++] = 5;
-                            else if (curChar == 38)
+                            else if (curChar==38)
                                 jjstateSet[jjnewStateCnt++] = 1;
-                            if (curChar == 45) {
+                            if (curChar==45) {
                                 jjAddStates(25, 26);
                             }
                             break;
                         case 183:
-                            if (curChar == 45) {
+                            if (curChar==45) {
                                 jjCheckNAdd(184);
                             }
                             break;
                         case 288:
                         case 13:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddTwoStates(13, 22);
                             }
                             break;
                         case 139:
-                            if (curChar != 42)
+                            if (curChar!=42)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -241,41 +243,41 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 176:
-                            if (curChar == 45) {
+                            if (curChar==45) {
                                 jjCheckNAddTwoStates(183, 184);
                             }
                             break;
                         case 1:
-                            if (curChar == 38 && kind > 30)
+                            if (curChar==38 && kind > 30)
                                 kind = 30;
                             break;
                         case 3:
-                            if (curChar == 61 && kind > 33)
+                            if (curChar==61 && kind > 33)
                                 kind = 33;
                             break;
                         case 4:
-                            if (curChar == 42)
+                            if (curChar==42)
                                 jjstateSet[jjnewStateCnt++] = 5;
                             break;
                         case 5:
-                            if (curChar == 61 && kind > 35)
+                            if (curChar==61 && kind > 35)
                                 kind = 35;
                             break;
                         case 6:
-                            if (curChar == 43 && kind > 49)
+                            if (curChar==43 && kind > 49)
                                 kind = 49;
                             break;
                         case 7:
-                            if (curChar == 62 && kind > 50)
+                            if (curChar==62 && kind > 50)
                                 kind = 50;
                             break;
                         case 8:
-                            if (curChar == 46) {
+                            if (curChar==46) {
                                 jjCheckNAdd(9);
                             }
                             break;
                         case 9:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 58)
                                 kind = 58;
@@ -284,12 +286,12 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 10:
-                            if (curChar == 35) {
+                            if (curChar==35) {
                                 jjCheckNAdd(11);
                             }
                             break;
                         case 11:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 59)
                                 kind = 59;
@@ -298,196 +300,196 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 12:
-                            if (curChar == 33) {
+                            if (curChar==33) {
                                 jjCheckNAddTwoStates(13, 22);
                             }
                             break;
                         case 23:
-                            if (curChar == 34) {
+                            if (curChar==34) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 24:
-                            if ((0xfffffffbffffcbffL & l) != 0L) {
+                            if ((0xfffffffbffffcbffL & l)!=0L) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 25:
-                            if (curChar == 34 && kind > 61)
+                            if (curChar==34 && kind > 61)
                                 kind = 61;
                             break;
                         case 27:
-                            if (curChar == 10) {
+                            if (curChar==10) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 28:
                         case 32:
-                            if (curChar == 13) {
+                            if (curChar==13) {
                                 jjCheckNAdd(27);
                             }
                             break;
                         case 29:
-                            if ((0x3400L & l) != 0L) {
+                            if ((0x3400L & l)!=0L) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 30:
-                            if ((0xfc00ffffffffcbffL & l) != 0L) {
+                            if ((0xfc00ffffffffcbffL & l)!=0L) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 31:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(33, 38);
                             }
                             break;
                         case 33:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 34:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(39, 47);
                             }
                             break;
                         case 35:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(48, 52);
                             }
                             break;
                         case 36:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(53, 58);
                             }
                             break;
                         case 37:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(59, 65);
                             }
                             break;
                         case 38:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(66, 73);
                             }
                             break;
                         case 39:
-                            if (curChar == 39) {
+                            if (curChar==39) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 40:
-                            if ((0xffffff7fffffcbffL & l) != 0L) {
+                            if ((0xffffff7fffffcbffL & l)!=0L) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 41:
-                            if (curChar == 39 && kind > 62)
+                            if (curChar==39 && kind > 62)
                                 kind = 62;
                             break;
                         case 43:
-                            if (curChar == 10) {
+                            if (curChar==10) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 44:
                         case 48:
-                            if (curChar == 13) {
+                            if (curChar==13) {
                                 jjCheckNAdd(43);
                             }
                             break;
                         case 45:
-                            if ((0x3400L & l) != 0L) {
+                            if ((0x3400L & l)!=0L) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 46:
-                            if ((0xfc00ffffffffcbffL & l) != 0L) {
+                            if ((0xfc00ffffffffcbffL & l)!=0L) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 47:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(74, 79);
                             }
                             break;
                         case 49:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 50:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(80, 88);
                             }
                             break;
                         case 51:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(89, 93);
                             }
                             break;
                         case 52:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(94, 99);
                             }
                             break;
                         case 53:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(100, 106);
                             }
                             break;
                         case 54:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddStates(107, 114);
                             }
                             break;
                         case 56:
-                            if (curChar == 40) {
+                            if (curChar==40) {
                                 jjCheckNAddStates(115, 117);
                             }
                             break;
                         case 57:
-                            if ((0xfffffc7a00000000L & l) != 0L) {
+                            if ((0xfffffc7a00000000L & l)!=0L) {
                                 jjCheckNAddStates(118, 120);
                             }
                             break;
                         case 58:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddTwoStates(58, 59);
                             }
                             break;
                         case 59:
-                            if (curChar == 41 && kind > 63)
+                            if (curChar==41 && kind > 63)
                                 kind = 63;
                             break;
                         case 60:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddStates(121, 124);
                             }
                             break;
                         case 67:
-                            if (curChar == 40 && kind > 68)
+                            if (curChar==40 && kind > 68)
                                 kind = 68;
                             break;
                         case 71:
-                            if (curChar == 40 && kind > 69)
+                            if (curChar==40 && kind > 69)
                                 kind = 69;
                             break;
                         case 76:
-                            if (curChar == 40 && kind > 70)
+                            if (curChar==40 && kind > 70)
                                 kind = 70;
                             break;
                         case 81:
-                            if (curChar == 40 && kind > 71)
+                            if (curChar==40 && kind > 71)
                                 kind = 71;
                             break;
                         case 84:
-                            if (curChar == 43)
+                            if (curChar==43)
                                 jjstateSet[jjnewStateCnt++] = 85;
                             break;
                         case 85:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -496,18 +498,18 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 86:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 87;
                             break;
                         case 87:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
                             jjstateSet[jjnewStateCnt++] = 88;
                             break;
                         case 88:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -516,11 +518,11 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 89:
-                            if ((0x3ff000000000000L & l) != 0L && kind > 73)
+                            if ((0x3ff000000000000L & l)!=0L && kind > 73)
                                 kind = 73;
                             break;
                         case 90:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -529,7 +531,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 91:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -538,7 +540,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 92:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -547,14 +549,14 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 93:
-                            if (curChar != 63)
+                            if (curChar!=63)
                                 break;
                             if (kind > 73)
                                 kind = 73;
                             jjstateSet[jjnewStateCnt++] = 94;
                             break;
                         case 94:
-                            if (curChar != 63)
+                            if (curChar!=63)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -563,11 +565,11 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 95:
-                            if (curChar == 63 && kind > 73)
+                            if (curChar==63 && kind > 73)
                                 kind = 73;
                             break;
                         case 96:
-                            if (curChar != 63)
+                            if (curChar!=63)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -576,7 +578,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 97:
-                            if (curChar != 63)
+                            if (curChar!=63)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -585,7 +587,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 98:
-                            if (curChar != 63)
+                            if (curChar!=63)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -594,7 +596,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 99:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -603,7 +605,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 100:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -612,7 +614,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 101:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -621,7 +623,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 102:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -630,7 +632,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 103:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -639,24 +641,24 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 105:
-                            if (curChar == 45) {
+                            if (curChar==45) {
                                 jjAddStates(25, 26);
                             }
                             break;
                         case 109:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 108;
                             break;
                         case 119:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 118;
                             break;
                         case 132:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 131;
                             break;
                         case 135:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 58)
                                 kind = 58;
@@ -665,7 +667,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 136:
-                            if ((0x3ff000000000000L & l) == 0L)
+                            if ((0x3ff000000000000L & l)==0L)
                                 break;
                             if (kind > 58)
                                 kind = 58;
@@ -674,17 +676,17 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 137:
-                            if ((0x3ff000000000000L & l) != 0L) {
+                            if ((0x3ff000000000000L & l)!=0L) {
                                 jjCheckNAddTwoStates(137, 8);
                             }
                             break;
                         case 138:
-                            if (curChar == 47) {
+                            if (curChar==47) {
                                 jjCheckNAddTwoStates(139, 154);
                             }
                             break;
                         case 140:
-                            if ((0xffff7bffffffffffL & l) == 0L)
+                            if ((0xffff7bffffffffffL & l)==0L)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -693,7 +695,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 141:
-                            if (curChar != 47)
+                            if (curChar!=47)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -702,7 +704,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 142:
-                            if (curChar != 47)
+                            if (curChar!=47)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -711,7 +713,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 143:
-                            if (curChar != 10)
+                            if (curChar!=10)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -720,11 +722,11 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 144:
-                            if (curChar == 13)
+                            if (curChar==13)
                                 jjstateSet[jjnewStateCnt++] = 143;
                             break;
                         case 145:
-                            if ((0x100003600L & l) == 0L)
+                            if ((0x100003600L & l)==0L)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -733,11 +735,11 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 146:
-                            if (curChar == 42)
+                            if (curChar==42)
                                 jjstateSet[jjnewStateCnt++] = 142;
                             break;
                         case 147:
-                            if (curChar != 42)
+                            if (curChar!=42)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -746,12 +748,12 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 148:
-                            if (curChar == 42) {
+                            if (curChar==42) {
                                 jjCheckNAddTwoStates(148, 140);
                             }
                             break;
                         case 149:
-                            if (curChar != 42)
+                            if (curChar!=42)
                                 break;
                             if (kind > 1)
                                 kind = 1;
@@ -760,35 +762,35 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 151:
-                            if (curChar == 47 && kind > 52)
+                            if (curChar==47 && kind > 52)
                                 kind = 52;
                             break;
                         case 157:
-                            if (curChar == 61 && kind > 36)
+                            if (curChar==61 && kind > 36)
                                 kind = 36;
                             break;
                         case 159:
-                            if (curChar == 61 && kind > 32)
+                            if (curChar==61 && kind > 32)
                                 kind = 32;
                             break;
                         case 160:
-                            if (curChar == 36) {
+                            if (curChar==36) {
                                 jjAddStates(17, 18);
                             }
                             break;
                         case 161:
-                            if (curChar == 61 && kind > 34)
+                            if (curChar==61 && kind > 34)
                                 kind = 34;
                             break;
                         case 163:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 65)
                                 kind = 65;
                             jjstateSet[jjnewStateCnt++] = 163;
                             break;
                         case 164:
-                            if ((0x100003600L & l) == 0L)
+                            if ((0x100003600L & l)==0L)
                                 break;
                             if (kind > 45)
                                 kind = 45;
@@ -797,7 +799,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 165:
-                            if ((0x100003600L & l) == 0L)
+                            if ((0x100003600L & l)==0L)
                                 break;
                             if (kind > 45)
                                 kind = 45;
@@ -806,17 +808,17 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 166:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddTwoStates(166, 167);
                             }
                             break;
                         case 167:
-                            if (curChar == 45) {
+                            if (curChar==45) {
                                 jjCheckNAdd(168);
                             }
                             break;
                         case 168:
-                            if ((0x100003600L & l) == 0L)
+                            if ((0x100003600L & l)==0L)
                                 break;
                             if (kind > 48)
                                 kind = 48;
@@ -825,45 +827,45 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 169:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddTwoStates(169, 6);
                             }
                             break;
                         case 170:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddTwoStates(170, 7);
                             }
                             break;
                         case 171:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddTwoStates(171, 172);
                             }
                             break;
                         case 173:
-                            if ((0x100003600L & l) != 0L) {
+                            if ((0x100003600L & l)!=0L) {
                                 jjCheckNAddTwoStates(173, 174);
                             }
                             break;
                         case 174:
-                            if (curChar == 47) {
+                            if (curChar==47) {
                                 jjCheckNAdd(154);
                             }
                             break;
                         case 175:
-                            if (curChar == 45) {
+                            if (curChar==45) {
                                 jjAddStates(14, 16);
                             }
                             break;
                         case 177:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 178;
                             break;
                         case 178:
-                            if (curChar == 36)
+                            if (curChar==36)
                                 jjstateSet[jjnewStateCnt++] = 179;
                             break;
                         case 180:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -872,7 +874,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 181:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -881,15 +883,15 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 185:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 186;
                             break;
                         case 186:
-                            if (curChar == 36)
+                            if (curChar==36)
                                 jjstateSet[jjnewStateCnt++] = 187;
                             break;
                         case 188:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -898,7 +900,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 189:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -907,45 +909,45 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 191:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 192;
                             break;
                         case 192:
-                            if (curChar == 36)
+                            if (curChar==36)
                                 jjstateSet[jjnewStateCnt++] = 193;
                             break;
                         case 194:
-                            if (curChar == 40 && kind > 74)
+                            if (curChar==40 && kind > 74)
                                 kind = 74;
                             break;
                         case 195:
-                            if ((0x3ff200000000000L & l) != 0L) {
+                            if ((0x3ff200000000000L & l)!=0L) {
                                 jjCheckNAddStates(176, 179);
                             }
                             break;
                         case 196:
-                            if ((0x3ff200000000000L & l) != 0L) {
+                            if ((0x3ff200000000000L & l)!=0L) {
                                 jjCheckNAddStates(180, 182);
                             }
                             break;
                         case 227:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 226;
                             break;
                         case 232:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 233;
                             break;
                         case 234:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 235;
                             break;
                         case 235:
-                            if (curChar == 36)
+                            if (curChar==36)
                                 jjstateSet[jjnewStateCnt++] = 236;
                             break;
                         case 237:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -954,7 +956,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 238:
-                            if ((0x3ff200000000000L & l) == 0L)
+                            if ((0x3ff200000000000L & l)==0L)
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -963,70 +965,70 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 239:
-                            if (curChar == 45) {
+                            if (curChar==45) {
                                 jjAddStates(186, 189);
                             }
                             break;
                         case 248:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 247;
                             break;
                         case 263:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 262;
                             break;
                         case 275:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 274;
                             break;
                         case 286:
-                            if (curChar == 45)
+                            if (curChar==45)
                                 jjstateSet[jjnewStateCnt++] = 285;
                             break;
                         default:
                             break;
                     }
-                } while (i != startsAt);
+                } while (i!=startsAt);
             } else if (curChar < 128) {
                 long l = 1L << (curChar & 63);
                 do {
                     switch (jjstateSet[--i]) {
                         case 0:
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l)!=0L) {
                                 if (kind > 66)
                                     kind = 66;
                                 {
                                     jjCheckNAddStates(190, 194);
                                 }
-                            } else if (curChar == 64) {
+                            } else if (curChar==64) {
                                 jjAddStates(195, 202);
-                            } else if (curChar == 126) {
+                            } else if (curChar==126) {
                                 if (kind > 51)
                                     kind = 51;
                                 jjstateSet[jjnewStateCnt++] = 159;
-                            } else if (curChar == 124) {
+                            } else if (curChar==124) {
                                 jjAddStates(203, 204);
-                            } else if (curChar == 94)
+                            } else if (curChar==94)
                                 jjstateSet[jjnewStateCnt++] = 3;
-                            if (curChar == 117) {
+                            if (curChar==117) {
                                 jjAddStates(205, 206);
-                            } else if (curChar == 85)
+                            } else if (curChar==85)
                                 jjstateSet[jjnewStateCnt++] = 84;
-                            else if (curChar == 118)
+                            else if (curChar==118)
                                 jjstateSet[jjnewStateCnt++] = 82;
-                            else if (curChar == 99)
+                            else if (curChar==99)
                                 jjstateSet[jjnewStateCnt++] = 78;
-                            else if (curChar == 108)
+                            else if (curChar==108)
                                 jjstateSet[jjnewStateCnt++] = 73;
-                            else if (curChar == 110)
+                            else if (curChar==110)
                                 jjstateSet[jjnewStateCnt++] = 68;
-                            else if (curChar == 100)
+                            else if (curChar==100)
                                 jjstateSet[jjnewStateCnt++] = 64;
                             break;
                         case 183:
                         case 184:
                         case 189:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -1036,254 +1038,254 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         break;
                         case 288:
                         case 22:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 21;
                             break;
                         case 139:
                         case 154:
-                            if (curChar == 100)
+                            if (curChar==100)
                                 jjstateSet[jjnewStateCnt++] = 153;
                             break;
                         case 176:
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l)!=0L) {
                                 jjCheckNAddStates(180, 182);
                             }
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l)!=0L) {
                                 if (kind > 66)
                                     kind = 66;
                                 {
                                     jjCheckNAddTwoStates(177, 181);
                                 }
                             }
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 121;
-                            else if (curChar == 119)
+                            else if (curChar==119)
                                 jjstateSet[jjnewStateCnt++] = 114;
                             break;
                         case 2:
-                            if (curChar == 94)
+                            if (curChar==94)
                                 jjstateSet[jjnewStateCnt++] = 3;
                             break;
                         case 11:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 59)
                                 kind = 59;
                             jjstateSet[jjnewStateCnt++] = 11;
                             break;
                         case 14:
-                            if (curChar == 116 && kind > 60)
+                            if (curChar==116 && kind > 60)
                                 kind = 60;
                             break;
                         case 15:
-                            if (curChar == 110)
+                            if (curChar==110)
                                 jjstateSet[jjnewStateCnt++] = 14;
                             break;
                         case 16:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 15;
                             break;
                         case 17:
-                            if (curChar == 116)
+                            if (curChar==116)
                                 jjstateSet[jjnewStateCnt++] = 16;
                             break;
                         case 18:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 17;
                             break;
                         case 19:
-                            if (curChar == 111)
+                            if (curChar==111)
                                 jjstateSet[jjnewStateCnt++] = 18;
                             break;
                         case 20:
-                            if (curChar == 112)
+                            if (curChar==112)
                                 jjstateSet[jjnewStateCnt++] = 19;
                             break;
                         case 21:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 20;
                             break;
                         case 24:
-                            if ((0xffffffffefffffffL & l) != 0L) {
+                            if ((0xffffffffefffffffL & l)!=0L) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 26:
-                            if (curChar == 92) {
+                            if (curChar==92) {
                                 jjAddStates(207, 210);
                             }
                             break;
                         case 30:
-                            if ((0xffffff81ffffffffL & l) != 0L) {
+                            if ((0xffffff81ffffffffL & l)!=0L) {
                                 jjCheckNAddStates(22, 24);
                             }
                             break;
                         case 31:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(33, 38);
                             }
                             break;
                         case 34:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(39, 47);
                             }
                             break;
                         case 35:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(48, 52);
                             }
                             break;
                         case 36:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(53, 58);
                             }
                             break;
                         case 37:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(59, 65);
                             }
                             break;
                         case 38:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(66, 73);
                             }
                             break;
                         case 40:
-                            if ((0xffffffffefffffffL & l) != 0L) {
+                            if ((0xffffffffefffffffL & l)!=0L) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 42:
-                            if (curChar == 92) {
+                            if (curChar==92) {
                                 jjAddStates(211, 214);
                             }
                             break;
                         case 46:
-                            if ((0xffffff81ffffffffL & l) != 0L) {
+                            if ((0xffffff81ffffffffL & l)!=0L) {
                                 jjCheckNAddStates(19, 21);
                             }
                             break;
                         case 47:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(74, 79);
                             }
                             break;
                         case 50:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(80, 88);
                             }
                             break;
                         case 51:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(89, 93);
                             }
                             break;
                         case 52:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(94, 99);
                             }
                             break;
                         case 53:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(100, 106);
                             }
                             break;
                         case 54:
-                            if ((0x7e00000000L & l) != 0L) {
+                            if ((0x7e00000000L & l)!=0L) {
                                 jjCheckNAddStates(107, 114);
                             }
                             break;
                         case 55:
-                            if (curChar == 110) {
+                            if (curChar==110) {
                                 jjCheckNAdd(56);
                             }
                             break;
                         case 57:
-                            if ((0x7fffffffefffffffL & l) != 0L) {
+                            if ((0x7fffffffefffffffL & l)!=0L) {
                                 jjAddStates(118, 120);
                             }
                             break;
                         case 61:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 55;
                             break;
                         case 62:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 61;
                             break;
                         case 63:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 62;
                             break;
                         case 64:
-                            if (curChar == 111)
+                            if (curChar==111)
                                 jjstateSet[jjnewStateCnt++] = 63;
                             break;
                         case 65:
-                            if (curChar == 100)
+                            if (curChar==100)
                                 jjstateSet[jjnewStateCnt++] = 64;
                             break;
                         case 66:
-                            if (curChar == 116)
+                            if (curChar==116)
                                 jjstateSet[jjnewStateCnt++] = 67;
                             break;
                         case 68:
-                            if (curChar == 111)
+                            if (curChar==111)
                                 jjstateSet[jjnewStateCnt++] = 66;
                             break;
                         case 69:
-                            if (curChar == 110)
+                            if (curChar==110)
                                 jjstateSet[jjnewStateCnt++] = 68;
                             break;
                         case 70:
-                            if (curChar == 103)
+                            if (curChar==103)
                                 jjstateSet[jjnewStateCnt++] = 71;
                             break;
                         case 72:
-                            if (curChar == 110)
+                            if (curChar==110)
                                 jjstateSet[jjnewStateCnt++] = 70;
                             break;
                         case 73:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 72;
                             break;
                         case 74:
-                            if (curChar == 108)
+                            if (curChar==108)
                                 jjstateSet[jjnewStateCnt++] = 73;
                             break;
                         case 75:
-                            if (curChar == 99)
+                            if (curChar==99)
                                 jjstateSet[jjnewStateCnt++] = 76;
                             break;
                         case 77:
                         case 106:
                         case 116:
-                            if (curChar == 108) {
+                            if (curChar==108) {
                                 jjCheckNAdd(75);
                             }
                             break;
                         case 78:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 77;
                             break;
                         case 79:
-                            if (curChar == 99)
+                            if (curChar==99)
                                 jjstateSet[jjnewStateCnt++] = 78;
                             break;
                         case 80:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 81;
                             break;
                         case 82:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 80;
                             break;
                         case 83:
-                            if (curChar == 118)
+                            if (curChar==118)
                                 jjstateSet[jjnewStateCnt++] = 82;
                             break;
                         case 85:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1292,14 +1294,14 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 87:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
                             jjstateSet[jjnewStateCnt++] = 88;
                             break;
                         case 88:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1308,11 +1310,11 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 89:
-                            if ((0x7e0000007eL & l) != 0L && kind > 73)
+                            if ((0x7e0000007eL & l)!=0L && kind > 73)
                                 kind = 73;
                             break;
                         case 90:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1321,7 +1323,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 91:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1330,7 +1332,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 92:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1339,7 +1341,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 99:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1348,7 +1350,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 100:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1357,7 +1359,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 101:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1366,7 +1368,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 102:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1375,7 +1377,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 103:
-                            if ((0x7e0000007eL & l) == 0L)
+                            if ((0x7e0000007eL & l)==0L)
                                 break;
                             if (kind > 73)
                                 kind = 73;
@@ -1384,106 +1386,106 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 104:
-                            if (curChar == 85)
+                            if (curChar==85)
                                 jjstateSet[jjnewStateCnt++] = 84;
                             break;
                         case 107:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 106;
                             break;
                         case 108:
-                            if (curChar == 99)
+                            if (curChar==99)
                                 jjstateSet[jjnewStateCnt++] = 107;
                             break;
                         case 110:
-                            if (curChar == 116)
+                            if (curChar==116)
                                 jjstateSet[jjnewStateCnt++] = 109;
                             break;
                         case 111:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 110;
                             break;
                         case 112:
-                            if (curChar == 107)
+                            if (curChar==107)
                                 jjstateSet[jjnewStateCnt++] = 111;
                             break;
                         case 113:
-                            if (curChar == 98)
+                            if (curChar==98)
                                 jjstateSet[jjnewStateCnt++] = 112;
                             break;
                         case 114:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 113;
                             break;
                         case 115:
-                            if (curChar == 119)
+                            if (curChar==119)
                                 jjstateSet[jjnewStateCnt++] = 114;
                             break;
                         case 117:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 116;
                             break;
                         case 118:
-                            if (curChar == 99)
+                            if (curChar==99)
                                 jjstateSet[jjnewStateCnt++] = 117;
                             break;
                         case 120:
-                            if (curChar == 122)
+                            if (curChar==122)
                                 jjstateSet[jjnewStateCnt++] = 119;
                             break;
                         case 121:
-                            if (curChar == 111)
+                            if (curChar==111)
                                 jjstateSet[jjnewStateCnt++] = 120;
                             break;
                         case 122:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 121;
                             break;
                         case 123:
-                            if (curChar == 117) {
+                            if (curChar==117) {
                                 jjAddStates(205, 206);
                             }
                             break;
                         case 124:
-                            if (curChar == 108) {
+                            if (curChar==108) {
                                 jjCheckNAdd(56);
                             }
                             break;
                         case 125:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 124;
                             break;
                         case 126:
-                            if (curChar == 120) {
+                            if (curChar==120) {
                                 jjCheckNAdd(56);
                             }
                             break;
                         case 127:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 126;
                             break;
                         case 128:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 127;
                             break;
                         case 129:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 128;
                             break;
                         case 130:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 129;
                             break;
                         case 131:
-                            if (curChar == 112)
+                            if (curChar==112)
                                 jjstateSet[jjnewStateCnt++] = 130;
                             break;
                         case 133:
-                            if (curChar == 108)
+                            if (curChar==108)
                                 jjstateSet[jjnewStateCnt++] = 132;
                             break;
                         case 134:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 133;
                             break;
                         case 140:
@@ -1494,28 +1496,28 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 150:
-                            if (curChar == 112)
+                            if (curChar==112)
                                 jjstateSet[jjnewStateCnt++] = 151;
                             break;
                         case 152:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 150;
                             break;
                         case 153:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 152;
                             break;
                         case 155:
-                            if (curChar == 124) {
+                            if (curChar==124) {
                                 jjAddStates(203, 204);
                             }
                             break;
                         case 156:
-                            if (curChar == 124 && kind > 31)
+                            if (curChar==124 && kind > 31)
                                 kind = 31;
                             break;
                         case 158:
-                            if (curChar != 126)
+                            if (curChar!=126)
                                 break;
                             if (kind > 51)
                                 kind = 51;
@@ -1523,7 +1525,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                             break;
                         case 162:
                         case 163:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 65)
                                 kind = 65;
@@ -1532,11 +1534,11 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 172:
-                            if (curChar == 126 && kind > 51)
+                            if (curChar==126 && kind > 51)
                                 kind = 51;
                             break;
                         case 179:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -1545,7 +1547,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 180:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -1554,7 +1556,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 181:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -1563,7 +1565,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 187:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -1572,7 +1574,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 188:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 67)
                                 kind = 67;
@@ -1582,22 +1584,22 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         break;
                         case 190:
                         case 196:
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l)!=0L) {
                                 jjCheckNAddStates(180, 182);
                             }
                             break;
                         case 193:
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l)!=0L) {
                                 jjCheckNAddStates(215, 217);
                             }
                             break;
                         case 195:
-                            if ((0x7fffffe87fffffeL & l) != 0L) {
+                            if ((0x7fffffe87fffffeL & l)!=0L) {
                                 jjCheckNAddStates(176, 179);
                             }
                             break;
                         case 197:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 66)
                                 kind = 66;
@@ -1606,28 +1608,28 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 198:
-                            if (curChar == 64) {
+                            if (curChar==64) {
                                 jjAddStates(195, 202);
                             }
                             break;
                         case 199:
-                            if (curChar == 116 && kind > 75)
+                            if (curChar==116 && kind > 75)
                                 kind = 75;
                             break;
                         case 200:
-                            if (curChar == 115)
+                            if (curChar==115)
                                 jjstateSet[jjnewStateCnt++] = 199;
                             break;
                         case 201:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 200;
                             break;
                         case 202:
-                            if (curChar == 108)
+                            if (curChar==108)
                                 jjstateSet[jjnewStateCnt++] = 201;
                             break;
                         case 203:
-                            if (curChar == 115 && kind > 76)
+                            if (curChar==115 && kind > 76)
                                 kind = 76;
                             break;
                         case 204:
@@ -1635,119 +1637,119 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         case 255:
                         case 267:
                         case 278:
-                            if (curChar == 101) {
+                            if (curChar==101) {
                                 jjCheckNAdd(203);
                             }
                             break;
                         case 205:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 204;
                             break;
                         case 206:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 205;
                             break;
                         case 207:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 206;
                             break;
                         case 208:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 207;
                             break;
                         case 209:
-                            if (curChar == 121)
+                            if (curChar==121)
                                 jjstateSet[jjnewStateCnt++] = 208;
                             break;
                         case 210:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 209;
                             break;
                         case 211:
-                            if (curChar == 107)
+                            if (curChar==107)
                                 jjstateSet[jjnewStateCnt++] = 210;
                             break;
                         case 212:
-                            if (curChar == 101 && kind > 77)
+                            if (curChar==101 && kind > 77)
                                 kind = 77;
                             break;
                         case 213:
-                            if (curChar == 103) {
+                            if (curChar==103) {
                                 jjCheckNAdd(212);
                             }
                             break;
                         case 214:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 213;
                             break;
                         case 215:
-                            if (curChar == 112)
+                            if (curChar==112)
                                 jjstateSet[jjnewStateCnt++] = 214;
                             break;
                         case 216:
-                            if (curChar == 110 && kind > 77)
+                            if (curChar==110 && kind > 77)
                                 kind = 77;
                             break;
                         case 217:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 216;
                             break;
                         case 218:
-                            if (curChar == 120)
+                            if (curChar==120)
                                 jjstateSet[jjnewStateCnt++] = 217;
                             break;
                         case 219:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 218;
                             break;
                         case 220:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 219;
                             break;
                         case 221:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 220;
                             break;
                         case 222:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 221;
                             break;
                         case 223:
-                            if (curChar == 100)
+                            if (curChar==100)
                                 jjstateSet[jjnewStateCnt++] = 222;
                             break;
                         case 224:
-                            if (curChar == 99) {
+                            if (curChar==99) {
                                 jjCheckNAdd(212);
                             }
                             break;
                         case 225:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 224;
                             break;
                         case 226:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 225;
                             break;
                         case 228:
-                            if (curChar == 116)
+                            if (curChar==116)
                                 jjstateSet[jjnewStateCnt++] = 227;
                             break;
                         case 229:
-                            if (curChar == 110)
+                            if (curChar==110)
                                 jjstateSet[jjnewStateCnt++] = 228;
                             break;
                         case 230:
-                            if (curChar == 111)
+                            if (curChar==111)
                                 jjstateSet[jjnewStateCnt++] = 229;
                             break;
                         case 231:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 230;
                             break;
                         case 233:
                         case 238:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -1756,7 +1758,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 236:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -1765,7 +1767,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 237:
-                            if ((0x7fffffe87fffffeL & l) == 0L)
+                            if ((0x7fffffe87fffffeL & l)==0L)
                                 break;
                             if (kind > 78)
                                 kind = 78;
@@ -1774,169 +1776,169 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         }
                         break;
                         case 241:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 240;
                             break;
                         case 242:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 241;
                             break;
                         case 243:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 242;
                             break;
                         case 244:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 243;
                             break;
                         case 245:
-                            if (curChar == 121)
+                            if (curChar==121)
                                 jjstateSet[jjnewStateCnt++] = 244;
                             break;
                         case 246:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 245;
                             break;
                         case 247:
-                            if (curChar == 107)
+                            if (curChar==107)
                                 jjstateSet[jjnewStateCnt++] = 246;
                             break;
                         case 249:
-                            if (curChar == 116)
+                            if (curChar==116)
                                 jjstateSet[jjnewStateCnt++] = 248;
                             break;
                         case 250:
-                            if (curChar == 105)
+                            if (curChar==105)
                                 jjstateSet[jjnewStateCnt++] = 249;
                             break;
                         case 251:
-                            if (curChar == 107)
+                            if (curChar==107)
                                 jjstateSet[jjnewStateCnt++] = 250;
                             break;
                         case 252:
-                            if (curChar == 98)
+                            if (curChar==98)
                                 jjstateSet[jjnewStateCnt++] = 251;
                             break;
                         case 253:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 252;
                             break;
                         case 254:
-                            if (curChar == 119)
+                            if (curChar==119)
                                 jjstateSet[jjnewStateCnt++] = 253;
                             break;
                         case 256:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 255;
                             break;
                         case 257:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 256;
                             break;
                         case 258:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 257;
                             break;
                         case 259:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 258;
                             break;
                         case 260:
-                            if (curChar == 121)
+                            if (curChar==121)
                                 jjstateSet[jjnewStateCnt++] = 259;
                             break;
                         case 261:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 260;
                             break;
                         case 262:
-                            if (curChar == 107)
+                            if (curChar==107)
                                 jjstateSet[jjnewStateCnt++] = 261;
                             break;
                         case 264:
-                            if (curChar == 122)
+                            if (curChar==122)
                                 jjstateSet[jjnewStateCnt++] = 263;
                             break;
                         case 265:
-                            if (curChar == 111)
+                            if (curChar==111)
                                 jjstateSet[jjnewStateCnt++] = 264;
                             break;
                         case 266:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 265;
                             break;
                         case 268:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 267;
                             break;
                         case 269:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 268;
                             break;
                         case 270:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 269;
                             break;
                         case 271:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 270;
                             break;
                         case 272:
-                            if (curChar == 121)
+                            if (curChar==121)
                                 jjstateSet[jjnewStateCnt++] = 271;
                             break;
                         case 273:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 272;
                             break;
                         case 274:
-                            if (curChar == 107)
+                            if (curChar==107)
                                 jjstateSet[jjnewStateCnt++] = 273;
                             break;
                         case 276:
-                            if (curChar == 115)
+                            if (curChar==115)
                                 jjstateSet[jjnewStateCnt++] = 275;
                             break;
                         case 277:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 276;
                             break;
                         case 279:
-                            if (curChar == 109)
+                            if (curChar==109)
                                 jjstateSet[jjnewStateCnt++] = 278;
                             break;
                         case 280:
-                            if (curChar == 97)
+                            if (curChar==97)
                                 jjstateSet[jjnewStateCnt++] = 279;
                             break;
                         case 281:
-                            if (curChar == 114)
+                            if (curChar==114)
                                 jjstateSet[jjnewStateCnt++] = 280;
                             break;
                         case 282:
-                            if (curChar == 102)
+                            if (curChar==102)
                                 jjstateSet[jjnewStateCnt++] = 281;
                             break;
                         case 283:
-                            if (curChar == 121)
+                            if (curChar==121)
                                 jjstateSet[jjnewStateCnt++] = 282;
                             break;
                         case 284:
-                            if (curChar == 101)
+                            if (curChar==101)
                                 jjstateSet[jjnewStateCnt++] = 283;
                             break;
                         case 285:
-                            if (curChar == 107)
+                            if (curChar==107)
                                 jjstateSet[jjnewStateCnt++] = 284;
                             break;
                         case 287:
-                            if (curChar == 111)
+                            if (curChar==111)
                                 jjstateSet[jjnewStateCnt++] = 286;
                             break;
                         default:
                             break;
                     }
-                } while (i != startsAt);
+                } while (i!=startsAt);
             } else {
                 int hiByte = (curChar >> 8);
                 int i1 = hiByte >> 6;
@@ -2112,15 +2114,15 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                         default:
                             break;
                     }
-                } while (i != startsAt);
+                } while (i!=startsAt);
             }
-            if (kind != 0x7fffffff) {
+            if (kind!=0x7fffffff) {
                 jjmatchedKind = kind;
                 jjmatchedPos = curPos;
                 kind = 0x7fffffff;
             }
             ++curPos;
-            if ((i = jjnewStateCnt) == (startsAt = 288 - (jjnewStateCnt = startsAt)))
+            if ((i = jjnewStateCnt)==(startsAt = 288 - (jjnewStateCnt = startsAt)))
                 return curPos;
             try {
                 curChar = inputStream.readChar();
@@ -2148,10 +2150,10 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     };
 
     private static boolean jjCanMove0(int hiByte, int i1, int i2, long l1, long l2) {
-        if (hiByte == 0) {
-            return ((jjbitVec2[i2] & l2) != 0L);
+        if (hiByte==0) {
+            return ((jjbitVec2[i2] & l2)!=0L);
         }
-        return (jjbitVec0[i1] & l1) != 0L;
+        return (jjbitVec0[i1] & l1)!=0L;
     }
 
     /**
@@ -2174,7 +2176,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
         final int beginColumn;
         final int endColumn;
         String im = jjstrLiteralImages[jjmatchedKind];
-        curTokenImage = (im == null) ? inputStream.getImage() : im;
+        curTokenImage = (im==null) ? inputStream.getImage():im;
         beginLine = inputStream.getBeginLine();
         beginColumn = inputStream.getBeginColumn();
         endLine = inputStream.getEndLine();
@@ -2218,20 +2220,20 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             jjmatchedKind = 0x7fffffff;
             jjmatchedPos = 0;
             curPos = jjMoveStringLiteralDfa00();
-            if (jjmatchedPos == 0 && jjmatchedKind > 79) {
+            if (jjmatchedPos==0 && jjmatchedKind > 79) {
                 jjmatchedKind = 79;
             }
-            if (jjmatchedKind != 0x7fffffff) {
+            if (jjmatchedKind!=0x7fffffff) {
                 if (jjmatchedPos + 1 < curPos)
                     inputStream.backup(curPos - jjmatchedPos - 1);
-                if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 63))) != 0L) {
+                if ((jjtoToken[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 63)))!=0L) {
                     matchedToken = jjFillToken();
                     matchedToken.specialToken = specialToken;
                     return matchedToken;
                 } else {
-                    if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 63))) != 0L) {
+                    if ((jjtoSpecial[jjmatchedKind >> 6] & (1L << (jjmatchedKind & 63)))!=0L) {
                         matchedToken = jjFillToken();
-                        if (specialToken == null)
+                        if (specialToken==null)
                             specialToken = matchedToken;
                         else {
                             matchedToken.specialToken = specialToken;
@@ -2250,8 +2252,8 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
                 inputStream.backup(1);
             } catch (java.io.IOException e1) {
                 eofseen = true;
-                errorAfter = curPos <= 1 ? "" : inputStream.getImage();
-                if (curChar == '\n' || curChar == '\r') {
+                errorAfter = curPos <= 1 ? "":inputStream.getImage();
+                if (curChar=='\n' || curChar=='\r') {
                     errorLine++;
                     errorColumn = 0;
                 } else
@@ -2259,14 +2261,14 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
             }
             if (!eofseen) {
                 inputStream.backup(1);
-                errorAfter = curPos <= 1 ? "" : inputStream.getImage();
+                errorAfter = curPos <= 1 ? "":inputStream.getImage();
             }
             throw new TokenMgrError(eofseen, curLexState, errorLine, errorColumn, errorAfter, curChar, TokenMgrError.LEXICAL_ERROR);
         }
     }
 
     private void jjCheckNAdd(int state) {
-        if (jjrounds[state] != jjround) {
+        if (jjrounds[state]!=jjround) {
             jjstateSet[jjnewStateCnt++] = state;
             jjrounds[state] = jjround;
         }
@@ -2275,7 +2277,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     private void jjAddStates(int start, int end) {
         do {
             jjstateSet[jjnewStateCnt++] = jjnextStates[start];
-        } while (start++ != end);
+        } while (start++!=end);
     }
 
     private void jjCheckNAddTwoStates(int state1, int state2) {
@@ -2286,7 +2288,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
     private void jjCheckNAddStates(int start, int end) {
         do {
             jjCheckNAdd(jjnextStates[start]);
-        } while (start++ != end);
+        } while (start++!=end);
     }
 
     /**
@@ -2337,7 +2339,7 @@ public class GssParserCCTokenManager extends GssParserCCConstants {
      * Switch to specified lex state.
      */
     public void switchTo(int lexState) {
-        if (lexState != 0)
+        if (lexState!=0)
             throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.", TokenMgrError.INVALID_LEXICAL_STATE);
         else
             curLexState = lexState;
