@@ -60,6 +60,6 @@ public interface SubstitutionMap {
      * <p>Subsequent com
      */
     interface Initializable extends SubstitutionMap {
-        void initializeWithMappings(Map<? extends String, ? extends String> initialMappings);
+        void initializeWithMappings(Map<String, String> initialMappings);
     }
 }
