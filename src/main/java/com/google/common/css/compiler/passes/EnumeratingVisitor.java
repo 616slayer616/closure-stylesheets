@@ -38,6 +38,7 @@ public class EnumeratingVisitor implements UniformVisitor {
 
     @Override
     public void leave(CssNode node) {
+        // nop
     }
 
     public static Map<CssNode, Integer> enumerate(CssTree t) {

@@ -27,17 +27,21 @@ public final class NullGssSourceMapGenerator implements GssSourceMapGenerator {
 
     @Override
     public void appendOutputTo(Appendable out, String name) {
+        // nop
     }
 
     @Override
     public void startSourceMapping(CssNode node, int startLine, int startCharIndex) {
+        // nop
     }
 
     @Override
     public void endSourceMapping(CssNode node, int endLine, int endCharIndex) {
+        // nop
     }
 
     @Override
     public void setSourceRoot(String path) {
+        // nop
     }
 }

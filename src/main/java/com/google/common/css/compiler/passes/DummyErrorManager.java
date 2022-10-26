@@ -35,14 +35,17 @@ public class DummyErrorManager implements ErrorManager {
 
     @Override
     public void report(GssError error) {
+        // nop
     }
 
     @Override
     public void reportWarning(GssError warning) {
+        // nop
     }
 
     @Override
     public void generateReport() {
+        // nop
     }
 
     @Override
