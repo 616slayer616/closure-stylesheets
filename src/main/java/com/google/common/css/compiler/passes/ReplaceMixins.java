@@ -172,7 +172,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
             visitController.stopVisit();
             return;
         }
-        if (mixinDecls.size()==0) {
+        if (mixinDecls.isEmpty()) {
             return;
         }
         // Add the mixin and the number of declarations to the stack
