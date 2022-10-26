@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.css.JobDescription;
 import com.google.common.css.PrefixingSubstitutionMap;
-import com.google.common.css.RecordingSubstitutionMap;
 import com.google.common.css.SubstitutionMap;
 import com.google.common.css.compiler.ast.CssCompilerPass;
 import com.google.common.css.compiler.ast.CssTree;

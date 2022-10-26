@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-// TODO(bolinfest): Move this to com.google.common.css.compiler.passes.
-package com.google.common.css;
+package com.google.common.css.compiler.passes;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.css.IdentitySubstitutionMap;
+import com.google.common.css.MultipleMappingSubstitutionMap;
 import com.google.common.css.MultipleMappingSubstitutionMap.ValueWithMappings;
+import com.google.common.css.OutputRenamingMapFormat;
+import com.google.common.css.SubstitutionMap;
 
 import java.util.Map;
 
