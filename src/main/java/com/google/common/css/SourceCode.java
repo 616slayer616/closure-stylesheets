@@ -19,6 +19,7 @@ package com.google.common.css;
 import com.google.common.base.Preconditions;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 
 /**
  * This is a wrapper for a file that will be compiled. It conveniently stores
@@ -27,7 +28,7 @@ import javax.annotation.Nullable;
  *
  * <p>Instances of this class are immutable.
  */
-public final class SourceCode {
+public final class SourceCode implements Serializable {
     private final String fileName;
     private final String fileContents;
 
