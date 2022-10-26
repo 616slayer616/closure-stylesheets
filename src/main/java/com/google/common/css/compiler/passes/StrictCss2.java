@@ -111,12 +111,16 @@ public class StrictCss2 extends StrictCssBase {
         switch (node.getFunctionType()) {
             case NONE:
                 return checkNonFunctionPseudoClass(node);
+            case LANG:
+                break;
             case NTH:
             case NOT:
                 reportUnsupported(node,
                         UNSUPPORTED_PESUDO_CLASS_OR_ELEMENT_ERROR_MESSAGE,
                         PSEUDO_CLASSES_OR_ELEMENT);
                 return false;
+            default:
+                throw new IllegalStateException("Unexpected value: " + node.getFunctionType());
         }
         return true;
     }

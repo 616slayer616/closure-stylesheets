@@ -146,8 +146,13 @@ public class StrictCss3 extends StrictCssBase {
         switch (node.getFunctionType()) {
             case NONE:
                 return checkNonFunctionPseudoClass(node);
+            case LANG:
+            case NOT:
+                break;
             case NTH:
                 return checkNthFunctionPseudoClass(node);
+            default:
+                throw new IllegalStateException("Unexpected value: " + node.getFunctionType());
         }
         return true;
     }
