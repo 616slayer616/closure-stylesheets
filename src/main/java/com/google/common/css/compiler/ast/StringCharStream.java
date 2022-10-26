@@ -46,7 +46,7 @@ public class StringCharStream implements CharStream {
     private int beginLine;
     private int beginColumn;
 
-    private final int tabSize = 1;
+    private static final int TAB_SIZE = 1;
     private boolean trackLineColumn;
 
     /**
@@ -120,16 +120,16 @@ public class StringCharStream implements CharStream {
      */
     @Override
     public char readChar() throws IOException {
-        if (charPos + 1 == length) {
+        if (charPos + 1==length) {
             throw END_OF_STREAM;
         }
 
-        if (lastChar == '\n') {
+        if (lastChar=='\n') {
             line++;
             column = 0;
         }
-        if (lastChar == '\t') {
-            column += (tabSize - (column % tabSize));
+        if (lastChar=='\t') {
+            column += (TAB_SIZE - (column % TAB_SIZE));
         } else {
             column++;
         }
@@ -179,7 +179,7 @@ public class StringCharStream implements CharStream {
             line--;
         }
         column = charPos - lineToCharIndex[line] + 1;
-        lastChar = charPos < 0 ? '\u0000' : input.charAt(charPos);
+        lastChar = charPos < 0 ? '\u0000':input.charAt(charPos);
     }
 
     /**
@@ -229,7 +229,7 @@ public class StringCharStream implements CharStream {
 
     @Override
     public int getTabSize() {
-        return tabSize;
+        return TAB_SIZE;
     }
 
     @Override

@@ -39,7 +39,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     protected final VisitController visitController;
     protected final CodeBuffer buffer;
 
-    private final String compactedPrintedString = null;
+    private static final String COMPACTED_PRINTED_STRING = null;
 
     public CompactPrintingVisitor(VisitController visitController, CodeBuffer buffer) {
         this.visitController = checkNotNull(visitController);
@@ -146,7 +146,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     @Override
     public boolean enterSelector(CssSelectorNode selector) {
         String name = selector.getSelectorName();
-        if (name != null) {
+        if (name!=null) {
             buffer.append(name);
         }
         return true;
@@ -173,10 +173,10 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     public boolean enterPseudoClass(CssPseudoClassNode node) {
         buffer.append(node.getPrefix());
         buffer.append(node.getRefinerName());
-        if (node.getFunctionType() == FunctionType.NTH) {
+        if (node.getFunctionType()==FunctionType.NTH) {
             buffer.append(node.getArgument().replace(" ", ""));
             buffer.append(')');
-        } else if (node.getFunctionType() == FunctionType.LANG) {
+        } else if (node.getFunctionType()==FunctionType.LANG) {
             buffer.append(node.getArgument());
             buffer.append(')');
         }
@@ -185,7 +185,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
 
     @Override
     public void leavePseudoClass(CssPseudoClassNode node) {
-        if (node.getFunctionType() == FunctionType.NOT) {
+        if (node.getFunctionType()==FunctionType.NOT) {
             buffer.deleteLastCharIfCharIs(',');
             buffer.append(')');
         }
@@ -217,7 +217,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
 
     @Override
     public boolean enterCombinator(CssCombinatorNode combinator) {
-        if (combinator != null) {
+        if (combinator!=null) {
             buffer.append(combinator.getCombinatorType().getCanonicalName());
         }
         return true;
@@ -351,9 +351,9 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
                 "Conditional block should not be "
                         + "present: "
                         + node.toString()
-                        + ((node.getSourceCodeLocation() != null)
+                        + ((node.getSourceCodeLocation()!=null)
                         ? "@" + node.getSourceCodeLocation().getLineNumber()
-                        : ""));
+                        :""));
         return true;
     }
 
@@ -408,7 +408,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
     @Override
     public boolean enterKey(CssKeyNode node) {
         String value = node.getKeyValue();
-        if (value != null) {
+        if (value!=null) {
             buffer.append(value);
         }
         return true;
@@ -428,7 +428,7 @@ public class CompactPrintingVisitor extends DefaultTreeVisitor {
      * Returns the CSS compacted printed output.
      */
     public String getCompactPrintedString() {
-        return compactedPrintedString;
+        return COMPACTED_PRINTED_STRING;
     }
 
     /**
