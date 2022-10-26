@@ -20,6 +20,8 @@ import com.google.common.css.compiler.ast.CssNumericNode;
 import com.google.common.css.compiler.ast.MutatingVisitController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -45,102 +47,29 @@ class EliminateUnitsFromZeroNumericValuesTest {
         pass.runPass();
     }
 
-    @Test
-    void testEnterValueNode1() {
+    @ParameterizedTest
+    @CsvSource({
+            "3, 3",
+            "0, 0",
+            "0.000, 0",
+            "3.0, 3",
+            "003.0, 3",
+            "0.3, .3",
+            "0.3000, .3",
+            "002.3000, 2.3",
+            "woo34, woo34"})
+    void testEnterValueNode1(String value, String expected) {
         EliminateUnitsFromZeroNumericValues pass =
                 new EliminateUnitsFromZeroNumericValues(mockVisitController);
 
-        CssNumericNode node = new CssNumericNode("3", "px");
+        CssNumericNode node = new CssNumericNode(value, "px");
         pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo("3");
-        assertThat(node.getUnit()).isEqualTo("px");
-    }
+        assertThat(node.getNumericPart()).isEqualTo(expected);
 
-    @Test
-    void testEnterValueNode2() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("0", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo("0");
-        assertThat(node.getUnit()).isEmpty();
-    }
-
-    @Test
-    void testEnterValueNode3() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("0.000", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo("0");
-        assertThat(node.getUnit()).isEmpty();
-    }
-
-    @Test
-    void testEnterValueNode4() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("3.0", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo("3");
-        assertThat(node.getUnit()).isEqualTo("px");
-    }
-
-    @Test
-    void testEnterValueNode5() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("003.0", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo("3");
-        assertThat(node.getUnit()).isEqualTo("px");
-    }
-
-    @Test
-    void testEnterValueNode6() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("0.3", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo(".3");
-        assertThat(node.getUnit()).isEqualTo("px");
-    }
-
-    @Test
-    void testEnterValueNode7() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("0.3000", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo(".3");
-        assertThat(node.getUnit()).isEqualTo("px");
-    }
-
-    @Test
-    void testEnterValueNode8() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("002.3000", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo("2.3");
-        assertThat(node.getUnit()).isEqualTo("px");
-    }
-
-    @Test
-    void testEnterValueNode9() {
-        EliminateUnitsFromZeroNumericValues pass =
-                new EliminateUnitsFromZeroNumericValues(mockVisitController);
-
-        CssNumericNode node = new CssNumericNode("woo34", "px");
-        pass.enterValueNode(node);
-        assertThat(node.getNumericPart()).isEqualTo("woo34");
-        assertThat(node.getUnit()).isEqualTo("px");
+        if (expected.equals("0")) {
+            assertThat(node.getUnit()).isEmpty();
+        } else {
+            assertThat(node.getUnit()).isEqualTo("px");
+        }
     }
 }
