@@ -20,7 +20,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.css.compiler.ast.*;
 
-import java.util.Stack;
+import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.regex.Pattern;
 
 /**
@@ -57,7 +58,7 @@ public class CreateForLoopNodes extends DefaultTreeVisitor implements CssCompile
 
     private final MutatingVisitController visitController;
     private final ErrorManager errorManager;
-    private final Stack<String> variables = new Stack<>();
+    private final Deque<String> variables = new ConcurrentLinkedDeque<>();
 
     private int uniqueLoopId = 0;
 
@@ -77,8 +78,8 @@ public class CreateForLoopNodes extends DefaultTreeVisitor implements CssCompile
             return false;
         }
 
-        if (node.getChildren().size() != ARGUMENT_COUNT_WITHOUT_STEP
-                && node.getChildren().size() != ARGUMENT_COUNT_WITH_STEP) {
+        if (node.getChildren().size()!=ARGUMENT_COUNT_WITHOUT_STEP
+                && node.getChildren().size()!=ARGUMENT_COUNT_WITH_STEP) {
             reportError(SYNTAX_ERROR, node);
             return false;
         }
@@ -105,7 +106,7 @@ public class CreateForLoopNodes extends DefaultTreeVisitor implements CssCompile
         CssValueNode from = node.getChildAt(FROM_VALUE_INDEX);
         CssValueNode to = node.getChildAt(TO_VALUE_INDEX);
         CssValueNode step = new CssNumericNode("1", CssNumericNode.NO_UNITS);
-        if (node.getChildren().size() == ARGUMENT_COUNT_WITH_STEP) {
+        if (node.getChildren().size()==ARGUMENT_COUNT_WITH_STEP) {
             if (!(node.getChildAt(STEP_KEYOWRD_INDEX) instanceof CssLiteralNode)
                     || !STEP_KEYWORD.equals(node.getChildAt(STEP_KEYOWRD_INDEX).getValue())
                     || !isValidValueNode(node.getChildAt(STEP_VALUE_INDEX))) {

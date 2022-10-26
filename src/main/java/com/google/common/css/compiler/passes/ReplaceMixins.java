@@ -24,10 +24,11 @@ import com.google.common.collect.Maps;
 import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
 
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Compiler pass that replaces mixins with the corresponding mixin definitions
@@ -66,7 +67,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
     /**
      * the current call stack of the mixins
      */
-    private final Stack<StackFrame> currentMixinStack;
+    private final Deque<StackFrame> currentMixinStack;
 
     public ReplaceMixins(MutatingVisitController visitController,
                          ErrorManager errorManager,
@@ -74,12 +75,12 @@ public class ReplaceMixins extends DefaultTreeVisitor
         this.visitController = visitController;
         this.errorManager = errorManager;
         this.definitions = definitions;
-        this.currentMixinStack = new Stack<>();
+        this.currentMixinStack = new ConcurrentLinkedDeque<>();
     }
 
     @Override
     public void leaveMixin(CssMixinNode node) {
-        if (!currentMixinStack.empty()) {
+        if (!currentMixinStack.isEmpty()) {
             currentMixinStack.peek().decreaseDeclarationCount();
         }
         // This pushes the mixin on the stack if the corresponding definition
@@ -87,7 +88,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
         replaceMixin(node);
         // Goes up the stack if this is the last declaration inserted by a mixin.
         // This is done for the case where no mixin is added to the stack.
-        while (!currentMixinStack.empty()
+        while (!currentMixinStack.isEmpty()
                 && currentMixinStack.peek().isDeclarationCountZero()) {
             currentMixinStack.pop();
         }
@@ -97,14 +98,14 @@ public class ReplaceMixins extends DefaultTreeVisitor
     public void leaveDeclaration(CssDeclarationNode node) {
         // Updates the stacks if the last declaration that was added by the last
         // mixin call is reached.
-        if (currentMixinStack.empty()) {
+        if (currentMixinStack.isEmpty()) {
             return;
         }
         // get the number of declarations left that were added by the last
         // mixin call
         currentMixinStack.peek().decreaseDeclarationCount();
         // go up the stack if this is the last declaration inserted by a mixin
-        while (!currentMixinStack.empty()
+        while (!currentMixinStack.isEmpty()
                 && currentMixinStack.peek().isDeclarationCountZero()) {
             currentMixinStack.pop();
         }
@@ -135,7 +136,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
         }
         List<CssValueNode> values = getValuesForReference(
                 (CssConstantReferenceNode) node, isArgument);
-        if (values == null) {
+        if (values==null) {
             return true;
         }
         visitController.replaceCurrentBlockChildWith(values, false);
@@ -151,7 +152,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
         }
         CssMixinDefinitionNode currentMixinDefinition
                 = definitions.get(mixin.getDefinitionName());
-        if (currentMixinDefinition == null) {
+        if (currentMixinDefinition==null) {
             errorManager.report(new GssError(
                     NO_MATCHING_MIXIN_DEFINITION_ERROR_MESSAGE,
                     mixin.getSourceCodeLocation()));
@@ -167,11 +168,11 @@ public class ReplaceMixins extends DefaultTreeVisitor
         // value.
         Map<String, List<CssValueNode>> refMap = createReferenceMapping(mixin,
                 currentMixinDefinition);
-        if (refMap == null) {
+        if (refMap==null) {
             visitController.stopVisit();
             return;
         }
-        if (mixinDecls.size() == 0) {
+        if (mixinDecls.size()==0) {
             return;
         }
         // Add the mixin and the number of declarations to the stack
@@ -336,7 +337,7 @@ public class ReplaceMixins extends DefaultTreeVisitor
         }
 
         boolean isDeclarationCountZero() {
-            return this.declarationCount == 0;
+            return this.declarationCount==0;
         }
 
         List<CssValueNode> getValuesForReference(String refName) {
