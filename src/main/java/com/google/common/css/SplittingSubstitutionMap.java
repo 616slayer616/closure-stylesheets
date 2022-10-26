@@ -39,7 +39,7 @@ public class SplittingSubstitutionMap implements
     }
 
     @Override
-    public void initializeWithMappings(Map<? extends String, ? extends String> newMappings) {
+    public void initializeWithMappings(Map<String, String> newMappings) {
         if (!newMappings.isEmpty()) {
             ((SubstitutionMap.Initializable) delegate).initializeWithMappings(newMappings);
         }
@@ -56,7 +56,7 @@ public class SplittingSubstitutionMap implements
         Preconditions.checkArgument(!key.isEmpty(), "CSS key cannot be empty");
 
         // Efficiently handle the common case with no dashes.
-        if (key.indexOf('-') == -1) {
+        if (key.indexOf('-')==-1) {
             String value = delegate.get(key);
             return ValueWithMappings.createForSingleMapping(key, value);
         }
@@ -66,7 +66,7 @@ public class SplittingSubstitutionMap implements
         // inserted more than once in this loop.
         Map<String, String> mappings = Maps.newLinkedHashMap();
         for (String part : DASH.split(key)) {
-            if (buffer.length() != 0) {
+            if (buffer.length()!=0) {
                 buffer.append('-');
             }
 

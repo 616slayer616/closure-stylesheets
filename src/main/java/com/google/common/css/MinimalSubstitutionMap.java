@@ -113,10 +113,10 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
      * Creates a new MinimalSubstitutionMap that generates CSS class names from
      * the specified set of characters.
      *
-     * @param startChars Possible values for the first character of a CSS class
-     *                   name.
-     * @param usableChars      Possible values for the characters other than the first
-     *                   character in a CSS class name.
+     * @param startChars  Possible values for the first character of a CSS class
+     *                    name.
+     * @param usableChars Possible values for the characters other than the first
+     *                    character in a CSS class name.
      */
     @VisibleForTesting
     MinimalSubstitutionMap(char[] startChars, char[] usableChars) {
@@ -129,7 +129,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
      *
      * @param startChars           Possible values for the first character of a CSS class
      *                             name.
-     * @param usableChars                Possible values for the characters other than the first
+     * @param usableChars          Possible values for the characters other than the first
      *                             character in a CSS class name.
      * @param outputValueBlacklist A set of CSS class names that may not be
      *                             returned as the output from a substitution lookup.
@@ -154,7 +154,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
     @Override
     public String get(String key) {
         String value = renamedCssClasses.get(key);
-        if (value == null) {
+        if (value==null) {
             do {
                 value = toShortString(lastIndex++);
             } while (this.outputValueBlacklist.contains(value));
@@ -165,7 +165,7 @@ public class MinimalSubstitutionMap implements SubstitutionMap.Initializable {
     }
 
     @Override
-    public void initializeWithMappings(Map<? extends String, ? extends String> m) {
+    public void initializeWithMappings(Map<String, String> m) {
         Preconditions.checkState(renamedCssClasses.isEmpty());
         this.outputValueBlacklist =
                 ImmutableSet.<String>builder().addAll(outputValueBlacklist).addAll(m.values()).build();

@@ -84,7 +84,7 @@ public class RecordingSubstitutionMap implements SubstitutionMap.Initializable {
     }
 
     @Override
-    public void initializeWithMappings(Map<? extends String, ? extends String> newMappings) {
+    public void initializeWithMappings(Map<String, String> newMappings) {
         Preconditions.checkState(mappings.isEmpty());
         if (!newMappings.isEmpty()) {
             mappings.putAll(newMappings);
