@@ -33,7 +33,7 @@ public class PrefixingSubstitutionMap
     }
 
     @Override
-    public void initializeWithMappings(Map<? extends String, ? extends String> newMappings) {
+    public void initializeWithMappings(Map<String, String> newMappings) {
         if (!newMappings.isEmpty()) {
             // We don't need to remove prefixes from mapping values because the mappings
             // returned by getValueWithMappings are not prefixed.
