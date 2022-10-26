@@ -1,9 +1,6 @@
 package com.google.common.css.compiler.ast;
 
-public abstract class EscapeUtil {
-
-    private EscapeUtil() {
-    }
+public interface EscapeUtil {
 
     /**
      * Replaces unprintable characters by their escaped (or unicode escaped)
