@@ -18,6 +18,8 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.css.compiler.ast.testing.NewFunctionalTestBase;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -186,60 +188,28 @@ class ProcessRefinersTest extends NewFunctionalTestBase {
         assertThat(compactPrintedResult).isEqualTo("div :nth-child(-1n+5){}");
     }
 
-    @Test
-    void testNthBad1() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "div :nth-child(1.1) {}",
+            "div :nth-child(n+2.3) {}",
+            "div :nth-child(m+7) {}",
+            "div :nth-child(oddy) {}",
+            "div :nth-child(_even) {}",
+    })
+    void testNthBad(String value) throws Exception {
         simplifyCss = false;
-        parseAndRun("div :nth-child(1.1) {}",
-                ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
+        parseAndRun(value, ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
     }
 
-    @Test
-    void testNthBad2() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "div :not(:not(*)) {}",
+            "div :not(::first-line) {}",
+            "div :not(.A.B) {}",
+    })
+    void testNotBad(String value) throws Exception {
         simplifyCss = false;
-        parseAndRun("div :nth-child(n+2.3) {}",
-                ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
-    }
-
-    @Test
-    void testNthBad3() throws Exception {
-        simplifyCss = false;
-        parseAndRun("div :nth-child(m+7) {}",
-                ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
-    }
-
-    @Test
-    void testNthBad4() throws Exception {
-        simplifyCss = false;
-        parseAndRun("div :nth-child(oddy) {}",
-                ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
-    }
-
-    @Test
-    void testNthBad5() throws Exception {
-        simplifyCss = false;
-        parseAndRun("div :nth-child(_even) {}",
-                ProcessRefiners.INVALID_NTH_ERROR_MESSAGE);
-    }
-
-    @Test
-    void testNotBad1() throws Exception {
-        simplifyCss = false;
-        parseAndRun("div :not(:not(*)) {}",
-                ProcessRefiners.INVALID_NOT_SELECTOR_ERROR_MESSAGE);
-    }
-
-    @Test
-    void testNotBad2() throws Exception {
-        simplifyCss = false;
-        parseAndRun("div :not(::first-line) {}",
-                ProcessRefiners.INVALID_NOT_SELECTOR_ERROR_MESSAGE);
-    }
-
-    @Test
-    void testNotBad3() throws Exception {
-        simplifyCss = false;
-        parseAndRun("div :not(.A.B) {}",
-                ProcessRefiners.INVALID_NOT_SELECTOR_ERROR_MESSAGE);
+        parseAndRun(value, ProcessRefiners.INVALID_NOT_SELECTOR_ERROR_MESSAGE);
     }
 
     @Test

@@ -20,6 +20,8 @@ import com.google.common.css.compiler.ast.CssDefinitionNode;
 import com.google.common.css.compiler.ast.CssValueNode;
 import com.google.common.css.compiler.ast.FunctionalTestBase;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,10 +32,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MarkDefaultDefinitionsTest extends FunctionalTestBase {
 
-    @Test
-    void testMarkDefaultDefinitions1() {
-        parseAndBuildTree(
-                "/* @default */ @def COLOR red;");
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/* @default */ @def COLOR red;",
+            "/* @default */ @def PADDING 2px 3px 5px 1px;",
+            "@def PADDING /* @default */ 2px 3px 5px 1px;"
+    })
+    void testMarkDefaultDefinitions(String value) {
+        parseAndBuildTree(value);
         runPass();
 
         CssDefinitionNode definition =
@@ -46,37 +52,7 @@ class MarkDefaultDefinitionsTest extends FunctionalTestBase {
     }
 
     @Test
-    void testMarkDefaultDefinitions2() {
-        parseAndBuildTree(
-                "/* @default */ @def PADDING 2px 3px 5px 1px;");
-        runPass();
-
-        CssDefinitionNode definition =
-                (CssDefinitionNode) tree.getRoot().getBody().getChildren().get(0);
-
-        // Check each of the value nodes in the definitions.
-        for (CssValueNode node : definition.getParameters()) {
-            assertThat(node.getIsDefault()).isTrue();
-        }
-    }
-
-    @Test
-    void testMarkDefaultDefinition3() {
-        parseAndBuildTree(
-                "@def PADDING /* @default */ 2px 3px 5px 1px;");
-        runPass();
-
-        CssDefinitionNode definition =
-                (CssDefinitionNode) tree.getRoot().getBody().getChildren().get(0);
-
-        // Check each of the value nodes in the definitions.
-        for (CssValueNode node : definition.getParameters()) {
-            assertThat(node.getIsDefault()).isTrue();
-        }
-    }
-
-    @Test
-    void testMarkDefaultDefinitions4() {
+    void testMarkDefaultDefinitions() {
         parseAndBuildTree(
                 "@def PADDING 2px 3px 5px 1px;");
         runPass();
