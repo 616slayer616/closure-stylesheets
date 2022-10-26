@@ -27,7 +27,7 @@ import java.io.StringWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public final class RecordingSubstitutionMapTest {
+final class RecordingSubstitutionMapTest {
 
     private static final ImmutableSet<String> OUTPUT_BLACKLIST = ImmutableSet.of("c", "e", "i");
 
@@ -40,7 +40,7 @@ public final class RecordingSubstitutionMapTest {
     }
 
     @Test
-    public void testReadAndWrite() throws IOException {
+    void testReadAndWrite() throws IOException {
         for (OutputRenamingMapFormat format : OutputRenamingMapFormat.values()) {
             RecordingSubstitutionMap recording =
                     new RecordingSubstitutionMap.Builder().withSubstitutionMap(createDelegate()).build();
