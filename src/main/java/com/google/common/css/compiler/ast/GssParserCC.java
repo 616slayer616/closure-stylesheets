@@ -1866,12 +1866,12 @@ public class GssParserCC extends GssParserCCConstants {
         CssBooleanExpressionNode newNode;
         CssBooleanExpressionNode left;
         CssBooleanExpressionNode right;
-        String value = "";
+        StringBuilder value = new StringBuilder();
         Token t;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
         left = booleanAndTerm();
-        value += left.toString();
+        value.append(left.toString());
         while (true) {
             if (((jjNtk==-1) ? jjNtkF():jjNtk)!=OR) {
                 jjLa1[74] = jjGen;
@@ -1887,10 +1887,10 @@ public class GssParserCC extends GssParserCCConstants {
                 jjConsumeToken(S);
             }
             right = booleanAndTerm();
-            value += right.toString();
+            value.append(right.toString());
             endLocation = this.getLocation();
             newNode = nodeBuilder.buildBoolExpressionNode(
-                    CssBooleanExpressionNode.Type.OR, value, left, right,
+                    CssBooleanExpressionNode.Type.OR, value.toString(), left, right,
                     this.mergeLocations(beginLocation, endLocation), tokens);
             left = newNode;
         }
@@ -1905,7 +1905,7 @@ public class GssParserCC extends GssParserCCConstants {
         CssBooleanExpressionNode newNode;
         CssBooleanExpressionNode left;
         CssBooleanExpressionNode right;
-        String value = "";
+        StringBuilder value = new StringBuilder();
         Token t;
         List<Token> tokens = Lists.newArrayList();
         beginLocation = this.getLocation(token.next);
@@ -1920,7 +1920,7 @@ public class GssParserCC extends GssParserCCConstants {
                 throw new ParseException();
             }
         }
-        value += left.toString();
+        value.append(left);
         while (true) {
             if (((jjNtk==-1) ? jjNtkF():jjNtk)!=AND) {
                 jjLa1[77] = jjGen;
@@ -1946,10 +1946,10 @@ public class GssParserCC extends GssParserCCConstants {
                     throw new ParseException();
                 }
             }
-            value += right.toString();
+            value.append(right);
             endLocation = this.getLocation();
             newNode = nodeBuilder.buildBoolExpressionNode(
-                    CssBooleanExpressionNode.Type.AND, value, left, right,
+                    CssBooleanExpressionNode.Type.AND, value.toString(), left, right,
                     this.mergeLocations(beginLocation, endLocation), tokens);
             left = newNode;
         }
