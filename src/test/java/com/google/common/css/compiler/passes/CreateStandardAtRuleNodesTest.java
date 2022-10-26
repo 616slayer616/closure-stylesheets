@@ -20,6 +20,8 @@ import com.google.common.base.Predicates;
 import com.google.common.css.compiler.ast.*;
 import com.google.common.css.compiler.passes.testing.PassesTestBase;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.StreamSupport;
 
@@ -171,41 +173,18 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
         assertThat(isEmptyBody()).isTrue();
     }
 
-    @Test
-    void testMediaInvalidParameterError1() throws Exception {
-        parseAndRun("@media screen print {}",
-                CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
-        assertThat(isEmptyBody()).isTrue();
-    }
-
-    @Test
-    void testMediaInvalidParameterError2() throws Exception {
-        parseAndRun("@media screen a_d print {}",
-                CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
-        assertThat(isEmptyBody()).isTrue();
-    }
-
-    @Test
-    void testMediaInvalidParameterError3() throws Exception {
-        parseAndRun("@media screen, print a_d x {}",
-                CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
-        assertThat(isEmptyBody()).isTrue();
-    }
-
-    @Test
-    void testMediaInvalidParameterError4() throws Exception {
-        parseAndRun("@media not screen, print a_d x {}",
-                CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
-        assertThat(isEmptyBody()).isTrue();
-    }
-
-    @Test
-    void testMediaInvalidParameterError5() throws Exception {
-        parseAndRun("@media screen and (device-width:800px),"
-                        + "tv and (scan:progressive),"
-                        + "handheld and grid and (max-width:15em),"
-                        + "X Y"
-                        + "{ e.f { a:b } } ",
+    @ParameterizedTest
+    @ValueSource(strings = {"@media screen print {}",
+            "@media screen a_d print {}",
+            "@media screen, print a_d x {}",
+            "@media not screen, print a_d x {}",
+            "@media screen and (device-width:800px),"
+                    + "tv and (scan:progressive),"
+                    + "handheld and grid and (max-width:15em),"
+                    + "X Y"
+                    + "{ e.f { a:b } } "})
+    void testMediaInvalidParameterError(String input) throws Exception {
+        parseAndRun(input,
                 CreateStandardAtRuleNodes.INVALID_PARAMETERS_ERROR_MESSAGE);
         assertThat(isEmptyBody()).isTrue();
     }
