@@ -20,7 +20,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.css.IdentitySubstitutionMap;
-import com.google.common.css.RecordingSubstitutionMap;
+import com.google.common.css.compiler.passes.RecordingSubstitutionMap;
 import com.google.common.css.SubstitutionMap;
 import com.google.common.css.SubstitutionMapProvider;
 import org.junit.jupiter.api.Test;
