@@ -195,7 +195,7 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
         assertThat(getFirstActualNode()).isInstanceOf(CssPageRuleNode.class);
         CssPageRuleNode pageRule = (CssPageRuleNode) getFirstActualNode();
         assertThat(pageRule.getName().getValue()).isEqualTo("page");
-        assertThat(pageRule.getParametersCount()).isEqualTo(0);
+        assertThat(pageRule.getParametersCount()).isZero();
     }
 
     @Test
@@ -241,7 +241,7 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
         CssPageRuleNode pageRule =
                 (CssPageRuleNode) mediaRule.getBlock().getChildAt(0);
         assertThat(pageRule.getName().getValue()).isEqualTo("page");
-        assertThat(pageRule.getParametersCount()).isEqualTo(0);
+        assertThat(pageRule.getParametersCount()).isZero();
     }
 
     @Test
@@ -345,7 +345,7 @@ class CreateStandardAtRuleNodesTest extends PassesTestBase {
         assertThat(getFirstActualNode()).isInstanceOf(CssFontFaceNode.class);
         CssFontFaceNode fontFace = (CssFontFaceNode) getFirstActualNode();
         assertThat(fontFace.getName().getValue()).isEqualTo("font-face");
-        assertThat(fontFace.getParametersCount()).isEqualTo(0);
+        assertThat(fontFace.getParametersCount()).isZero();
     }
 
     @Test

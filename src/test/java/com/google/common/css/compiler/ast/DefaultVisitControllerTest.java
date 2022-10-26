@@ -338,7 +338,7 @@ class DefaultVisitControllerTest {
         state.transitionToNextState();
         assertThat(visitController.getStateStack().size()).isEqualTo(2);
         assertThat(visitController.getStateStack().getTop()).isInstanceOf(VisitDefinitionState.class);
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
 
         visitController.getStateStack().getTop().transitionToNextState();
         assertThat(visitController.getStateStack().size()).isEqualTo(3);
@@ -372,13 +372,13 @@ class DefaultVisitControllerTest {
         state.transitionToNextState();
         assertThat(visitController.getStateStack().size()).isEqualTo(2);
         assertThat(visitController.getStateStack().getTop()).isInstanceOf(VisitDefinitionState.class);
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
 
         state.removeCurrentChild();
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
 
         state.removeCurrentChild();
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
 
         visitController.getStateStack().getTop().transitionToNextState();
         assertThat(visitController.getStateStack().size()).isEqualTo(3);
@@ -387,7 +387,7 @@ class DefaultVisitControllerTest {
         state.transitionToNextState();
         state.transitionToNextState();
         assertThat(visitController.getStateStack().isEmpty()).isTrue();
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
     }
 
     @Test
@@ -413,17 +413,17 @@ class DefaultVisitControllerTest {
         state.transitionToNextState();
         assertThat(visitController.getStateStack().size()).isEqualTo(2);
         assertThat(visitController.getStateStack().getTop()).isInstanceOf(VisitDefinitionState.class);
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
 
         state.replaceCurrentBlockChildWith(
                 Lists.newArrayList(
                         new CssDefinitionNode(new CssLiteralNode("")),
                         new CssDefinitionNode(new CssLiteralNode(""))),
                 true);
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
 
         state.removeCurrentChild();
-        assertThat(state.currentIndex).isEqualTo(0);
+        assertThat(state.currentIndex).isZero();
 
         visitController.getStateStack().getTop().transitionToNextState();
         assertThat(visitController.getStateStack().size()).isEqualTo(3);
@@ -583,7 +583,7 @@ class DefaultVisitControllerTest {
         inOrder.verify(testVisitor).leaveDefinition(def);
         inOrder.verifyNoMoreInteractions();
 
-        assertThat(argCaptor.getValue().toString()).isEqualTo(argument.toString());
+        assertThat(argCaptor.getValue()).hasToString(argument.toString());
     }
 
     @Test
@@ -826,7 +826,7 @@ class DefaultVisitControllerTest {
                     }
                 });
 
-        assertThat(composite.toString()).isEqualTo("foo,baz,quux");
+        assertThat(composite).hasToString("foo,baz,quux");
 
         CssValueNode fooValue = composite.getValues().get(0);
         assertThat(fooValue.getParent()).isSameAs(composite);

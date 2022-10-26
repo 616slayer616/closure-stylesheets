@@ -88,8 +88,8 @@ class SplitRulesetNodesTest {
                 tree.getMutatingVisitController());
 
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo("[[foo]{[padding:[]]}, [foo]{[color:[]]}]");
+        assertThat(tree.getRoot().getBody())
+                .hasToString("[[foo]{[padding:[]]}, [foo]{[color:[]]}]");
 
         assertThat(getFirstSelectorByRuleIndex(tree, 0))
                 .isNotEqualTo(getFirstSelectorByRuleIndex(tree, 1));

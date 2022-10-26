@@ -45,9 +45,9 @@ class EvaluateCompileConstantsTest extends PassesTestBase {
         parseAndRun("@for $i from FOO to BAR step BAZ {}");
         assertThat(getFirstActualNode()).isInstanceOf(CssForLoopRuleNode.class);
         CssForLoopRuleNode loop = (CssForLoopRuleNode) getFirstActualNode();
-        assertThat(loop.getFrom().toString()).isEqualTo("2");
-        assertThat(loop.getTo().toString()).isEqualTo("7");
-        assertThat(loop.getStep().toString()).isEqualTo("3");
+        assertThat(loop.getFrom()).hasToString("2");
+        assertThat(loop.getTo()).hasToString("7");
+        assertThat(loop.getStep()).hasToString("3");
     }
 
     @Test
@@ -56,7 +56,7 @@ class EvaluateCompileConstantsTest extends PassesTestBase {
         assertThat(getFirstActualNode()).isInstanceOf(CssDefinitionNode.class);
         CssDefinitionNode definition = (CssDefinitionNode) getFirstActualNode();
         assertThat(definition.getChildren()).asList().hasSize(1);
-        assertThat(definition.getChildAt(0).toString()).isEqualTo("2");
+        assertThat(definition.getChildAt(0)).hasToString("2");
     }
 
     @Test
@@ -65,6 +65,6 @@ class EvaluateCompileConstantsTest extends PassesTestBase {
         assertThat(getFirstActualNode()).isInstanceOf(CssDefinitionNode.class);
         CssDefinitionNode definition = (CssDefinitionNode) getFirstActualNode();
         assertThat(definition.getChildren()).asList().hasSize(1);
-        assertThat(definition.getChildAt(0).toString()).isEqualTo("f(7)");
+        assertThat(definition.getChildAt(0)).hasToString("f(7)");
     }
 }

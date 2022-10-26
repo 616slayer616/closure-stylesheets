@@ -75,16 +75,16 @@ class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
                 "  padding: 5px;",
                 "}"))).parse();
 
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[@-moz-document[url-prefix()]{[[foo]{[padding:[6px]]}, [bar]{[padding:[6px]]}]}, "
                                 + "[foo]{[padding:[5px]]}, [bar]{[padding:[5px]]}]");
 
         MergeAdjacentRulesetNodesWithSameDeclarations pass =
                 new MergeAdjacentRulesetNodesWithSameDeclarations(tree);
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[@-moz-document[url-prefix()]{[[foo, bar]{[padding:[6px]]}, [bar]{[padding:[6px]]}]}, "
                                 + "[foo, bar]{[padding:[5px]]}, [bar]{[padding:[5px]]}]");
     }
@@ -133,16 +133,16 @@ class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
 
         CssRootNode root = new CssRootNode(body);
         CssTree tree = new CssTree(null, root);
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[[foo]{[padding:[5px], display:[5px]]}, " + "[bar]{[padding:[5px], display:[5px]]}]");
 
         MergeAdjacentRulesetNodesWithSameDeclarations pass =
                 new MergeAdjacentRulesetNodesWithSameDeclarations(tree, true);
         pass.runPass();
         // skip merging rules with display -> we expect output == input
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[[foo]{[padding:[5px], display:[5px]]}, " + "[bar]{[padding:[5px], display:[5px]]}]");
     }
 
@@ -168,8 +168,8 @@ class MergeAdjacentRulesetNodesWithSameDeclarationsTest {
         MergeAdjacentRulesetNodesWithSameDeclarations pass =
                 new MergeAdjacentRulesetNodesWithSameDeclarations(tree);
         pass.runPass();
-        assertThat(tree.getRoot().getBody().toString())
-                .isEqualTo(
+        assertThat(tree.getRoot().getBody())
+                .hasToString(
                         "[[foo, .bar]{[padding:[5px]]}, [.bar]{[padding:[5px]]}, "
                                 + "[baz::-ms-clear]{[padding:[5px]]}, "
                                 + "[.bez, biz]{[padding:[5px]]}, [biz]{[padding:[5px]]}]");

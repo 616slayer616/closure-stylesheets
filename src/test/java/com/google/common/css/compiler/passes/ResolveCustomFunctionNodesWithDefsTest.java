@@ -76,7 +76,7 @@ class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
     void testMultipleArgs() throws Exception {
         parseAndRun("@def BAR 3px left top;" +
                 "A { foo: testMultipleArg(first, 30px, BAR) }");
-        assertThat(getFirstPropertyValue().toString()).isEqualTo("[(first) (30px) (3px left top)]");
+        assertThat(getFirstPropertyValue()).hasToString("[(first) (30px) (3px left top)]");
     }
 
     /**
@@ -92,7 +92,7 @@ class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
         public List<CssValueNode> getCallResultNodes(
                 List<CssValueNode> args, ErrorManager errorManager) {
 
-            Preconditions.checkState(args.size() == 3,
+            Preconditions.checkState(args.size()==3,
                     "Exactly 3 args expected: firstString, secondNumeric, thirdString");
 
             List<String> argsStr = ImmutableList.of(
@@ -107,7 +107,7 @@ class ResolveCustomFunctionNodesWithDefsTest extends NewFunctionalTestBase {
 
         @Override
         public String getCallResultString(List<String> args) {
-            Preconditions.checkState(args.size() == 3,
+            Preconditions.checkState(args.size()==3,
                     "Exactly 3 args expected: startColor, endColor, defaultBg");
             return "(" + args.get(0) + ") (" + args.get(1) +
                     ") (" + args.get(2) + ")";
