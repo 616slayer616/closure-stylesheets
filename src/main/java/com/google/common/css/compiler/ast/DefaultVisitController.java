@@ -2051,7 +2051,6 @@ class DefaultVisitController implements MutatingVisitController {
                 stateStack.getTop().transitionToNextState();
             } catch (StopVisitRequestedException e) {
                 // We stop visiting.
-                // assert stopVisitCalled;
                 break;
             }
         }
