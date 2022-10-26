@@ -534,32 +534,9 @@ public class GssParserCC extends GssParserCCConstants {
     }
 
     public final CssRulesetNode ruleSet() throws ParseException {
-        CssSelectorListNode selectors;
-        CssDeclarationBlockNode declarations;
-        Token t;
         List<Token> tokens = Lists.newArrayList();
         try {
-            try {
-                selectors = selectorList();
-                t = jjConsumeToken(LEFTBRACE);
-                tokens.add(t);
-            } catch (ParseException e) {
-                if (!enableErrorRecovery || e.currentToken==null) {
-                    throw e;
-                }
-                skipComponentValuesToAfter(LEFTBRACE);
-                {
-                    throw e;
-                }
-            }
-            declarations = styleDeclaration();
-            t = jjConsumeToken(RIGHTBRACE);
-            tokens.add(t);
-            CssRulesetNode ruleSet = nodeBuilder.buildRulesetNode(declarations,
-                    selectors, mergeLocations(selectors.getSourceCodeLocation(), getLocation()), tokens);
-            {
-                return ruleSet;
-            }
+            return getCssRulesetNode(tokens);
         } catch (ParseException e) {
             if (!enableErrorRecovery || e.currentToken==null) {
                 throw e;
@@ -568,6 +545,33 @@ public class GssParserCC extends GssParserCCConstants {
             {
                 throw e;
             }
+        }
+    }
+
+    private CssRulesetNode getCssRulesetNode(List<Token> tokens) throws ParseException {
+        CssSelectorListNode selectors;
+        CssDeclarationBlockNode declarations;
+        Token t;
+        try {
+            selectors = selectorList();
+            t = jjConsumeToken(LEFTBRACE);
+            tokens.add(t);
+        } catch (ParseException e) {
+            if (!enableErrorRecovery || e.currentToken==null) {
+                throw e;
+            }
+            skipComponentValuesToAfter(LEFTBRACE);
+            {
+                throw e;
+            }
+        }
+        declarations = styleDeclaration();
+        t = jjConsumeToken(RIGHTBRACE);
+        tokens.add(t);
+        CssRulesetNode ruleSet = nodeBuilder.buildRulesetNode(declarations,
+                selectors, mergeLocations(selectors.getSourceCodeLocation(), getLocation()), tokens);
+        {
+            return ruleSet;
         }
     }
 
