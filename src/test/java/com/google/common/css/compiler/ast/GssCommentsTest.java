@@ -89,7 +89,7 @@ class GssCommentsTest extends NewFunctionalTestBase {
         assertThat(getFirstActualNode()).isInstanceOf(CssUnknownAtRuleNode.class);
         CssUnknownAtRuleNode def = (CssUnknownAtRuleNode) getFirstActualNode();
         int defComments = def.getComments().size();
-        assertThat(defComments).isEqualTo(0);
+        assertThat(defComments).isZero();
         CssValueNode valueNode = def.getParameters().get(0);
         assertThat(valueNode).isInstanceOf(CssFunctionNode.class);
         CssFunctionNode functionNode = (CssFunctionNode) valueNode;

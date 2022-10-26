@@ -72,7 +72,7 @@ class ResolveCustomFunctionNodesTest extends NewFunctionalTestBase {
     void testUnknownFunctionAllowed() throws Exception {
         allowUnknownFunctions = true;
         parseAndRun("A { width: f(a,b) }");
-        assertThat(getFirstPropertyValue().toString()).isEqualTo("[f(a,b)]");
+        assertThat(getFirstPropertyValue()).hasToString("[f(a,b)]");
     }
 
     @Test
@@ -90,30 +90,30 @@ class ResolveCustomFunctionNodesTest extends NewFunctionalTestBase {
     @Test
     void testPlus() throws Exception {
         parseAndRun("A { width: plus(2px, 3px) }");
-        assertThat(getFirstPropertyValue().toString()).isEqualTo("[5px]");
+        assertThat(getFirstPropertyValue()).hasToString("[5px]");
     }
 
     @Test
     void testMinus() throws Exception {
         parseAndRun("A { width: minus(2em, 5.5em) }");
-        assertThat(getFirstPropertyValue().toString()).isEqualTo("[-3.5em]");
+        assertThat(getFirstPropertyValue()).hasToString("[-3.5em]");
     }
 
     @Test
     void testMax() throws Exception {
         parseAndRun("A { width: maximum(-2%, -5%) }");
-        assertThat(getFirstPropertyValue().toString()).isEqualTo("[-2%]");
+        assertThat(getFirstPropertyValue()).hasToString("[-2%]");
     }
 
     @Test
     void testMultiply() throws Exception {
         parseAndRun("A { width: mult(-2, -5) }");
-        assertThat(getFirstPropertyValue().toString()).isEqualTo("[10]");
+        assertThat(getFirstPropertyValue()).hasToString("[10]");
     }
 
     @Test
     void testFunctionWithinFunction() throws Exception {
         parseAndRun("A { width: maximum(10px, maximum(2px, 30px)) }");
-        assertThat(getFirstPropertyValue().toString()).isEqualTo("[30px]");
+        assertThat(getFirstPropertyValue()).hasToString("[30px]");
     }
 }
