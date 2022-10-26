@@ -18,6 +18,7 @@ package com.google.common.css.compiler.passes;
 
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Sets;
+import com.google.common.css.SourceCodeLocation;
 import com.google.common.css.compiler.ast.*;
 
 import java.util.List;
@@ -134,18 +135,8 @@ public final class CheckMissingRequire extends DefaultTreeVisitor implements Css
         for (CssRefinerNode refiner : node.getRefiners().getChildren()) {
             for (CssCommentNode comment : refiner.getComments()) {
                 Matcher matcher = OVERRIDE_SELECTOR_REGEX.matcher(comment.getValue());
-                if (matcher.find()) {
-                    String overrideNamespace = matcher.group(1);
-                    List<String> requires = filenameRequireMap.get(filename);
-                    Set<String> requireNamespaceSet = Sets.newHashSet(requires);
-                    if (!requireNamespaceSet.contains(overrideNamespace)) {
-                        String error = "Missing @require for @overrideSelector {" +
-                                overrideNamespace + "}. Please @require this namespace in file: " +
-                                filename + ".\n";
-                        errorManager.report(new GssError(error, node.getSourceCodeLocation()));
-                        return true;
-                    }
-                }
+                if (match(matcher, filename, "overrideSelector", node.getSourceCodeLocation()))
+                    return true;
             }
         }
         return true;
@@ -159,20 +150,26 @@ public final class CheckMissingRequire extends DefaultTreeVisitor implements Css
         String filename = node.getSourceCodeLocation().getSourceCode().getFileName();
         for (CssCommentNode comment : node.getComments()) {
             Matcher matcher = OVERRIDE_DEF_REGEX.matcher(comment.getValue());
-            if (matcher.find()) {
-                String overrideNamespace = matcher.group(1);
-                List<String> requires = filenameRequireMap.get(filename);
-                Set<String> requireNamespaceSet = Sets.newHashSet(requires);
-                if (!requireNamespaceSet.contains(overrideNamespace)) {
-                    String error = "Missing @require for @overrideDef {"
-                            + overrideNamespace + "}. Please @require this namespace in file: "
-                            + filename + ".\n";
-                    errorManager.report(new GssError(error, node.getSourceCodeLocation()));
-                    return true;
-                }
-            }
+            if (match(matcher, filename, "overrideDef", node.getSourceCodeLocation()))
+                return true;
         }
         return true;
+    }
+
+    private boolean match(Matcher matcher, String filename, String override, SourceCodeLocation node) {
+        if (matcher.find()) {
+            String overrideNamespace = matcher.group(1);
+            List<String> requires = filenameRequireMap.get(filename);
+            Set<String> requireNamespaceSet = Sets.newHashSet(requires);
+            if (!requireNamespaceSet.contains(overrideNamespace)) {
+                String error = "Missing @require for @" + override + " {"
+                        + overrideNamespace + "}. Please @require this namespace in file: "
+                        + filename + ".\n";
+                errorManager.report(new GssError(error, node));
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
