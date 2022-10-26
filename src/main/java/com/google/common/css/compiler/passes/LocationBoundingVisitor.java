@@ -60,10 +60,10 @@ public class LocationBoundingVisitor implements UniformVisitor {
     @Override
     public void enter(CssNode n) {
         SourceCodeLocation loc = n.getSourceCodeLocation();
-        if (loc == null || loc.isUnknown()) {
+        if (loc==null || loc.isUnknown()) {
             return;
         }
-        if (result == null || result.isUnknown()) {
+        if (result==null || result.isUnknown()) {
             result = loc;
         } else {
             Ordering<SourceCodePoint> o = Ordering.natural();
@@ -79,16 +79,17 @@ public class LocationBoundingVisitor implements UniformVisitor {
 
     @Override
     public void leave(CssNode node) {
+        // nop
     }
 
     public static SourceCodeLocation bound(CssNode n) {
         SourceCodeLocation location = n.getSourceCodeLocation();
-        if (location != null && !location.isUnknown()) {
+        if (location!=null && !location.isUnknown()) {
             return location;
         }
         LocationBoundingVisitor v = new LocationBoundingVisitor();
         n.getVisitController().startVisit(UniformVisitor.Adapters.asVisitor(v));
-        if (v.result == null) {
+        if (v.result==null) {
             return SourceCodeLocation.getUnknownLocation();
         }
         return v.result;
