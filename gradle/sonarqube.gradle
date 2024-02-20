@@ -3,11 +3,11 @@ ext {
     duplicateExclusions = '**/com/google/common/css/compiler/ast/GssParserCC**'
 }
 
-sonarqube {
+sonar {
     properties {
         property 'sonar.host.url', "https://sonarcloud.io"
         property 'sonar.projectName', sonarProjectName
-        property 'sonar.projectKey', "616slayer616_closure-stylesheets"
+        property 'sonar.projectKey', "closure-stylesheets"
         property 'sonar.organization', "616slayer616-github"
         property 'sonar.cpd.exclusions', duplicateExclusions
         property 'sonar.issue.ignore.multicriteria', 'j1,j2,j3,j4'
