@@ -9,7 +9,7 @@ plugins {
 apply from: 'gradle/sonarqube.gradle'
 
 group = 'org.padler'
-version = '1.7.0'
+version = '1.8.0'
 description = 'Closure Stylesheets'
 java.sourceCompatibility = JavaVersion.VERSION_17
 
